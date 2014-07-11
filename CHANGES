@@ -1,4 +1,5 @@
 3.22
+ - Add some metadata to Makefile.PL.
  - Fix the LNGAMMA_BUG workaround in mpfr.c, and change test 69 in t/test1.t to
    test for correct behaviour of mpfr_lngamma().
  - Add Rmpfr_set_NV - and use it in new().
