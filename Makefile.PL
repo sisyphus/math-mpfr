@@ -85,6 +85,16 @@ my %options = (
   LICENSE  => 'perl',
   VERSION_FROM => 'MPFR.pm',
   clean   => { FILES => 'out1.txt out2.txt out3.txt out4.txt out5.txt out6.txt out7.txt save_child_setting.txt p_spec.txt' },
+  META_MERGE => {
+   'meta-spec' => { version => 2 },
+    resources => {
+      repository => {
+        type => 'git',
+        url => 'https://github.com/sisyphus/math-mpfr.git',
+        web => 'https://github.com/sisyphus/math-mpfr',
+      },
+    },
+  },
 );
 
 $options{PREREQ_PM} = {'Math::Decimal64' => '0.01'} if $have_decimal64;
