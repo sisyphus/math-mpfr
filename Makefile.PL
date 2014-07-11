@@ -1,0 +1,96 @@
+use ExtUtils::MakeMaker;
+use Config;
+#require 5.008008;
+
+our %args = map { split /\s*=\s*/ } @ARGV;
+our $LIBS = $args{ LIBS } || "-lmpfr -lgmp";
+our $INC = $args{ INC };
+
+$use_64_bit_int = 0; # Let perl decide whether to include 64-bit 'long long' support
+$use_long_double = 0;# Let perl decide whether to include 'long double' support
+
+#$use_64_bit_int = -1; # Force exclusion of 64-bit 'long long' support
+#$use_long_double = -1;# Force exclusion of 'long double' support
+
+#$use_64_bit_int = 1; # Force inclusion of 64-bit 'long long' support
+#$use_long_double = 1;# Force inclusion of 'long double' support
+
+$have_decimal64 = 0;
+for(@ARGV) {
+  $have_decimal64 = 1 if $_ eq 'D64=1';
+}
+#$have_decimal64 = 1; # Force inclusion of _Decimal64 support
+                      # This will also define MPFR_WANT_DECIMAL_FLOATS
+
+my $d64_message = $have_decimal64 ? "Attempting to build with _Decimal64 support\n"
+                                  : "Building without _Decimal64 support\n";
+
+$have_float128 = 0;
+for(@ARGV) {
+  $have_float128 = 1 if $_ eq 'F128=1';
+}
+#$have_float128 = 1; # Force inclusion of __float128 support
+                      # This will also define MPFR_WANT_FLOAT128
+
+my $float128_message = $have_float128 ? "Attempting to build with __float128 support\n"
+                                  : "Building without __float128 support\n";
+
+my $defines = $] < 5.008 ? "-DOLDPERL" : "-DNEWPERL";
+
+if($use_64_bit_int == -1) {}
+elsif($use_64_bit_int == 1) {$defines .= " -DUSE_64_BIT_INT"}
+else {
+  unless($Config::Config{ivsize} < 8) {
+    $defines .= " -DUSE_64_BIT_INT";
+  }
+}
+
+if($use_long_double == -1) {}
+elsif($use_long_double == 1) {$defines .= " -DUSE_LONG_DOUBLE"}
+else {
+  if($Config::Config{nvsize} > 8 ) {
+    $defines .= " -DUSE_LONG_DOUBLE";
+  }
+}
+
+$defines .= " -DMPFR_WANT_DECIMAL_FLOATS" if $have_decimal64;
+$defines .= " -DMPFR_WANT_FLOAT128" if $have_float128;
+
+print "\nThis module requires the following C libraries:\n";
+print " gmp-4.2.0 (or later)\n mpfr-2.4.0 (or later)\n\n";
+$defines =~ /-DUSE_64_BIT_INT/ ? print "Building with 64-bit'long long' support\n" :
+                                 print "Building without 64-bit 'long long' support\n";
+
+print "If this is wrong, see the \"64-bit support\" section in the README\n\n";
+
+$defines =~ /-DUSE_LONG_DOUBLE/ ? print "Building with 'long double' support\n" :
+                                 print "Building without 'long double' support\n";
+
+print "If this is wrong, see the \"64-bit support\" section in the README\n\n";
+
+print "\n$d64_message";
+print "If this is wrong, see the \"Decimal64 conversion\" section in the README\n\n";
+
+print "\n$float128_message";
+print "If this is wrong, see the \"Float128 conversion\" section in the README\n\n";
+
+my %options = (
+  NAME => 'Math::MPFR',
+  AUTHOR => 'Sisyphus (sisyphus at (@) cpan dot (.) org)',
+  ABSTRACT => 'Perl interface to the MPFR (floating point) library',
+  DEFINE   => $defines,
+  LIBS => [
+    '-lmpfr -lgmp'
+  ],
+  LICENSE  => 'perl',
+  VERSION_FROM => 'MPFR.pm',
+  clean   => { FILES => 'out1.txt out2.txt out3.txt out4.txt out5.txt out6.txt out7.txt save_child_setting.txt p_spec.txt' },
+);
+
+$options{PREREQ_PM} = {'Math::Decimal64' => '0.01'} if $have_decimal64;
+
+WriteMakefile(%options);
+
+# Remove the Makefile dependency. Causes problems on a few systems.
+sub MY::makefile { '' }
+
