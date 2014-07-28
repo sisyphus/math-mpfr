@@ -31,7 +31,7 @@ else {$ok .= 'c'};
 
 
 eval{Rmpfr_printf("%Pu\n", 0, prec_cast($prec));};
-if($@ =~ /You've provided both a rounding arg and a Math::MPFR::Prec object to Rmpfr_printf\(\)/) {
+if($@ =~ /You've provided both a rounding arg and a Math::MPFR::Prec object to Rmpfr_printf/) {
   $ok .= 'd'
 }
 else {warn "1d: \$\@: $@\n"};
@@ -44,7 +44,7 @@ my $o = open($fh, '>', $file);
 if($o) {
   Rmpfr_fprintf($fh, "%Pu\n", prec_cast($prec));
   eval{Rmpfr_fprintf($fh, "%Pu\n", GMP_RNDN, prec_cast($prec));};
-  if($@ =~ /You've provided both a rounding arg and a Math::MPFR::Prec object to Rmpfr_fprintf\(\)/) {$ok = 'a'}
+  if($@ =~ /You've provided both a rounding arg and a Math::MPFR::Prec object to Rmpfr_fprintf/) {$ok = 'a'}
   else {warn "2a: \$\@: $@\n"}
   close $fh;
   if(open(RD, '<', $file)) {
@@ -76,7 +76,7 @@ else {
 }
 
 eval{Rmpfr_sprintf ($buf, "%Pu\n", GMP_RNDN, prec_cast($prec), 100);};
-if($@ =~ /You've provided both a rounding arg and a Math::MPFR::Prec object to Rmpfr_sprintf\(\)/) {print "ok 4\n"}
+if($@ =~ /You've provided both a rounding arg and a Math::MPFR::Prec object to Rmpfr_sprintf/) {print "ok 4\n"}
 else {
   warn "4: \$\@: $@\n";
   print "not ok 4\n";
@@ -93,7 +93,7 @@ else {
 }
 
 eval{Rmpfr_snprintf ($buf, $bytes, "%Pu\n", GMP_RNDN, prec_cast($prec), 10);};
-if($@ =~ /You've provided both a rounding arg and a Math::MPFR::Prec object to Rmpfr_snprintf\(\)/) {print "ok 6\n"}
+if($@ =~ /You've provided both a rounding arg and a Math::MPFR::Prec object to Rmpfr_snprintf/) {print "ok 6\n"}
 else {
   warn "6: \$\@: $@\n";
   print "not ok 6\n";
