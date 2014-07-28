@@ -175,7 +175,7 @@ if(Math::MPFR::_has_longdouble()) {
 }
 else {
    eval{my $double = Rmpfr_get_ld_2exp($exp, $num1, GMP_RNDN);};
-   if($@ =~ /Rmpfr_get_ld_2exp\(\) not implemented/) {print "ok 5\n"}
+   if($@ =~ /Rmpfr_get_ld_2exp not implemented/) {print "ok 5\n"}
    else {
       warn "\n\$\@: $@\n";
       print "not ok 5\n";
