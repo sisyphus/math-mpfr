@@ -1,6 +1,11 @@
 
-#define PERL_NO_GET_CONTEXT 1
+#ifdef  __MINGW32__
+#ifndef __USE_MINGW_ANSI_STDIO
+#define __USE_MINGW_ANSI_STDIO 1
+#endif
+#endif
 
+#define PERL_NO_GET_CONTEXT 1
 
 #include "EXTERN.h"
 #include "perl.h"
@@ -44,7 +49,8 @@ SV * gmp_v(pTHX) {
 #if __GNU_MP_VERSION >= 4
      return newSVpv(gmp_version, 0);
 #else
-     return newSVpv("'gmp_version' is not implemented by this ancient build of gmp", 0);
+     warn("From Math::MPFR::V::gmp_v(aTHX): 'gmp_version' is not implemented - returning '0'");
+     return newSVpv("0", 0);
 #endif
 }
 
@@ -73,7 +79,7 @@ SV * Rmpfr_get_version(pTHX) {
 }
 
 
-MODULE = Math::MPFR::V	PACKAGE = Math::MPFR::V
+MODULE = Math::MPFR::V  PACKAGE = Math::MPFR::V
 
 PROTOTYPES: DISABLE
 
