@@ -1,3 +1,8 @@
+3.23
+ - Rename Rmpfr_get_decimal64, Rmpfr_set_decimal64, Rmpfr_get_float128 & Rmpfr_set_float128
+       to Rmpfr_get_DECIMAL64, Rmpfr_set_DECIMAL64, Rmpfr_get_FLOAT128 & Rmpfr_set_FLOAT128
+ - Provide Rmpfr_get_float128 & Rmpfr_set_float128 which pass the __float128 value as an NV
+
 3.22
  - Add some metadata to Makefile.PL.
  - Fix the LNGAMMA_BUG workaround in mpfr.c, and change test 69 in t/test1.t to
