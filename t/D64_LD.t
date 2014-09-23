@@ -47,7 +47,7 @@ unless($why) {
 
     my $fr = Math::MPFR->new($fr_arg, 10);
 
-    Rmpfr_get_decimal64($d64_1, $fr, $round);
+    Rmpfr_get_DECIMAL64($d64_1, $fr, $round);
     Rmpfr_get_LD($ld, $fr, $round);
     LDtoD64($d64_2, $ld);
 
@@ -71,8 +71,8 @@ unless($why) {
     my $eps = Math::Decimal64->new(1, -398);
     my $eps_ret = Math::Decimal64->new(2.5);
     my $eps_fr = Rmpfr_init2($_);
-    Rmpfr_set_decimal64($eps_fr, $eps, MPFR_RNDN);
-    Rmpfr_get_decimal64($eps_ret, $eps_fr, MPFR_RNDN);
+    Rmpfr_set_DECIMAL64($eps_fr, $eps, MPFR_RNDN);
+    Rmpfr_get_DECIMAL64($eps_ret, $eps_fr, MPFR_RNDN);
     unless($eps_ret == $eps) {
       warn "\nMPFR precision: ", Rmpfr_get_prec($eps_fr), "\n";
       warn "\$eps: $eps\n\$eps_ret: $eps_ret\n";
