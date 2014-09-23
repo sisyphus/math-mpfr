@@ -130,7 +130,8 @@ Rmpfr_set_nan Rmpfr_set_nanflag Rmpfr_set_overflow Rmpfr_set_prec
 Rmpfr_set_prec_raw Rmpfr_set_q Rmpfr_set_si Rmpfr_set_si_2exp Rmpfr_set_sj
 Rmpfr_set_sj_2exp Rmpfr_set_str Rmpfr_set_str_binary Rmpfr_set_ui Rmpfr_set_ui_2exp
 Rmpfr_set_uj Rmpfr_set_uj_2exp
-Rmpfr_set_decimal64 Rmpfr_get_decimal64 Rmpfr_set_float128 Rmpfr_get_float128
+Rmpfr_set_DECIMAL64 Rmpfr_get_DECIMAL64 Rmpfr_set_float128 Rmpfr_get_float128
+Rmpfr_set_FLOAT128 Rmpfr_get_FLOAT128
 Rmpfr_set_underflow Rmpfr_set_z Rmpfr_sgn Rmpfr_si_div Rmpfr_si_sub Rmpfr_sin
 Rmpfr_sin_cos Rmpfr_sinh_cosh
 Rmpfr_sinh Rmpfr_sqr Rmpfr_sqrt Rmpfr_sqrt_ui Rmpfr_strtofr Rmpfr_sub
@@ -154,7 +155,7 @@ MPFR_DBL_DIG MPFR_LDBL_DIG
 mpfr_max_orig_len mpfr_min_inter_prec mpfr_min_inter_base mpfr_max_orig_base
 );
 
-    our $VERSION = '3.22';
+    our $VERSION = '3.23';
     #$VERSION = eval $VERSION;
 
     DynaLoader::bootstrap Math::MPFR $VERSION;
@@ -223,7 +224,8 @@ Rmpfr_set_nan Rmpfr_set_nanflag Rmpfr_set_overflow Rmpfr_set_prec
 Rmpfr_set_prec_raw Rmpfr_set_q Rmpfr_set_si Rmpfr_set_si_2exp Rmpfr_set_sj
 Rmpfr_set_sj_2exp Rmpfr_set_str Rmpfr_set_str_binary Rmpfr_set_ui Rmpfr_set_ui_2exp
 Rmpfr_set_uj Rmpfr_set_uj_2exp
-Rmpfr_set_decimal64 Rmpfr_get_decimal64 Rmpfr_set_float128 Rmpfr_get_float128
+Rmpfr_set_DECIMAL64 Rmpfr_get_DECIMAL64 Rmpfr_set_float128 Rmpfr_get_float128
+Rmpfr_set_FLOAT128 Rmpfr_get_FLOAT128
 Rmpfr_set_underflow Rmpfr_set_z Rmpfr_sgn Rmpfr_si_div Rmpfr_si_sub Rmpfr_sin
 Rmpfr_sin_cos Rmpfr_sinh_cosh
 Rmpfr_sinh Rmpfr_sqr Rmpfr_sqrt Rmpfr_sqrt_ui Rmpfr_strtofr Rmpfr_sub
@@ -1005,7 +1007,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_set_q($rop, $q, $rnd); # $q is a mpq object.
    $si = Rmpfr_set_f($rop, $f, $rnd); # $f is a mpf object.
    $si = Rmpfr_set_flt($rop, $float, $rnd); # mpfr-3.0.0 and later only
-   $si = Rmpfr_set_decimal64($rop, $d64, $rnd) # mpfr-3.1.1 and later
+   $si = Rmpfr_set_DECIMAL64($rop, $d64, $rnd) # mpfr-3.1.1 and later
                                                # only. $d64 is a
                                                # Math::Decimal64 object
    $si = Rmpfr_set_float128($rop, $f128, $rnd) # mpfr-3.2.0 and later
@@ -1265,18 +1267,19 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $double = Rmpfr_get_d($op, $rnd);
    $ld     = Rmpfr_get_ld($op, $rnd);
+   $f128   = Rmpfr_get_float128($op, $rnd); # nvtype must be __float128
    $nv     = Rmpfr_get_NV($op, $rnd);
    $float  = Rmpfr_get_flt($op, $rnd);   # mpfr-3.0.0 and later.
    Rmpfr_get_LD($LD, $op, $rnd); # $LD is a Math::LongDouble object.
-   Rmpfr_get_decimal64($d64, $op, $rnd); # mpfr-3.1.1 and later.
+   Rmpfr_get_DECIMAL64($d64, $op, $rnd); # mpfr-3.1.1 and later.
                                          # $d64 is a Math::Decimal64
                                          # object.
-   Rmpfr_get_float128($f128, $op, $rnd); # mpfr-3.2.0 and later.
+   Rmpfr_get_FLOAT128($f128, $op, $rnd); # mpfr-3.2.0 and later.
                                          # $f128 is a Math::Float128
                                          # object.
     Convert $op to a 'double' a 'long double' an 'NV', a float, a
-    Math::LongDouble object, a Math::Decimal64 object, or a
-    Math::Float128 object using the rounding mode $rnd.
+    __float128, a Math::LongDouble object, a Math::Decimal64 object, or
+    a Math::Float128 object using the rounding mode $rnd.
 
     NOTE: If your perl's nvtype is 'long double' use Rmpfr_get_ld(), but
     if your perl's nvtype is 'double' and you want to get a value whose
@@ -2479,7 +2482,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
     This program is free software; you may redistribute it and/or
     modify it under the same terms as Perl itself.
-    Copyright 2006-2013 Sisyphus
+    Copyright 2006-2014 Sisyphus
 
 =head1 AUTHOR
 
