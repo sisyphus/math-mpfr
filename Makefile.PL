@@ -20,17 +20,25 @@ for(@ARGV) {
   $have_decimal64 = 1 if $_ eq 'D64=1';
 }
 #$have_decimal64 = 1; # Force inclusion of _Decimal64 support
-                      # This will also define MPFR_WANT_DECIMAL_FLOATS
+                      # This will also define MPFR_WANT_DECIMAL_FLOATS (as that needs to be defined
+                      # before mpfr.h is included).
 
 my $d64_message = $have_decimal64 ? "Attempting to build with _Decimal64 support\n"
                                   : "Building without _Decimal64 support\n";
+
+# We want to set $have_float128 to 1 if and only if:
+# the mpfr library was built with the configure option '--enable-float128' && either:
+#  $Config{nvtype} is '__float128'
+#   or
+#  Math::Float128 has been installed.
 
 $have_float128 = 0;
 for(@ARGV) {
   $have_float128 = 1 if $_ eq 'F128=1';
 }
 #$have_float128 = 1; # Force inclusion of __float128 support
-                      # This will also define MPFR_WANT_FLOAT128
+                      # This will also define MPFR_WANT_FLOAT128 (as that needs to be defined
+                      # before mpfr.h is included).
 
 my $float128_message = $have_float128 ? "Attempting to build with __float128 support\n"
                                   : "Building without __float128 support\n";
@@ -55,6 +63,8 @@ else {
 
 $defines .= " -DMPFR_WANT_DECIMAL_FLOATS" if $have_decimal64;
 $defines .= " -DMPFR_WANT_FLOAT128" if $have_float128;
+$defines .= " -DNV_IS_FLOAT128" if $Config{nvtype} eq '__float128';
+$defines .= " -DNV_IS_LONG_DOUBLE" if $Config{nvtype} eq 'long double';
 
 print "\nThis module requires the following C libraries:\n";
 print " gmp-4.2.0 (or later)\n mpfr-2.4.0 (or later)\n\n";
