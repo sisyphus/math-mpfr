@@ -12,8 +12,11 @@ my ($ret1, $ret2);
 
 $ret1 = Rmpfr_set_NV($fr1, sqrt(2.0), MPFR_RNDN);
 
-if(Math::MPFR::_has_longdouble()) {
+if(Math::MPFR::_has_longdouble() && !Math::MPFR::_can_pass_float128()) {
   $ret2 = Rmpfr_set_ld($fr2, sqrt(2.0), MPFR_RNDN);
+}
+elsif(Math::MPFR::_can_pass_float128()) {
+  $ret2 = Rmpfr_set_float128($fr2, sqrt(2.0), MPFR_RNDN);
 }
 else {
   $ret2 = Rmpfr_set_d($fr2, sqrt(2.0), MPFR_RNDN);
