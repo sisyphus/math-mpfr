@@ -43,9 +43,9 @@ if($proceed) {
     my $larg_2 = $larg_1 ? 5 - $larg_1 : $larg_1;
     my $f128_1 = NVtoF128($nv);
     my $fr_1 = Math::MPFR->new();
-    Rmpfr_set_float128($fr_1, $f128_1, $larg_1);
+    Rmpfr_set_FLOAT128($fr_1, $f128_1, $larg_1);
     my $f128_2 = NVtoF128(0);
-    Rmpfr_get_float128($f128_2, $fr_1, $larg_2);
+    Rmpfr_get_FLOAT128($f128_2, $fr_1, $larg_2);
     unless($f128_1 == $f128_2) {
       $ok = 0;
       warn "$it: $f128_1 != $f128_2\n   $larg_1 : $larg_2\n\n";
@@ -61,9 +61,9 @@ if($proceed) {
     my $nv = rand(1024) / (1 + rand(1024));
     my $f128_1 = NVtoF128($nv);
     my $fr_1 = Math::MPFR->new();
-    Rmpfr_set_float128($fr_1, $f128_1, 0);
+    Rmpfr_set_FLOAT128($fr_1, $f128_1, 0);
     my $f128_2 = NVtoF128(0);
-    Rmpfr_get_float128($f128_2, $fr_1, 0);
+    Rmpfr_get_FLOAT128($f128_2, $fr_1, 0);
     unless($f128_1 == $f128_2) {
       $ok = 0;
       warn "$it: $f128_1 != $f128_2\n";
@@ -81,8 +81,8 @@ if($proceed) {
 
   my $fr = Math::MPFR->new();
 
-  Rmpfr_set_float128($fr, $nanF128, MPFR_RNDN);
-  Rmpfr_get_float128($rop, $fr, MPFR_RNDN);
+  Rmpfr_set_FLOAT128($fr, $nanF128, MPFR_RNDN);
+  Rmpfr_get_FLOAT128($rop, $fr, MPFR_RNDN);
 
   if(is_NaNF128($rop)) {print "ok 3\n"}
   else {
@@ -90,8 +90,8 @@ if($proceed) {
     print "not ok 3\n";
   }
 
-  Rmpfr_set_float128($fr, $pinfF128, MPFR_RNDN);
-  Rmpfr_get_float128($rop, $fr, MPFR_RNDN);
+  Rmpfr_set_FLOAT128($fr, $pinfF128, MPFR_RNDN);
+  Rmpfr_get_FLOAT128($rop, $fr, MPFR_RNDN);
 
   if(is_InfF128($rop) > 0) {print "ok 4\n"}
   else {
@@ -99,8 +99,8 @@ if($proceed) {
     print "not ok 4\n";
   }
 
-  Rmpfr_set_float128($fr, $ninfF128, MPFR_RNDN);
-  Rmpfr_get_float128($rop, $fr, MPFR_RNDN);
+  Rmpfr_set_FLOAT128($fr, $ninfF128, MPFR_RNDN);
+  Rmpfr_get_FLOAT128($rop, $fr, MPFR_RNDN);
 
   if(is_InfF128($rop) < 0) {print "ok 5\n"}
   else {
@@ -108,8 +108,8 @@ if($proceed) {
     print "not ok 5\n";
   }
 
-  Rmpfr_set_float128($fr, $zeroF128, MPFR_RNDN);
-  Rmpfr_get_float128($rop, $fr, MPFR_RNDN);
+  Rmpfr_set_FLOAT128($fr, $zeroF128, MPFR_RNDN);
+  Rmpfr_get_FLOAT128($rop, $fr, MPFR_RNDN);
 
   if(is_ZeroF128($rop) > 0) {print "ok 6\n"}
   else {
@@ -117,8 +117,8 @@ if($proceed) {
     print "not ok 6\n";
   }
 
-  Rmpfr_set_float128($fr, $nzeroF128, MPFR_RNDN);
-  Rmpfr_get_float128($rop, $fr, MPFR_RNDN);
+  Rmpfr_set_FLOAT128($fr, $nzeroF128, MPFR_RNDN);
+  Rmpfr_get_FLOAT128($rop, $fr, MPFR_RNDN);
 
   if(is_ZeroF128($rop) < 0) {print "ok 7\n"}
   else {
@@ -129,21 +129,21 @@ if($proceed) {
   my $bigpos = Math::MPFR->new('1.4e4932');
   my $bigneg = $bigpos * -1;
 
-  Rmpfr_get_float128($rop, $bigpos, MPFR_RNDN);
+  Rmpfr_get_FLOAT128($rop, $bigpos, MPFR_RNDN);
   if(is_InfF128($rop) > 0) {print "ok 8\n"}
   else {
     warn "\n\$rop: $rop\n";
     print "not ok 8\n";
   }
 
-  Rmpfr_get_float128($rop, $bigneg, MPFR_RNDN);
+  Rmpfr_get_FLOAT128($rop, $bigneg, MPFR_RNDN);
   if(is_InfF128($rop) < 0) {print "ok 9\n"}
   else {
     warn "\n\$rop: $rop\n";
     print "not ok 9\n";
   }
 
-  Rmpfr_get_float128($rop, Math::MPFR->new('1.18973149535723176508575932662800702e4932'), MPFR_RNDZ);
+  Rmpfr_get_FLOAT128($rop, Math::MPFR->new('1.18973149535723176508575932662800702e4932'), MPFR_RNDZ);
   if($rop == Math::Float128->new('1.18973149535723176508575932662800702e4932')) {print "ok 10\n"}
   else {
     warn "\n\$rop: $rop\n";
@@ -165,35 +165,35 @@ if($proceed) {
   my $littlepos = Math::MPFR->new('7e-4967');
   my $littleneg = $littlepos * -1;
 
-  Rmpfr_get_float128($rop, $littlepos, MPFR_RNDZ);
+  Rmpfr_get_FLOAT128($rop, $littlepos, MPFR_RNDZ);
   if(is_ZeroF128($rop) > 0) {print "ok 13\n"}
   else {
     warn "\n\$rop: $rop\n";
     print "not ok 13\n";
   }
 
-  Rmpfr_get_float128($rop, $littleneg, MPFR_RNDZ);
+  Rmpfr_get_FLOAT128($rop, $littleneg, MPFR_RNDZ);
   if(is_ZeroF128($rop) < 0) {print "ok 14\n"}
   else {
     warn "\n\$rop: $rop\n";
     print "not ok 14\n";
   }
 
-  Rmpfr_get_float128($rop, $littlepos, MPFR_RNDA);
+  Rmpfr_get_FLOAT128($rop, $littlepos, MPFR_RNDA);
   if(is_ZeroF128($rop) > 0) {print "ok 15\n"}
   else {
     warn "\n\$rop: $rop\n";
     print "not ok 15\n";
   }
 
-  Rmpfr_get_float128($rop, $littleneg, MPFR_RNDA);
+  Rmpfr_get_FLOAT128($rop, $littleneg, MPFR_RNDA);
   if(is_ZeroF128($rop) < 0) {print "ok 16\n"}
   else {
     warn "\n\$rop: $rop\n";
     print "not ok 16\n";
   }
 
-  Rmpfr_get_float128($rop, Math::MPFR->new('6.475175119438025110924438958227646552e-4966'), MPFR_RNDN);
+  Rmpfr_get_FLOAT128($rop, Math::MPFR->new('6.475175119438025110924438958227646552e-4966'), MPFR_RNDN);
   if($rop == Math::Float128::FLT128_DENORM_MIN()) {print "ok 17\n"}
   else {
     warn "\n\$rop: $rop\n";
@@ -203,8 +203,8 @@ if($proceed) {
   my $fr_F128 = Rmpfr_init2(115);
   my $f128_1 = STRtoF128('1e-298');
   my $f128_2 = Math::Float128->new();
-  Rmpfr_set_float128($fr_F128, $f128_1, MPFR_RNDN);
-  Rmpfr_get_float128($f128_2, $fr_F128, MPFR_RNDN);
+  Rmpfr_set_FLOAT128($fr_F128, $f128_1, MPFR_RNDN);
+  Rmpfr_get_FLOAT128($f128_2, $fr_F128, MPFR_RNDN);
   if($f128_1 == $f128_2) {print "ok 18\n"}
   else {
     warn "\n $f128_1: $f128_1\n \$f128_2: $f128_2\n";
@@ -212,8 +212,8 @@ if($proceed) {
   }
 
   $f128_1 = NVtoF128(1e-298);
-  Rmpfr_set_float128($fr_F128, $f128_1, MPFR_RNDN);
-  Rmpfr_get_float128($f128_2, $fr_F128, MPFR_RNDN);
+  Rmpfr_set_FLOAT128($fr_F128, $f128_1, MPFR_RNDN);
+  Rmpfr_get_FLOAT128($f128_2, $fr_F128, MPFR_RNDN);
   if($f128_1 == $f128_2) {print "ok 19\n"}
   else {
     warn "\n $f128_1: $f128_1\n \$f128_2: $f128_2\n";
@@ -221,8 +221,8 @@ if($proceed) {
   }
 
   $f128_1 = STRtoF128('1e-360');
-  Rmpfr_set_float128($fr_F128, $f128_1, MPFR_RNDN);
-  Rmpfr_get_float128($f128_2, $fr_F128, MPFR_RNDN);
+  Rmpfr_set_FLOAT128($fr_F128, $f128_1, MPFR_RNDN);
+  Rmpfr_get_FLOAT128($f128_2, $fr_F128, MPFR_RNDN);
   if($f128_1 == $f128_2) {print "ok 20\n"}
   else {
     warn "\n $f128_1: $f128_1\n \$f128_2: $f128_2\n";
@@ -230,8 +230,8 @@ if($proceed) {
   }
 
   $f128_1 = NVtoF128(1e-360);
-  Rmpfr_set_float128($fr_F128, $f128_1, MPFR_RNDN);
-  Rmpfr_get_float128($f128_2, $fr_F128, MPFR_RNDN);
+  Rmpfr_set_FLOAT128($fr_F128, $f128_1, MPFR_RNDN);
+  Rmpfr_get_FLOAT128($f128_2, $fr_F128, MPFR_RNDN);
   if($f128_1 == $f128_2) {print "ok 21\n"}
   else {
     warn "\n $f128_1: $f128_1\n \$f128_2: $f128_2\n";
