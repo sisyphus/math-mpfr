@@ -28,9 +28,9 @@ if($proceed) {
     my $larg_2 = $larg_1 ? 5 - $larg_1 : $larg_1;
     my $d64_1 = NVtoD64($nv);
     my $fr_1 = Math::MPFR->new();
-    Rmpfr_set_decimal64($fr_1, $d64_1, $larg_1);
+    Rmpfr_set_DECIMAL64($fr_1, $d64_1, $larg_1);
     my $d64_2 = NVtoD64(0);
-    Rmpfr_get_decimal64($d64_2, $fr_1, $larg_2);
+    Rmpfr_get_DECIMAL64($d64_2, $fr_1, $larg_2);
     unless($d64_1 == $d64_2) {
       $ok = 0;
       warn "$it: $d64_1 != $d64_2\n   $larg_1 : $larg_2\n\n";
@@ -46,9 +46,9 @@ if($proceed) {
     my $nv = rand(1024) / (1 + rand(1024));
     my $d64_1 = NVtoD64($nv);
     my $fr_1 = Math::MPFR->new();
-    Rmpfr_set_decimal64($fr_1, $d64_1, 0);
+    Rmpfr_set_DECIMAL64($fr_1, $d64_1, 0);
     my $d64_2 = NVtoD64(0);
-    Rmpfr_get_decimal64($d64_2, $fr_1, 0);
+    Rmpfr_get_DECIMAL64($d64_2, $fr_1, 0);
     unless($d64_1 == $d64_2) {
       $ok = 0;
       warn "$it: $d64_1 != $d64_2\n";
@@ -66,8 +66,8 @@ if($proceed) {
 
   my $fr = Math::MPFR->new();
 
-  Rmpfr_set_decimal64($fr, $nanD64, MPFR_RNDN);
-  Rmpfr_get_decimal64($rop, $fr, MPFR_RNDN);
+  Rmpfr_set_DECIMAL64($fr, $nanD64, MPFR_RNDN);
+  Rmpfr_get_DECIMAL64($rop, $fr, MPFR_RNDN);
 
   if(is_NaND64($rop)) {print "ok 3\n"}
   else {
@@ -75,8 +75,8 @@ if($proceed) {
     print "not ok 3\n";
   }
 
-  Rmpfr_set_decimal64($fr, $pinfD64, MPFR_RNDN);
-  Rmpfr_get_decimal64($rop, $fr, MPFR_RNDN);
+  Rmpfr_set_DECIMAL64($fr, $pinfD64, MPFR_RNDN);
+  Rmpfr_get_DECIMAL64($rop, $fr, MPFR_RNDN);
 
   if(is_InfD64($rop) > 0) {print "ok 4\n"}
   else {
@@ -84,8 +84,8 @@ if($proceed) {
     print "not ok 4\n";
   }
 
-  Rmpfr_set_decimal64($fr, $ninfD64, MPFR_RNDN);
-  Rmpfr_get_decimal64($rop, $fr, MPFR_RNDN);
+  Rmpfr_set_DECIMAL64($fr, $ninfD64, MPFR_RNDN);
+  Rmpfr_get_DECIMAL64($rop, $fr, MPFR_RNDN);
 
   if(is_InfD64($rop) < 0) {print "ok 5\n"}
   else {
@@ -93,8 +93,8 @@ if($proceed) {
     print "not ok 5\n";
   }
 
-  Rmpfr_set_decimal64($fr, $zeroD64, MPFR_RNDN);
-  Rmpfr_get_decimal64($rop, $fr, MPFR_RNDN);
+  Rmpfr_set_DECIMAL64($fr, $zeroD64, MPFR_RNDN);
+  Rmpfr_get_DECIMAL64($rop, $fr, MPFR_RNDN);
 
   if(is_ZeroD64($rop) > 0) {print "ok 6\n"}
   else {
@@ -102,8 +102,8 @@ if($proceed) {
     print "not ok 6\n";
   }
 
-  Rmpfr_set_decimal64($fr, $nzeroD64, MPFR_RNDN);
-  Rmpfr_get_decimal64($rop, $fr, MPFR_RNDN);
+  Rmpfr_set_DECIMAL64($fr, $nzeroD64, MPFR_RNDN);
+  Rmpfr_get_DECIMAL64($rop, $fr, MPFR_RNDN);
 
   if(is_ZeroD64($rop) < 0) {print "ok 7\n"}
   else {
@@ -114,21 +114,21 @@ if($proceed) {
   my $bigpos = Math::MPFR->new('1@385');
   my $bigneg = $bigpos * -1;
 
-  Rmpfr_get_decimal64($rop, $bigpos, MPFR_RNDN);
+  Rmpfr_get_DECIMAL64($rop, $bigpos, MPFR_RNDN);
   if(is_InfD64($rop) > 0) {print "ok 8\n"}
   else {
     warn "\n\$rop: $rop\n";
     print "not ok 8\n";
   }
 
-  Rmpfr_get_decimal64($rop, $bigneg, MPFR_RNDN);
+  Rmpfr_get_DECIMAL64($rop, $bigneg, MPFR_RNDN);
   if(is_InfD64($rop) < 0) {print "ok 9\n"}
   else {
     warn "\n\$rop: $rop\n";
     print "not ok 9\n";
   }
 
-  Rmpfr_get_decimal64($rop, $bigpos, MPFR_RNDZ);
+  Rmpfr_get_DECIMAL64($rop, $bigpos, MPFR_RNDZ);
   if($rop == Math::Decimal64->new('9999999999999999','369')) {print "ok 10\n"}
   else {
     warn "\n\$rop: $rop\n";
@@ -150,28 +150,28 @@ if($proceed) {
   my $littlepos = Math::MPFR->new('1@-399');
   my $littleneg = $littlepos * -1;
 
-  Rmpfr_get_decimal64($rop, $littlepos, MPFR_RNDZ);
+  Rmpfr_get_DECIMAL64($rop, $littlepos, MPFR_RNDZ);
   if(is_ZeroD64($rop) > 0) {print "ok 13\n"}
   else {
     warn "\n\$rop: $rop\n";
     print "not ok 13\n";
   }
 
-  Rmpfr_get_decimal64($rop, $littleneg, MPFR_RNDZ);
+  Rmpfr_get_DECIMAL64($rop, $littleneg, MPFR_RNDZ);
   if(is_ZeroD64($rop) < 0) {print "ok 14\n"}
   else {
     warn "\n\$rop: $rop\n";
     print "not ok 14\n";
   }
 
-  Rmpfr_get_decimal64($rop, $littlepos, MPFR_RNDA);
+  Rmpfr_get_DECIMAL64($rop, $littlepos, MPFR_RNDA);
   if($rop == Math::Decimal64->new(1, -398)) {print "ok 15\n"}
   else {
     warn "\n\$rop: $rop\n";
     print "not ok 15\n";
   }
 
-  Rmpfr_get_decimal64($rop, $littleneg, MPFR_RNDA);
+  Rmpfr_get_DECIMAL64($rop, $littleneg, MPFR_RNDA);
   if($rop == Math::Decimal64->new(-1, -398)) {print "ok 16\n"}
   else {
     warn "\n\$rop: $rop\n";
@@ -187,8 +187,8 @@ if($proceed) {
   my $fr_d64 = Rmpfr_init2(55);
   my $d64_1 = MEtoD64('1', -298);
   my $d64_2 = Math::Decimal64->new();
-  Rmpfr_set_decimal64($fr_d64, $d64_1, MPFR_RNDN);
-  Rmpfr_get_decimal64($d64_2, $fr_d64, MPFR_RNDN);
+  Rmpfr_set_DECIMAL64($fr_d64, $d64_1, MPFR_RNDN);
+  Rmpfr_get_DECIMAL64($d64_2, $fr_d64, MPFR_RNDN);
   if($d64_1 == $d64_2) {print "ok 18\n"}
   else {
     warn "\n $d64_1: $d64_1\n \$d64_2: $d64_2\n";
@@ -196,8 +196,8 @@ if($proceed) {
   }
 
   $d64_1 = NVtoD64(1e-298);
-  Rmpfr_set_decimal64($fr_d64, $d64_1, MPFR_RNDN);
-  Rmpfr_get_decimal64($d64_2, $fr_d64, MPFR_RNDN);
+  Rmpfr_set_DECIMAL64($fr_d64, $d64_1, MPFR_RNDN);
+  Rmpfr_get_DECIMAL64($d64_2, $fr_d64, MPFR_RNDN);
   if($d64_1 == $d64_2) {print "ok 19\n"}
   else {
     warn "\n $d64_1: $d64_1\n \$d64_2: $d64_2\n";
@@ -205,8 +205,8 @@ if($proceed) {
   }
 
   $d64_1 = MEtoD64('1', -360);
-  Rmpfr_set_decimal64($fr_d64, $d64_1, MPFR_RNDN);
-  Rmpfr_get_decimal64($d64_2, $fr_d64, MPFR_RNDN);
+  Rmpfr_set_DECIMAL64($fr_d64, $d64_1, MPFR_RNDN);
+  Rmpfr_get_DECIMAL64($d64_2, $fr_d64, MPFR_RNDN);
   if($d64_1 == $d64_2) {print "ok 20\n"}
   else {
     warn "\n $d64_1: $d64_1\n \$d64_2: $d64_2\n";
@@ -214,8 +214,8 @@ if($proceed) {
   }
 
   $d64_1 = NVtoD64(1e-360);
-  Rmpfr_set_decimal64($fr_d64, $d64_1, MPFR_RNDN);
-  Rmpfr_get_decimal64($d64_2, $fr_d64, MPFR_RNDN);
+  Rmpfr_set_DECIMAL64($fr_d64, $d64_1, MPFR_RNDN);
+  Rmpfr_get_DECIMAL64($d64_2, $fr_d64, MPFR_RNDN);
   if($d64_1 == $d64_2) {print "ok 21\n"}
   else {
     warn "\n $d64_1: $d64_1\n \$d64_2: $d64_2\n";
