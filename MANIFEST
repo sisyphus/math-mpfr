@@ -31,6 +31,7 @@ t/lngamma_bug.t
 t/LongDouble.t
 t/MPFR_RND.t
 t/nan_cmp.t
+t/native_float128.t
 t/neg_zero_bug.t
 t/not_zero.t
 t/new.t
