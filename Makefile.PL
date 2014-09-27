@@ -48,7 +48,7 @@ my $defines = $] < 5.008 ? "-DOLDPERL" : "-DNEWPERL";
 if($use_64_bit_int == -1) {}
 elsif($use_64_bit_int == 1) {$defines .= " -DUSE_64_BIT_INT"}
 else {
-  unless($Config::Config{ivsize} < 8) {
+  unless($Config::Config{ivsize} < 8 || $Config{ivtype} eq 'long') {
     $defines .= " -DUSE_64_BIT_INT";
   }
 }
