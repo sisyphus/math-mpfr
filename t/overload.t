@@ -367,9 +367,13 @@ else {print "not ok 22\n"}
 $z = $c;
 $z *= -1;
 if($z == -$c
-   && Math::MPFR::get_refcnt($z) == 1
-   && Math::MPFR::get_refcnt($c) == 1) {print "ok 23\n"}
-else {print "not ok 23\n"}
+  && Math::MPFR::get_refcnt($z) == 1
+  && Math::MPFR::get_refcnt($c) == 1) {print "ok 23\n"}
+else {
+  warn "\$z: $z -\$c: ", -$c, "\n";
+  warn "refcounts are ", Math::MPFR::get_refcnt($z), " and ", Math::MPFR::get_refcnt($c), "\n";
+  print "not ok 23\n";
+}
 
 $ok = '';
 
