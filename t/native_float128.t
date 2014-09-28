@@ -11,9 +11,9 @@ if(Math::MPFR::_can_pass_float128()) {
 
   Rmpfr_set_default_prec(113);
 
-  my $frac = 3.0; # perl miscalculates sqrt(2.0), so we'll sweep that one under
-                  # the carpet and check using sqrt(3.0) - which seems to be
-                  # calculated correctly.
+  my $frac = 3.0; # For me, both C and perl miscalculates sqrt(2.0), so we'll
+                  # sweep that one under the carpet and check using sqrt(3.0),
+                  # which seems to be calculated correctly.
 
   my $fr = Math::MPFR->new($frac);
   $fr **= 0.5;
