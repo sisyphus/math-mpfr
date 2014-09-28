@@ -93,7 +93,8 @@ else {
   $ok = 'abcdefgh';
 }
 
-my $bits = Math::MPFR::_has_longlong() ? 32 : 16;
+#my $bits = Math::MPFR::_has_longlong() ? 32 : 16;
+my $bits = $Config{ivsize} > 4 ? 32 : 16;
 
 if($mpfr1 ** 0.5 < 2 ** $bits &&
    $mpfr1 ** 0.5 > (2 ** $bits) - 1 ) {$ok .= 'i'}
@@ -143,6 +144,9 @@ elsif(Math::MPFR::_has_longlong()){
     Rmpfr_set_sj($mpfr1, (~0 - 1) / -2, GMP_RNDN);
   }
   else {Rmpfr_set_str($mpfr1, (~0 - 1) / -2, 10, GMP_RNDN)}
+}
+elsif($Config{ivsize} >= 8) { # Not a 'long long'; must be a 'long'
+  Rmpfr_set_si($mpfr1, (~0 - 1) / -2, GMP_RNDN);
 }
 else {
   Rmpfr_set_d($mpfr1, (~0 - 1) / -2, GMP_RNDN);
