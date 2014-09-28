@@ -3,7 +3,7 @@ use strict;
 use Config;
 use Math::MPFR qw(:mpfr);
 
-print "1..4\n";
+print "1..5\n";
 
 print STDERR "\n# Using Math::MPFR version ", $Math::MPFR::VERSION, "\n";
 print STDERR "# Using mpfr library version ", MPFR_VERSION_STRING, "\n";
@@ -47,4 +47,12 @@ elsif($max_base == 36) {
 else {
   warn "\n\$max_base: $max_base\n";
   print "not ok 4\n";
+}
+
+if(Math::MPFR::_has_longlong() && Math::MPFR::_ivsize_bits() == (8 * $Config{ivsize})) {print "ok 5\n"}
+elsif(!Math::MPFR::_has_longlong()) {print "ok 5\n"}
+else {
+  warn "\n _has_longlong(): ", Math::MPFR::_has_longlong(), "\n _ivsize_bits: ",
+        Math::MPFR::_ivsize_bits(), "\n";
+  print "not ok 5\n";
 }
