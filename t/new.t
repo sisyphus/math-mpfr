@@ -120,7 +120,7 @@ Rmpfr_set_default_prec(100);
 my $f27 = Math::MPFR->new(36028797018964023);
 my $f28 = Math::MPFR->new('36028797018964023');
 
-if(Math::MPFR::_has_longlong()) {
+if(Math::MPFR::_has_longlong() || $Config{ivsize} >= 8) {
   if($f27 == $f28) {$ok .= 'i'}
   else {warn "== : $f27 $f28\n"}
 }
