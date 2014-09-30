@@ -27,7 +27,7 @@
 
 #ifdef MPFR_WANT_FLOAT128
 #include <quadmath.h>
-#if defined(NV_IS_FLOAT128) && defined(MPFR_VERSION) && (MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+#if defined(NV_IS_FLOAT128) && defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
 #define CAN_PASS_FLOAT128
 #endif
 #ifdef __MINGW64__
