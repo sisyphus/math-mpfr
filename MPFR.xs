@@ -27,7 +27,7 @@
 
 #ifdef MPFR_WANT_FLOAT128
 #include <quadmath.h>
-#ifdef NV_IS_FLOAT128
+#if defined(NV_IS_FLOAT128) && defined(MPFR_VERSION) && (MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
 #define CAN_PASS_FLOAT128
 #endif
 #ifdef __MINGW64__
@@ -4076,11 +4076,15 @@ SV * overload_pow(pTHX_ SV * p, SV * second, SV * third) {
          return obj_ref;
        }
        if(strEQ(h, "Math::GMPz")) {
-         mpfr_init2(t, (mpfr_prec_t)mpz_sizeinbase(*(INT2PTR(mpz_t *, SvIV(SvRV(second)))), 2));
-         mpfr_set_z(t, *(INT2PTR(mpz_t *, SvIV(SvRV(second)))), __gmpfr_default_rounding_mode);
-         if(third == &PL_sv_yes) mpfr_pow(*mpfr_t_obj, t, *(INT2PTR(mpfr_t *, SvIV(SvRV(p)))), __gmpfr_default_rounding_mode);
-         else mpfr_pow(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(p)))), t, __gmpfr_default_rounding_mode);
-         mpfr_clear(t);
+         if(third == &PL_sv_yes) {
+           mpfr_init2(t, (mpfr_prec_t)mpz_sizeinbase(*(INT2PTR(mpz_t *, SvIV(SvRV(second)))), 2));
+           mpfr_set_z(t, *(INT2PTR(mpz_t *, SvIV(SvRV(second)))), __gmpfr_default_rounding_mode);
+           mpfr_pow(*mpfr_t_obj, t, *(INT2PTR(mpfr_t *, SvIV(SvRV(p)))), __gmpfr_default_rounding_mode);
+           mpfr_clear(t);
+         }
+         else mpfr_pow_z(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(p     )))),
+                                      *(INT2PTR(mpz_t * , SvIV(SvRV(second)))),
+                                      __gmpfr_default_rounding_mode);
          return obj_ref;
        }
        if(strEQ(h, "Math::GMPq")) {
@@ -5823,7 +5827,7 @@ SV * Rmpfr_get_float128(pTHX_ mpfr_t * op, SV * rnd) {
 
 void Rmpfr_get_FLOAT128(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
 #if (!defined(MPFR_VERSION) || (MPFR_VERSION < MPFR_VERSION_NUM(3,2,0)))
-     croak("Perl interface to Rmpfr_get_float128 not available for this version (%s) of the mpfr library. We need at least version 3.2.0",
+     croak("Perl interface to Rmpfr_get_FLOAT128 not available for this version (%s) of the mpfr library. We need at least version 3.2.0",
               MPFR_VERSION_STRING);
 #endif
 
@@ -5839,10 +5843,10 @@ void Rmpfr_get_FLOAT128(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
       if(strEQ(h, "Math::Float128"))
         *(INT2PTR(float128 *, SvIV(SvRV(rop)))) = mpfr_get_float128(*op, (mp_rnd_t)SvUV(rnd));
 
-       else croak("1st arg (a %s object) supplied to Rmpfr_get_float128 needs to be a Math::Float128 object",
+       else croak("1st arg (a %s object) supplied to Rmpfr_get_FLOAT128 needs to be a Math::Float128 object",
                       HvNAME(SvSTASH(SvRV(rop))));
     }
-    else croak("1st arg (which needs to be a Math::Float128 object) supplied to Rmpfr_get_float128 is not an object");
+    else croak("1st arg (which needs to be a Math::Float128 object) supplied to Rmpfr_get_FLOAT128 is not an object");
 
 #else
 
@@ -5853,7 +5857,7 @@ void Rmpfr_get_FLOAT128(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
 
 SV * Rmpfr_set_FLOAT128(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
 #if (!defined(MPFR_VERSION) || (MPFR_VERSION < MPFR_VERSION_NUM(3,2,0)))
-     croak("Perl interface to Rmpfr_set_float128 not available for this version (%s) of the mpfr library. We need at least version 3.2.0",
+     croak("Perl interface to Rmpfr_set_FLOAT128 not available for this version (%s) of the mpfr library. We need at least version 3.2.0",
             MPFR_VERSION_STRING);
 #endif
 
@@ -5868,10 +5872,10 @@ SV * Rmpfr_set_FLOAT128(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
 
       if(strEQ(h, "Math::Float128"))
         return newSViv(mpfr_set_float128(*rop, *(INT2PTR(float128 *, SvIV(SvRV(op)))), (mp_rnd_t)SvUV(rnd)));
-       croak("2nd arg (a %s object) supplied to Rmpfr_set_float128 needs to be a Math::Float128 object",
+       croak("2nd arg (a %s object) supplied to Rmpfr_set_FLOAT128 needs to be a Math::Float128 object",
                HvNAME(SvSTASH(SvRV(op))));
     }
-    else croak("2nd arg (which needs to be a Math::Float128 object) supplied to Rmpfr_set_float128 is not an object");
+    else croak("2nd arg (which needs to be a Math::Float128 object) supplied to Rmpfr_set_FLOAT128 is not an object");
 
 #else
 
@@ -5885,7 +5889,7 @@ SV * Rmpfr_set_float128(pTHX_ mpfr_t * rop, SV * q, SV * rnd) {
 #ifdef CAN_PASS_FLOAT128
      return newSViv(mpfr_set_float128(*rop, (float128)SvNV(q), (mp_rnd_t)SvUV(rnd)));
 #else
-     croak("Cannot use Rmpfr_set_float128 to return an NV");
+     croak("Cannot use Rmpfr_set_float128 to set an NV");
 #endif
 
 }
