@@ -53,23 +53,27 @@ you'll need to run:
 perl Makefile.pl INC="-I/path/to/gmp_includes -I/path/to/mpfr_includes"
  LIBS="-L/path/to/mpfr_lib -lmpfr -L/path/to/gmp_lib -lgmp"
 
+Other commandline args you may want to provide to 'perl Makefile.PL' are
+D64=1 (for _Decimal64 support) and F128=1 (for __float128 support).
+See the Decimal64 and Float128 sections (below).
+
 ==================================
 64-bit-int and long double support
 ==================================
 
 If your perl's Config reports that 'ivsize' is greater than or
-equal to 8, then Math::MPFR will, by default, be built with access
-to the mpfr_*_uj and mpfr_*_sj functions. Else, access to those
-functions is, by default, denied. You can override the default by
-opening up the Makefile.PL and uncommenting the appropriate line (just
-a few lines down from the top of the file ... the comments in that
-file should make it clear).
+equal to 8 && 'ivtype' is not 'long', then Math::MPFR will, by default,
+be built with access to the mpfr_*_uj and mpfr_*_sj functions. Else,
+access to those functions is, by default, denied. You can override the
+default by opening up the Makefile.PL and uncommenting the appropriate
+line (just a few lines down from the top of the file ... the comments
+in that file should make it clear).
 
 Similarly, if your perl's Config reports that 'nvsize' is greater than
-8 then Math::MPFR will, by default, be built with access
-to the mpfr_*_ld functions. Else, access to those functions is,
-by default, denied. Again, you can override the default by opening up the
-Makefile.PL and uncommenting the appropriate line.
+8 then Math::MPFR will, be built with access to the mpfr_*_ld functions.
+Else, access to those functions is, by default, denied. Again, you can
+override the default by opening up the Makefile.PL and uncommenting the
+appropriate line.
 
 I believe it to be both unnecessary and inadvisable to override the
 default - but if you do find that you need to override the default,
@@ -104,15 +108,17 @@ achieved by leaving $have_decimal64 set to zero.
 Conversion between Math::Float128 and Math::MPFR objects
 =========================================================
 
-The functions Rmpfr_set_float128 and Rmpfr_get_float128 allow
+The functions Rmpfr_set_FLOAT128 and Rmpfr_get_FLOAT128 allow
 conversion between Math::Float128 (__float128) and Math::MPFR (mpfr_t)
 objects.
 For this feature to be available you firstly need a compiler that has
 the __float128 data type.
 Then you need to build and install Math::Float128.
-You'll also need to have the mpfr library (version 3.1.1 at least)
+You'll also need to have the mpfr library (version 3.2.0 at least)
 configured to handle the __float128-mpfr_t conversions. See the mpfr
-documentation for details of that aspect.
+documentation for details of that aspect. (It's just a matter of
+providing Configure with the --enable-float128 option when building
+mpfr-3.2.0 or later.)
 
 If those pre-conditions are met, you also need to provide F128=1
 as a command line argument to 'perl Makefile.PL'. (Altenatively you
@@ -137,4 +143,30 @@ and Math::MPFR objects:
 If your perl's nvtype is long double, just use Rmpfr_set_ld and
 Rmpfr_get_ld instead.
 Math::LongDouble provides 'long double' support for perls whose
-nvtype is 'double'.
+nvtype is other than 'long double'.
+
+=======================================================
+Conversion between __float128 NV and Math::MPFR objects
+=======================================================
+
+As of perl-5.21.4 it is possible to build perl with an nvtype of
+__float128. This is achieved by specifying -Dusequadmath as a
+Configure arg .... but, it will not work for all architectures
+and compilers.
+
+If $Config{nvtype} specifies '__float128' && if your mpfr library
+(need 3.2.0 or later) was built with --enable-float128 then you
+can pass your __float128 NV values to and from Math::MPFR using
+the Rmpfr_set_float128() and Rmpfr_get_float128() functions.
+And the overloaded operations will also accept the __float128 NV
+arguments as one would want.
+
+However, for that to work, you also need to have built Math::MPFR
+by starting with:
+
+  perl Makefile.PL F128=1
+
+(Altenatively you could edit the Makefile.PL before building
+Math::MPFR and set its $have_float128 variable to 1.)
+
+
