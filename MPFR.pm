@@ -749,6 +749,45 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    segfaults when I try to do that, so I've stopped
    recommending it - and don't support the practice.
 
+=head1 PASSING __float128 VALUES
+
+   There are 3 ways to pass __float128 values to/from
+   Math::MPFR:
+
+    1) Install Math::Float128 and build Math::MPFR by providing the
+    "F128=1" arg to the Makefile.pl:
+
+      perl Makefile.PL F128=1
+
+    Then you can pass the values of the Math::Float128 objects to
+    and from Math::MPFR using:
+
+      Rmpfr_set_FLOAT128() and Rmpfr_get_FLOAT128()
+
+    2) Build perl (5.21.4 or later) with -Dusequadmath; build the
+    mpfr-3.2.0 (or later) library with the configure option
+    --enable-float128, and then build Math::MPFR by providing the
+    "F128=1" arg to the Makefile.pl:
+
+      perl Makefile.PL F128=1
+
+    Then you can pass your perl's __float128 NV values directly
+    to/from Math::MPFR using:
+
+      Rmpfr_set_float128() or Rmpfr_set_NV() and
+      Rmpfr_get_float128() or Rmpfr_get_NV()
+
+    This will also mean that overloaded operations that receive an
+    NV will evaluate that (__float128) NV to it's full precision.
+    And assigning the NV as Math::MPFR->new($nv) will also work as
+    intended.
+
+    3) Convert the __float128 values to a string and pass them to
+    and from Math::MPFR using:
+
+      Rmpfr_set_str() and Rmpfr_get_str()
+
+
 =head1 FUNCTIONS
 
    These next 3 functions are demonstrated above:
@@ -1007,11 +1046,12 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_set_q($rop, $q, $rnd); # $q is a mpq object.
    $si = Rmpfr_set_f($rop, $f, $rnd); # $f is a mpf object.
    $si = Rmpfr_set_flt($rop, $float, $rnd); # mpfr-3.0.0 and later only
-   $si = Rmpfr_set_DECIMAL64($rop, $d64, $rnd) # mpfr-3.1.1 and later
-                                               # only. $d64 is a
+   $si = Rmpfr_set_float128($rop, $f128, $rnd); # mpfr-3.2.0 and later
+   $si = Rmpfr_set_DECIMAL64($rop, $D64, $rnd) # mpfr-3.1.1 and later
+                                               # only. $D64 is a
                                                # Math::Decimal64 object
-   $si = Rmpfr_set_float128($rop, $f128, $rnd) # mpfr-3.2.0 and later
-                                               # only. $f128 is a
+   $si = Rmpfr_set_FLOAT128($rop, $F128, $rnd) # mpfr-3.2.0 and later
+                                               # only. $F128 is a
                                                # Math::Float128 object
     Set the value of $rop from 2nd arg, rounded to the precision of
     $rop towards the given direction $rnd.  Please note that even a
@@ -1028,8 +1068,9 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Rmpfr_set_NV(), but if your perl's nvtype is 'double' and you want
     to set a value whose precision is that of 'long double', then
     install Math::LongDouble and use Rmpfr_set_LD().
-    Rmpfr_set_NV simply calls either mpfr_set_ld or mpfr_set_ld,
-    as appropriate for your Math::MPFR and perl configuration.
+    Rmpfr_set_NV simply calls either mpfr_set_ld, mpfr_set_ld, or
+    mpfr_set_float128 as appropriate for your Math::MPFR and perl
+    configuration.
 
    $si = Rmpfr_set_ui_2exp($rop, $ui, $exp, $rnd);
    $si = Rmpfr_set_si_2exp($rop, $si, $exp, $rnd);
@@ -1268,14 +1309,15 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $double = Rmpfr_get_d($op, $rnd);
    $ld     = Rmpfr_get_ld($op, $rnd);
    $f128   = Rmpfr_get_float128($op, $rnd); # nvtype must be __float128
+                                            # mpfr-3.2.0 or later
    $nv     = Rmpfr_get_NV($op, $rnd);
    $float  = Rmpfr_get_flt($op, $rnd);   # mpfr-3.0.0 and later.
    Rmpfr_get_LD($LD, $op, $rnd); # $LD is a Math::LongDouble object.
    Rmpfr_get_DECIMAL64($d64, $op, $rnd); # mpfr-3.1.1 and later.
                                          # $d64 is a Math::Decimal64
                                          # object.
-   Rmpfr_get_FLOAT128($f128, $op, $rnd); # mpfr-3.2.0 and later.
-                                         # $f128 is a Math::Float128
+   Rmpfr_get_FLOAT128($F128, $op, $rnd); # mpfr-3.2.0 and later.
+                                         # $F128 is a Math::Float128
                                          # object.
     Convert $op to a 'double' a 'long double' an 'NV', a float, a
     __float128, a Math::LongDouble object, a Math::Decimal64 object, or
@@ -2221,12 +2263,13 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
      $M ** $G;
 
     In each of the above, a Math::MPFR object containing the result
-    of the operation is returned. It is also now permissible to do:
+    of the operation is returned.It is also now permissible to do:
 
      $M += $G;
      $M -= $G;
      $M *= $G;
      $M /= $G;
+     $M **= $G;
 
     If you have version 0.35 (or later) of Math::GMPz, Math::GMPq
     and Math::GMPf, it is also permissible to do:
@@ -2239,9 +2282,18 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
     Again, each of those operations returns a Math::MPFR object
     containing the result of the operation.
-    Each operation is conducted using current default rounding mode
-    and, if there's a need for the operation to create a Math::MPFR
-    object, the created object will be given current default precision.
+    Each operation is conducted using current default rounding mode.
+
+    NOTE: If $G is a Math::GMPq object or a Math::GMPz object, then
+    the value of $G/$M is calculated by doing 1/($M/$G). This
+    involves *2* roundings of the value that is returned - once when
+    $M/$G is calculated, and again when the inverse is calculated.
+
+    NOTE: In overloading a ** (power) operation that involves a
+    Math::GMPq object, it is necessary to convert the Math::GMPq
+    object to an mpfr_t (the type of value encapsulated in the
+    Math::MPFR object). This conversion is done using current default
+    precision and current default rounding mode.
 
     The following is still NOT ALLOWED, and will cause a fatal error:
 
@@ -2258,23 +2310,18 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     using the first value it finds, or croaking if it gets
     to step 6:
 
-    1. If the variable is an unsigned long then that value is used.
-       The variable is considered to be an unsigned long if
+    1. If the variable is a UV (unsigned integer value) then that
+       value is used. The variable is considered to be a UV if
        (perl 5.8) the UOK flag is set or if (perl 5.6) SvIsUV()
-       returns true.(In the case of perls built with
-       -Duse64bitint, the variable is treated as an unsigned long
-       long int if the UOK flag is set.)
+       returns true.
 
-    2. If the variable is a signed long int, then that value is used.
-       The variable is considered to be a signed long int if the
-       IOK flag is set. (In the case of perls built with
-       -Duse64bitint, the variable is treated as a signed long long
-       int if the IOK flag is set.)
+    2. If the variable is an IV (signed integer value) then that
+       value is used. The variable is considered to be an IV if the
+       IOK flag is set.
 
-    3. If the variable is a double, then that value is used. The
-       variable is considered to be a double if the NOK flag is set.
-       (In the case of perls built with -Duselongdouble, the variable
-       is treated as a long double if the NOK flag is set.)
+    3. If the variable is an NV (floating point value) then that
+       value is used. The variable is considered to be an NV if the
+       NOK flag is set.
 
     4. If the variable is a string (ie the POK flag is set) then the
        value of that string is used. If the POK flag is set, but the
