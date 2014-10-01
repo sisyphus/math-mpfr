@@ -1,3 +1,5 @@
+3.24
+
 3.23
  - Rename Rmpfr_get_decimal64, Rmpfr_set_decimal64, Rmpfr_get_float128 & Rmpfr_set_float128
        to Rmpfr_get_DECIMAL64, Rmpfr_set_DECIMAL64, Rmpfr_get_FLOAT128 & Rmpfr_set_FLOAT128
