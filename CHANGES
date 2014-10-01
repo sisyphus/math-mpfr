@@ -8,6 +8,7 @@
  - Rename USE_64_BIT_INT #define to MATH_MPFR_NEED_LONG_LONG_INT
  - Define IVSIZE_BITS (in XS file) if MATH_MPFR_NEED_LONG_LONG_INT is defined - for use in
    initialization of mpfr_t in some of the overload functions.
+ - Add FLOAT128_DIG
 
 3.22
  - Add some metadata to Makefile.PL.
