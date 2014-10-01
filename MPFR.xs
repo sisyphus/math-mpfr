@@ -5696,6 +5696,14 @@ SV * _nvsize(pTHX) {
      return newSVuv(sizeof(NV));
 }
 
+SV * _FLT128_DIG(pTHX) {
+#ifdef FLT128_DIG
+     return newSViv(FLT128_DIG);
+#else
+     return &PL_sv_undef;
+#endif
+}
+
 SV * _LDBL_DIG(pTHX) {
 #ifdef LDBL_DIG
      return newSViv(LDBL_DIG);
@@ -5707,6 +5715,14 @@ SV * _LDBL_DIG(pTHX) {
 SV * _DBL_DIG(pTHX) {
 #ifdef DBL_DIG
      return newSViv(DBL_DIG);
+#else
+     return &PL_sv_undef;
+#endif
+}
+
+SV * _FLT128_MANT_DIG(pTHX) {
+#ifdef FLT128_MANT_DIG
+     return newSViv(FLT128_MANT_DIG);
 #else
      return &PL_sv_undef;
 #endif
@@ -5917,7 +5933,15 @@ int _can_pass_float128(void) {
 
 }
 
+int _mpfr_want_float128(void) {
 
+#ifdef MPFR_WANT_FLOAT128
+   return 1;
+#else
+   return 0;
+#endif
+
+}
 
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
@@ -9589,6 +9613,13 @@ OUTPUT:  RETVAL
 
 
 SV *
+_FLT128_DIG ()
+CODE:
+  RETVAL = _FLT128_DIG (aTHX);
+OUTPUT:  RETVAL
+
+
+SV *
 _LDBL_DIG ()
 CODE:
   RETVAL = _LDBL_DIG (aTHX);
@@ -9599,6 +9630,13 @@ SV *
 _DBL_DIG ()
 CODE:
   RETVAL = _DBL_DIG (aTHX);
+OUTPUT:  RETVAL
+
+
+SV *
+_FLT128_MANT_DIG ()
+CODE:
+  RETVAL = _FLT128_MANT_DIG (aTHX);
 OUTPUT:  RETVAL
 
 
@@ -9731,5 +9769,9 @@ _readonly_off (sv)
 
 int
 _can_pass_float128 ()
+
+
+int
+_mpfr_want_float128 ()
 
 
