@@ -7,7 +7,7 @@ require Exporter;
 *import = \&Exporter::import;
 require DynaLoader;
 
-our $VERSION = '3.23';
+our $VERSION = '3.24';
 $VERSION = eval $VERSION;
 DynaLoader::bootstrap Math::MPFR::V $VERSION;
 
