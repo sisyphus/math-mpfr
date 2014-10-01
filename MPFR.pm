@@ -28,7 +28,7 @@
     use subs qw(MPFR_VERSION MPFR_VERSION_MAJOR MPFR_VERSION_MINOR
                 MPFR_VERSION_PATCHLEVEL MPFR_VERSION_STRING
                 RMPFR_PREC_MIN RMPFR_PREC_MAX
-                MPFR_DBL_DIG MPFR_LDBL_DIG);
+                MPFR_DBL_DIG MPFR_LDBL_DIG MPFR_FLT128_DIG);
 
     use overload
     '++'   => \&overload_inc,
@@ -151,7 +151,7 @@ Rmpfr_ai Rmpfr_set_flt Rmpfr_get_flt Rmpfr_urandom Rmpfr_set_z_2exp
 Rmpfr_set_divby0 Rmpfr_clear_divby0 Rmpfr_divby0_p
 Rmpfr_buildopt_tune_case Rmpfr_frexp Rmpfr_grandom Rmpfr_z_sub Rmpfr_buildopt_gmpinternals_p
 prec_cast
-MPFR_DBL_DIG MPFR_LDBL_DIG
+MPFR_DBL_DIG MPFR_LDBL_DIG MPFR_FLT128_DIG
 mpfr_max_orig_len mpfr_min_inter_prec mpfr_min_inter_base mpfr_max_orig_base
 );
 
@@ -245,7 +245,7 @@ Rmpfr_ai Rmpfr_set_flt Rmpfr_get_flt Rmpfr_urandom Rmpfr_set_z_2exp
 Rmpfr_set_divby0 Rmpfr_clear_divby0 Rmpfr_divby0_p
 Rmpfr_buildopt_tune_case Rmpfr_frexp Rmpfr_grandom Rmpfr_z_sub Rmpfr_buildopt_gmpinternals_p
 prec_cast
-MPFR_DBL_DIG MPFR_LDBL_DIG
+MPFR_DBL_DIG MPFR_LDBL_DIG MPFR_FLT128_DIG
 mpfr_max_orig_len mpfr_min_inter_prec mpfr_min_inter_base mpfr_max_orig_base
 )]);
 
@@ -519,6 +519,7 @@ sub MPFR_VERSION_PATCHLEVEL {return _MPFR_VERSION_PATCHLEVEL()}
 sub MPFR_VERSION_STRING {return _MPFR_VERSION_STRING()}
 sub MPFR_DBL_DIG {return _DBL_DIG()}
 sub MPFR_LDBL_DIG {return _LDBL_DIG()}
+sub MPFR_FLT128_DIG {return _FLT128_DIG()}
 
 sub mpfr_min_inter_prec {
     die "Wrong number of args to minimum_intermediate_prec()" if @_ != 3;
@@ -2432,12 +2433,16 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    BASE CONVERSIONS
 
-   $DBL_DIG  = MPFR_DBL_DIG;  # Will be 0 if float.h doesn't define
+   $DBL_DIG  = MPFR_DBL_DIG;  # Will be undef if float.h doesn't define
                               # DBL_DIG.
 
-   $LDBL_DIG = MPFR_LDBL_DIG; # Will be 0 if float.h doesn't define
+   $LDBL_DIG = MPFR_LDBL_DIG; # Will be undef if float.h doesn't define
                               # LDBL_DIG.
 
+   $FLT128_DIG = MPFR_FLT128_DIG; # Will be undef if quadmath.h has not
+                                  # been loaded, or quadmath.h does not
+                                  # define FLT128_DIG
+.
    $min_prec = mpfr_min_inter_prec($orig_base, $orig_length, $to_base);
    $max_len  = mpfr_max_orig_len($orig_base, $to_base, $to_prec);
    $min_base = mpfr_min_inter_base($orig_base, $orig_length, $to_prec);
