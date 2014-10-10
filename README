@@ -86,7 +86,7 @@ I am contactable by email at sisyphus at(@) cpan dot (.) org.
 Conversion between Math::Decimal64 and Math::MPFR objects
 =========================================================
 
-The functions Rmpfr_set_decimal64 and Rmpfr_get_decimal64 allow
+The functions Rmpfr_set_DECIMAL64 and Rmpfr_get_DECIMAL64 allow
 conversion between Math::Decimal64 (_Decimal64) and Math::MPFR (mpfr_t)
 objects.
 For this feature to be available you firstly need a compiler that has
