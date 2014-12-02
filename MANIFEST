@@ -7,6 +7,7 @@ CHANGES
 Prec/Prec.xs
 Prec/Prec.pm
 Prec/Makefile.PL
+demos/doubledouble.p
 V/V.xs
 V/V.pm
 V/Makefile.PL
@@ -38,6 +39,7 @@ t/new.t
 t/out_str.t
 t/overload.t
 t/overload_cross_class.t
+t/overload_float128.t
 t/P_specifier.t
 t/pod.t
 t/printf.t
