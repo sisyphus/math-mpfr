@@ -62,7 +62,9 @@ print scalar(reverse(unpack("h*", (pack "d<", $msd)))) .  " ";
 print scalar(reverse(unpack("h*", (pack "d<", $lsd)))) .  "\n\n";
 
 print "Finally, for the unwary, note eg that dd_obj(Math::MPFR->new(1.23)) and\n",
-      "dd_obj(Math::MPFR->new('1.23') return different values. The former:\n\n";
+      "dd_obj(Math::MPFR->new('1.23') return different values (unless your perl's NV\n",
+      "happens to be doubledouble, __float128 or a quad long double).\n",
+      "On a perl whose NV type is 'double', the former is:\n\n";
 
 ($msd, $lsd) = dd_obj(Math::MPFR->new(1.23));
 
@@ -179,10 +181,13 @@ And, print out 2**1023 - 2**-1074 in doubledouble big endian format:
 7fe0000000000000 8000000000000001
 
 Finally, for the unwary, note eg that dd_obj(Math::MPFR->new(1.23)) and
-dd_obj(Math::MPFR->new('1.23')) return different values. The former:
+dd_obj(Math::MPFR->new('1.23')) return different values (unless your perl's NV
+happens to be doubledouble, __float128 or a quad long double).
+On a perl whose NV type is 'double', the former is:
 
 1.23 0
 
  and the latter:
 
 1.23 1.77635683940025e-017
+
