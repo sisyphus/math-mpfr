@@ -25,17 +25,19 @@ if(Math::MPFR::_can_pass_float128()) {
   }
 }
 elsif($Config{nvtype} eq '__float128') {
+
+  # We can't pass __float128 types, so we'll pass the values as a long double.
+
   print "1..$t\n";
 
   # First, work out the precision of the long double:
-  my ($frac, $prec) = (2.0, 0);
-  my $hex = scalar reverse unpack "h*", pack "D<", sqrt($frac);
-
-  $hex =~ s/^0+//;
-  my $len = length $hex;
-
-  $prec = $len == 20 ? 64
-                     : $len == 32 ? 113 : 0;
+  my($frac, $prec) = (2.0, $Config{longdblkind});
+  if(!defined($prec)) {$prec = 0}
+  elsif($prec == 0) {$prec = 53}
+  elsif($prec == 1 || $prec == 2) {$prec = 113}
+  elsif($prec == 3 || $prec == 4) {$prec = 64}
+  elsif($prec == 5 || $prec == 6) {$prec = 2098}
+  else {$prec = 0}
 
   if(!$prec) {
     warn "\n Skipping tests - couldn't determine precision of long double\n";
