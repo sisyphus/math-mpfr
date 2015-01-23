@@ -1,5 +1,7 @@
 3.24
  - Correction to t/native_float128.t
+ - Use NVtoD64 to assign NV to Math::Decimal64 object in D64_LD.t - as new() is no longer
+   capable of making that assignment.
 
 3.23
  - Rename Rmpfr_get_decimal64, Rmpfr_set_decimal64, Rmpfr_get_float128 & Rmpfr_set_float128
