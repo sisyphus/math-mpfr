@@ -69,7 +69,7 @@ unless($why) {
 
   for(3 .. 70) {
     my $eps = Math::Decimal64->new(1, -398);
-    my $eps_ret = Math::Decimal64->new(2.5);
+    my $eps_ret = NVtoD64(2.5);
     my $eps_fr = Rmpfr_init2($_);
     Rmpfr_set_DECIMAL64($eps_fr, $eps, MPFR_RNDN);
     Rmpfr_get_DECIMAL64($eps_ret, $eps_fr, MPFR_RNDN);
