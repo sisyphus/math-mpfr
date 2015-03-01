@@ -84,6 +84,9 @@ typedef __float128 float128;
 #define __gmpfr_default_rounding_mode mpfr_get_default_rounding_mode()
 #endif
 
+int nnum = 0; /* flag that is incremented whenever a string containing
+                 non-numeric characters is treated as a number */
+
 /* Has inttypes.h been included ? */
 int _has_inttypes(void) {
 #ifdef _MSC_VER
@@ -95,6 +98,11 @@ return 1;
 return 0;
 #endif
 #endif
+}
+
+int NNW_val(pTHX) {
+  /* return the numeric value of $Math::MPFR::NNW */
+  return SvIV(get_sv("Math::MPFR::NNW", 0));
 }
 
 void Rmpfr_set_default_rounding_mode(pTHX_ SV * round) {
@@ -205,16 +213,7 @@ void Rmpfr_init_set(pTHX_ mpfr_t * q, SV * round) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
      int ret;
-/*
-     if(GIMME_V != G_ARRAY && SvIV(get_sv("Math::MPFR::WARN", 0))) {
-         warn("You are discarding the Math::MPFR object that Rmpfr_init_set has created.");
-         warn("%s%s%s%s",
-              "This is probably NOT what you want !!\n",
-              "Refer to the Rmpfr_init_set documentation in the\n",
-              "'COMBINED INITIALIZATION AND ASSIGNMENT' section.\n",
-              "(You can disable this warning by setting $Math::MPFR::WARN to 0.)");
-     }
-*/
+
 #if MPFR_VERSION_MAJOR < 3
      if((mp_rnd_t)SvUV(round) > 3) croak("Illegal rounding value supplied for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
 #endif
@@ -446,6 +445,11 @@ void Rmpfr_init_set_str(pTHX_ SV * q, SV * base, SV * round) {
      sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
      SvREADONLY_on(obj);
      ret = mpfr_init_set_str(*mpfr_t_obj, SvPV_nolen(q), ret, (mp_rnd_t)SvUV(round));
+     if(ret) {
+       nnum++;
+       if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+         warn("1st arg given to Rmpfr_init_set_str contains non-numeric characters");
+     }
 
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
@@ -690,6 +694,11 @@ void Rmpfr_init_set_str_nobless(pTHX_ SV * q, SV * base, SV * round) {
      sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
      SvREADONLY_on(obj);
      ret = mpfr_init_set_str(*mpfr_t_obj, SvPV_nolen(q), ret, (mp_rnd_t)SvUV(round));
+     if(ret) {
+       nnum++;
+       if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+         warn("1st arg given to Rmpfr_init_set_str_nobless contains non-numeric characters");
+     }
 
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
@@ -857,14 +866,20 @@ SV * Rmpfr_set_f(pTHX_ mpfr_t * p, mpf_t * q, SV * round) {
      return newSViv(mpfr_set_f(*p, *q, (mp_rnd_t)SvUV(round)));
 }
 
-SV * Rmpfr_set_str(pTHX_ mpfr_t * p, SV * num, SV * base, SV * round) {
+int Rmpfr_set_str(pTHX_ mpfr_t * p, SV * num, SV * base, SV * round) {
+    int ret, b = (int)SvIV(base);
 #if MPFR_VERSION_MAJOR < 3
     if((mp_rnd_t)SvUV(round) > 3) croak("Illegal rounding value supplied for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
 #endif
-     int b = (int)SvIV(base);
      if(b < 0 || b > MAXIMUM_ALLOWABLE_BASE || b == 1)
         croak("3rd argument supplied to Rmpfr_set_str is out of allowable range");
-     return newSViv(mpfr_set_str(*p, SvPV_nolen(num), b, (mp_rnd_t)SvUV(round)));
+     ret = mpfr_set_str(*p, SvPV_nolen(num), b, (mp_rnd_t)SvUV(round));
+     if(ret) {
+       nnum++;
+       if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+         warn("1st arg given to Rmpfr_init_set_str contains non-numeric characters");
+     }
+     return ret;
 }
 
 void Rmpfr_set_str_binary(pTHX_ mpfr_t * p, SV * str) {
@@ -1803,6 +1818,11 @@ SV * TRmpfr_inp_str(pTHX_ mpfr_t * p, FILE * stream, SV * base, SV * round) {
         croak("3rd argument supplied to TRmpfr_inp_str is out of allowable range (must be between 2 and %d inclusive)",
         MAXIMUM_ALLOWABLE_BASE);
      ret = mpfr_inp_str(*p, stream, (int)SvIV(base), (mp_rnd_t)SvUV(round));
+     if(!ret) {
+       nnum++;
+       if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+         warn("input to TRmpfr_inp_str contains non-numeric characters");
+     }
      /* fflush(stream); */
      return newSVuv(ret);
 }
@@ -1816,6 +1836,11 @@ SV * Rmpfr_inp_str(pTHX_ mpfr_t * p, SV * base, SV * round) {
         croak("2nd argument supplied to Rmpfr_inp_str is out of allowable range (must be between 2 and %d inclusive)",
         MAXIMUM_ALLOWABLE_BASE);
      ret = mpfr_inp_str(*p, NULL, (int)SvIV(base), (mp_rnd_t)SvUV(round));
+     if(!ret) {
+       nnum++;
+       if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+         warn("input to Rmpfr_inp_str contains non-numeric characters");
+     }
      /* fflush(stdin); */
      return newSVuv(ret);
 }
@@ -2730,6 +2755,7 @@ SV * Rmpfr_sum(pTHX_ mpfr_t * rop, SV * avref, SV * len, SV * round) {
 SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj, t;
      SV * obj_ref, * obj;
+     int ret;
 
      Newx(mpfr_t_obj, 1, mpfr_t);
      if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_mul function");
@@ -2758,8 +2784,12 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
      }
 #else
      if(SvIOK(b)) {
-       if(mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_mul");
+       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded multiplication (*) contains non-numeric characters");
+       }
        mpfr_mul(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
        return obj_ref;
      }
@@ -2804,8 +2834,12 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
 #endif
 
      if(SvPOK(b)) {
-       if(mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_mul");
+       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded multiplication (*) contains non-numeric characters");
+       }
        mpfr_mul(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
        return obj_ref;
      }
@@ -2846,6 +2880,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
 SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj, t;
      SV * obj_ref, * obj;
+     int ret;
 
      Newx(mpfr_t_obj, 1, mpfr_t);
      if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_add function");
@@ -2874,8 +2909,12 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
      }
 #else
      if(SvIOK(b)) {
-       if(mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_add");
+       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded addition (+) contains non-numeric characters");
+       }
        mpfr_add(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
        return obj_ref;
      }
@@ -2919,8 +2958,12 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
 #endif
 
      if(SvPOK(b)) {
-       if(mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_add");
+       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded addition (+) contains non-numeric characters");
+       }
        mpfr_add(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
        return obj_ref;
      }
@@ -2961,6 +3004,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
 SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj, t;
      SV * obj_ref, * obj;
+     int ret;
 
      Newx(mpfr_t_obj, 1, mpfr_t);
      if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_sub function");
@@ -2991,8 +3035,12 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
      }
 #else
      if(SvIOK(b)) {
-       if(mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_sub");
+       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded subtraction (-) contains non-numeric characters");
+       }
        if(third == &PL_sv_yes) mpfr_sub(*mpfr_t_obj, *mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), __gmpfr_default_rounding_mode);
        else mpfr_sub(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
        return obj_ref;
@@ -3043,8 +3091,12 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
 
 
      if(SvPOK(b)) {
-       if(mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_sub");
+       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("2string used in overloaded subtraction (-) contains non-numeric characters");
+       }
        if(third == &PL_sv_yes) mpfr_sub(*mpfr_t_obj, *mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), __gmpfr_default_rounding_mode);
        else mpfr_sub(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
        return obj_ref;
@@ -3087,6 +3139,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
 SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj, t;
      SV * obj_ref, * obj;
+     int ret;
 
      Newx(mpfr_t_obj, 1, mpfr_t);
      if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_div function");
@@ -3117,8 +3170,12 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
      }
 #else
      if(SvIOK(b)) {
-       if(mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_div");
+       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded division (/) contains non-numeric characters");
+       }
        if(third == &PL_sv_yes) mpfr_div(*mpfr_t_obj, *mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), __gmpfr_default_rounding_mode);
        else mpfr_div(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
        return obj_ref;
@@ -3169,8 +3226,12 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 #endif
 
      if(SvPOK(b)) {
-       if(mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_div");
+       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded division (/) contains non-numeric characters");
+       }
        if(third == &PL_sv_yes) mpfr_div(*mpfr_t_obj, *mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), __gmpfr_default_rounding_mode);
        else mpfr_div(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
        return obj_ref;
@@ -3276,8 +3337,12 @@ SV * overload_gt(pTHX_ mpfr_t * a, SV * b, SV * third) {
        }
 #else
      if(SvIOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_gt");
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded comparison (>) contains non-numeric characters");
+       }
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(third == &PL_sv_yes) ret *= -1;
@@ -3324,8 +3389,12 @@ SV * overload_gt(pTHX_ mpfr_t * a, SV * b, SV * third) {
        }
 
      if(SvPOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_gt");
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded comparison (>) contains non-numeric characters");
+       }
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(third == &PL_sv_yes) ret *= -1;
@@ -3376,8 +3445,12 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
        }
 #else
      if(SvIOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_gte");
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded comparison (>=) contains non-numeric characters");
+       }
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(third == &PL_sv_yes) ret *= -1;
@@ -3425,8 +3498,12 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
        }
 
      if(SvPOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_gte");
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded comparison (>=) contains non-numeric characters");
+       }
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(third == &PL_sv_yes) ret *= -1;
@@ -3477,8 +3554,12 @@ SV * overload_lt(pTHX_ mpfr_t * a, SV * b, SV * third) {
      }
 #else
      if(SvIOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_lt");
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded comparison (<) contains non-numeric characters");
+       }
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(third == &PL_sv_yes) ret *= -1;
@@ -3526,8 +3607,12 @@ SV * overload_lt(pTHX_ mpfr_t * a, SV * b, SV * third) {
      }
 
      if(SvPOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_lt");
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded comparison (<) contains non-numeric characters");
+       }
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(third == &PL_sv_yes) ret *= -1;
@@ -3578,8 +3663,12 @@ SV * overload_lte(pTHX_ mpfr_t * a, SV * b, SV * third) {
        }
 #else
      if(SvIOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_lte");
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded comparison (<=) contains non-numeric characters");
+       }
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(third == &PL_sv_yes) ret *= -1;
@@ -3627,8 +3716,12 @@ SV * overload_lte(pTHX_ mpfr_t * a, SV * b, SV * third) {
      }
 
      if(SvPOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_lte");
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded comparison (<=) contains non-numeric characters");
+       }
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(third == &PL_sv_yes) ret *= -1;
@@ -3680,8 +3773,12 @@ SV * overload_spaceship(pTHX_ mpfr_t * a, SV * b, SV * third) {
        }
 #else
      if(SvIOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_spaceship");
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded comparison (<=>) contains non-numeric characters");
+       }
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(third == &PL_sv_yes) ret *= -1;
@@ -3733,8 +3830,12 @@ SV * overload_spaceship(pTHX_ mpfr_t * a, SV * b, SV * third) {
      }
 
      if(SvPOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_spaceship");
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded comparison (<=>) contains non-numeric characters");
+       }
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(third == &PL_sv_yes) ret *= -1;
@@ -3784,8 +3885,12 @@ SV * overload_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
      }
 #else
      if(SvIOK(b)) {
-       if(mpfr_init_set_str(t, (char *)SvPV_nolen(b), 10, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_equiv");
+       ret =  mpfr_init_set_str(t, (char *)SvPV_nolen(b), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded comparison (==) contains non-numeric characters");
+       }
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(ret == 0) return newSViv(1);
@@ -3829,8 +3934,12 @@ SV * overload_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
      }
 
      if(SvPOK(b)) {
-       if(mpfr_init_set_str(t, (char *)SvPV_nolen(b), 0, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_equiv");
+       ret = mpfr_init_set_str(t, (char *)SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded comparison (==) contains non-numeric characters");
+       }
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(ret == 0) return newSViv(1);
@@ -3878,8 +3987,12 @@ SV * overload_not_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
      }
 #else
      if(SvIOK(b)) {
-       if(mpfr_init_set_str(t, (char *)SvPV_nolen(b), 10, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_not_equiv");
+       ret = mpfr_init_set_str(t, (char *)SvPV_nolen(b), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded comparison (!=) contains non-numeric characters");
+       }
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(ret != 0) return newSViv(1);
@@ -3923,8 +4036,12 @@ SV * overload_not_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
      }
 
      if(SvPOK(b)) {
-       if(mpfr_init_set_str(t, (char *)SvPV_nolen(b), 0, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_not_equiv");
+       ret = mpfr_init_set_str(t, (char *)SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded comparison (!=) contains non-numeric characters");
+       }
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(ret != 0) return newSViv(1);
@@ -3977,6 +4094,7 @@ SV * overload_sqrt(pTHX_ mpfr_t * p, SV * second, SV * third) {
 SV * overload_pow(pTHX_ SV * p, SV * second, SV * third) {
      mpfr_t * mpfr_t_obj, t;
      SV * obj_ref, * obj;
+     int ret;
 
      Newx(mpfr_t_obj, 1, mpfr_t);
      if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_pow function");
@@ -4007,8 +4125,12 @@ SV * overload_pow(pTHX_ SV * p, SV * second, SV * third) {
      }
 #else
      if(SvIOK(second)) {
-       if(mpfr_set_str(*mpfr_t_obj, SvPV_nolen(second), 10, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_pow");
+       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(second), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded exponentiation (**) contains non-numeric characters");
+       }
        if(third == &PL_sv_yes) mpfr_pow(*mpfr_t_obj, *mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(p)))), __gmpfr_default_rounding_mode);
        else mpfr_pow(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(p)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
        return obj_ref;
@@ -4061,8 +4183,12 @@ SV * overload_pow(pTHX_ SV * p, SV * second, SV * third) {
      }
 
      if(SvPOK(second)) {
-       if(mpfr_set_str(*mpfr_t_obj, SvPV_nolen(second), 0, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_pow");
+       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(second), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded exponentaition (**) contains non-numeric characters");
+       }
        if(third == &PL_sv_yes) mpfr_pow(*mpfr_t_obj, *mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(p)))), __gmpfr_default_rounding_mode);
        else mpfr_pow(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(p)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
        return obj_ref;
@@ -4189,6 +4315,7 @@ SV * overload_int(pTHX_ mpfr_t * p, SV * second, SV * third) {
 SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj, t;
      SV * obj_ref, * obj;
+     int ret;
 
      Newx(mpfr_t_obj, 1, mpfr_t);
      if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_atan2 function");
@@ -4229,8 +4356,12 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
      }
 #else
      if(SvIOK(b)) {
-       if(mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_atan2");
+       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded atan2 contains non-numeric characters");
+       }
        if(third == &PL_sv_yes){
          mpfr_atan2(*mpfr_t_obj, *mpfr_t_obj, *a, __gmpfr_default_rounding_mode);
        }
@@ -4300,8 +4431,12 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
      }
 
      if(SvPOK(b)) {
-       if(mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode))
-         croak("Invalid string supplied to Math::MPFR::overload_atan2");
+       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded atan2 contains non-numeric characters");
+       }
        if(third == &PL_sv_yes){
          mpfr_atan2(*mpfr_t_obj, *mpfr_t_obj, *a, __gmpfr_default_rounding_mode);
          }
@@ -4329,12 +4464,12 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
 
 /* Finish typemapping */
 
-SV * Rgmp_randinit_default_nobless(pTHX) {
+SV * Rmpfr_randinit_default_nobless(pTHX) {
      gmp_randstate_t * state;
      SV * obj_ref, * obj;
 
      Newx(state, 1, gmp_randstate_t);
-     if(state == NULL) croak("Failed to allocate memory in Rgmp_randinit_default function");
+     if(state == NULL) croak("Failed to allocate memory in Rmpfr_randinit_default function");
      obj_ref = newSV(0);
      obj = newSVrv(obj_ref, NULL);
      gmp_randinit_default(*state);
@@ -4344,12 +4479,12 @@ SV * Rgmp_randinit_default_nobless(pTHX) {
      return obj_ref;
 }
 
-SV * Rgmp_randinit_mt_nobless(pTHX) {
+SV * Rmpfr_randinit_mt_nobless(pTHX) {
      gmp_randstate_t * rand_obj;
      SV * obj_ref, * obj;
 
      Newx(rand_obj, 1, gmp_randstate_t);
-     if(rand_obj == NULL) croak("Failed to allocate memory in Math::GMPz::Random::Rgmp_randinit_mt function");
+     if(rand_obj == NULL) croak("Failed to allocate memory in Math::GMPz::Random::Rmpfr_randinit_mt function");
      obj_ref = newSV(0);
      obj = newSVrv(obj_ref, NULL);
      gmp_randinit_mt(*rand_obj);
@@ -4359,13 +4494,13 @@ SV * Rgmp_randinit_mt_nobless(pTHX) {
      return obj_ref;
 }
 
-SV * Rgmp_randinit_lc_2exp_nobless(pTHX_ SV * a, SV * c, SV * m2exp ) {
+SV * Rmpfr_randinit_lc_2exp_nobless(pTHX_ SV * a, SV * c, SV * m2exp ) {
      gmp_randstate_t * state;
      mpz_t aa;
      SV * obj_ref, * obj;
 
      Newx(state, 1, gmp_randstate_t);
-     if(state == NULL) croak("Failed to allocate memory in Rgmp_randinit_lc_2exp function");
+     if(state == NULL) croak("Failed to allocate memory in Rmpfr_randinit_lc_2exp function");
      obj_ref = newSV(0);
      obj = newSVrv(obj_ref, NULL);
      if(sv_isobject(a)) {
@@ -4375,7 +4510,7 @@ SV * Rgmp_randinit_lc_2exp_nobless(pTHX_ SV * a, SV * c, SV * m2exp ) {
           strEQ(h, "GMP::Mpz")  ||
           strEQ(h, "Math::GMPz"))
             gmp_randinit_lc_2exp(*state, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (unsigned long)SvUV(c), (unsigned long)SvUV(m2exp));
-       else croak("First arg to Rgmp_randinit_lc_2exp is of invalid type");
+       else croak("First arg to Rmpfr_randinit_lc_2exp is of invalid type");
      }
 
      else {
@@ -4383,7 +4518,7 @@ SV * Rgmp_randinit_lc_2exp_nobless(pTHX_ SV * a, SV * c, SV * m2exp ) {
          gmp_randinit_lc_2exp(*state, aa, (unsigned long)SvUV(c), (unsigned long)SvUV(m2exp));
          mpz_clear(aa);
        }
-       else croak("Seedstring supplied to Rgmp_randinit_lc_2exp is not a valid number");
+       else croak("Seedstring supplied to Rmpfr_randinit_lc_2exp is not a valid number");
      }
 
      sv_setiv(obj, INT2PTR(IV,state));
@@ -4391,14 +4526,14 @@ SV * Rgmp_randinit_lc_2exp_nobless(pTHX_ SV * a, SV * c, SV * m2exp ) {
      return obj_ref;
 }
 
-SV * Rgmp_randinit_lc_2exp_size_nobless(pTHX_ SV * size) {
+SV * Rmpfr_randinit_lc_2exp_size_nobless(pTHX_ SV * size) {
      gmp_randstate_t * state;
      SV * obj_ref, * obj;
 
-     if(SvUV(size) > 128) croak("The argument supplied to Rgmp_randinit_lc_2exp_size function (%u) needs to be in the range [1..128]", SvUV(size));
+     if(SvUV(size) > 128) croak("The argument supplied to Rmpfr_randinit_lc_2exp_size function (%u) needs to be in the range [1..128]", SvUV(size));
 
      Newx(state, 1, gmp_randstate_t);
-     if(state == NULL) croak("Failed to allocate memory in Rgmp_randinit_lc_2exp_size function");
+     if(state == NULL) croak("Failed to allocate memory in Rmpfr_randinit_lc_2exp_size function");
      obj_ref = newSV(0);
      obj = newSVrv(obj_ref, NULL);
 
@@ -4408,15 +4543,15 @@ SV * Rgmp_randinit_lc_2exp_size_nobless(pTHX_ SV * size) {
        return obj_ref;
        }
 
-     croak("Rgmp_randinit_lc_2exp_size function failed");
+     croak("Rmpfr_randinit_lc_2exp_size function failed");
 }
 
-void Rgmp_randclear(pTHX_ SV * p) {
+void Rmpfr_randclear(pTHX_ SV * p) {
      gmp_randclear(*(INT2PTR(gmp_randstate_t *, SvIV(SvRV(p)))));
      Safefree(INT2PTR(gmp_randstate_t *, SvIV(SvRV(p))));
 }
 
-void Rgmp_randseed(pTHX_ SV * state, SV * seed) {
+void Rmpfr_randseed(pTHX_ SV * state, SV * seed) {
      mpz_t s;
 
      if(sv_isobject(seed)) {
@@ -4426,7 +4561,7 @@ void Rgmp_randseed(pTHX_ SV * state, SV * seed) {
           strEQ(h, "GMP::Mpz") ||
           strEQ(h, "Math::GMPz"))
             gmp_randseed(*(INT2PTR(gmp_randstate_t *, SvIV(SvRV(state)))), *(INT2PTR(mpz_t *, SvIV(SvRV(seed)))));
-       else croak("2nd arg to Rgmp_randseed is of invalid type");
+       else croak("2nd arg to Rmpfr_randseed is of invalid type");
      }
 
      else {
@@ -4434,16 +4569,17 @@ void Rgmp_randseed(pTHX_ SV * state, SV * seed) {
          gmp_randseed(*(INT2PTR(gmp_randstate_t *, SvIV(SvRV(state)))), s);
          mpz_clear(s);
        }
-       else croak("Seedstring supplied to Rgmp_randseed is not a valid number");
+       else croak("Seedstring supplied to Rmpfr_randseed is not a valid number");
      }
 }
 
-void Rgmp_randseed_ui(pTHX_ SV * state, SV * seed) {
+void Rmpfr_randseed_ui(pTHX_ SV * state, SV * seed) {
      gmp_randseed_ui(*(INT2PTR(gmp_randstate_t *, SvIV(SvRV(state)))), (unsigned long)SvUV(seed));
 }
 
 SV * overload_pow_eq(pTHX_ SV * p, SV * second, SV * third) {
      mpfr_t t;
+     int ret;
 
      SvREFCNT_inc(p);
 
@@ -4466,9 +4602,11 @@ SV * overload_pow_eq(pTHX_ SV * p, SV * second, SV * third) {
      }
 #else
      if(SvIOK(second)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(second), 10, __gmpfr_default_rounding_mode)) {
-         SvREFCNT_dec(p);
-         croak("Invalid string supplied to Math::MPFR::overload_pow_eq");
+       ret = mpfr_init_set_str(t, SvPV_nolen(second), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded exponentiation (**=) contains non-numeric characters");
        }
        mpfr_pow(*(INT2PTR(mpfr_t *, SvIV(SvRV(p)))), *(INT2PTR(mpfr_t *, SvIV(SvRV(p)))), t, __gmpfr_default_rounding_mode);
        mpfr_clear(t);
@@ -4512,9 +4650,11 @@ SV * overload_pow_eq(pTHX_ SV * p, SV * second, SV * third) {
      }
 
      if(SvPOK(second)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(second), 0, __gmpfr_default_rounding_mode)) {
-         SvREFCNT_dec(p);
-         croak("Invalid string supplied to Math::MPFR::overload_pow_eq");
+       ret = mpfr_init_set_str(t, SvPV_nolen(second), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded exponentiation (**=) contains non-numeric characters");
        }
        mpfr_pow(*(INT2PTR(mpfr_t *, SvIV(SvRV(p)))), *(INT2PTR(mpfr_t *, SvIV(SvRV(p)))), t, __gmpfr_default_rounding_mode);
        mpfr_clear(t);
@@ -4554,6 +4694,7 @@ SV * overload_pow_eq(pTHX_ SV * p, SV * second, SV * third) {
 
 SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpfr_t t;
+     int ret;
 
      SvREFCNT_inc(a);
 
@@ -4576,10 +4717,12 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
      }
 #else
      if(SvIOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode)) {
-         SvREFCNT_dec(a);
-         croak("Invalid string supplied to Math::MPFR::overload_div_eq");
-         }
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded division (/=) contains non-numeric characters");
+       }
        mpfr_div(*(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), t, __gmpfr_default_rounding_mode);
        mpfr_clear(t);
        return a;
@@ -4630,10 +4773,12 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
      }
 
      if(SvPOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode)) {
-         SvREFCNT_dec(a);
-         croak("Invalid string supplied to Math::MPFR::overload_div_eq");
-         }
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded division (/=) contains non-numeric characters");
+       }
        mpfr_div(*(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), t, __gmpfr_default_rounding_mode);
        mpfr_clear(t);
        return a;
@@ -4669,6 +4814,7 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpfr_t t;
+     int ret;
 
      SvREFCNT_inc(a);
 
@@ -4691,10 +4837,12 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
      }
 #else
      if(SvIOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode)) {
-         SvREFCNT_dec(a);
-         croak("Invalid string supplied to Math::MPFR::overload_sub_eq");
-         }
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded subtraction (-=) contains non-numeric characters");
+       }
        mpfr_sub(*(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), t, __gmpfr_default_rounding_mode);
        mpfr_clear(t);
        return a;
@@ -4745,9 +4893,11 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
      }
 
      if(SvPOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode)) {
-         SvREFCNT_dec(a);
-         croak("Invalid string supplied to Math::MPFR::overload_sub_eq");
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded subtraction (-=) contains non-numeric characters");
        }
        mpfr_sub(*(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), t, __gmpfr_default_rounding_mode);
        mpfr_clear(t);
@@ -4784,6 +4934,7 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpfr_t t;
+     int ret;
 
      SvREFCNT_inc(a);
 
@@ -4806,9 +4957,11 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
      }
 #else
      if(SvIOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode)) {
-         SvREFCNT_dec(a);
-         croak("Invalid string supplied to Math::MPFR::overload_add_eq");
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded addition (+=) contains non-numeric characters");
        }
        mpfr_add(*(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), t, __gmpfr_default_rounding_mode);
        mpfr_clear(t);
@@ -4860,9 +5013,11 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
      }
 
      if(SvPOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode)) {
-         SvREFCNT_dec(a);
-         croak("Invalid string supplied to Math::MPFR::overload_add_eq");
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded addition (+=) contains non-numeric characters");
        }
        mpfr_add(*(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), t, __gmpfr_default_rounding_mode);
        mpfr_clear(t);
@@ -4899,6 +5054,7 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpfr_t t;
+     int ret;
 
      SvREFCNT_inc(a);
 
@@ -4921,9 +5077,11 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
      }
 #else
      if(SvIOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode)) {
-         SvREFCNT_dec(a);
-         croak("Invalid string supplied to Math::MPFR::overload_mul_eq");
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded multiplication (*=) contains non-numeric characters");
        }
        mpfr_mul(*(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), t, __gmpfr_default_rounding_mode);
        mpfr_clear(t);
@@ -4976,9 +5134,11 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
      }
 
      if(SvPOK(b)) {
-       if(mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode)) {
-         SvREFCNT_dec(a);
-         croak("Invalid string supplied to Math::MPFR::overload_mul_eq");
+       ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded multiplication (*=) contains non-numeric characters");
        }
        mpfr_mul(*(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), t, __gmpfr_default_rounding_mode);
        mpfr_clear(t);
@@ -5747,88 +5907,10 @@ SV * _DBL_MANT_DIG(pTHX) {
 
 /*///////////////////////////////////////////
 ////////////////////////////////////////////*/
-SV * Rgmp_randinit_default(pTHX) {
-     gmp_randstate_t * state;
-     SV * obj_ref, * obj;
+/* All randinit functions now moved to Math::MPFR::Random */
+/*
 
-     Newx(state, 1, gmp_randstate_t);
-     if(state == NULL) croak("Failed to allocate memory in Rgmp_randinit_default function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, NULL);
-     gmp_randinit_default(*state);
-
-     sv_setiv(obj, INT2PTR(IV,state));
-     SvREADONLY_on(obj);
-     return obj_ref;
-}
-
-SV * Rgmp_randinit_mt(pTHX) {
-     gmp_randstate_t * rand_obj;
-     SV * obj_ref, * obj;
-
-     Newx(rand_obj, 1, gmp_randstate_t);
-     if(rand_obj == NULL) croak("Failed to allocate memory in Math::GMPz::Random::Rgmp_randinit_mt function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::GMPz::Random");
-     gmp_randinit_mt(*rand_obj);
-
-     sv_setiv(obj, INT2PTR(IV, rand_obj));
-     SvREADONLY_on(obj);
-     return obj_ref;
-}
-
-SV * Rgmp_randinit_lc_2exp(pTHX_ SV * a, SV * c, SV * m2exp ) {
-     gmp_randstate_t * state;
-     mpz_t aa;
-     SV * obj_ref, * obj;
-
-     Newx(state, 1, gmp_randstate_t);
-     if(state == NULL) croak("Failed to allocate memory in Rgmp_randinit_lc_2exp function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, NULL);
-     if(sv_isobject(a)) {
-       const char* h = HvNAME(SvSTASH(SvRV(a)));
-
-       if(strEQ(h, "Math::GMP") ||
-          strEQ(h, "GMP::Mpz")  ||
-          strEQ(h, "Math::GMPz"))
-            gmp_randinit_lc_2exp(*state, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (unsigned long)SvUV(c), (unsigned long)SvUV(m2exp));
-       else croak("First arg to Rgmp_randinit_lc_2exp is of invalid type");
-     }
-
-     else {
-       if(!mpz_init_set_str(aa, SvPV_nolen(a), 0)) {
-         gmp_randinit_lc_2exp(*state, aa, (unsigned long)SvUV(c), (unsigned long)SvUV(m2exp));
-         mpz_clear(aa);
-       }
-       else croak("Seedstring supplied to Rgmp_randinit_lc_2exp is not a valid number");
-     }
-
-     sv_setiv(obj, INT2PTR(IV,state));
-     SvREADONLY_on(obj);
-     return obj_ref;
-}
-
-SV * Rgmp_randinit_lc_2exp_size(pTHX_ SV * size) {
-     gmp_randstate_t * state;
-     SV * obj_ref, * obj;
-
-     if(SvUV(size) > 128) croak("The argument supplied to Rgmp_randinit_lc_2exp_size function (%u) needs to be in the range [1..128]", SvUV(size));
-
-     Newx(state, 1, gmp_randstate_t);
-     if(state == NULL) croak("Failed to allocate memory in Rgmp_randinit_lc_2exp_size function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, NULL);
-
-     if(gmp_randinit_lc_2exp_size(*state, (unsigned long)SvUV(size))) {
-       sv_setiv(obj, INT2PTR(IV,state));
-       SvREADONLY_on(obj);
-       return obj_ref;
-       }
-
-     croak("Rgmp_randinit_lc_2exp_size function failed");
-}
-
+*/
 /***********************************************
 ************************************************/
 
@@ -5943,6 +6025,20 @@ int _mpfr_want_float128(void) {
 
 }
 
+int nnumflag(void) {
+  return nnum;
+}
+
+void clear_nnum(void) {
+  nnum = 0;
+}
+
+void set_nnum(int x) {
+  nnum = x;
+}
+
+
+
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
 
@@ -5951,6 +6047,13 @@ PROTOTYPES: DISABLE
 
 int
 _has_inttypes ()
+
+
+int
+NNW_val ()
+CODE:
+  RETVAL = NNW_val (aTHX);
+OUTPUT:  RETVAL
 
 
 void
@@ -6587,7 +6690,7 @@ CODE:
   RETVAL = Rmpfr_set_f (aTHX_ p, q, round);
 OUTPUT:  RETVAL
 
-SV *
+int
 Rmpfr_set_str (p, num, base, round)
 	mpfr_t *	p
 	SV *	num
@@ -9062,43 +9165,43 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
-Rgmp_randinit_default_nobless ()
+Rmpfr_randinit_default_nobless ()
 CODE:
-  RETVAL = Rgmp_randinit_default_nobless (aTHX);
+  RETVAL = Rmpfr_randinit_default_nobless (aTHX);
 OUTPUT:  RETVAL
 
 
 SV *
-Rgmp_randinit_mt_nobless ()
+Rmpfr_randinit_mt_nobless ()
 CODE:
-  RETVAL = Rgmp_randinit_mt_nobless (aTHX);
+  RETVAL = Rmpfr_randinit_mt_nobless (aTHX);
 OUTPUT:  RETVAL
 
 
 SV *
-Rgmp_randinit_lc_2exp_nobless (a, c, m2exp)
+Rmpfr_randinit_lc_2exp_nobless (a, c, m2exp)
 	SV *	a
 	SV *	c
 	SV *	m2exp
 CODE:
-  RETVAL = Rgmp_randinit_lc_2exp_nobless (aTHX_ a, c, m2exp);
+  RETVAL = Rmpfr_randinit_lc_2exp_nobless (aTHX_ a, c, m2exp);
 OUTPUT:  RETVAL
 
 SV *
-Rgmp_randinit_lc_2exp_size_nobless (size)
+Rmpfr_randinit_lc_2exp_size_nobless (size)
 	SV *	size
 CODE:
-  RETVAL = Rgmp_randinit_lc_2exp_size_nobless (aTHX_ size);
+  RETVAL = Rmpfr_randinit_lc_2exp_size_nobless (aTHX_ size);
 OUTPUT:  RETVAL
 
 void
-Rgmp_randclear (p)
+Rmpfr_randclear (p)
 	SV *	p
         PREINIT:
         I32* temp;
         PPCODE:
         temp = PL_markstack_ptr++;
-        Rgmp_randclear(aTHX_ p);
+        Rmpfr_randclear(aTHX_ p);
         if (PL_markstack_ptr != temp) {
           /* truly void, because dXSARGS not invoked */
           PL_markstack_ptr = temp;
@@ -9108,14 +9211,14 @@ Rgmp_randclear (p)
         return; /* assume stack size is correct */
 
 void
-Rgmp_randseed (state, seed)
+Rmpfr_randseed (state, seed)
 	SV *	state
 	SV *	seed
         PREINIT:
         I32* temp;
         PPCODE:
         temp = PL_markstack_ptr++;
-        Rgmp_randseed(aTHX_ state, seed);
+        Rmpfr_randseed(aTHX_ state, seed);
         if (PL_markstack_ptr != temp) {
           /* truly void, because dXSARGS not invoked */
           PL_markstack_ptr = temp;
@@ -9125,14 +9228,14 @@ Rgmp_randseed (state, seed)
         return; /* assume stack size is correct */
 
 void
-Rgmp_randseed_ui (state, seed)
+Rmpfr_randseed_ui (state, seed)
 	SV *	state
 	SV *	seed
         PREINIT:
         I32* temp;
         PPCODE:
         temp = PL_markstack_ptr++;
-        Rgmp_randseed_ui(aTHX_ state, seed);
+        Rmpfr_randseed_ui(aTHX_ state, seed);
         if (PL_markstack_ptr != temp) {
           /* truly void, because dXSARGS not invoked */
           PL_markstack_ptr = temp;
@@ -9655,36 +9758,6 @@ OUTPUT:  RETVAL
 
 
 SV *
-Rgmp_randinit_default ()
-CODE:
-  RETVAL = Rgmp_randinit_default (aTHX);
-OUTPUT:  RETVAL
-
-
-SV *
-Rgmp_randinit_mt ()
-CODE:
-  RETVAL = Rgmp_randinit_mt (aTHX);
-OUTPUT:  RETVAL
-
-
-SV *
-Rgmp_randinit_lc_2exp (a, c, m2exp)
-	SV *	a
-	SV *	c
-	SV *	m2exp
-CODE:
-  RETVAL = Rgmp_randinit_lc_2exp (aTHX_ a, c, m2exp);
-OUTPUT:  RETVAL
-
-SV *
-Rgmp_randinit_lc_2exp_size (size)
-	SV *	size
-CODE:
-  RETVAL = Rgmp_randinit_lc_2exp_size (aTHX_ size);
-OUTPUT:  RETVAL
-
-SV *
 Rmpfr_get_float128 (op, rnd)
 	mpfr_t *	op
 	SV *	rnd
@@ -9774,4 +9847,40 @@ _can_pass_float128 ()
 int
 _mpfr_want_float128 ()
 
+
+int
+nnumflag ()
+
+
+void
+clear_nnum ()
+
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        clear_nnum();
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+void
+set_nnum (x)
+	int	x
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        set_nnum(x);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
 
