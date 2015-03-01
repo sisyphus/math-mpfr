@@ -10,14 +10,14 @@ print  "# Using gmp library version ", Math::MPFR::gmp_v(), "\n";
 
 my $rop1 = Math::MPFR->new();
 my $rop2 = Math::MPFR->new();
-my $state1 = Rgmp_randinit_default();
-my $state2 = Rgmp_randinit_lc_2exp('123456789123456789', 98765432123456789, 50);
-my $state3 = Rgmp_randinit_lc_2exp_size(100);
-my $state4 = Rgmp_randinit_mt();
+my $state1 = Rmpfr_randinit_default();
+my $state2 = Rmpfr_randinit_lc_2exp('123456789123456789', 98765432123456789, 50);
+my $state3 = Rmpfr_randinit_lc_2exp_size(100);
+my $state4 = Rmpfr_randinit_mt();
 
-Rgmp_randseed($state1, '2345678909876543210');
-Rgmp_randseed($state2, '3456789098765432123');
-Rgmp_randseed_ui($state3, 12345678909);
+Rmpfr_randseed($state1, '2345678909876543210');
+Rmpfr_randseed($state2, '3456789098765432123');
+Rmpfr_randseed_ui($state3, 12345678909);
 
 my $ok = '';
 
