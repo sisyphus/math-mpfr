@@ -3,6 +3,7 @@
     use warnings;
     use POSIX;
     use Math::MPFR::Prec;
+    use Math::MPFR::Random;
 
     use constant  GMP_RNDN       => 0;
     use constant  GMP_RNDZ       => 1;
@@ -72,9 +73,9 @@ MPFR_RNDN MPFR_RNDZ MPFR_RNDU MPFR_RNDD MPFR_RNDA
 MPFR_VERSION MPFR_VERSION_MAJOR MPFR_VERSION_MINOR
 MPFR_VERSION_PATCHLEVEL MPFR_VERSION_STRING RMPFR_VERSION_NUM
 RMPFR_PREC_MIN RMPFR_PREC_MAX
-Rgmp_randclear Rgmp_randinit_mt
-Rgmp_randinit_default Rgmp_randinit_lc_2exp
-Rgmp_randinit_lc_2exp_size Rgmp_randseed Rgmp_randseed_ui
+Rmpfr_randclear Rmpfr_randinit_mt
+Rmpfr_randinit_default Rmpfr_randinit_lc_2exp
+Rmpfr_randinit_lc_2exp_size Rmpfr_randseed Rmpfr_randseed_ui
 Rmpfr_abs Rmpfr_acos Rmpfr_acosh Rmpfr_add Rmpfr_add_q
 Rmpfr_add_si Rmpfr_add_ui Rmpfr_add_z
 Rmpfr_agm Rmpfr_asin Rmpfr_asinh Rmpfr_atan Rmpfr_atan2 Rmpfr_atanh
@@ -166,9 +167,9 @@ MPFR_RNDN MPFR_RNDZ MPFR_RNDU MPFR_RNDD MPFR_RNDA
 MPFR_VERSION MPFR_VERSION_MAJOR MPFR_VERSION_MINOR
 MPFR_VERSION_PATCHLEVEL MPFR_VERSION_STRING RMPFR_VERSION_NUM
 RMPFR_PREC_MIN RMPFR_PREC_MAX
-Rgmp_randclear Rgmp_randinit_mt
-Rgmp_randinit_default Rgmp_randinit_lc_2exp
-Rgmp_randinit_lc_2exp_size Rgmp_randseed Rgmp_randseed_ui
+Rmpfr_randclear Rmpfr_randinit_mt
+Rmpfr_randinit_default Rmpfr_randinit_lc_2exp
+Rmpfr_randinit_lc_2exp_size Rmpfr_randseed Rmpfr_randseed_ui
 Rmpfr_abs Rmpfr_acos Rmpfr_acosh Rmpfr_add Rmpfr_add_q
 Rmpfr_add_si Rmpfr_add_ui Rmpfr_add_z
 Rmpfr_agm Rmpfr_asin Rmpfr_asinh Rmpfr_atan Rmpfr_atan2 Rmpfr_atanh
@@ -249,8 +250,8 @@ MPFR_DBL_DIG MPFR_LDBL_DIG MPFR_FLT128_DIG
 mpfr_max_orig_len mpfr_min_inter_prec mpfr_min_inter_base mpfr_max_orig_base
 )]);
 
-$Math::MPFR::WARN = 1; # Enable warning in Rmpfr_init_set_* functions.
-                       # Set to 0 to disable the warning.
+$Math::MPFR::NNW = 0; # Set to 1 to allow "non-numeric" warnings for operations involving
+                      # strings that contain non-numeric characters.
 
 sub dl_load_flags {0} # Prevent DynaLoader from complaining and croaking
 
@@ -416,7 +417,6 @@ sub new {
       $base = shift if @_;
       if($base < 0 || $base == 1 || $base > 36) {die "Invalid value for base"}
       @ret = Rmpfr_init_set_str($arg1, $base, Rmpfr_get_default_rounding_mode());
-      if($ret[1]) {warn "string supplied to new() contained invalid characters"}
       return $ret[0];
     }
 
@@ -553,8 +553,12 @@ sub mpfr_max_orig_base {
     return floor(exp(1 / ($orig_length / log($to_base) / ($to_prec -1))));
 }
 
-*Rmpfr_get_z_exp            = \&Rmpfr_get_z_2exp;
-*prec_cast                  = \&Math::MPFR::Prec::prec_cast;
+*Rmpfr_get_z_exp             = \&Rmpfr_get_z_2exp;
+*prec_cast                   = \&Math::MPFR::Prec::prec_cast;
+*Rmpfr_randinit_default      = \&Math::MPFR::Random::Rmpfr_randinit_default;
+*Rmpfr_randinit_mt           = \&Math::MPFR::Random::Rmpfr_randinit_mt;
+*Rmpfr_randinit_lc_2exp      = \&Math::MPFR::Random::Rmpfr_randinit_lc_2exp;
+*Rmpfr_randinit_lc_2exp_size = \&Math::MPFR::Random::Rmpfr_randinit_lc_2exp_size;
 
 1;
 
@@ -755,13 +759,14 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    There are 3 ways to pass __float128 values to/from
    Math::MPFR:
 
-    1) Install Math::Float128 and build Math::MPFR by providing the
-    "F128=1" arg to the Makefile.pl:
+    1) Install Math::Float128, build the mpfr-3.2.0 (or later)
+    library with the configure option --enable-float128, and build
+    Math::MPFR by providing the "F128=1" arg to the Makefile.pl:
 
       perl Makefile.PL F128=1
 
     Then you can pass the values of the Math::Float128 objects to
-    and from Math::MPFR using:
+    and from Math::MPFR objects using:
 
       Rmpfr_set_FLOAT128() and Rmpfr_get_FLOAT128()
 
@@ -1041,7 +1046,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_set_uj($rop, $uj, $rnd); # 64 bit
    $si = Rmpfr_set_d($rop, $double, $rnd);
    $si = Rmpfr_set_ld($rop, $ld, $rnd); # long double
-   $si = Rmpfr_set_NV($rop, $nv, $rnd); # double/long double
+   $si = Rmpfr_set_NV($rop, $nv, $rnd); # double/long double/__float128
    $si = Rmpfr_set_LD($rop, $LD, $rnd); # $LD is a Math::LongDouble object
    $si = Rmpfr_set_z($rop, $z, $rnd); # $z is a mpz object.
    $si = Rmpfr_set_q($rop, $q, $rnd); # $q is a mpq object.
@@ -1084,12 +1089,20 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $si = Rmpfr_set_str($rop, $str, $base, $rnd);
     Set $rop to the value of $str in base $base (0,2..36 or, if
-    Math::MPFR has been built against mpfr-3.0.0 or later, 0,2..62),
+    Math::MPFR has been built against mpfr-3.0.0 or later, (0,2..62),
     rounded in direction $rnd to the precision of $rop.
     The exponent is read in decimal.  This function returns 0 if
     the entire string is a valid number in base $base. otherwise
-    it returns -1. If $base is zero, the base is set according to
-    the following rules:
+    it returns -1.
+    If -1 is returned:
+      1) the non-numeric flag (which was initalised to 0) will be
+         incremented. You can query/clear/reset the value of the
+         flag with (resp.) nnumflag()/clear_nnum()/set_nnum() - all
+         of which are documented below;
+      2) A warning will be emitted if $Math::MPFR::NNW is set to 1
+        (default is 0).
+    If $base is zero, the base is set according to the following
+    rules:
      if the string starts with '0b' or '0B' the base is set to 2;
      if the string starts with '0x' or '0X' the base is set to 16;
      otherwise the base is set to 10.
@@ -1241,9 +1254,16 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    ($rop, $si) = Rmpfr_init_set_str($str, $base, $rnd);
    ($rop, $si) = Rmpfr_init_set_str_nobless($str, $base, $rnd);
-     Initialize $rop and set its value from $str in base $base,
-     rounded to direction $rnd. If $str was a valid number, then
-     $si will be set to 0. Else it will be set to -1.
+    Initialize $rop and set its value from $str in base $base,
+    rounded to direction $rnd. If $str was a valid number, then
+    $si will be set to 0. Else it will be set to -1.
+    If $si is -1 :
+      1) the non-numeric flag (which was initalised to 0) will be
+         incremented. You can query/clear/reset the value of the
+         flag with (resp.) nnumflag()/clear_nnum()/set_nnum() - all
+         of which are documented below;
+      2) A warning will be emitted if $Math::MPFR::NNW is set to 1
+        (default is 0).
      See `Rmpfr_set_str' (above) and 'Rmpfr_inp_str' (below).
 
    ##########
@@ -1311,7 +1331,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $ld     = Rmpfr_get_ld($op, $rnd);
    $f128   = Rmpfr_get_float128($op, $rnd); # nvtype must be __float128
                                             # mpfr-3.2.0 or later
-   $nv     = Rmpfr_get_NV($op, $rnd);
+   $nv     = Rmpfr_get_NV($op, $rnd);    # double/long double/__float128
    $float  = Rmpfr_get_flt($op, $rnd);   # mpfr-3.0.0 and later.
    Rmpfr_get_LD($LD, $op, $rnd); # $LD is a Math::LongDouble object.
    Rmpfr_get_DECIMAL64($d64, $op, $rnd); # mpfr-3.1.1 and later.
@@ -1323,11 +1343,6 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Convert $op to a 'double' a 'long double' an 'NV', a float, a
     __float128, a Math::LongDouble object, a Math::Decimal64 object, or
     a Math::Float128 object using the rounding mode $rnd.
-
-    NOTE: If your perl's nvtype is 'long double' use Rmpfr_get_ld(), but
-    if your perl's nvtype is 'double' and you want to get a value whose
-    precision is that of 'long double', then install Math::LongDouble and
-    use Rmpfr_get_LD().
 
    $double = Rmpfr_get_d1($op);
     Convert $op to a double, using the default MPFR rounding mode
@@ -1897,7 +1912,15 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     other characters; if the base is smaller or equal to 16, the
     following strings are accepted too: `NaN', `Inf', `+Inf' and
     `-Inf'.
-    Return the number of bytes read, or if an error occurred, return 0.
+    Return the number of bytes read, or if non-numeric characters were
+    encountered in the input, return 0.
+    If 0 is returned:
+      1) the non-numeric flag (which was initalised to 0) will be
+         incremented. You can query/clear/reset the value of the
+         flag with (resp.) nnumflag()/clear_nnum()/set_nnum() - all
+         of which are documented below;
+      2) A warning will be emitted if $Math::MPFR::NNW is set to 1
+        (default is 0).
 
    $ui = TRmpfr_inp_str($rop, $stream, $base, $round);
     As for Rmpfr_inp_str, except that there's the capability to read
@@ -2078,10 +2101,26 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     $op2 are zeros of different signs, then $rop is set to -0.
 
    $si = Rmpfr_max($rop, $op1, $op2, $round);
-     Set $rop to the maximum of $op1 and $op2. If $op1 and $op2
+    Set $rop to the maximum of $op1 and $op2. If $op1 and $op2
     are both NaN, then $rop is set to NaN. If $op1 or $op2 is
     NaN, then $rop is set to the numeric value. If $op1 and
     $op2 are zeros of different signs, then $rop is set to +0.
+
+   $iv = Math::MPFR::nnumflag(); # not exported
+    Returns the value of the non-numeric flag. This flag is
+    initialized to zero, but incemented by 1 whenever the
+    a string containing non-numeric characters is passed to an
+    mpfr function. The value of the flag therefore tells us how
+    many times such strings were passed to mpfr functions . The
+    flag can be reset to 0 by running clear_nnum().
+
+   Math::MPFR::set_nnum($iv); # not exported
+    Resets the global non-numeric flag to the value specified by
+    $iv.
+
+   Math::MPFR::clear_nnum(); # not exported
+    Resets the global non-numeric flag to 0.(Essentially the same
+    as running set_nnum(0).)
 
    ##############
 
@@ -2093,8 +2132,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Set each member of @r to a uniformly distributed random
     float in the interval 0 <= $_ < 1.
     Before using this function you must first create $state
-    by calling one of the 3 Rgmp_randinit functions, then
-    seed $state by calling one of the 2 Rgmp_randseed functions.
+    by calling one of the 4 Rmpfr_randinit functions, then
+    seed $state by calling one of the 2 Rmpfr_randseed functions.
     The memory associated with $state will be freed automatically
     when $state goes out of scope.
 
@@ -2119,8 +2158,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     distribution on the interval[0, 1] and then rounded in the
     direction RND.
     Before using this function you must first create $state
-    by calling one of the Rgmp_randinit functions (below), then
-    seed $state by calling one of the Rgmp_randseed functions.
+    by calling one of the Rmpfr_randinit functions (below), then
+    seed $state by calling one of the Rmpfr_randseed functions.
 
    $si = Rmpfr_grandom($rop1, $rop2, $state, $rnd);
     Available only with mpfr-3.1.0 and later.
@@ -2130,19 +2169,19 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     according to the standard normal gaussian distribution and
     then rounded in the direction $rnd.
     Before using this function you must first create $state
-    by calling one of the Rgmp_randinit functions (below), then
-    seed $state by calling one of the Rgmp_randseed functions.
+    by calling one of the Rmpfr_randinit functions (below), then
+    seed $state by calling one of the Rmpfr_randseed functions.
 
-   $state = Rgmp_randinit_default();
+   $state = Rmpfr_randinit_default();
     Initialise $state with a default algorithm. This will be
     a compromise between speed and randomness, and is
     recommended for applications with no special requirements.
 
-   $state = Rgmp_randinit_mt();
+   $state = Rmpfr_randinit_mt();
     Initialize state for a Mersenne Twister algorithm. This
     algorithm is fast and has good randomness properties.
 
-   $state = Rgmp_randinit_lc_2exp($a, $c, $m2exp);
+   $state = Rmpfr_randinit_lc_2exp($a, $c, $m2exp);
     This function is not tested in the test suite.
     Use with caution - I often select values here that cause
     Rmpf_urandomb() to behave non-randomly.
@@ -2158,14 +2197,14 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     be prefixed with 'O'. Else it is assumed to be a decimal
     integer. No other bases are allowed.
 
-   $state = Rgmp_randinit_lc_2exp_size($ui);
-    Initialise state as per Rgmp_randinit_lc_2exp. The values
+   $state = Rmpfr_randinit_lc_2exp_size($ui);
+    Initialise state as per Rmpfr_randinit_lc_2exp. The values
     for $a, $c. and $m2exp are selected from a table, chosen
     so that $ui bits (or more) of each X will be used.
 
-   Rgmp_randseed($state, $seed);
+   Rmpfr_randseed($state, $seed);
     $state is a reference to a gmp_randstate_t strucure (the
-    return value of one of the Rgmp_randinit functions).
+    return value of one of the Rmpfr_randinit functions).
     $seed is the seed. It can be any one of Math::GMP,
     or Math::GMPz objects. Or it can be a string of digits.
     If it is a string of hex digits it must be prefixed with
@@ -2173,9 +2212,9 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     be prefixed with 'O'. Else it is assumed to be a decimal
     integer. No other bases are allowed.
 
-   Rgmp_randseed_ui($state, $ui);
+   Rmpfr_randseed_ui($state, $ui);
     $state is a reference to a gmp_randstate_t strucure (the
-    return value of one of the Rgmp_randinit functions).
+    return value of one of the Rmpfr_randinit functions).
     $ui is the seed.
 
    #########
