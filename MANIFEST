@@ -7,6 +7,9 @@ CHANGES
 Prec/Prec.xs
 Prec/Prec.pm
 Prec/Makefile.PL
+Random/Random.xs
+Random/Random.pm
+Random/Makefile.PL
 demos/doubledouble.p
 V/V.xs
 V/V.pm
