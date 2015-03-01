@@ -5,7 +5,7 @@ use Config;
 
 $| = 1;
 
-print "1..84\n";
+print "1..85\n";
 
 print  "# Using Math::MPFR version ", $Math::MPFR::VERSION, "\n";
 print  "# Using mpfr library version ", MPFR_VERSION_STRING, "\n";
@@ -376,9 +376,9 @@ if($have_mpz) {
   for(1..63) {$str .= int(rand(2))}
 
   my $seed = Math::GMPz::Rmpz_init_set_str($str, 2);
-  my $state = Rgmp_randinit_default();
+  my $state = Rmpfr_randinit_default();
 
-  Rgmp_randseed($state, $seed);
+  Rmpfr_randseed($state, $seed);
 
   $ok = 1;
 
@@ -398,7 +398,7 @@ if($have_mpz) {
   if($ok) {print "ok 41\n"}
   else {print "not ok 41\n"}
 
-  Rgmp_randclear($state);
+  Rmpfr_randclear($state);
   }
 else {
   warn "Skipping test 41 - no Math::GMPz\n";
@@ -410,9 +410,9 @@ else {
 
   for(1..21) {$str .= 1 + int(rand(9))}
 
-  my $state = Rgmp_randinit_lc_2exp_size(100);
+  my $state = Rmpfr_randinit_lc_2exp_size(100);
 
-  Rgmp_randseed($state, $str);
+  Rmpfr_randseed($state, $str);
 
   my $ok = 1;
 
@@ -432,7 +432,7 @@ else {
   if($ok) {print "ok 42\n"}
   else {print "not ok 42\n"}
 
-  Rgmp_randclear($state);
+  Rmpfr_randclear($state);
 }
 
 my $o = Rmpfr_init();
@@ -662,9 +662,9 @@ if(1) {
 
   for(1..21) {$str .= 1 + int(rand(10))}
 
-  my $state = Rgmp_randinit_lc_2exp_size(90);
+  my $state = Rmpfr_randinit_lc_2exp_size(90);
 
-  Rgmp_randseed($state, $str);
+  Rmpfr_randseed($state, $str);
 
   my $ok = 1;
 
@@ -684,7 +684,7 @@ if(1) {
   if($ok) {print "ok 61\n"}
   else {print "not ok 61\n"}
 
-  Rgmp_randclear($state);
+  Rmpfr_randclear($state);
   }
 
 ##########################################
@@ -696,9 +696,9 @@ if($have_mpz) {
 
   my $seed = Math::GMPz::Rmpz_init_set_str($str, 10);
 
-  my $state = Rgmp_randinit_lc_2exp_size(120);
+  my $state = Rmpfr_randinit_lc_2exp_size(120);
 
-  Rgmp_randseed($state, $seed);
+  Rmpfr_randseed($state, $seed);
 
   my $ok = 1;
 
@@ -718,7 +718,7 @@ if($have_mpz) {
   if($ok) {print "ok 62\n"}
   else {print "not ok 62\n"}
 
-  Rgmp_randclear($state);
+  Rmpfr_randclear($state);
   }
 else {
   warn "Skipping test 62 - no Math::GMPz\n";
@@ -731,9 +731,9 @@ if(1) {
 
   for(1..21) {$str .= 1 + int(rand(10))}
 
-  my $state = Rgmp_randinit_lc_2exp_size(100);
+  my $state = Rmpfr_randinit_lc_2exp_size(100);
 
-  Rgmp_randseed_ui($state, 1123456);
+  Rmpfr_randseed_ui($state, 1123456);
 
   my $ok = 1;
 
@@ -753,7 +753,7 @@ if(1) {
   if($ok) {print "ok 63\n"}
   else {print "not ok 63\n"}
 
-  Rgmp_randclear($state);
+  Rmpfr_randclear($state);
   }
 
 Rmpfr_set_d($c, 1123.5, GMP_RNDN);
@@ -1017,8 +1017,8 @@ else {print "not ok 81 $ok\n"}
 if(MPFR_VERSION_MAJOR >= 3) {
   my $str = '';
   for(1..21) {$str .= 1 + int(rand(10))}
-  my $state = Rgmp_randinit_lc_2exp_size(90);
-  Rgmp_randseed($state, $str);
+  my $state = Rmpfr_randinit_lc_2exp_size(90);
+  Rmpfr_randseed($state, $str);
   my $rand = Math::MPFR->new();
   Rmpfr_urandom($rand, $state, MPFR_RNDN);
   if($rand < 1 && $rand > 0) {print "ok 82\n"}
@@ -1030,8 +1030,8 @@ if(MPFR_VERSION_MAJOR >= 3) {
 else {
   my $str = '';
   for(1..21) {$str .= 1 + int(rand(10))}
-  my $state = Rgmp_randinit_lc_2exp_size(90);
-  Rgmp_randseed($state, $str);
+  my $state = Rmpfr_randinit_lc_2exp_size(90);
+  Rmpfr_randseed($state, $str);
   my $rand = Math::MPFR->new();
   eval{Rmpfr_urandom($rand, $state, MPFR_RNDN);};
   if($@ =~ /Rmpfr_urandom not implemented/) {print "ok 82\n"}
@@ -1089,6 +1089,16 @@ if($have_Math_GMP) {
 else {
   warn "Skipping test 84: No Math::GMP\n";
   print "ok 84\n";
+}
+
+my $nnum_val = Math::MPFR::nnumflag();
+
+my $nnum_test = Math::MPFR->new('2 .3');
+
+if(Math::MPFR::nnumflag() == $nnum_val + 1) {print "ok 85\n"}
+else {
+  warn "\nnnumflag: expected ", $nnum_val + 1, ", got ", Math::MPFR::nnumflag(), "\n";
+  print "not ok 85\n";
 }
 
 # Run the following to test Rmpfr_inp_str
