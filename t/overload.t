@@ -3,7 +3,7 @@ use warnings;
 use Math::MPFR qw(:mpfr);
 use Math::BigInt; # for some error tests
 
-print "1..63\n";
+print "1..66\n";
 
 print  "# Using Math::MPFR version ", $Math::MPFR::VERSION, "\n";
 print  "# Using mpfr library version ", MPFR_VERSION_STRING, "\n";
@@ -770,43 +770,57 @@ else {print "not ok 45 $ok\n"}
 $mbi = "this is a string";
 $ok = '';
 
-eval{$q = $p + $mbi;};
-if($@ =~ /Invalid string/) {$ok = 'a'}
-eval{$q = $p * $mbi;};
-if($@ =~ /Invalid string/) {$ok .= 'b'}
-eval{$q = $p - $mbi;};
-if($@ =~ /Invalid string/) {$ok .= 'c'}
-eval{$q = $p / $mbi;};
-if($@ =~ /Invalid string/) {$ok .= 'd'}
-eval{$q = $p ** $mbi;};
-if($@ =~ /Invalid string/) {$ok .= 'e'}
-eval{$p += $mbi;};
-if($@ =~ /Invalid string/) {$ok .= 'f'}
-eval{$p *= $mbi;};
-if($@ =~ /Invalid string/) {$ok .= 'g'}
-eval{$p -= $mbi;};
-if($@ =~ /Invalid string/) {$ok .= 'h'}
-eval{$p /= $mbi;};
-if($@ =~ /Invalid string/) {$ok .= 'i'}
-eval{$p **= $mbi;};
-if($@ =~ /Invalid string/) {$ok .= 'j'}
-eval{if($q >$mbi){};};
-if($@ =~ /Invalid string/) {$ok .= 'k'}
-eval{if($q <$mbi){};};
-if($@ =~ /Invalid string/) {$ok .= 'l'}
-eval{if($p >= $mbi){};};
-if($@ =~ /Invalid string/) {$ok .= 'm'}
-eval{if($p <= $mbi){};};
-if($@ =~ /Invalid string/) {$ok .= 'n'}
-eval{if($p <=> $mbi){};};
-if($@ =~ /Invalid string/) {$ok .= 'o'}
-eval{if($p == $mbi){};};
-if($@ =~ /Invalid string/) {$ok .= 'p'}
-eval{if($p != $mbi){};};
-if($@ =~ /Invalid string/) {$ok .= 'q'}
+$q = $p + $mbi;
+if($q == $p) {$ok = 'a'}
+
+$q = $p * $mbi;
+if($q == 0) {$ok .= 'b'}
+
+$q = $p - $mbi;
+if($q == $p) {$ok .= 'c'}
+
+$q = $p / $mbi;
+if(Rmpfr_inf_p($q)) {$ok .= 'd'}
+
+$q = $p ** $mbi;
+if($q == 1) {$ok .= 'e'}
+
+$q = $p;
+
+$p += $mbi;
+if($q == $p) {$ok .= 'f'}
+
+$p *= $mbi;
+if($p == 0) {$ok .= 'g'}
+
+$p -= $mbi;
+if($p == 0) {$ok .= 'h'}
+
+$p /= $mbi;
+if(Rmpfr_nan_p($p)) {$ok .= 'i'}
+
+$p **= $mbi;
+if($p == 1) {$ok .= 'j'}
+
+if($p >$mbi) {$ok .= 'k'}
+
+unless($p <$mbi) {$ok .= 'l'}
+
+if($p >= $mbi) {$ok .= 'm'}
+
+unless($p <= $mbi) {$ok .= 'n'}
+
+if($p <=> $mbi) {$ok .= 'o'}
+
+unless($p == $mbi) {$ok .= 'p'}
+
+if($p != $mbi) {$ok .= 'q'}
 
 if($ok eq 'abcdefghijklmnopq') {print "ok 46\n"}
-else {print "not ok 46 $ok\n"}
+else {
+  warn "\$ok: $ok\n";
+  print "not ok 46 $ok\n";
+}
 
 $mbi = "-111111111111112.34567879";
 Rmpfr_set_si($p, 1234, GMP_RNDN);
@@ -1038,6 +1052,28 @@ else {print "not ok 62\n"}
 
 unless(Math::MPFR::_isobject($unblessed)) { print "ok 63\n"}
 else {print "not ok 63\n"}
+
+if(Math::MPFR::nnumflag() == 17) { print "ok 64\n" }
+else {
+  warn "nnumflag(): expected 17, got ", Math::MPFR::nnumflag(), "\n";
+  print "not ok 64\n";
+}
+
+Math::MPFR::clear_nnum();
+
+if(Math::MPFR::nnumflag() == 0) { print "ok 65\n" }
+else {
+  warn "nnumflag(): expected 0, got ", Math::MPFR::nnumflag(), "\n";
+  print "not ok 65\n";
+}
+
+Math::MPFR::set_nnum(16);
+
+if(Math::MPFR::nnumflag() == 16) { print "ok 66\n" }
+else {
+  warn "nnumflag(): expected 16, got ", Math::MPFR::nnumflag(), "\n";
+  print "not ok 66\n";
+}
 
 sub adjust {
     if($_[0]) {
