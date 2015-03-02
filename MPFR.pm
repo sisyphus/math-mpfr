@@ -699,10 +699,10 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     destination variable, as second and following arguments
     the input variables, as last argument a rounding mode,
     and have a return value of type `int'. If this value
-    is zero, it means that the value stored in the
+    is zero, it usually means that the value stored in the
     destination variable is the exact result of the
-    corresponding mathematical function. If the
-    returned value is positive (resp. negative), it means
+    corresponding mathematical function. If the returned
+    value is positive (resp. negative), it usually means
     the value stored in the destination variable is greater
     (resp. lower) than the exact result.  For example with
     the `GMP_RNDU' rounding mode, the returned value is
@@ -1098,7 +1098,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
       1) the non-numeric flag (which was initalised to 0) will be
          incremented. You can query/clear/reset the value of the
          flag with (resp.) nnumflag()/clear_nnum()/set_nnum() - all
-         of which are documented below;
+         of which are documented below (in "MISCELLANEOUS");
       2) A warning will be emitted if $Math::MPFR::NNW is set to 1
         (default is 0).
     If $base is zero, the base is set according to the following
@@ -1261,7 +1261,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
       1) the non-numeric flag (which was initalised to 0) will be
          incremented. You can query/clear/reset the value of the
          flag with (resp.) nnumflag()/clear_nnum()/set_nnum() - all
-         of which are documented below;
+         of which are documented below (in "MISCELLANEOUS");
       2) A warning will be emitted if $Math::MPFR::NNW is set to 1
         (default is 0).
      See `Rmpfr_set_str' (above) and 'Rmpfr_inp_str' (below).
@@ -2573,7 +2573,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
     This program is free software; you may redistribute it and/or
     modify it under the same terms as Perl itself.
-    Copyright 2006-2014 Sisyphus
+    Copyright 2006-2015 Sisyphus
 
 =head1 AUTHOR
 
