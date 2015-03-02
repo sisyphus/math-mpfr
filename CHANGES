@@ -1,3 +1,5 @@
+3.25
+
 3.24
  - Rename the Rgmp_randstate* functions to Rmpfr_randstate*, and move them into
    their own (Math::MPFR::Random) module.
