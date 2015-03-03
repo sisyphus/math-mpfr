@@ -5,7 +5,7 @@ my %options = %{
   'NAME' => 'Math::MPFR::Random',
   'LIBS' => '-lmpfr -lgmp',
   'INC' => '',
-  'VERSION' => '3.24'
+  'VERSION_FROM' => 'Random.pm',
 }
 };
 WriteMakefile(%options);
