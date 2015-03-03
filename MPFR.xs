@@ -3113,14 +3113,14 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
          mpfr_sub_z(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))),
                                       *(INT2PTR(mpz_t * , SvIV(SvRV(b)))),
                                       __gmpfr_default_rounding_mode);
-         if(third == &PL_sv_yes) mpfr_neg(*mpfr_t_obj, *mpfr_t_obj, MPFR_RNDN);
+         if(third == &PL_sv_yes) mpfr_neg(*mpfr_t_obj, *mpfr_t_obj, GMP_RNDN);
          return obj_ref;
        }
        if(strEQ(h, "Math::GMPq")) {
          mpfr_sub_q(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))),
                                       *(INT2PTR(mpq_t * , SvIV(SvRV(b)))),
                                       __gmpfr_default_rounding_mode);
-         if(third == &PL_sv_yes) mpfr_neg(*mpfr_t_obj, *mpfr_t_obj, MPFR_RNDN);
+         if(third == &PL_sv_yes) mpfr_neg(*mpfr_t_obj, *mpfr_t_obj, GMP_RNDN);
          return obj_ref;
        }
        if(strEQ(h, "Math::GMPf")) {
@@ -5840,10 +5840,16 @@ SV * _isobject(pTHX_ SV * x) {
 void _mp_sizes(void) {
      dTHX;
      dXSARGS;
-
+#if MPFR_VERSION_MAJOR >= 3
      XPUSHs(sv_2mortal(newSVuv(sizeof(mpfr_exp_t))));
      XPUSHs(sv_2mortal(newSVuv(sizeof(mpfr_prec_t))));
      XPUSHs(sv_2mortal(newSVuv(sizeof(mpfr_rnd_t))));
+#else
+     XPUSHs(sv_2mortal(newSVuv(sizeof(mp_exp_t))));
+     XPUSHs(sv_2mortal(newSVuv(sizeof(mp_prec_t))));
+     XPUSHs(sv_2mortal(newSVuv(sizeof(mp_rnd_t))));
+#endif
+
 
      XSRETURN(3);
 }
