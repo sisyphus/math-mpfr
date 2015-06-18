@@ -2734,6 +2734,8 @@ SV * Rmpfr_sum(pTHX_ mpfr_t * rop, SV * avref, SV * len, SV * round) {
      int ret, i;
      unsigned long s = (unsigned long)SvUV(len);
 
+     if(s > av_len((AV*)SvRV(avref)) + 1)croak("2nd last arg (%d) needs to be between 0 and %d (inclusive)", s, av_len((AV*)SvRV(avref)) + 1);
+
 #if MPFR_VERSION_MAJOR < 3
     if((mp_rnd_t)SvUV(round) > 3) croak("Illegal rounding value supplied for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
 #endif
@@ -5840,6 +5842,7 @@ SV * _isobject(pTHX_ SV * x) {
 void _mp_sizes(void) {
      dTHX;
      dXSARGS;
+/* I don't know if 3.0.0 is the actual switchover version, but it shouldn't matter */
 #if MPFR_VERSION_MAJOR >= 3
      XPUSHs(sv_2mortal(newSVuv(sizeof(mpfr_exp_t))));
      XPUSHs(sv_2mortal(newSVuv(sizeof(mpfr_prec_t))));
