@@ -1,4 +1,6 @@
 3.25
+ - Catch the error of giving too large a "size" argument to mpfr_sum.t and add a
+   check for this to t/sum.t
 
 3.24
  - Rename the Rgmp_randstate* functions to Rmpfr_randstate*, and move them into
