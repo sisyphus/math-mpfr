@@ -49,8 +49,8 @@ typedef __float128 float128;
                             /* For earlier versions of mpfr, we fix this bug in */
                             /* our own code                                     */
 
-#define LNGAMMA_BUG 196866  /* lngamma(-0) set to NaN instead of +Inf           */
-                            /* Fixed in mpfr after MPFR_VERSION 196866 (3.1.2)  */
+#define LNGAMMA_BUG 196867  /* lngamma(-0) set to NaN instead of +Inf           */
+                            /* Fixed in mpfr after MPFR_VERSION 196867 (3.1.3)  */
                             /* For earlier versions of mpfr, we fix this bug in */
                             /* our own code                                     */
 
