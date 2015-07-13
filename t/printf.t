@@ -163,14 +163,17 @@ else {
 }
 
 eval {Rmpfr_sprintf("%R*d", 4, $mbi, 50);};
-if(MPFR_VERSION_MAJOR >= 3) {
+
+# Changed in response to http://www.cpantesters.org/cpan/report/2c6e2406-6bf5-1014-981d-364b06b49268
+# which used mpfr-2.4.2
+#if(MPFR_VERSION_MAJOR >= 3) {
   if($@ =~ /Unrecognised object supplied/) {$ok .= 'i'}
   else {warn "2i got: $@\n"}
-}
-else {
-  if($@ =~ /Invalid 3rd argument/) {$ok .= 'i'}
-  else {warn "2i got: $@\n"}
-}
+#}
+#else {
+#  if($@ =~ /Invalid 3rd argument/) {$ok .= 'i'}
+#  else {warn "2i got: $@\n"}
+#}
 
 eval {Rmpfr_printf("%R*d", 4, $mbi);};
 if(MPFR_VERSION_MAJOR >= 3) {
