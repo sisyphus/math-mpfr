@@ -1,3 +1,6 @@
+# Contrary to its name, this script is concerned not so much with 64-bit IV/UV,
+# more with IV/UV being a'long long int' (or not).
+
 use warnings;
 use strict;
 use Math::MPFR qw(:mpfr);
@@ -12,8 +15,8 @@ print  "# Using gmp library version ", Math::MPFR::gmp_v(), "\n";
 
 my $_64 = Math::MPFR::_has_longlong();
 
-if($_64){warn "Using 64-bit integer\n"}
-else {warn "Using 32-bit integer\n"}
+if($_64){warn "long long int support detected\n"}
+else {warn "long long int support is absent\n"}
 
 Rmpfr_set_default_prec(300);
 
