@@ -1576,7 +1576,7 @@ SV * Rmpfr_add_one_ulp(mpfr_t * p, SV * round) {
 } */
 
 /* NO LONGER SUPPORTED
-SV * Rmpfr_sub_one_ulp(SV * p, SV * round) {
+SV * Rmpfr_sub_one_ulp(mpfr_t * p, SV * round) {
      return newSViv(mpfr_sub_one_ulp(*p, (mp_rnd_t)SvUV(round)));
 } */
 
@@ -1586,6 +1586,10 @@ SV * Rmpfr_can_round(pTHX_ mpfr_t * p, SV * err, SV * round1, SV * round2, SV * 
       croak("Illegal rounding value supplied for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
 #endif
      return newSViv(mpfr_can_round(*p, (mp_exp_t)SvIV(err), SvUV(round1), SvUV(round2), (mpfr_prec_t)SvIV(prec)));
+}
+
+SV * Rmpfr_print_rnd_mode(pTHX_ SV * rnd) {
+     return newSVpv(mpfr_print_rnd_mode((mpfr_rnd_t)SvIV(rnd)), 0);
 }
 
 SV * Rmpfr_get_emin(pTHX) {
@@ -7666,6 +7670,13 @@ Rmpfr_can_round (p, err, round1, round2, prec)
 	SV *	prec
 CODE:
   RETVAL = Rmpfr_can_round (aTHX_ p, err, round1, round2, prec);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_print_rnd_mode (rnd)
+	SV *	rnd
+CODE:
+  RETVAL = Rmpfr_print_rnd_mode (aTHX_ rnd);
 OUTPUT:  RETVAL
 
 SV *
