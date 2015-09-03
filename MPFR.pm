@@ -2232,8 +2232,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $str = Rmpfr_print_rnd_mode($rnd);
     Return a string ("MPFR_RNDD", "MPFR_RNDU", "MPFR_RNDN", "MPFR_RNDZ",
-    "MPFR_RNDA") corresponding to the rounding mode $rnd, or a null
-    pointer if rnd is an invalid rounding mode
+    "MPFR_RNDA") corresponding to the rounding mode $rnd, or return
+    undef if $rnd is an invalid rounding mode.
 
    $si = Rmpfr_get_exp($op);
     Get the exponent of $op, assuming that $op is a non-zero
