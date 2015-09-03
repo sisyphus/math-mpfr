@@ -1,6 +1,7 @@
 3.26
  - Re-phrase misleading message in t/use64bitint.t. (Message implied
    that absence of 'long long int' implied that ivsize was 32-bit.)
+ - Add Rmpfr_print_rnd_mode - previously missed.
 
 3.25
  - Catch the error of giving too large a "size" argument to mpfr_sum.t and add a
