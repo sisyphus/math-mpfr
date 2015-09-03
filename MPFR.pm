@@ -121,6 +121,7 @@ Rmpfr_mul_si Rmpfr_mul_ui Rmpfr_mul_z Rmpfr_nan_p Rmpfr_nanflag_p Rmpfr_neg
 Rmpfr_nextabove Rmpfr_nextbelow Rmpfr_nexttoward Rmpfr_number_p Rmpfr_out_str
 TRmpfr_out_str
 Rmpfr_overflow_p Rmpfr_pow Rmpfr_pow_si Rmpfr_pow_ui Rmpfr_pow_z Rmpfr_prec_round
+Rmpfr_print_rnd_mode
 Rmpfr_print_binary Rmpfr_random2 Rmpfr_reldiff Rmpfr_rint Rmpfr_rint_ceil
 Rmpfr_rint_floor Rmpfr_rint_round Rmpfr_rint_trunc Rmpfr_root Rmpfr_round
 Rmpfr_sec Rmpfr_sech Rmpfr_set Rmpfr_set_d Rmpfr_set_default_prec
@@ -215,6 +216,7 @@ Rmpfr_mul_si Rmpfr_mul_ui Rmpfr_mul_z Rmpfr_nan_p Rmpfr_nanflag_p Rmpfr_neg
 Rmpfr_nextabove Rmpfr_nextbelow Rmpfr_nexttoward Rmpfr_number_p Rmpfr_out_str
 TRmpfr_out_str
 Rmpfr_overflow_p Rmpfr_pow Rmpfr_pow_si Rmpfr_pow_ui Rmpfr_pow_z Rmpfr_prec_round
+Rmpfr_print_rnd_mode
 Rmpfr_print_binary Rmpfr_random2 Rmpfr_reldiff Rmpfr_rint Rmpfr_rint_ceil
 Rmpfr_rint_floor Rmpfr_rint_round Rmpfr_rint_trunc Rmpfr_root Rmpfr_round
 Rmpfr_sec Rmpfr_sech Rmpfr_set Rmpfr_set_d Rmpfr_set_default_prec
@@ -2227,6 +2229,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     the exponent of $op, returns 1 if one is able to round exactly X
     to precision $p with direction $rnd2, and 0 otherwise. This
     function *does not modify* its arguments.
+
+   $str = Rmpfr_print_rnd_mode($rnd);
+    Return a string ("MPFR_RNDD", "MPFR_RNDU", "MPFR_RNDN", "MPFR_RNDZ",
+    "MPFR_RNDA") corresponding to the rounding mode $rnd, or a null
+    pointer if rnd is an invalid rounding mode
 
    $si = Rmpfr_get_exp($op);
     Get the exponent of $op, assuming that $op is a non-zero
