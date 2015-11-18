@@ -1,3 +1,5 @@
+3.27
+
 3.26
  - Re-phrase misleading message in t/use64bitint.t. (Message implied
    that absence of 'long long int' implied that ivsize was 32-bit.)
