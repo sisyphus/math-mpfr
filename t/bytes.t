@@ -13,6 +13,9 @@ my @bytes;
 eval {@bytes = Math::MPFR::_ld_bytes('2.3', 64);};
 
 if($@) {
+
+  my $mess = $@;
+
   print "1..1\n";
 
   my $dd = 0;
@@ -22,23 +25,23 @@ if($@) {
 
   if($Config{longdblkind} == 6 || $dd == 1) {
     warn "\ndouble-double detected\n";
-    if($@ =~ /^2nd arg \(/) {print "ok 1\n"}
+    if($mess =~ /^2nd arg \(/) {print "ok 1\n"}
     else {
-      warn "\n\$\@: $@\n";
+      warn "\n\$\@: $mess\n";
       print "not ok 1\n";
     }
   }
   elsif(64 != MPFR_LDBL_DIG) {
     my $dig = MPFR_LDBL_DIG;
     warn "\n$dig != 64\n";
-    if($@ =~ /^2nd arg \(/) {print "ok 1\n"}
+    if($mess =~ /^2nd arg \(/) {print "ok 1\n"}
     else {
-      warn "\n\$\@: $@\n";
+      warn "\n\$\@: $mess\n";
       print "not ok 1\n";
     }
   }
   else {
-    warn "\n\$\@: $@\n";
+    warn "\n\$\@: $mess\n";
     print "not ok 1\n";
   }
 }
