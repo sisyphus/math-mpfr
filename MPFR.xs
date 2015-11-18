@@ -5705,9 +5705,9 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
   if((size_t)bits != LDBL_MANT_DIG)
     croak("2nd arg (%u) supplied to Math::MPFR::_ld_bytes does not match LDBL_MANT_DIG (%u)", bits, LDBL_MANT_DIG);
 
-  mpfr_set_default_prec(64);
+  mpfr_init2(temp, 64);
 
-  mpfr_init_set_str(temp, SvPV_nolen(str), 10, 0);
+  mpfr_set_str(temp, SvPV_nolen(str), 10, 0);
 
   ld = mpfr_get_ld(temp, 0);
 
@@ -5760,9 +5760,9 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
   if((size_t)bits != FLT128_MANT_DIG)
     croak("2nd arg (%u) supplied to Math::MPFR::_f128_bytes does not match FLT128_MANT_DIG (%u)", bits, FLT128_MANT_DIG);
 
-  mpfr_set_default_prec(113);
+  mpfr_init2(temp, 113);
 
-  mpfr_init_set_str(temp, SvPV_nolen(str), 10, 0);
+  mpfr_set_str(temp, SvPV_nolen(str), 10, 0);
 
   ld = mpfr_get_float128(temp, 0);
 
