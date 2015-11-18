@@ -46,7 +46,7 @@ if($@) {
   }
 
   warn "\nSkipping tests 2-4\n";
-  print "ok 2\nok 3\n ok 4\n";
+  print "ok 2\nok 3\nok 4\n";
 
 }
 else {
@@ -123,7 +123,7 @@ if($@) {
   }
 
   warn "\nSkipping tests 6-8\n";
-  print "ok 6\nok 7\n ok 8\n";
+  print "ok 6\nok 7\nok 8\n";
 
 }
 else {
