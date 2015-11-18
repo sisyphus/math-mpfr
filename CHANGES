@@ -1,4 +1,6 @@
 3.27
+ - Replace mpfr_set_default_prec() calls in _ld_bytes and _f128_bytes with
+   appropriate mpfr_init2() calls.
 
 3.26
  - Re-phrase misleading message in t/use64bitint.t. (Message implied
