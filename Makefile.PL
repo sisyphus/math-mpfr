@@ -84,6 +84,8 @@ print "If this is wrong, see the \"Decimal64 conversion\" section in the README\
 print "\n$float128_message";
 print "If this is wrong, see the \"Float128 conversion\" section in the README\n\n";
 
+$defines .= $Config::Config{byteorder} =~ /^1234/ ? " -DMPFR_HAVE_LENDIAN" : " -DMPFR_HAVE_BENDIAN";
+
 my %options = (
   NAME => 'Math::MPFR',
   AUTHOR => 'Sisyphus (sisyphus at (@) cpan dot (.) org)',
