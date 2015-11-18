@@ -20,6 +20,7 @@ t/_2exp.t
 t/base_conversion.t
 t/bessel.t
 t/buildopt.t
+t/bytes.t
 t/constants.t
 t/D64_LD.t
 t/decimal64_conv.t
