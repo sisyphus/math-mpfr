@@ -8,6 +8,8 @@ print  "# Using Math::MPFR version ", $Math::MPFR::VERSION, "\n";
 print  "# Using mpfr library version ", MPFR_VERSION_STRING, "\n";
 print  "# Using gmp library version ", Math::MPFR::gmp_v(), "\n";
 
+print "1..8\n";
+
 my @bytes;
 
 eval {@bytes = Math::MPFR::_ld_bytes('2.3', 64);};
@@ -15,8 +17,6 @@ eval {@bytes = Math::MPFR::_ld_bytes('2.3', 64);};
 if($@) {
 
   my $mess = $@;
-
-  print "1..1\n";
 
   my $dd = 0;
   my $nv1 = 1.0;
@@ -44,9 +44,12 @@ if($@) {
     warn "\n\$\@: $mess\n";
     print "not ok 1\n";
   }
+
+  warn "\nSkipping tests 2-4\n";
+  print "ok 2\nok 3\n ok 4\n";
+
 }
 else {
-  print "1..4\n";
 
   my $hex = join '', @bytes;
 
@@ -79,6 +82,83 @@ else {
   else {
     warn "\nIn Math::MPFR::_ld_bytes: $@\n";
     print "not ok 4\n";
+  }
+
+}
+
+#####################################################
+#####################################################
+
+eval {@bytes = Math::MPFR::_f128_bytes('2.3', 113);};
+
+if($@) {
+
+  my $mess = $@;
+
+  my $dd = 0;
+  my $nv1 = 1.0;
+  my $nv2 = $nv1 + (2 ** -1000);
+  $dd = 1 if $nv2 != $nv1;
+
+  if($Config{longdblkind} == 6 || $dd == 1) {
+    warn "\ndouble-double detected\n";
+    if($mess =~ /^__float128 support not built into this Math::MPFR/) {print "ok 5\n"}
+    else {
+      warn "\n\$\@: $mess\n";
+      print "not ok 5\n";
+    }
+  }
+  elsif(113 != MPFR_FLT128_DIG) {
+    my $dig = MPFR_FLT128_DIG;
+    warn "\n$dig != 113\n";
+    if($mess =~ /^2nd arg \(/) {print "ok 5\n"}
+    else {
+      warn "\n\$\@: $mess\n";
+      print "not ok 5\n";
+    }
+  }
+  else {
+    warn "\n\$\@: $mess\n";
+    print "not ok 5\n";
+  }
+
+  warn "\nSkipping tests 6-8\n";
+  print "ok 6\nok 7\n ok 8\n";
+
+}
+else {
+
+  my $hex = join '', @bytes;
+
+  if($hex eq '40002666666666666666666666666666') {print "ok 5\n"}
+  else {
+    warn "expected 40002666666666666666666666666666, got $hex";
+    print "not ok 5\n";
+  }
+
+  @bytes = Math::MPFR::_f128_bytes('2.93', 113);
+  $hex = join '', @bytes;
+
+  if($hex eq '4000770a3d70a3d70a3d70a3d70a3d71') {print "ok 6\n"}
+  else {
+    warn "expected 4000770a3d70a3d70a3d70a3d70a3d71, got $hex";
+    print "not ok 6\n";
+  }
+
+  eval{Math::MPFR::_f128_bytes('2.93', 63);};
+
+  if($@ =~ /^2nd arg to Math::MPFR::_f128_bytes must be 113/) {print "ok 7\n"}
+  else {
+    warn "\nIn Math::MPFR::_f128_bytes: $@\n";
+    print "not ok 7\n";
+  }
+
+  eval{Math::MPFR::_f128_bytes(2.93, 113);};
+
+  if($@ =~ /^1st arg supplied to Math::MPFR::_f128_bytes is not a string/) {print "ok 8\n"}
+  else {
+    warn "\nIn Math::MPFR::_f128_bytes: $@\n";
+    print "not ok 8\n";
   }
 
 }
