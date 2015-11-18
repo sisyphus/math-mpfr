@@ -3,6 +3,7 @@
    that absence of 'long long int' implied that ivsize was 32-bit.)
  - Add Rmpfr_print_rnd_mode - previously missed.
  - Rewrite rounding value check as CHECK_ROUNDING_VALUE macro
+ - Add _ld_bytes XSub (for use of Math::NV)
 
 3.25
  - Catch the error of giving too large a "size" argument to mpfr_sum.t and add a
