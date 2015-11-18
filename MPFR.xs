@@ -5733,6 +5733,63 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
 
 }
 
+void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
+
+ /* For Math::NV - added in version 3.26 */
+ /* Assumes 128-bit __float128 (113-bit precision mantissa) */
+
+#ifndef MPFR_WANT_FLOAT128
+
+  croak("__float128 support not built into this Math::MPFR");
+
+#else
+
+  dXSARGS;
+  mpfr_t temp;
+  float128 ld;
+  int i, n = 16;
+  char * buff;
+  void * p = &ld;
+
+  if(bits != 113)
+    croak("2nd arg to Math::MPFR::_f128_bytes must be 113");
+
+  if(SvUV(_itsa(aTHX_ str)) != 4)
+    croak("1st arg supplied to Math::MPFR::_f128_bytes is not a string");
+
+  if((size_t)bits != FLT128_MANT_DIG)
+    croak("2nd arg (%u) supplied to Math::MPFR::_f128_bytes does not match FLT128_MANT_DIG (%u)", bits, FLT128_MANT_DIG);
+
+  mpfr_set_default_prec(113);
+
+  mpfr_init_set_str(temp, SvPV_nolen(str), 10, 0);
+
+  ld = mpfr_get_float128(temp, 0);
+
+  mpfr_clear(temp);
+
+  Newx(buff, 4, char);
+  if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_f128_bytes function");
+
+  sp = mark;
+
+#ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
+  for (i = 0; i < n; i++) {
+#else
+  for (i = n - 1; i >= 0; i--) {
+#endif
+
+    sprintf(buff, "%02x", ((unsigned char*)p)[i]);
+    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
+  }
+  PUTBACK;
+  Safefree(buff);
+  XSRETURN(n);
+
+#endif
+
+}
+
 
 
 
@@ -9598,6 +9655,23 @@ _ld_bytes (str, bits)
         PPCODE:
         temp = PL_markstack_ptr++;
         _ld_bytes(aTHX_ str, bits);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+void
+_f128_bytes (str, bits)
+	SV *	str
+	unsigned int	bits
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        _f128_bytes(aTHX_ str, bits);
         if (PL_markstack_ptr != temp) {
           /* truly void, because dXSARGS not invoked */
           PL_markstack_ptr = temp;
