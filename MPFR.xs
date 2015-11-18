@@ -1383,7 +1383,9 @@ SV * Rmpfr_can_round(pTHX_ mpfr_t * p, SV * err, SV * round1, SV * round2, SV * 
 }
 
 SV * Rmpfr_print_rnd_mode(pTHX_ SV * rnd) {
-     return newSVpv(mpfr_print_rnd_mode((mpfr_rnd_t)SvIV(rnd)), 0);
+     const char * x = mpfr_print_rnd_mode((mpfr_rnd_t)SvIV(rnd));
+     if(x == NULL) return &PL_sv_undef;
+     return newSVpv(x, 0);
 }
 
 SV * Rmpfr_get_emin(pTHX) {
