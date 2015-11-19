@@ -8,7 +8,10 @@ print  "# Using Math::MPFR version ", $Math::MPFR::VERSION, "\n";
 print  "# Using mpfr library version ", MPFR_VERSION_STRING, "\n";
 print  "# Using gmp library version ", Math::MPFR::gmp_v(), "\n";
 
-print "1..8\n";
+print "1..9\n";
+
+my $arb = 40;
+Rmpfr_set_default_prec($arb);
 
 my @bytes;
 
@@ -161,6 +164,14 @@ else {
     print "not ok 8\n";
   }
 
+}
+
+my $now = Rmpfr_get_default_prec();
+
+if($now == $arb) {print "ok 9\n"}
+else {
+  warn "Default precision has changed from $arb to $now\n";
+  print "not ok 9\n";
 }
 
 
