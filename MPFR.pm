@@ -157,7 +157,7 @@ MPFR_DBL_DIG MPFR_LDBL_DIG MPFR_FLT128_DIG
 mpfr_max_orig_len mpfr_min_inter_prec mpfr_min_inter_base mpfr_max_orig_base
 );
 
-    our $VERSION = '3.27';
+    our $VERSION = '3.28';
     #$VERSION = eval $VERSION;
 
     DynaLoader::bootstrap Math::MPFR $VERSION;
