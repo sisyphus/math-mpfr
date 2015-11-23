@@ -1,4 +1,5 @@
 3.28
+ - Fix mistake in test 5 in t/bytes.t.
 
 3.27
  - Replace mpfr_set_default_prec() calls in _ld_bytes and _f128_bytes with
