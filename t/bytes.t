@@ -8,7 +8,7 @@ print  "# Using Math::MPFR version ", $Math::MPFR::VERSION, "\n";
 print  "# Using mpfr library version ", MPFR_VERSION_STRING, "\n";
 print  "# Using gmp library version ", Math::MPFR::gmp_v(), "\n";
 
-print "1..9\n";
+print "1..10\n";
 
 my $arb = 40;
 Rmpfr_set_default_prec($arb);
@@ -172,6 +172,24 @@ else {
   warn "Default precision has changed from $arb to $now\n";
   print "not ok 9\n";
 }
+
+@bytes = Math::MPFR::_d_bytes('1e+129', 53);
+
+my $hex = join '', @bytes;
+
+my $double = Math::MPFR::Rmpfr_init2(53);
+Math::MPFR::Rmpfr_set_str($double, '1e+129', 10, 0);
+
+my $hex2 = scalar reverse unpack "h*", pack "d<", Math::MPFR::Rmpfr_get_d($double, 0);
+
+if($hex eq $hex2) {print "ok 10\n"}
+else {
+  warn "expected $hex, got $hex2\n";
+  print "not ok 10\n";
+}
+
+
+
 
 
 
