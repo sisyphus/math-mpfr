@@ -103,8 +103,7 @@ if($@) {
   my $nv2 = $nv1 + (2 ** -1000);
   $dd = 1 if $nv2 != $nv1;
 
-  if($Config{longdblkind} == 6 || $dd == 1) {
-    warn "\ndouble-double detected\n";
+  if(!Math::MPFR::_MPFR_WANT_FLOAT128()) {
     if($mess =~ /^__float128 support not built into this Math::MPFR/) {print "ok 5\n"}
     else {
       warn "\n\$\@: $mess\n";
