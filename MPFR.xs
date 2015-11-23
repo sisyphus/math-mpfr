@@ -5684,6 +5684,54 @@ void set_nnum(int x) {
   nnum = x;
 }
 
+void _d_bytes(pTHX_ SV * str, unsigned int bits) {
+
+ /* Assumes 64-bit long double (53-bit precision mantissa) */
+
+  dXSARGS;
+  mpfr_t temp;
+  double ld;
+  int i, n = 8;
+  char * buff;
+  void * p = &ld;
+
+  if(bits != 53)
+    croak("2nd arg to Math::MPFR::_d_bytes must be 53");
+
+  if(SvUV(_itsa(aTHX_ str)) != 4)
+    croak("1st arg supplied to Math::MPFR::_d_bytes is not a string");
+
+  if((size_t)bits != DBL_MANT_DIG)
+    croak("2nd arg (%u) supplied to Math::MPFR::_d_bytes does not match DBL_MANT_DIG (%u)", bits, DBL_MANT_DIG);
+
+  mpfr_init2(temp, 53);
+
+  mpfr_set_str(temp, SvPV_nolen(str), 10, 0);
+
+  ld = mpfr_get_d(temp, 0);
+
+  mpfr_clear(temp);
+
+  Newx(buff, 4, char);
+  if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_d_bytes function");
+
+  sp = mark;
+
+#ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
+  for (i = 0; i < n; i++) {
+#else
+  for (i = n - 1; i >= 0; i--) {
+#endif
+
+    sprintf(buff, "%02x", ((unsigned char*)p)[i]);
+    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
+  }
+  PUTBACK;
+  Safefree(buff);
+  XSRETURN(n);
+
+}
+
 void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
 
  /* For Math::NV - added in version 3.26 */
@@ -9638,6 +9686,23 @@ set_nnum (x)
         PPCODE:
         temp = PL_markstack_ptr++;
         set_nnum(x);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+void
+_d_bytes (str, bits)
+	SV *	str
+	unsigned int	bits
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        _d_bytes(aTHX_ str, bits);
         if (PL_markstack_ptr != temp) {
           /* truly void, because dXSARGS not invoked */
           PL_markstack_ptr = temp;
