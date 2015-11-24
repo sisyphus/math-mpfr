@@ -8,7 +8,7 @@ print  "# Using Math::MPFR version ", $Math::MPFR::VERSION, "\n";
 print  "# Using mpfr library version ", MPFR_VERSION_STRING, "\n";
 print  "# Using gmp library version ", Math::MPFR::gmp_v(), "\n";
 
-print "1..10\n";
+print "1..13\n";
 
 my $arb = 40;
 Rmpfr_set_default_prec($arb);
@@ -186,6 +186,59 @@ if($hex eq $hex2) {print "ok 10\n"}
 else {
   warn "expected $hex, got $hex2\n";
   print "not ok 10\n";
+}
+
+my @bytes2;
+
+eval{@bytes = Math::MPFR::_d_bytes('23.75', 53);};
+
+if(!$@) {
+  @bytes2 = Math::MPFR::_d_bytes('0x17.c', 53);
+  my $one = join '', @bytes;
+  my $two = join '', @bytes2;
+  if($one eq $two) {print "ok 11\n"}
+  else {
+    warn "\nexpected *$one*\n     got *$two*\n";
+    print "not ok 11\n";
+  }
+}
+else {
+  warn "Skipping test 11 - $@\n";
+  print "ok 11\n";
+}
+
+eval{@bytes = Math::MPFR::_ld_bytes('23.75', 64);};
+
+if(!$@) {
+  @bytes2 = Math::MPFR::_ld_bytes('0X17.C', 64);
+  my $one = join '', @bytes;
+  my $two = join '', @bytes2;
+  if($one eq $two) {print "ok 12\n"}
+  else {
+    warn "\nexpected *$one*\n     got *$two*\n";
+    print "not ok 12\n";
+  }
+}
+else {
+  warn "Skipping test 12 - $@\n";
+  print "ok 12\n";
+}
+
+eval{@bytes = Math::MPFR::_f128_bytes('23.75', 113);};
+
+if(!$@) {
+ @bytes2 = Math::MPFR::_f128_bytes('0X17.c', 113);
+  my $one = join '', @bytes;
+  my $two = join '', @bytes2;
+  if($one eq $two) {print "ok 13\n"}
+  else {
+    warn "\nexpected *$one*\n     got *$two*\n";
+    print "not ok 13\n";
+  }
+}
+else {
+  warn "Skipping test 13 - $@\n";
+  print "ok 13\n";
 }
 
 
