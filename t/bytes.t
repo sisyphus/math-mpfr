@@ -8,7 +8,7 @@ print  "# Using Math::MPFR version ", $Math::MPFR::VERSION, "\n";
 print  "# Using mpfr library version ", MPFR_VERSION_STRING, "\n";
 print  "# Using gmp library version ", Math::MPFR::gmp_v(), "\n";
 
-print "1..13\n";
+print "1..21\n";
 
 my $arb = 40;
 Rmpfr_set_default_prec($arb);
@@ -241,6 +241,92 @@ else {
   print "ok 13\n";
 }
 
+my $fr_breaker = Rmpfr_init2(200);
+Rmpfr_set_str($fr_breaker, '1.1', 10, MPFR_RNDN);
+
+eval {Math::MPFR::_d_bytes_fr($fr_breaker, 53);};
+
+if($@ =~ /^Precison of 1st arg supplied to _d_bytes_fr must be 53, not 200/) {print "ok 14\n"}
+else {
+  warn "\$\@: $@\n";
+  print "not ok 14\n";
+}
+
+eval {Math::MPFR::_dd_bytes_fr($fr_breaker, 106);};
+
+if($@ =~ /^Precison of 1st arg supplied to _dd_bytes_fr must be 2098, not 200/) {print "ok 15\n"}
+else {
+  warn "\$\@: $@\n";
+  print "not ok 15\n";
+}
+
+eval {Math::MPFR::_ld_bytes_fr($fr_breaker, 64);};
+
+if($@ =~ /^Precison of 1st arg supplied to _ld_bytes_fr must be 64, not 200/) {print "ok 16\n"}
+else {
+  warn "\$\@: $@\n";
+  print "not ok 16\n";
+}
+
+eval {Math::MPFR::_f128_bytes_fr($fr_breaker, 113);};
+
+if($@ =~ /^Precison of 1st arg supplied to _f128_bytes_fr must be 113, not 200/ ||
+   $@ =~ /^__float128 support not built into this Math::MPFR/) {print "ok 17\n"}
+else {
+  warn "\$\@: $@\n";
+  print "not ok 17\n";
+}
+
+my $d_fr = Rmpfr_init2(53);
+Rmpfr_set_str($d_fr, '1e+127', 10, MPFR_RNDN);
+
+my $expected = join '', Math::MPFR::_d_bytes_fr($d_fr, 53);
+
+if($expected eq '5a4d8ba7f519c84f') {print "ok 18\n"}
+else {
+  warn "Expected *5a4d8ba7f519c84f*, got *$expected*\n";
+  print "not ok 18\n";
+}
+
+my $dd_fr = Rmpfr_init2(2098);
+Rmpfr_set_str($dd_fr, '1e+127', 10, MPFR_RNDN);
+
+$expected = join '', Math::MPFR::_dd_bytes_fr($dd_fr, 106);
+
+if($expected eq '5a4d8ba7f519c84f5a4d8ba7f519c84f') {print "ok 19\n"}
+else {
+  warn "Expected *5a4d8ba7f519c84f5a4d8ba7f519c84f*, got *$expected*\n";
+  print "not ok 19\n";
+}
+
+my $ld_fr = Rmpfr_init2(64);
+Rmpfr_set_str($ld_fr, '1e+127', 10, MPFR_RNDN);
+
+$expected = join '', Math::MPFR::_ld_bytes_fr($ld_fr, 64);
+
+if($expected eq '41a4ec5d3fa8ce427b00') {print "ok 20\n"}
+else {
+  warn "Expected *41a4ec5d3fa8ce427b00*, got *$expected*\n";
+  print "not ok 20\n";
+}
+
+my $f128_fr = Rmpfr_init2(113);
+Rmpfr_set_str($f128_fr, '1e+127', 10, MPFR_RNDN);
+
+eval {$expected = join '', Math::MPFR::_f128_bytes_fr($f128_fr, 113);};
+
+if(!Math::MPFR::_MPFR_WANT_FLOAT128()) {
+  if($@ =~ /^__float128 support not built into this Math::MPFR/) {print "ok 21\n"}
+  else {
+    warn "\n\$\@\: $@";
+    print "not ok 21\n";
+  }
+}
+elsif($expected eq '41a4d8ba7f519c84f5ff47ca3e27156a') {print "ok 21\n"}
+else {
+  warn "Expected *41a4d8ba7f519c84f5ff47ca3e27156a*, got *$expected*\n";
+  print "not ok 21\n";
+}
 
 
 
