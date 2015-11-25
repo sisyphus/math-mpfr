@@ -5686,7 +5686,7 @@ void set_nnum(int x) {
 
 void _d_bytes(pTHX_ SV * str, unsigned int bits) {
 
- /* Assumes 64-bit long double (53-bit precision mantissa) */
+ /* Assumes 64-bit double (53-bit precision mantissa) */
 
   dXSARGS;
   mpfr_t temp;
@@ -5708,7 +5708,7 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
 
   mpfr_set_str(temp, SvPV_nolen(str), 0, GMP_RNDN);
 
-  ld = mpfr_get_d(temp, 0);
+  ld = mpfr_get_d(temp, GMP_RNDN);
 
   mpfr_clear(temp);
 
@@ -5729,6 +5729,163 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
   PUTBACK;
   Safefree(buff);
   XSRETURN(n);
+
+}
+
+void _d_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
+
+ /* Assumes 64-bit double (53-bit precision mantissa) */
+
+  dXSARGS;
+  double ld;
+  int i, n = 8;
+  char * buff;
+  void * p = &ld;
+
+  if(bits != 53)
+    croak("2nd arg to Math::MPFR::_d_bytes_fr must be 53");
+
+  if(mpfr_get_prec(*str) != 53)
+    croak("Precison of 1st arg supplied to _d_bytes_fr must be 53, not %u", mpfr_get_prec(*str));
+
+  if((size_t)bits != DBL_MANT_DIG)
+    croak("2nd arg (%u) supplied to Math::MPFR::_d_bytes_fr does not match DBL_MANT_DIG (%u)", bits, DBL_MANT_DIG);
+
+  ld = mpfr_get_d(*str, GMP_RNDN);
+
+  Newx(buff, 4, char);
+  if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_d_bytes_fr function");
+
+  sp = mark;
+
+#ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
+  for (i = 0; i < n; i++) {
+#else
+  for (i = n - 1; i >= 0; i--) {
+#endif
+
+    sprintf(buff, "%02x", ((unsigned char*)p)[i]);
+    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
+  }
+  PUTBACK;
+  Safefree(buff);
+  XSRETURN(n);
+
+}
+
+void _dd_bytes(pTHX_ SV * str, unsigned int bits) {
+
+ /* Assumes 128-bit long double (106-bit precision mantissa) */
+
+  dXSARGS;
+  mpfr_t temp;
+  double msd, lsd;
+  int i, n = 8;
+  char * buff;
+  void * pm = &msd;
+  void * pl = &lsd;
+
+  if(bits != 106)
+    croak("2nd arg to Math::MPFR::_dd_bytes must be 106");
+
+  if(SvUV(_itsa(aTHX_ str)) != 4)
+    croak("1st arg supplied to Math::MPFR::_dd_bytes is not a string");
+
+  mpfr_init2(temp, 2098);
+
+  mpfr_set_str(temp, SvPV_nolen(str), 0, GMP_RNDN);
+
+  msd = mpfr_get_d(temp, GMP_RNDN);
+  mpfr_sub_d(temp, temp, msd, GMP_RNDN);
+  lsd = mpfr_get_d(temp, GMP_RNDN);
+
+  mpfr_clear(temp);
+
+  Newx(buff, 4, char);
+  if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_dd_bytes function");
+
+  sp = mark;
+
+#ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
+  for (i = 0; i < n; i++) {
+#else
+  for (i = n - 1; i >= 0; i--) {
+#endif
+
+    sprintf(buff, "%02x", ((unsigned char*)pm)[i]);
+    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
+  }
+
+#ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
+  for (i = 0; i < n; i++) {
+#else
+  for (i = n - 1; i >= 0; i--) {
+#endif
+
+    sprintf(buff, "%02x", ((unsigned char*)pl)[i]);
+    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
+  }
+  PUTBACK;
+  Safefree(buff);
+  XSRETURN(16);
+
+}
+
+void _dd_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
+
+ /* Assumes 128-bit long double (106-bit precision mantissa) */
+
+  dXSARGS;
+  mpfr_t temp;
+  double msd, lsd;
+  int i, n = 8;
+  char * buff;
+  void * pm = &msd;
+  void * pl = &lsd;
+
+  if(bits != 106)
+    croak("2nd arg to Math::MPFR::_dd_bytes must be 106");
+
+  if(mpfr_get_prec(*str) != 2098)
+    croak("Precison of 1st arg supplied to _dd_bytes_fr must be 2098, not %u", mpfr_get_prec(*str));
+
+  mpfr_init2(temp, 2098);
+
+  mpfr_set(temp, *str, GMP_RNDN); /* Avoid altering the value held by *str */
+
+  msd = mpfr_get_d(temp, GMP_RNDN);
+  mpfr_sub_d(*str, temp, msd, GMP_RNDN);
+  lsd = mpfr_get_d(temp, GMP_RNDN);
+
+  mpfr_clear(temp);
+
+  Newx(buff, 4, char);
+  if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_dd_bytes_fr function");
+
+  sp = mark;
+
+#ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
+  for (i = 0; i < n; i++) {
+#else
+  for (i = n - 1; i >= 0; i--) {
+#endif
+
+    sprintf(buff, "%02x", ((unsigned char*)pm)[i]);
+    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
+  }
+
+#ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
+  for (i = 0; i < n; i++) {
+#else
+  for (i = n - 1; i >= 0; i--) {
+#endif
+
+    sprintf(buff, "%02x", ((unsigned char*)pl)[i]);
+    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
+  }
+  PUTBACK;
+  Safefree(buff);
+  XSRETURN(16);
 
 }
 
@@ -5757,12 +5914,54 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
 
   mpfr_set_str(temp, SvPV_nolen(str), 0, GMP_RNDN);
 
-  ld = mpfr_get_ld(temp, 0);
+  ld = mpfr_get_ld(temp, GMP_RNDN);
 
   mpfr_clear(temp);
 
   Newx(buff, 4, char);
   if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_ld_bytes function");
+
+  sp = mark;
+
+#ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
+  for (i = 0; i < n; i++) {
+#else
+  for (i = n - 1; i >= 0; i--) {
+#endif
+
+    sprintf(buff, "%02x", ((unsigned char*)p)[i]);
+    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
+  }
+  PUTBACK;
+  Safefree(buff);
+  XSRETURN(n);
+
+}
+
+void _ld_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
+
+ /* For Math::NV - added in version 3.26 */
+ /* Assumes 80-bit long double (64-bit precision mantissa) */
+
+  dXSARGS;
+  long double ld;
+  int i, n = 10;
+  char * buff;
+  void * p = &ld;
+
+  if(bits != 64)
+    croak("2nd arg to Math::MPFR::_ld_bytes_fr must be 64");
+
+  if(mpfr_get_prec(*str) != 64)
+    croak("Precison of 1st arg supplied to _ld_bytes_fr must be 64, not %u", mpfr_get_prec(*str));
+
+  if((size_t)bits != LDBL_MANT_DIG)
+    croak("2nd arg (%u) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG (%u)", bits, LDBL_MANT_DIG);
+
+  ld = mpfr_get_ld(*str, GMP_RNDN);
+
+  Newx(buff, 4, char);
+  if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_ld_bytes_fr function");
 
   sp = mark;
 
@@ -5812,12 +6011,61 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
 
   mpfr_set_str(temp, SvPV_nolen(str), 0, GMP_RNDN);
 
-  ld = mpfr_get_float128(temp, 0);
+  ld = mpfr_get_float128(temp, GMP_RNDN);
 
   mpfr_clear(temp);
 
   Newx(buff, 4, char);
   if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_f128_bytes function");
+
+  sp = mark;
+
+#ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
+  for (i = 0; i < n; i++) {
+#else
+  for (i = n - 1; i >= 0; i--) {
+#endif
+
+    sprintf(buff, "%02x", ((unsigned char*)p)[i]);
+    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
+  }
+  PUTBACK;
+  Safefree(buff);
+  XSRETURN(n);
+
+#endif
+
+}
+
+void _f128_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
+
+ /* Assumes 128-bit __float128 (113-bit precision mantissa) */
+
+#ifndef MPFR_WANT_FLOAT128
+
+  croak("__float128 support not built into this Math::MPFR");
+
+#else
+
+  dXSARGS;
+  float128 ld;
+  int i, n = 16;
+  char * buff;
+  void * p = &ld;
+
+  if(bits != 113)
+    croak("2nd arg to Math::MPFR::_f128_bytes_fr must be 113");
+
+  if(mpfr_get_prec(*str) != 113)
+    croak("Precison of 1st arg supplied to _f128_bytes_fr must be 113, not %u", mpfr_get_prec(*str));
+
+  if((size_t)bits != FLT128_MANT_DIG)
+    croak("2nd arg (%u) supplied to Math::MPFR::_f128_bytes_fr does not match FLT128_MANT_DIG (%u)", bits, FLT128_MANT_DIG);
+
+  ld = mpfr_get_float128(*str, GMP_RNDN);
+
+  Newx(buff, 4, char);
+  if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_f128_bytes_fr function");
 
   sp = mark;
 
@@ -9712,6 +9960,57 @@ _d_bytes (str, bits)
         return; /* assume stack size is correct */
 
 void
+_d_bytes_fr (str, bits)
+	mpfr_t *	str
+	unsigned int	bits
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        _d_bytes_fr(aTHX_ str, bits);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+void
+_dd_bytes (str, bits)
+	SV *	str
+	unsigned int	bits
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        _dd_bytes(aTHX_ str, bits);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+void
+_dd_bytes_fr (str, bits)
+	mpfr_t *	str
+	unsigned int	bits
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        _dd_bytes_fr(aTHX_ str, bits);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+void
 _ld_bytes (str, bits)
 	SV *	str
 	unsigned int	bits
@@ -9729,6 +10028,23 @@ _ld_bytes (str, bits)
         return; /* assume stack size is correct */
 
 void
+_ld_bytes_fr (str, bits)
+	mpfr_t *	str
+	unsigned int	bits
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        _ld_bytes_fr(aTHX_ str, bits);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+void
 _f128_bytes (str, bits)
 	SV *	str
 	unsigned int	bits
@@ -9737,6 +10053,23 @@ _f128_bytes (str, bits)
         PPCODE:
         temp = PL_markstack_ptr++;
         _f128_bytes(aTHX_ str, bits);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+void
+_f128_bytes_fr (str, bits)
+	mpfr_t *	str
+	unsigned int	bits
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        _f128_bytes_fr(aTHX_ str, bits);
         if (PL_markstack_ptr != temp) {
           /* truly void, because dXSARGS not invoked */
           PL_markstack_ptr = temp;
