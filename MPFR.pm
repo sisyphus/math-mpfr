@@ -152,7 +152,7 @@ Rmpfr_buildopt_tls_p Rmpfr_buildopt_decimal_p Rmpfr_regular_p Rmpfr_set_zero Rmp
 Rmpfr_ai Rmpfr_set_flt Rmpfr_get_flt Rmpfr_urandom Rmpfr_set_z_2exp
 Rmpfr_set_divby0 Rmpfr_clear_divby0 Rmpfr_divby0_p
 Rmpfr_buildopt_tune_case Rmpfr_frexp Rmpfr_grandom Rmpfr_z_sub Rmpfr_buildopt_gmpinternals_p
-prec_cast
+prec_cast bytes
 MPFR_DBL_DIG MPFR_LDBL_DIG MPFR_FLT128_DIG
 mpfr_max_orig_len mpfr_min_inter_prec mpfr_min_inter_base mpfr_max_orig_base
 );
@@ -553,6 +553,39 @@ sub mpfr_max_orig_base {
     my $to_base = shift;
     my $to_prec = shift;
     return floor(exp(1 / ($orig_length / log($to_base) / ($to_prec -1))));
+}
+
+sub bytes {
+  my($val, $type, $ret) = (shift, shift);
+  my $itsa = _itsa($val);
+  die "1st arg to Math::MPFR::bytes must be iether a string or a Math::MPFR object"
+    if($itsa != 4 && $itsa != 5);
+
+  if(lc($type) eq 'double') {
+    $ret = $itsa == 4 ? join '', _d_bytes   ($val, 53)
+                      : join '', _d_bytes_fr($val, 53);
+    return $ret;
+  }
+
+  if(lc($type) eq 'long double') {
+    $ret = $itsa == 4 ? join '', _ld_bytes   ($val, 64)
+                      : join '', _ld_bytes_fr($val, 64);
+    return $ret;
+  }
+
+  if(lc($type) eq 'double-double') {
+    $ret = $itsa == 4 ? join '', _dd_bytes   ($val, 106)
+                      : join '', _dd_bytes_fr($val, 106);
+    return $ret;
+  }
+
+  if(lc($type) eq '__float128') {
+    $ret = $itsa == 4 ? join '', _f128_bytes   ($val, 113)
+                      : join '', _f128_bytes_fr($val, 113);
+    return $ret;
+  }
+
+  die "2nd arg to Math::MPFR::bytes must be (case-insensitive) either 'double', 'double-double', 'long double' or '__float128'";
 }
 
 *Rmpfr_get_z_exp             = \&Rmpfr_get_z_2exp;
@@ -2123,6 +2156,21 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    Math::MPFR::clear_nnum(); # not exported
     Resets the global non-numeric flag to 0.(Essentially the same
     as running set_nnum(0).)
+
+   $bytes = Math::MPFR::bytes($val, $type);
+    $type must be either 'double', 'long double', 'double-double',
+    or '__float128', though both upper and lower cases of the
+    characters is acceptable.
+    $val must either be a string (eg '1.6e+45', '2.3', '0x17.8')
+    or a Math::MPFR object.
+    For the given value expressed by the string (or encapsulated in
+    the object) the hex representation of that value for the given
+    ($type) datatype is returned.
+    If $val is a Math::MPFR object, its precision must be 53 if
+    $type is double, 64 if $type is 'long double', 106 if $type is
+    'double-double', or 113 if $type is '__float128'.
+    NOTE: Setting $type to '__float128' causes a fatal error if
+    Math::MPFR::MPFR_WANT_FLOAT128() returns false.
 
    ##############
 
