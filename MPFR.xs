@@ -5854,7 +5854,7 @@ void _dd_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
   mpfr_set(temp, *str, GMP_RNDN); /* Avoid altering the value held by *str */
 
   msd = mpfr_get_d(temp, GMP_RNDN);
-  mpfr_sub_d(*str, temp, msd, GMP_RNDN);
+  mpfr_sub_d(temp, temp, msd, GMP_RNDN);
   lsd = mpfr_get_d(temp, GMP_RNDN);
 
   mpfr_clear(temp);
