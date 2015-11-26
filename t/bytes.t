@@ -8,7 +8,7 @@ print  "# Using Math::MPFR version ", $Math::MPFR::VERSION, "\n";
 print  "# Using mpfr library version ", MPFR_VERSION_STRING, "\n";
 print  "# Using gmp library version ", Math::MPFR::gmp_v(), "\n";
 
-print "1..21\n";
+print "1..35\n";
 
 my $arb = 40;
 Rmpfr_set_default_prec($arb);
@@ -293,9 +293,9 @@ Rmpfr_set_str($dd_fr, '1e+127', 10, MPFR_RNDN);
 
 $expected = join '', Math::MPFR::_dd_bytes_fr($dd_fr, 106);
 
-if($expected eq '5a4d8ba7f519c84f5a4d8ba7f519c84f') {print "ok 19\n"}
+if($expected eq '5a4d8ba7f519c84f56e7fd1f28f89c56') {print "ok 19\n"}
 else {
-  warn "Expected *5a4d8ba7f519c84f5a4d8ba7f519c84f*, got *$expected*\n";
+  warn "Expected *5a4d8ba7f519c84f56e7fd1f28f89c56*, got *$expected*\n";
   print "not ok 19\n";
 }
 
@@ -322,13 +322,172 @@ if(!Math::MPFR::_MPFR_WANT_FLOAT128()) {
     print "not ok 21\n";
   }
 }
+elsif($@) {
+  warn "\$\@:$@\n";
+  print "not ok 21\n";
+}
 elsif($expected eq '41a4d8ba7f519c84f5ff47ca3e27156a') {print "ok 21\n"}
 else {
   warn "Expected *41a4d8ba7f519c84f5ff47ca3e27156a*, got *$expected*\n";
   print "not ok 21\n";
 }
 
+my $h;
 
+eval{$h = Math::MPFR::bytes($d_fr, 'Long Double');};
 
+if($@ =~ /^Precison of 1st arg supplied to _ld_bytes_fr must be 64, not 53/) {print "ok 22\n"}
+else {
+  warn "\$\@: $@";
+  print "not ok 22\n";
+}
 
+eval{$h = Math::MPFR::bytes($d_fr, 53);};
 
+if($@ =~ /^2nd arg to Math::MPFR::bytes must be/) {print "ok 23\n"}
+else {
+  warn "\$\@: $@";
+  print "not ok 23\n";
+}
+
+$expected = Math::MPFR::bytes($d_fr, 'Double');
+
+if($expected eq '5a4d8ba7f519c84f') {print "ok 24\n"}
+else {
+  warn "Expected *5a4d8ba7f519c84f*, got *$expected*\n";
+  print "not ok 24\n";
+}
+
+$expected = Math::MPFR::bytes('1e+127', 'Double');
+
+if($expected eq '5a4d8ba7f519c84f') {print "ok 25\n"}
+else {
+  warn "Expected *5a4d8ba7f519c84f*, got *$expected*\n";
+  print "not ok 25\n";
+}
+
+$expected = Math::MPFR::bytes($ld_fr, 'Long Double');
+
+if($expected eq '41a4ec5d3fa8ce427b00') {print "ok 26\n"}
+else {
+  warn "Expected *41a4ec5d3fa8ce427b00*, got *$expected*\n";
+  print "not ok 26\n";
+}
+
+$expected = Math::MPFR::bytes('1e+127', 'Long Double');
+
+if($expected eq '41a4ec5d3fa8ce427b00') {print "ok 27\n"}
+else {
+  warn "Expected *41a4ec5d3fa8ce427b00*, got *$expected*\n";
+  print "not ok 27\n";
+}
+
+$expected = Math::MPFR::bytes($dd_fr, 'Double-Double');
+
+if($expected eq '5a4d8ba7f519c84f56e7fd1f28f89c56') {print "ok 28\n"}
+else {
+  warn "Expected *5a4d8ba7f519c84f56e7fd1f28f89c56*, got *$expected*\n";
+  print "not ok 28\n";
+}
+
+$expected = Math::MPFR::bytes('1e+127', 'Double-Double');
+
+if($expected eq '5a4d8ba7f519c84f56e7fd1f28f89c56') {print "ok 29\n"}
+else {
+  warn "Expected *5a4d8ba7f519c84f56e7fd1f28f89c56*, got *$expected*\n";
+  print "not ok 29\n";
+}
+
+eval{$expected = Math::MPFR::bytes($f128_fr, '__Float128');};
+
+if(!Math::MPFR::_MPFR_WANT_FLOAT128()) {
+  if($@ =~ /^__float128 support not built into this Math::MPFR/) {print "ok 30\n"}
+  else {
+    warn "\n\$\@\: $@";
+    print "not ok 30\n";
+  }
+}
+elsif($@) {
+  warn "\$\@:$@\n";
+  print "not ok 30\n";
+}
+elsif($expected eq '41a4d8ba7f519c84f5ff47ca3e27156a') {print "ok 30\n"}
+else {
+  warn "Expected *41a4d8ba7f519c84f5ff47ca3e27156a*, got *$expected*\n";
+  print "not ok 30\n";
+}
+
+eval{$expected = Math::MPFR::bytes('1e+127', '__Float128');};
+
+if(!Math::MPFR::_MPFR_WANT_FLOAT128()) {
+  if($@ =~ /^__float128 support not built into this Math::MPFR/) {print "ok 31\n"}
+  else {
+    warn "\n\$\@\: $@";
+    print "not ok 31\n";
+  }
+}
+elsif($@) {
+  warn "\$\@:$@\n";
+  print "not ok 31\n";
+}
+elsif($expected eq '41a4d8ba7f519c84f5ff47ca3e27156a') {print "ok 31\n"}
+else {
+  warn "Expected *41a4d8ba7f519c84f5ff47ca3e27156a*, got *$expected*\n";
+  print "not ok 31\n";
+}
+
+my $unity = Math::MPFR->new(1);
+
+Rmpfr_exp($d_fr, $unity, MPFR_RNDN);
+Rmpfr_exp($dd_fr, $unity, MPFR_RNDN);
+Rmpfr_exp($ld_fr, $unity, MPFR_RNDN);
+Rmpfr_exp($f128_fr, $unity, MPFR_RNDN);
+
+$expected = Math::MPFR::bytes($d_fr, 'double');
+
+if($expected eq '4005bf0a8b145769') {print "ok 32\n"}
+else {
+  warn "expected *4005bf0a8b145769*, got *$expected*\n";
+  print "not ok 32\n";
+}
+
+$expected = Math::MPFR::bytes($dd_fr, 'Double-double');
+
+if($expected eq '4005bf0a8b1457693ca4d57ee2b1013a') {print "ok 33\n"}
+else {
+  warn "expected *4005bf0a8b1457693ca4d57ee2b1013a*, got *$expected*\n";
+  print "not ok 33\n";
+}
+
+$expected = Math::MPFR::bytes($ld_fr, 'Long double');
+
+if($expected eq '4000adf85458a2bb4a9b') {print "ok 34\n"}
+else {
+  warn "expected *4000adf85458a2bb4a9b*, got *$expected*\n";
+  print "not ok 34\n";
+}
+
+eval{$expected = Math::MPFR::bytes($f128_fr, '__float128');};
+
+if(!Math::MPFR::_MPFR_WANT_FLOAT128()) {
+  if($@ =~ /^__float128 support not built into this Math::MPFR/) {print "ok 35\n"}
+  else {
+    warn "\n\$\@\: $@";
+    print "not ok 35\n";
+  }
+}
+elsif($@) {
+  warn "\$\@:$@\n";
+  print "not ok 35\n";
+}
+elsif($expected eq '40005bf0a8b1457695355fb8ac404e7a') {print "ok 35\n"}
+else {
+  warn "expected *40005bf0a8b1457695355fb8ac404e7a*, got *$expected*\n";
+  print "not ok 35\n";
+}
+
+__END__
+
+5a4d8ba7f519c84f 5a4d8ba7f519c84f
+5a4d8ba7f519c84f 56e7fd1f28f89c56
+56e7fd1f28f89c56 56e7fd1f28f89c56
