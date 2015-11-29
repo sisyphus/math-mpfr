@@ -14,6 +14,7 @@ my $arb = 40;
 Rmpfr_set_default_prec($arb);
 
 my @bytes;
+my $dd = 0;
 
 eval {@bytes = Math::MPFR::_ld_bytes('2.3', 64);};
 
@@ -21,7 +22,6 @@ if($@) {
 
   my $mess = $@;
 
-  my $dd = 0;
   my $nv1 = 1.0;
   my $nv2 = $nv1 + (2 ** -1000);
   $dd = 1 if $nv2 != $nv1;
@@ -97,11 +97,6 @@ eval {@bytes = Math::MPFR::_f128_bytes('2.3', 113);};
 if($@) {
 
   my $mess = $@;
-
-  my $dd = 0;
-  my $nv1 = 1.0;
-  my $nv2 = $nv1 + (2 ** -1000);
-  $dd = 1 if $nv2 != $nv1;
 
   if(!Math::MPFR::_MPFR_WANT_FLOAT128()) {
     if($mess =~ /^__float128 support not built into this Math::MPFR/) {print "ok 5\n"}
@@ -299,12 +294,15 @@ else {
   print "not ok 19\n";
 }
 
+
 my $ld_fr = Rmpfr_init2(64);
 Rmpfr_set_str($ld_fr, '1e+127', 10, MPFR_RNDN);
 
-$expected = join '', Math::MPFR::_ld_bytes_fr($ld_fr, 64);
+eval {$expected = join '', Math::MPFR::_ld_bytes_fr($ld_fr, 64);};
 
-if($expected eq '41a4ec5d3fa8ce427b00') {print "ok 20\n"}
+if($dd && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG \(106\)/) {print "ok 20\n"}
+elsif($@) {print "not ok 20\n"}
+elsif($expected eq '41a4ec5d3fa8ce427b00') {print "ok 20\n"}
 else {
   warn "Expected *41a4ec5d3fa8ce427b00*, got *$expected*\n";
   print "not ok 20\n";
@@ -366,17 +364,27 @@ else {
   print "not ok 25\n";
 }
 
-$expected = Math::MPFR::bytes($ld_fr, 'Long Double');
+eval {$expected = Math::MPFR::bytes($ld_fr, 'Long Double');};
 
-if($expected eq '41a4ec5d3fa8ce427b00') {print "ok 26\n"}
+if($dd && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG \(106\)/) {print "ok 26\n"}
+elsif($@) {
+  warn "\$\@: $@\n";
+  print "not ok 26\n";
+}
+elsif($expected eq '41a4ec5d3fa8ce427b00') {print "ok 26\n"}
 else {
   warn "Expected *41a4ec5d3fa8ce427b00*, got *$expected*\n";
   print "not ok 26\n";
 }
 
-$expected = Math::MPFR::bytes('1e+127', 'Long Double');
+eval {$expected = Math::MPFR::bytes('1e+127', 'Long Double');};
 
-if($expected eq '41a4ec5d3fa8ce427b00') {print "ok 27\n"}
+if($dd && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes does not match LDBL_MANT_DIG \(106\)/) {print "ok 27\n"}
+elsif($@) {
+  warn "\$\@: $@\n";
+  print "not ok 27\n";
+}
+elsif($expected eq '41a4ec5d3fa8ce427b00') {print "ok 27\n"}
 else {
   warn "Expected *41a4ec5d3fa8ce427b00*, got *$expected*\n";
   print "not ok 27\n";
@@ -459,9 +467,14 @@ else {
   print "not ok 33\n";
 }
 
-$expected = Math::MPFR::bytes($ld_fr, 'Long double');
+eval {$expected = Math::MPFR::bytes($ld_fr, 'Long double');};
 
-if($expected eq '4000adf85458a2bb4a9b') {print "ok 34\n"}
+if($dd && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG \(106\)/) {print "ok 34\n"}
+elsif($@) {
+  warn "\$\@: $@\n";
+  print "not ok 34\n";
+}
+elsif($expected eq '4000adf85458a2bb4a9b') {print "ok 34\n"}
 else {
   warn "expected *4000adf85458a2bb4a9b*, got *$expected*\n";
   print "not ok 34\n";
@@ -507,9 +520,14 @@ else {
   print "not ok 37\n";
 }
 
-$expected = Math::MPFR::bytes($ld_fr, 'Long double');
+eval {$expected = Math::MPFR::bytes($ld_fr, 'Long double');};
 
-if($expected eq '4000c90fdaa22168c235') {print "ok 38\n"}
+if($dd && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG \(106\)/) {print "ok 38\n"}
+elsif($@) {
+  warn "\$\@: $@\n";
+  print "not ok 38\n";
+}
+elsif($expected eq '4000c90fdaa22168c235') {print "ok 38\n"}
 else {
   warn "expected *4000c90fdaa22168c235*, got *$expected*\n";
   print "not ok 38\n";
@@ -560,9 +578,14 @@ else {
   print "not ok 41\n";
 }
 
-$expected = Math::MPFR::bytes($ld_fr, 'Long double');
+eval {$expected = Math::MPFR::bytes($ld_fr, 'Long double');};
 
-if($expected eq '3fffb504f333f9de6484') {print "ok 42\n"}
+if($dd && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG \(106\)/) {print "ok 42\n"}
+elsif($@) {
+  warn "\$\@: $@\n";
+  print "not ok 42\n";
+}
+elsif($expected eq '3fffb504f333f9de6484') {print "ok 42\n"}
 else {
   warn "expected *3fffb504f333f9de6484*, got *$expected*\n";
   print "not ok 42\n";
