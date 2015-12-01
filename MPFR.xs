@@ -5901,8 +5901,10 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
   char * buff;
   void * p = &ld;
 
-  if(bits != 64)
+  if(bits != 64) {
+    if(bits == 106) warn("\nYou probably want to call Math::MPFR::_dd_bytes\n");
     croak("2nd arg to Math::MPFR::_ld_bytes must be 64");
+  }
 
   if(SvUV(_itsa(aTHX_ str)) != 4)
     croak("1st arg supplied to Math::MPFR::_ld_bytes is not a string");
@@ -5949,8 +5951,10 @@ void _ld_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
   char * buff;
   void * p = &ld;
 
-  if(bits != 64)
+  if(bits != 64) {
+    if(bits == 106) warn("\nYou probably want to call Math::MPFR::_dd_bytes_fr\n");
     croak("2nd arg to Math::MPFR::_ld_bytes_fr must be 64");
+  }
 
   if(mpfr_get_prec(*str) != 64)
     croak("Precison of 1st arg supplied to _ld_bytes_fr must be 64, not %u", mpfr_get_prec(*str));
