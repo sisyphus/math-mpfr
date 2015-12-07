@@ -558,7 +558,7 @@ sub mpfr_max_orig_base {
 sub bytes {
   my($val, $type, $ret) = (shift, shift);
   my $itsa = _itsa($val);
-  die "1st arg to Math::MPFR::bytes must be iether a string or a Math::MPFR object"
+  die "1st arg to Math::MPFR::bytes must be either a string or a Math::MPFR object"
     if($itsa != 4 && $itsa != 5);
 
   if(lc($type) eq 'double') {
