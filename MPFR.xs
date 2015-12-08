@@ -30,7 +30,9 @@
 #if defined(NV_IS_FLOAT128) && defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
 #define CAN_PASS_FLOAT128
 #endif
-#ifdef __MINGW64__
+#if defined(__MINGW32__) && !defined(__MINGW64__)
+typedef __float128 float128 __attribute__ ((aligned(32)));
+#elif defined(__MINGW64__)
 typedef __float128 float128 __attribute__ ((aligned(8)));
 #else
 typedef __float128 float128;
