@@ -26,6 +26,7 @@ t/D64_LD.t
 t/decimal64_conv.t
 t/div_by_zero.t
 t/DoubleDouble.t
+t/DoubleDouble2.t
 t/exceptions.t
 t/flags.t
 t/float128_conv.t
