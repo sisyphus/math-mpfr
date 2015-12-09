@@ -39,6 +39,11 @@ typedef __float128 float128;
 #endif
 #endif
 
+#if LDBL_MANT_DIG == 106
+#define REQUIRED_LDBL_MANT_DIG 2098
+#else
+#define REQUIRED_LDBL_MANT_DIG LDBL_MANT_DIG
+#endif
 
 #if defined(MPFR_VERSION_MAJOR) && MPFR_VERSION_MAJOR >= 3
 #define MAXIMUM_ALLOWABLE_BASE 62
@@ -2461,7 +2466,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
 
 #elif defined(USE_LONG_DOUBLE)
 
-       mpfr_init2(t, LDBL_MANT_DIG);
+       mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNV(b), __gmpfr_default_rounding_mode);
        mpfr_mul(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), t, __gmpfr_default_rounding_mode);
        mpfr_clear(t);
@@ -2585,7 +2590,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
 
 #elif defined(USE_LONG_DOUBLE)
 
-       mpfr_init2(t, LDBL_MANT_DIG);
+       mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNV(b), __gmpfr_default_rounding_mode);
        mpfr_add(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), t, __gmpfr_default_rounding_mode);
        mpfr_clear(t);
@@ -2714,7 +2719,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
      }
 #elif defined(USE_LONG_DOUBLE)
 
-       mpfr_init2(t, LDBL_MANT_DIG);
+       mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNV(b), __gmpfr_default_rounding_mode);
        if(third == &PL_sv_yes) mpfr_sub(*mpfr_t_obj, t, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), __gmpfr_default_rounding_mode);
        else mpfr_sub(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), t, __gmpfr_default_rounding_mode);
@@ -2850,7 +2855,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 
 #elif defined(USE_LONG_DOUBLE)
 
-       mpfr_init2(t, LDBL_MANT_DIG);
+       mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNV(b), __gmpfr_default_rounding_mode);
        if(third == &PL_sv_yes) mpfr_div(*mpfr_t_obj, t, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), __gmpfr_default_rounding_mode);
        else mpfr_div(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), t, __gmpfr_default_rounding_mode);
@@ -3808,7 +3813,7 @@ SV * overload_pow(pTHX_ SV * p, SV * second, SV * third) {
 
 #elif defined(USE_LONG_DOUBLE)
 
-       mpfr_init2(t, LDBL_MANT_DIG);
+       mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNV(second), __gmpfr_default_rounding_mode);
 
 #else
@@ -4053,7 +4058,7 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
        mpfr_init2(t, FLT128_MANT_DIG);
        mpfr_set_float128(t, (float128)SvNV(b), __gmpfr_default_rounding_mode);
 #elif defined(USE_LONG_DOUBLE)
-       mpfr_init2(t, LDBL_MANT_DIG);
+       mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNV(b), __gmpfr_default_rounding_mode);
 #else
        mpfr_init2(t, DBL_MANT_DIG);
@@ -4279,7 +4284,7 @@ SV * overload_pow_eq(pTHX_ SV * p, SV * second, SV * third) {
        mpfr_init2(t, FLT128_MANT_DIG);
        mpfr_set_float128(t, (float128)SvNV(second), __gmpfr_default_rounding_mode);
 #elif defined(USE_LONG_DOUBLE)
-       mpfr_init2(t, LDBL_MANT_DIG);
+       mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNV(second), __gmpfr_default_rounding_mode);
 #else
        mpfr_init2(t, DBL_MANT_DIG);
@@ -4400,7 +4405,7 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 #elif defined(USE_LONG_DOUBLE)
 
-       mpfr_init2(t, LDBL_MANT_DIG);
+       mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNV(b), __gmpfr_default_rounding_mode);
 
 #else
@@ -4519,7 +4524,7 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 #elif defined(USE_LONG_DOUBLE)
 
-       mpfr_init2(t, LDBL_MANT_DIG);
+       mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNV(b), __gmpfr_default_rounding_mode);
 
 #else
@@ -4639,7 +4644,7 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 #elif defined(USE_LONG_DOUBLE)
 
-       mpfr_init2(t, LDBL_MANT_DIG);
+       mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNV(b), __gmpfr_default_rounding_mode);
 
 #else
@@ -4760,7 +4765,7 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 #elif defined(USE_LONG_DOUBLE)
 
-       mpfr_init2(t, LDBL_MANT_DIG);
+       mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNV(b), __gmpfr_default_rounding_mode);
 
 #else
@@ -6091,6 +6096,11 @@ void _f128_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 #endif
 
 }
+
+int _required_ldbl_mant_dig(void) {
+    return REQUIRED_LDBL_MANT_DIG;
+}
+
 
 
 
@@ -10083,4 +10093,8 @@ _f128_bytes_fr (str, bits)
         }
         /* must have used dXSARGS; list context implied */
         return; /* assume stack size is correct */
+
+int
+_required_ldbl_mant_dig ()
+
 
