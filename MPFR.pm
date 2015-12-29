@@ -100,7 +100,7 @@ Rmpfr_get_emax Rmpfr_get_emax_max Rmpfr_get_emax_min Rmpfr_get_emin
 Rmpfr_get_emin_max Rmpfr_get_emin_min Rmpfr_get_exp Rmpfr_get_f Rmpfr_get_ld Rmpfr_get_LD
 Rmpfr_get_ld_2exp
 Rmpfr_get_prec Rmpfr_get_si Rmpfr_get_sj Rmpfr_get_str Rmpfr_get_ui
-Rmpfr_get_uj
+Rmpfr_get_uj Rmpfr_get_q
 Rmpfr_get_version Rmpfr_get_z Rmpfr_get_z_exp
 Rmpfr_get_z_2exp Rmpfr_greater_p Rmpfr_greaterequal_p
 Rmpfr_hypot
@@ -198,7 +198,7 @@ Rmpfr_get_prec Rmpfr_get_si Rmpfr_get_sj Rmpfr_get_str Rmpfr_get_ui
 Rmpfr_get_uj
 Rmpfr_get_version Rmpfr_get_z Rmpfr_get_z_exp
 Rmpfr_get_z_2exp Rmpfr_greater_p Rmpfr_greaterequal_p
-Rmpfr_hypot
+Rmpfr_hypot Rmpfr_get_q
 Rmpfr_inexflag_p Rmpfr_inf_p Rmpfr_init Rmpfr_init2 Rmpfr_init2_nobless
 Rmpfr_inits Rmpfr_inits2 Rmpfr_inits_nobless Rmpfr_inits2_nobless
 Rmpfr_init_nobless Rmpfr_init_set Rmpfr_init_set_d Rmpfr_init_set_d_nobless
@@ -1396,13 +1396,19 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     ternary value. (The function returns undef when using mpfr-2.x.x.)
     If $op is NaN or Inf, the result is undefined.
 
-   $si = Rmpfr_get_f ($f, $op, $rnd); # $f is an mpf object.
+   $si = Rmpfr_get_f ($f, $op, $rnd); # $f is a Math::GMPf object.
     Convert $op to a `mpf_t', after rounding it with respect to $rnd.
     When built against mpfr-3.0.0 or later, this function returns the
     usual ternary value. (If $op is NaN or Inf, then the erange flag
     will be set.) When built against earlier versions of mpfr,
     return zero iff no error occurred.In particular a non-zero value
     is returned if $op is NaN or Inf. which do not exist in `mpf'.
+
+   Rmpfr_get_q ($q, $op); # $q is a Math::GMPq object.
+    Convert $op to a rational value. $q will be set to the exact
+    value contained in $op - hence no need for a rounding argument.
+    If $op is NaN or Inf, then $q is set to zero and the erange flag
+    will be set.
 
    $d = Rmpfr_get_d_2exp ($exp, $op, $rnd); # $d is NV (double)
    $d = Rmpfr_get_ld_2exp ($exp, $op, $rnd); # $d is NV (long double)
