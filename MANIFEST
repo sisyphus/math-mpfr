@@ -49,6 +49,7 @@ t/P_specifier.t
 t/pod.t
 t/printf.t
 t/remainder.t
+t/Rmpfr_get_q.t
 t/set_NV.t
 t/set_str.t
 t/sign.t
