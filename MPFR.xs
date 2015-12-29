@@ -2311,6 +2311,24 @@ SV * Rmpfr_get_f(pTHX_ mpf_t * a, mpfr_t * b, SV * round) {
      return newSViv(mpfr_get_f(*a, *b, (mp_rnd_t)SvUV(round)));
 }
 
+/* No need for rounding as result will be exact */
+void Rmpfr_get_q(mpq_t * a, mpfr_t * b) {
+     mpf_t temp;
+     mpfr_prec_t prec;
+
+     if(!mpfr_number_p(*b)) {
+       mpq_set_ui(*a, 0, 1);
+       mpfr_set_erangeflag();
+     }
+     else {
+       prec = mpfr_get_prec(*b);
+       mpf_init2 (temp, (mp_bitcnt_t)prec);
+       mpfr_get_f(temp, *b, GMP_RNDN);
+       mpq_set_f (*a, temp);
+       mpf_clear(temp);
+     }
+}
+
 SV * Rmpfr_sech(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
      CHECK_ROUNDING_VALUE
      return newSViv(mpfr_sech(*a, *b, (mp_rnd_t)SvUV(round)));
@@ -8922,6 +8940,23 @@ Rmpfr_get_f (a, b, round)
 CODE:
   RETVAL = Rmpfr_get_f (aTHX_ a, b, round);
 OUTPUT:  RETVAL
+
+void
+Rmpfr_get_q (a, b)
+	mpq_t *	a
+	mpfr_t *	b
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpfr_get_q(a, b);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
 
 SV *
 Rmpfr_sech (a, b, round)
