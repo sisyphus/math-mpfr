@@ -2314,15 +2314,13 @@ SV * Rmpfr_get_f(pTHX_ mpf_t * a, mpfr_t * b, SV * round) {
 /* No need for rounding as result will be exact */
 void Rmpfr_get_q(mpq_t * a, mpfr_t * b) {
      mpf_t temp;
-     mpfr_prec_t prec;
 
      if(!mpfr_number_p(*b)) {
        mpq_set_ui(*a, 0, 1);
        mpfr_set_erangeflag();
      }
      else {
-       prec = mpfr_get_prec(*b);
-       mpf_init2 (temp, (mp_bitcnt_t)prec);
+       mpf_init2 (temp, (mp_bitcnt_t)mpfr_get_prec(*b));
        mpfr_get_f(temp, *b, GMP_RNDN);
        mpq_set_f (*a, temp);
        mpf_clear(temp);
