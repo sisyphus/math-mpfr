@@ -7,6 +7,7 @@
  - Add bytes() function.
  - Amend typedef of __float128 alignment (Windows only)
  - Add Rmpfr_get_q (even though MPFR does not implement mpfr_get_q)
+ - define mp_bitcnt_t to unsigned long int for pre-gmp-5.0.0
 
 3.28
  - Fix mistake in test 5 in t/bytes.t.
