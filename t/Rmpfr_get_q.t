@@ -69,7 +69,11 @@ else {
   print "not ok 5\n";
 }
 
-my $val = Math::MPFR->new(2.0) ** 0.5;
+my $val = Rmpfr_init2(121);
+Rmpfr_set_d($val, 2.0, MPFR_RNDN);
+$val **= 0.5;
+
+#print "$val\n";
 
 Rmpfr_get_q($q, $val);
 
