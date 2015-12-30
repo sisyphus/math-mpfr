@@ -99,6 +99,10 @@ typedef __float128 float128;
 #define __gmpfr_default_rounding_mode mpfr_get_default_rounding_mode()
 #endif
 
+#if !defined(__GNU_MP_VERSION) || __GNU_MP_VERSION < 5
+#define mp_bitcnt_t unsigned long int
+#endif
+
 int nnum = 0; /* flag that is incremented whenever a string containing
                  non-numeric characters is treated as a number */
 
