@@ -92,9 +92,8 @@ objects.
 For this feature to be available you firstly need a compiler that has
 the _Decimal64 data type.
 Then you need to build and install Math::Decimal64.
-You'll also need to have the mpfr library (version 3.2.0 at least)
-configured to handle the _Decimal64-mpfr_t conversions. See the mpfr
-documentation for details of that aspect.
+You'll also need to have the mpfr library built with _Decimal64 support.
+See the mpfr documentation for details of that aspect.
 
 If those pre-conditions are met, you also need to provide D64=1
 as a command line argument to 'perl Makefile.PL'. (Altenatively you
@@ -115,10 +114,9 @@ For this feature to be available you firstly need a compiler that has
 the __float128 data type.
 Then you need to build and install Math::Float128.
 You'll also need to have the mpfr library (version 3.2.0 at least)
-configured to handle the __float128-mpfr_t conversions. See the mpfr
-documentation for details of that aspect. (It's just a matter of
-providing Configure with the --enable-float128 option when building
-mpfr-3.2.0 or later.)
+built with __float128 support. See the mpfr documentation for details
+of that aspect. (It's just a matter of providing Configure with the
+--enable-float128 option when building mpfr-3.2.0 or later.)
 
 If those pre-conditions are met, you also need to provide F128=1
 as a command line argument to 'perl Makefile.PL'. (Altenatively you
