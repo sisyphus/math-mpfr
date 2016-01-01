@@ -175,12 +175,19 @@ my $hex = join '', @bytes;
 my $double = Math::MPFR::Rmpfr_init2(53);
 Math::MPFR::Rmpfr_set_str($double, '1e+129', 10, 0);
 
-my $hex2 = scalar reverse unpack "h*", pack "d<", Math::MPFR::Rmpfr_get_d($double, 0);
+unless($] < 5.01) { # perl-5.8 and earlier don't understand 'pack "d<"'.
 
-if($hex eq $hex2) {print "ok 10\n"}
+  my $hex2 = scalar reverse unpack "h*", pack "d<", Math::MPFR::Rmpfr_get_d($double, 0);
+
+  if($hex eq $hex2) {print "ok 10\n"}
+  else {
+    warn "expected $hex, got $hex2\n";
+    print "not ok 10\n";
+  }
+}
 else {
-  warn "expected $hex, got $hex2\n";
-  print "not ok 10\n";
+  warn "\nSkipping test 10 for perl-5.9 and earlier\n";
+  print "ok 10\n";
 }
 
 my @bytes2;
