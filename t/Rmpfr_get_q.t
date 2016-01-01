@@ -2,7 +2,15 @@ use warnings;
 use strict;
 use Config;
 use Math::MPFR qw(:mpfr);
-use Math::GMPq qw(:mpq);
+
+eval {require Math::GMPq; Math::GMPq->import(':mpq');};
+
+if($@) {
+  print "1..1\n";
+  warn "\nSkipping all tests - Couldn't load Math::GMPq\n";
+  print "ok 1\n";
+  exit 0;
+}
 
 print "1..8\n";
 
