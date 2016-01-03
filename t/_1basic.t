@@ -5,9 +5,11 @@ use Math::MPFR qw(:mpfr);
 
 print "1..5\n";
 
-print STDERR "\n# Using Math::MPFR version ", $Math::MPFR::VERSION, "\n";
-print STDERR "# Using mpfr library version ", MPFR_VERSION_STRING, "\n";
-print STDERR "# Using gmp library version ", Math::MPFR::gmp_v(), "\n";
+warn "\n# Using Math::MPFR version ", $Math::MPFR::VERSION, "\n";
+warn "# Using mpfr library version ", MPFR_VERSION_STRING, "\n";
+warn "# Using gmp library version ", Math::MPFR::gmp_v(), "\n";
+warn "# GMP_LIMB_BITS is ", Math::MPFR::_GMP_LIMB_BITS, "\n" if defined Math::MPFR::_GMP_LIMB_BITS;
+warn "# GMP_NAIL_BITS is ", Math::MPFR::_GMP_NAIL_BITS, "\n" if defined Math::MPFR::_GMP_NAIL_BITS;
 
 if   (pack("L", 305419897) eq pack("N", 305419897)) {warn "# Machine appears to be big-endian\n"}
 elsif(pack("L", 305419897) eq pack("V", 305419897)) {warn "# Machine appears to be little-endian\n"}
