@@ -29,7 +29,8 @@
     use subs qw(MPFR_VERSION MPFR_VERSION_MAJOR MPFR_VERSION_MINOR
                 MPFR_VERSION_PATCHLEVEL MPFR_VERSION_STRING
                 RMPFR_PREC_MIN RMPFR_PREC_MAX
-                MPFR_DBL_DIG MPFR_LDBL_DIG MPFR_FLT128_DIG);
+                MPFR_DBL_DIG MPFR_LDBL_DIG MPFR_FLT128_DIG
+                GMP_LIMB_BITS GMP_NAIL_BITS);
 
     use overload
     '++'   => \&overload_inc,
@@ -522,6 +523,8 @@ sub MPFR_VERSION_STRING {return _MPFR_VERSION_STRING()}
 sub MPFR_DBL_DIG {return _DBL_DIG()}
 sub MPFR_LDBL_DIG {return _LDBL_DIG()}
 sub MPFR_FLT128_DIG {return _FLT128_DIG()}
+sub GMP_LIMB_BITS {return _GMP_LIMB_BITS()}
+sub GMP_NAIL_BITS {return _GMP_NAIL_BITS()}
 
 sub mpfr_min_inter_prec {
     die "Wrong number of args to minimum_intermediate_prec()" if @_ != 3;
@@ -2050,7 +2053,9 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $str = Rmpfr_buildopt_tune_case(); # mpfr-3.1.0 and later only
     Return a string saying which thresholds file has been used at
     compile time.  This file is normally selected from the processor
-    type.
+    type. If "make tune" has been used, then it will return
+    "src/mparam.h". Otherwise it will say which official mparam.h file
+    has been used.
 
    $si = Rmpfr_rint($rop, $op, $rnd);
    $si = Rmpfr_ceil($rop, $op);
