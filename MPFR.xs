@@ -6121,6 +6121,24 @@ int _required_ldbl_mant_dig(void) {
     return REQUIRED_LDBL_MANT_DIG;
 }
 
+SV * _GMP_LIMB_BITS(pTHX) {
+#ifdef GMP_LIMB_BITS
+     return newSVuv(GMP_LIMB_BITS);
+#else
+     return &PL_sv_undef;
+#endif
+}
+
+SV * _GMP_NAIL_BITS(pTHX) {
+#ifdef GMP_NAIL_BITS
+     return newSVuv(GMP_NAIL_BITS);
+#else
+     return &PL_sv_undef;
+#endif
+}
+
+
+
 
 
 
@@ -10133,5 +10151,19 @@ _f128_bytes_fr (str, bits)
 
 int
 _required_ldbl_mant_dig ()
+
+
+SV *
+_GMP_LIMB_BITS ()
+CODE:
+  RETVAL = _GMP_LIMB_BITS (aTHX);
+OUTPUT:  RETVAL
+
+
+SV *
+_GMP_NAIL_BITS ()
+CODE:
+  RETVAL = _GMP_NAIL_BITS (aTHX);
+OUTPUT:  RETVAL
 
 
