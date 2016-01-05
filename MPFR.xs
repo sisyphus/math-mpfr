@@ -2033,6 +2033,7 @@ SV * Rmpfr_fits_uintmax_p(pTHX_ mpfr_t * a, SV * round) {
 #if defined(MPFR_VERSION) && MPFR_VERSION > NEG_ZERO_BUG
      return newSVuv(mpfr_fits_uintmax_p(*a, (mp_rnd_t)SvUV(round)));
 #else
+     if(!mpfr_cmp_d(*a, 0.0)) return newSVuv(1);
      if((mp_rnd_t)SvUV(round) < 3) {
        if((mp_rnd_t)SvUV(round) == 0) {
          if((mpfr_cmp_d(*a, -0.5) >= 0) && (mpfr_cmp_d(*a, 0.0) <= 0)) return newSVuv(1);
