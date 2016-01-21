@@ -12,9 +12,12 @@ eval {require Math::LongDouble;};
 my $mant_dig = Math::MPFR::_LDBL_MANT_DIG(); # expected to be either 64 or 106
 my $ldbl_dig = Math::MPFR::_LDBL_DIG();
 
+#print $ldbl_dig, "\n";
+
 my $def_prec = 6 + $mant_dig;
 
 unless($@ || $Math::LongDouble::VERSION < 0.02) {
+  my $ld_version = $Math::LongDouble::VERSION;
   Rmpfr_set_default_prec($def_prec);
   my($ld_1, $ld_2) = (Math::LongDouble->new('1.123'), Math::LongDouble->new());
   my $fr_plus6 = Math::MPFR->new();
@@ -60,9 +63,13 @@ unless($@ || $Math::LongDouble::VERSION < 0.02) {
   #####################################################
   Rmpfr_get_LD($ld_2, $fr_true, MPFR_RNDN);
   $man = get_man($ld_2);
-  if($man eq ('1.' . ('0' x ($ldbl_dig - 1)))) {print "ok 2\n"}
+
+  my $expected = ($ld_version < '0.16' || $ldbl_dig != 18) ? '1.' . ('0' x ($ldbl_dig - 1))
+                                                           : '9.99999999999999999950';
+
+  if($man eq $expected) {print "ok 2\n"}
   else {
-    warn "\n\$man: $man\n";
+    warn "\nexpected $expected, got $man\n";
     print "not ok 2\n";
   }
   if($ld_check == $ld_2) {print "ok 3\n"}
@@ -82,9 +89,13 @@ unless($@ || $Math::LongDouble::VERSION < 0.02) {
   #####################################################
   Rmpfr_get_LD($ld_2, $fr_plus6, MPFR_RNDN);
   $man = get_man($ld_2);
-  if($man eq ('1.' . ('0' x ($ldbl_dig - 1)))) {print "ok 5\n"}
+
+  $expected = ($ld_version < '0.16' || $ldbl_dig != 18) ? '1.' . ('0' x ($ldbl_dig - 1))
+                                                        : '1.00000000000000000005';
+
+  if($man eq $expected) {print "ok 5\n"}
   else {
-    warn "\n\$man: $man\n";
+    warn "\nexpected $expected, got $man\n";
     print "not ok 5\n";
   }
   if($ld_check != $ld_2) {print "ok 6\n"}
