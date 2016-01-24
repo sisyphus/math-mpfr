@@ -123,7 +123,7 @@ Rmpfr_nextabove Rmpfr_nextbelow Rmpfr_nexttoward Rmpfr_number_p Rmpfr_out_str
 TRmpfr_out_str
 Rmpfr_overflow_p Rmpfr_pow Rmpfr_pow_si Rmpfr_pow_ui Rmpfr_pow_z Rmpfr_prec_round
 Rmpfr_print_rnd_mode
-Rmpfr_print_binary Rmpfr_random2 Rmpfr_reldiff Rmpfr_rint Rmpfr_rint_ceil
+Rmpfr_random2 Rmpfr_reldiff Rmpfr_rint Rmpfr_rint_ceil
 Rmpfr_rint_floor Rmpfr_rint_round Rmpfr_rint_trunc Rmpfr_root Rmpfr_round
 Rmpfr_sec Rmpfr_sech Rmpfr_set Rmpfr_set_d Rmpfr_set_default_prec
 Rmpfr_set_default_rounding_mode Rmpfr_set_emax Rmpfr_set_emin Rmpfr_set_erangeflag
@@ -131,7 +131,7 @@ Rmpfr_set_exp Rmpfr_set_f Rmpfr_set_inexflag Rmpfr_set_inf Rmpfr_set_ld Rmpfr_se
 Rmpfr_set_NV
 Rmpfr_set_nan Rmpfr_set_nanflag Rmpfr_set_overflow Rmpfr_set_prec
 Rmpfr_set_prec_raw Rmpfr_set_q Rmpfr_set_si Rmpfr_set_si_2exp Rmpfr_set_sj
-Rmpfr_set_sj_2exp Rmpfr_set_str Rmpfr_set_str_binary Rmpfr_set_ui Rmpfr_set_ui_2exp
+Rmpfr_set_sj_2exp Rmpfr_set_str Rmpfr_set_ui Rmpfr_set_ui_2exp
 Rmpfr_set_uj Rmpfr_set_uj_2exp
 Rmpfr_set_DECIMAL64 Rmpfr_get_DECIMAL64 Rmpfr_set_float128 Rmpfr_get_float128
 Rmpfr_set_FLOAT128 Rmpfr_get_FLOAT128
@@ -218,7 +218,7 @@ Rmpfr_nextabove Rmpfr_nextbelow Rmpfr_nexttoward Rmpfr_number_p Rmpfr_out_str
 TRmpfr_out_str
 Rmpfr_overflow_p Rmpfr_pow Rmpfr_pow_si Rmpfr_pow_ui Rmpfr_pow_z Rmpfr_prec_round
 Rmpfr_print_rnd_mode
-Rmpfr_print_binary Rmpfr_random2 Rmpfr_reldiff Rmpfr_rint Rmpfr_rint_ceil
+Rmpfr_random2 Rmpfr_reldiff Rmpfr_rint Rmpfr_rint_ceil
 Rmpfr_rint_floor Rmpfr_rint_round Rmpfr_rint_trunc Rmpfr_root Rmpfr_round
 Rmpfr_sec Rmpfr_sech Rmpfr_set Rmpfr_set_d Rmpfr_set_default_prec
 Rmpfr_set_default_rounding_mode Rmpfr_set_emax Rmpfr_set_emin Rmpfr_set_erangeflag
@@ -226,7 +226,7 @@ Rmpfr_set_exp Rmpfr_set_f Rmpfr_set_inexflag Rmpfr_set_inf Rmpfr_set_ld Rmpfr_se
 Rmpfr_set_NV
 Rmpfr_set_nan Rmpfr_set_nanflag Rmpfr_set_overflow Rmpfr_set_prec
 Rmpfr_set_prec_raw Rmpfr_set_q Rmpfr_set_si Rmpfr_set_si_2exp Rmpfr_set_sj
-Rmpfr_set_sj_2exp Rmpfr_set_str Rmpfr_set_str_binary Rmpfr_set_ui Rmpfr_set_ui_2exp
+Rmpfr_set_sj_2exp Rmpfr_set_str Rmpfr_set_ui Rmpfr_set_ui_2exp
 Rmpfr_set_uj Rmpfr_set_uj_2exp
 Rmpfr_set_DECIMAL64 Rmpfr_get_DECIMAL64 Rmpfr_set_float128 Rmpfr_get_float128
 Rmpfr_set_FLOAT128 Rmpfr_get_FLOAT128
@@ -1216,6 +1216,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     The function returns a usual ternary value.
 
    Rmpfr_set_str_binary($rop, $str);
+    Removed in Math-MPFR-3.30. Should have been removed long ago.
     Set $rop to the value of the binary number in $str, which has to
     be of the form +/-xxxx.xxxxxxEyy. The exponent is read in decimal,
     but is interpreted as the power of two to be multiplied by the
@@ -1975,6 +1976,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
        TRmpfr_inp_str($rop, \*FH, $base,  $round);
 
    Rmpfr_print_binary($op);
+    Removed in Math-MPFR-3.30. Should have been removed long ago.
     Output $op on stdout in raw binary format (the exponent is in
     decimal, yet).
 
