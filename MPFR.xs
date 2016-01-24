@@ -837,9 +837,12 @@ int Rmpfr_set_str(pTHX_ mpfr_t * p, SV * num, SV * base, SV * round) {
      return ret;
 }
 
+/*
+Removed in Math-MPFR-3.30. Should have been removed much earlier
 void Rmpfr_set_str_binary(pTHX_ mpfr_t * p, SV * str) {
      mpfr_set_str_binary(*p, SvPV_nolen(str));
 }
+*/
 
 void Rmpfr_set_inf(mpfr_t * p, int sign) {
      mpfr_set_inf(*p, sign);
@@ -1350,9 +1353,12 @@ SV * Rmpfr_const_euler(pTHX_ mpfr_t * p, SV * round) {
      return newSViv(mpfr_const_euler(*p, (mp_rnd_t)SvUV(round)));
 }
 
+/*
+Removed in Math-MPFR-3.30. Should have been removed much earlier
 void Rmpfr_print_binary(mpfr_t * p) {
      mpfr_print_binary(*p);
 }
+*/
 
 SV * Rmpfr_rint(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
      CHECK_ROUNDING_VALUE
@@ -6807,23 +6813,6 @@ CODE:
 OUTPUT:  RETVAL
 
 void
-Rmpfr_set_str_binary (p, str)
-	mpfr_t *	p
-	SV *	str
-        PREINIT:
-        I32* temp;
-        PPCODE:
-        temp = PL_markstack_ptr++;
-        Rmpfr_set_str_binary(aTHX_ p, str);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
-        return; /* assume stack size is correct */
-
-void
 Rmpfr_set_inf (p, sign)
 	mpfr_t *	p
 	int	sign
@@ -7708,22 +7697,6 @@ Rmpfr_const_euler (p, round)
 CODE:
   RETVAL = Rmpfr_const_euler (aTHX_ p, round);
 OUTPUT:  RETVAL
-
-void
-Rmpfr_print_binary (p)
-	mpfr_t *	p
-        PREINIT:
-        I32* temp;
-        PPCODE:
-        temp = PL_markstack_ptr++;
-        Rmpfr_print_binary(p);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
-        return; /* assume stack size is correct */
 
 SV *
 Rmpfr_rint (a, b, round)
