@@ -766,8 +766,8 @@ else {print "ok 64\n"}
 eval {Rmpfr_print_binary($c);
       print "\n";};
 
-if($@) {print "not ok 65\n"}
-else {print "ok 65\n"}
+if($@) {print "ok 65\n"}
+else {print "not ok 65\n"}
 
 eval {Rmpfr_dump($c);};
 
