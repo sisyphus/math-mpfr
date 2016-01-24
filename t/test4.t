@@ -186,9 +186,11 @@ $ret = Rmpfr_cmp_si_2exp($f, -2, -3);
 if(!$ret) {print "ok 29\n"}
 else {print "not ok 29\n"}
 
-Rmpfr_set_str_binary($f, '-1000.11E-3');
-if($f == -1.09375) {print "ok 30\n"}
+eval {Rmpfr_set_str_binary($f, '-1000.11E-3')};
+if($@) {print "ok 30\n"}
 else {print "not ok 30\n"}
+
+Rmpfr_set_str($f, '-1000.11E-3', 2, MPFR_RNDN);
 
 $f *= -1;
 
@@ -219,22 +221,24 @@ else {print "not ok 33\n"}
 
 $ok = '';
 
-my $h = Rmpfr_init2(59);
-Rmpfr_set_str_binary ($h, "-0.10010001010111000011110010111010111110000000111101100111111E663");
-if (Rmpfr_can_round ($h, 54, GMP_RNDZ, GMP_RNDZ, 53) != 0) {$ok = 'E'}
-else {$ok = 'a'}
+#my $h = Rmpfr_init2(59);
+#Rmpfr_set_str_binary ($h, "-0.10010001010111000011110010111010111110000000111101100111111E663");
+#if (Rmpfr_can_round ($h, 54, GMP_RNDZ, GMP_RNDZ, 53) != 0) {$ok = 'E'}
+#else {$ok = 'a'}
+#
+#Rmpfr_set_str_binary ($h, "-Inf");
+#if (Rmpfr_can_round ($h, 2000, GMP_RNDZ, GMP_RNDZ, 2000) != 0) {$ok .= 'E'}
+#else {$ok .= 'b'}
+#
+#Rmpfr_set_prec ($h, 64);
+#Rmpfr_set_str_binary ($h, "0.1011001000011110000110000110001111101011000010001110011000000000");
+#if (Rmpfr_can_round ($h, 65, GMP_RNDN, GMP_RNDN, 54)) {$ok .= 'E'}
+#else {$ok .= 'c'}
+#
+#if($ok eq 'abc') {print "ok 34\n"}
+#else {print "not ok 34 $ok\n"}
 
-Rmpfr_set_str_binary ($h, "-Inf");
-if (Rmpfr_can_round ($h, 2000, GMP_RNDZ, GMP_RNDZ, 2000) != 0) {$ok .= 'E'}
-else {$ok .= 'b'}
-
-Rmpfr_set_prec ($h, 64);
-Rmpfr_set_str_binary ($h, "0.1011001000011110000110000110001111101011000010001110011000000000");
-if (Rmpfr_can_round ($h, 65, GMP_RNDN, GMP_RNDN, 54)) {$ok .= 'E'}
-else {$ok .= 'c'}
-
-if($ok eq 'abc') {print "ok 34\n"}
-else {print "not ok 34 $ok\n"}
+print "ok 34\n"; # test removed because Rmpfr_set_str_binary no longer implemented
 
 my $k = Rmpfr_init2(53);
 my $str = '1' x 53;
