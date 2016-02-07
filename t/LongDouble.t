@@ -9,14 +9,15 @@ print "1..$t\n";
 
 eval {require Math::LongDouble;};
 
-my $mant_dig = Math::MPFR::_LDBL_MANT_DIG(); # expected to be either 64 or 106
-my $ldbl_dig = Math::MPFR::_LDBL_DIG();
-
-#print $ldbl_dig, "\n";
-
-my $def_prec = 6 + $mant_dig;
-
 unless($@ || $Math::LongDouble::VERSION < 0.02) {
+
+  my $mant_dig = Math::MPFR::_LDBL_MANT_DIG(); # expected to be either 64 or 106
+  my $ldbl_dig = Math::LongDouble::ld_get_prec();
+
+  warn "\ndefault decimal precision: $ldbl_dig\n";
+
+  my $def_prec = 6 + $mant_dig;
+
   my $ld_version = $Math::LongDouble::VERSION;
   Rmpfr_set_default_prec($def_prec);
   my($ld_1, $ld_2) = (Math::LongDouble->new('1.123'), Math::LongDouble->new());
@@ -64,8 +65,14 @@ unless($@ || $Math::LongDouble::VERSION < 0.02) {
   Rmpfr_get_LD($ld_2, $fr_true, MPFR_RNDN);
   $man = get_man($ld_2);
 
-  my $expected = ($ld_version < '0.16' || $ldbl_dig != 18) ? '1.' . ('0' x ($ldbl_dig - 1))
-                                                           : '9.99999999999999999950';
+  my $expected;
+
+  if    ($ld_version < '0.16') { $expected = '1.' . ('0' x ($ldbl_dig - 1))          }
+  elsif ($ldbl_dig == 17)      { $expected = '1.0000000000000001'                    }
+  elsif ($ldbl_dig == 21)      { $expected = '9.99999999999999999950'                }
+  elsif ($ldbl_dig == 33)      { $expected = '9.99999999999999999999999999999991'    }
+  elsif ($ldbl_dig == 36)      { $expected = '9.99999999999999999999999999999999934' }
+  else                         { $expected = '1.' . ('0' x ($ldbl_dig - 1))          }
 
   if($man eq $expected) {print "ok 2\n"}
   else {
@@ -78,9 +85,17 @@ unless($@ || $Math::LongDouble::VERSION < 0.02) {
     print "not ok 3\n";
   }
   $man = get_manp($ld_2, $ldbl_dig + 1);
-  if($man eq ('9.' . ('9' x $ldbl_dig))) {print "ok 4\n"}
+
+  if    ($ld_version < '0.16') { $expected = '9.' . ('9' x ($ldbl_dig))               }
+  elsif ($ldbl_dig == 17)      { $expected = '1.00000000000000007'                    }
+  elsif ($ldbl_dig == 21)      { $expected = '9.999999999999999999497'                }
+  elsif ($ldbl_dig == 33)      { $expected = '9.999999999999999999999999999999905'    }
+  elsif ($ldbl_dig == 36)      { $expected = '9.999999999999999999999999999999999344' }
+  else                         { $expected = '9.' . ('9' x ($ldbl_dig))               }
+
+  if($man eq $expected) {print "ok 4\n"}
   else {
-    warn "\n\$man: $man\n";
+    warn "\nexpected $expected, got $man\n";
     print "not ok 4\n";
   }
 
@@ -90,8 +105,12 @@ unless($@ || $Math::LongDouble::VERSION < 0.02) {
   Rmpfr_get_LD($ld_2, $fr_plus6, MPFR_RNDN);
   $man = get_man($ld_2);
 
-  $expected = ($ld_version < '0.16' || $ldbl_dig != 18) ? '1.' . ('0' x ($ldbl_dig - 1))
-                                                        : '1.00000000000000000005';
+  if    ($ld_version < '0.16') { $expected = '1.' . ('0' x ($ldbl_dig - 1))          }
+  elsif ($ldbl_dig == 17)      { $expected = '1.' . ('0' x 16)                       }
+  elsif ($ldbl_dig == 21)      { $expected = '1.00000000000000000005'                }
+  elsif ($ldbl_dig == 33)      { $expected = '1.00000000000000000000000000000001'    }
+  elsif ($ldbl_dig == 36)      { $expected = '9.99999999999999999999999999999999934' }
+  else                         { $expected = '1.' . ('0' x ($ldbl_dig - 1))          }
 
   if($man eq $expected) {print "ok 5\n"}
   else {
