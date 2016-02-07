@@ -1,7 +1,8 @@
 3.30
  - Correction to the negative zero bug workaround in Rmpfr_fits_uintmax_p (which
    had previously been returning false for (-0, MPFR_RNDD).
- - Remove Rmpfr_set_str_binary and Rmpfr_print_binary.
+ - Remove Rmpfr_set_str_binary and Rmpfr_print_binary. (Obsolete in mpfr library.)
+ - Fix t/LongDouble.t for change to Math::LongDouble output precision (ticket #111813)
 
 3.29
  - Add _d_bytes XSub.
