@@ -1,3 +1,5 @@
+3.31
+
 3.30
  - Correction to the negative zero bug workaround in Rmpfr_fits_uintmax_p (which
    had previously been returning false for (-0, MPFR_RNDD).
