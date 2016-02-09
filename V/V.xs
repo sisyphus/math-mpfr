@@ -49,7 +49,7 @@ SV * gmp_v(pTHX) {
 #if __GNU_MP_VERSION >= 4
      return newSVpv(gmp_version, 0);
 #else
-     warn("From Math::MPFR::V::gmp_v(aTHX): 'gmp_version' is not implemented - returning '0'");
+     warn("From Math::MPFR::V::gmp_v function: 'gmp_version' is not implemented - returning '0'");
      return newSVpv("0", 0);
 #endif
 }
