@@ -31,12 +31,13 @@ if($test_nv2 > $test_nv1 && Math::MPFR::_has_longdouble()) {
 }
 else {
   print "1..1\n";
-  warn "\nnot a Double-Double build\n";
+  warn "\nnot a Double-Double build.\nLDBL_MANT_DIG is ", Math::MPFR::_required_ldbl_mant_dig() == 2098 ? 106 : Math::MPFR::_required_ldbl_mant_dig() , "\n";
 
-  if(Math::MPFR::_required_ldbl_mant_dig() == 64 ||
-     Math::MPFR::_required_ldbl_mant_dig() == 53) {print "ok 1\n"}
+  if(Math::MPFR::_required_ldbl_mant_dig() == 64   ||
+     Math::MPFR::_required_ldbl_mant_dig() == 2098 ||
+     Math::MPFR::_required_ldbl_mant_dig() == 53     ) {print "ok 1\n"}
   else {
-    warn "\n expected 64 or 53, got ", Math::MPFR::_required_ldbl_mant_dig(), "\n";
+    warn "\n expected 2098, 64 or 53 - got ", Math::MPFR::_required_ldbl_mant_dig(), "\n";
     print "not ok 1\n";
   }
 }
