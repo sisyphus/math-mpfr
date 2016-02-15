@@ -3,7 +3,7 @@ use strict;
 use Config;
 use Math::MPFR qw(:mpfr);
 
-print "1..5\n";
+print "1..8\n";
 
 warn "\n# Using Math::MPFR version ", $Math::MPFR::VERSION, "\n";
 warn "# Using mpfr library version ", MPFR_VERSION_STRING, "\n";
@@ -16,10 +16,10 @@ elsif(pack("L", 305419897) eq pack("V", 305419897)) {warn "# Machine appears to 
 
 warn "# Byte Order: ", $Config{byteorder}, "\n";
 
-if($Math::MPFR::VERSION eq '3.31') {print "ok 1\n"}
+if($Math::MPFR::VERSION eq '3.32') {print "ok 1\n"}
 else {print "not ok 1 $Math::MPFR::VERSION\n"}
 
-if(Math::MPFR::_get_xs_version() eq '3.31') {print "ok 2\n"}
+if(Math::MPFR::_get_xs_version() eq '3.32') {print "ok 2\n"}
 else {
   warn "Module version: $Math::MPFR::VERSION\nXS version: ", Math::MPFR::_get_xs_version(), "\n";
   print "not ok 2\n";
@@ -57,4 +57,22 @@ else {
   warn "\n _has_longlong(): ", Math::MPFR::_has_longlong(), "\n _ivsize_bits: ",
         Math::MPFR::_ivsize_bits(), "\n";
   print "not ok 5\n";
+}
+
+if($Math::MPFR::VERSION eq $Math::MPFR::Random::VERSION) {print "ok 6\n"}
+else {
+  warn "\$Math::MPFR::Random::VERSION: $Math::MPFR::Random::VERSION \n";
+  print "not ok 6\n";
+}
+
+if($Math::MPFR::VERSION eq $Math::MPFR::Prec::VERSION) {print "ok 7\n"}
+else {
+  warn "\$Math::MPFR::Prec::VERSION: $Math::MPFR::Prec::VERSION \n";
+  print "not ok 7\n";
+}
+
+if($Math::MPFR::VERSION eq $Math::MPFR::V::VERSION) {print "ok 8\n"}
+else {
+  warn "\$Math::MPFR::V::VERSION: $Math::MPFR::V::VERSION \n";
+  print "not ok 8\n";
 }
