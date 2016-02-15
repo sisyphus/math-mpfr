@@ -1,4 +1,6 @@
 3.31
+ - Fixes to t/DoubleDouble2.t and t/bytes.t (which were failing on machines that had the
+   "double-double" type, but only when perl's nvtype was double).
 
 3.30
  - Correction to the negative zero bug workaround in Rmpfr_fits_uintmax_p (which
