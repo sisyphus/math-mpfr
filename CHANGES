@@ -1,3 +1,5 @@
+3.32
+
 3.31
  - Fixes to t/DoubleDouble2.t and t/bytes.t (which were failing on machines that had the
    "double-double" type, but only when perl's nvtype was double).
