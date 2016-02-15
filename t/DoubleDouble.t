@@ -3,13 +3,13 @@ use strict;
 use Math::MPFR qw(:mpfr);
 #use Math::NV qw(:all);
 
-my $t = 266; #214;
-print "1..$t\n";
-
 my $test_nv1 = 1.0;
 my $test_nv2 = $test_nv1 + (2 ** -1000);
 
 if($test_nv2 > $test_nv1 && Math::MPFR::_has_longdouble()) {
+
+  my $t = 266;
+  print "1..$t\n";
 
   Rmpfr_set_default_prec(2098);
   my $nv = (2 ** 100) + (2 ** -1060) + (2 ** -1068) + (2 ** -1074);
@@ -561,8 +561,9 @@ if($test_nv2 > $test_nv1 && Math::MPFR::_has_longdouble()) {
 }
 
 else {
+  print "1..1\n";
   warn "\nSkipping all tests - not a Double-Double build\n";
-  print "ok $_\n" for 1..$t;
+  print "ok 1\n";
 }
 
 
