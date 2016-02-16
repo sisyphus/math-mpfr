@@ -1,4 +1,7 @@
 3.32
+ - Corrections to fixes to t/DoubleDouble2.t and t/bytes.t. (Same problem existed with
+   some addtional architectures, too.)
+   Version 3.31 will be marked for removal to backpan.
 
 3.31
  - Fixes to t/DoubleDouble2.t and t/bytes.t (which were failing on machines that had the
