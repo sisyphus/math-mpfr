@@ -309,8 +309,10 @@ Rmpfr_set_str($ld_fr, '1e+127', 10, MPFR_RNDN);
 
 eval {$expected = join '', Math::MPFR::_ld_bytes_fr($ld_fr, 64);};
 
-# double-double builds don't know what an IEEE long double looks like
-if(Math::MPFR::_required_ldbl_mant_dig() == 2098 && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG \(106\)/) {print "ok 20\n"}
+if(Math::MPFR::_required_ldbl_mant_dig() != 64 && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG/) {
+  warn "LDBL_MANT_DIG: ", Math::MPFR::_required_ldbl_mant_dig() == 2098 ? 106 : Math::MPFR::_required_ldbl_mant_dig(), "\n";
+  print "ok 20\n";
+}
 elsif($@) {
   warn "\$\@:$@\n";
   print "not ok 20\n";
@@ -379,8 +381,7 @@ else {
 
 eval {$expected = Math::MPFR::bytes($ld_fr, 'Long Double');};
 
-# double-double builds don't know what an IEEE long double looks like
-if(Math::MPFR::_required_ldbl_mant_dig() == 2098 && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG \(106\)/) {print "ok 26\n"}
+if(Math::MPFR::_required_ldbl_mant_dig() != 64 && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG/) {print "ok 26\n"}
 elsif($@) {
   warn "\$\@: $@\n";
   print "not ok 26\n";
@@ -393,8 +394,7 @@ else {
 
 eval {$expected = Math::MPFR::bytes('1e+127', 'Long Double');};
 
-# double-double builds don't know what an IEEE long double looks like
-if(Math::MPFR::_required_ldbl_mant_dig() == 2098 && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes does not match LDBL_MANT_DIG \(106\)/) {print "ok 27\n"}
+if(Math::MPFR::_required_ldbl_mant_dig() != 64 && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes does not match LDBL_MANT_DIG/) {print "ok 27\n"}
 elsif($@) {
   warn "\$\@: $@\n";
   print "not ok 27\n";
@@ -484,8 +484,7 @@ else {
 
 eval {$expected = Math::MPFR::bytes($ld_fr, 'Long double');};
 
-# double-double builds don't know what an IEEE long double looks like
-if(Math::MPFR::_required_ldbl_mant_dig() == 2098 && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG \(106\)/) {print "ok 34\n"}
+if(Math::MPFR::_required_ldbl_mant_dig() != 64 && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG/) {print "ok 34\n"}
 elsif($@) {
   warn "\$\@: $@\n";
   print "not ok 34\n";
@@ -538,8 +537,7 @@ else {
 
 eval {$expected = Math::MPFR::bytes($ld_fr, 'Long double');};
 
-# double-double builds don't know what an IEEE long double looks like
-if(Math::MPFR::_required_ldbl_mant_dig() == 2098 && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG \(106\)/) {print "ok 38\n"}
+if(Math::MPFR::_required_ldbl_mant_dig() != 64 && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG/) {print "ok 38\n"}
 elsif($@) {
   warn "\$\@: $@\n";
   print "not ok 38\n";
@@ -597,8 +595,7 @@ else {
 
 eval {$expected = Math::MPFR::bytes($ld_fr, 'Long double');};
 
-# double-double builds don't know what an IEEE long double looks like
-if(Math::MPFR::_required_ldbl_mant_dig() == 2098 && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG \(106\)/) {print "ok 42\n"}
+if(Math::MPFR::_required_ldbl_mant_dig() != 64 && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG/) {print "ok 42\n"}
 elsif($@) {
   warn "\$\@: $@\n";
   print "not ok 42\n";
