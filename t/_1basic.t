@@ -2,6 +2,7 @@ use warnings;
 use strict;
 use Config;
 use Math::MPFR qw(:mpfr);
+use Math::MPFR::V;
 
 print "1..8\n";
 
