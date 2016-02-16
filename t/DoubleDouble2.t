@@ -35,6 +35,7 @@ else {
 
   if(Math::MPFR::_required_ldbl_mant_dig() == 64   ||
      Math::MPFR::_required_ldbl_mant_dig() == 2098 ||
+     Math::MPFR::_required_ldbl_mant_dig() == 113  ||
      Math::MPFR::_required_ldbl_mant_dig() == 53     ) {print "ok 1\n"}
   else {
     warn "\n expected 2098, 64 or 53 - got ", Math::MPFR::_required_ldbl_mant_dig(), "\n";
