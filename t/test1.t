@@ -814,7 +814,11 @@ Rmpfr_eint($s, $s, GMP_RNDN);
 
 # The behaviour of mpfr_eint() wrt -ve inputs changes after mpfr-3.1.x
 if(MPFR_VERSION >= 197120) {
-  if($s < -0.04890051070806111 && $s > -0.04890051070806112) {print "ok 72\n"}
+  if($s < -0.0489005107 && $s > -0.04890051071) {print "ok 72\n"}
+  else {
+    warn "\n72: got $s\n";
+    print "not ok 72\n";
+  }
 }
 elsif(Rmpfr_nan_p($s)) {print "ok 72\n"}
 else {print "not ok 72\n"}
