@@ -6144,10 +6144,147 @@ SV * _GMP_NAIL_BITS(pTHX) {
 #endif
 }
 
+/* New in 3.2.0 */
 
+void Rmpfr_fmodquo(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+     dXSARGS;
+     long ret, q;
+     CHECK_ROUNDING_VALUE
+     ret = mpfr_fmodquo(*a, &q, *b, *c, (mp_rnd_t)SvUV(round));
+     ST(0) = sv_2mortal(newSViv(q));
+     ST(1) = sv_2mortal(newSViv(ret));
+     XSRETURN(2);
+#else
+     croak("Rmpfr_fmodquo not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
 
+int Rmpfr_fpif_export(pTHX_ FILE * stream, mpfr_t * op) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+     int ret = mpfr_fpif_export(stream, *op);
+     fflush(stream);
+     return ret;
+#else
+     croak("Rmpfr_fpif_export not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
 
+int Rmpfr_fpif_import(pTHX_ mpfr_t * op, FILE * stream) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+     int ret = mpfr_fpif_import(*op, stream);
+     fflush(stream);
+     return ret;
+#else
+     croak("Rmpfr_fpif_import not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
 
+void Rmpfr_flags_clear(unsigned int mask) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+     mpfr_flags_clear((mpfr_flags_t) mask);
+#else
+     croak("Rmpfr_flags_clear not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
+void Rmpfr_flags_set(unsigned int mask) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+     mpfr_flags_set((mpfr_flags_t) mask);
+#else
+     croak("Rmpfr_flags_set not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
+unsigned int Rmpfr_flags_test(unsigned int mask) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+     mpfr_flags_t ret = mpfr_flags_test((mpfr_flags_t) mask);
+     return (unsigned int)ret;
+#else
+     croak("Rmpfr_flags_test not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
+unsigned int Rmpfr_flags_save(void) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+     mpfr_flags_t ret = mpfr_flags_save();
+     return (unsigned int)ret;
+#else
+     croak("Rmpfr_flags_save not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
+void Rmpfr_flags_restore(unsigned int flags, unsigned int mask) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+     mpfr_flags_restore((mpfr_flags_t) flags, (mpfr_flags_t) mask);
+#else
+     croak("Rmpfr_flags_restore not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
+int Rmpfr_rint_roundeven(mpfr_t * rop, mpfr_t * op, int round) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+    return(mpfr_rint_roundeven(*rop, *op, (mp_rnd_t)round));
+#else
+    croak("Rmpfr_rint_roundeven not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
+int Rmpfr_roundeven(mpfr_t * rop, mpfr_t * op) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+     return(mpfr_roundeven(*rop, *op));
+#else
+     croak("Rmpfr_roundeven not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
+int Rmpfr_nrandom(mpfr_t * rop, gmp_randstate_t * state, int round) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+     return(mpfr_nrandom(*rop, *state, (mp_rnd_t)round));
+#else
+     croak("Rmpfr_nrandom not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
+int Rmpfr_erandom(mpfr_t * rop, gmp_randstate_t * state, int round) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+     return(mpfr_erandom(*rop, *state, (mp_rnd_t)round));
+#else
+    croak("Rmpfr_erandom not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
+int Rmpfr_fmma(mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, mpfr_t * op3, mpfr_t * op4, int round) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+    return(mpfr_fmma(*rop, *op1, *op2, *op3, *op4, (mp_rnd_t)round));
+#else
+    croak("Rmpfr_fmma not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
+int Rmpfr_fmms(mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, mpfr_t * op3, mpfr_t * op4, int round) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+    return(mpfr_fmms(*rop, *op1, *op2, *op3, *op4, (mp_rnd_t)round));
+#else
+    croak("Rmpfr_fmms not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
+int Rmpfr_log_ui(mpfr_t * rop, unsigned long op, int round) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+    return(mpfr_log_ui(*rop, op, (mp_rnd_t)round));
+#else
+    croak("Rmpfr_log_ui not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
+int Rmpfr_gamma_inc(mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, int round) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+    return(mpfr_gamma_inc(*rop, *op1, *op2, (mp_rnd_t)round));
+#else
+    croak("Rmpfr_gamma_inc not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
 
 
 
@@ -10140,4 +10277,150 @@ CODE:
   RETVAL = _GMP_NAIL_BITS (aTHX);
 OUTPUT:  RETVAL
 
+
+void
+Rmpfr_fmodquo (a, b, c, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	mpfr_t *	c
+	SV *	round
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpfr_fmodquo(aTHX_ a, b, c, round);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+int
+Rmpfr_fpif_export (stream, op)
+	FILE *	stream
+	mpfr_t *	op
+CODE:
+  RETVAL = Rmpfr_fpif_export (aTHX_ stream, op);
+OUTPUT:  RETVAL
+
+int
+Rmpfr_fpif_import (op, stream)
+	mpfr_t *	op
+	FILE *	stream
+CODE:
+  RETVAL = Rmpfr_fpif_import (aTHX_ op, stream);
+OUTPUT:  RETVAL
+
+void
+Rmpfr_flags_clear (mask)
+	unsigned int	mask
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpfr_flags_clear(mask);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+void
+Rmpfr_flags_set (mask)
+	unsigned int	mask
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpfr_flags_set(mask);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+unsigned int
+Rmpfr_flags_test (mask)
+	unsigned int	mask
+
+unsigned int
+Rmpfr_flags_save ()
+
+
+void
+Rmpfr_flags_restore (flags, mask)
+	unsigned int	flags
+	unsigned int	mask
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpfr_flags_restore(flags, mask);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+int
+Rmpfr_rint_roundeven (rop, op, round)
+	mpfr_t *	rop
+	mpfr_t *	op
+	int	round
+
+int
+Rmpfr_roundeven (rop, op)
+	mpfr_t *	rop
+	mpfr_t *	op
+
+int
+Rmpfr_nrandom (rop, state, round)
+	mpfr_t *	rop
+	gmp_randstate_t *	state
+	int	round
+
+int
+Rmpfr_erandom (rop, state, round)
+	mpfr_t *	rop
+	gmp_randstate_t *	state
+	int	round
+
+int
+Rmpfr_fmma (rop, op1, op2, op3, op4, round)
+	mpfr_t *	rop
+	mpfr_t *	op1
+	mpfr_t *	op2
+	mpfr_t *	op3
+	mpfr_t *	op4
+	int	round
+
+int
+Rmpfr_fmms (rop, op1, op2, op3, op4, round)
+	mpfr_t *	rop
+	mpfr_t *	op1
+	mpfr_t *	op2
+	mpfr_t *	op3
+	mpfr_t *	op4
+	int	round
+
+int
+Rmpfr_log_ui (rop, op, round)
+	mpfr_t *	rop
+	unsigned long	op
+	int	round
+
+int
+Rmpfr_gamma_inc (rop, op1, op2, round)
+	mpfr_t *	rop
+	mpfr_t *	op1
+	mpfr_t *	op2
+	int	round
 
