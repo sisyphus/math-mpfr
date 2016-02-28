@@ -5,25 +5,32 @@
     use Math::MPFR::Prec;
     use Math::MPFR::Random;
 
-    use constant  GMP_RNDN       => 0;
-    use constant  GMP_RNDZ       => 1;
-    use constant  GMP_RNDU       => 2;
-    use constant  GMP_RNDD       => 3;
-    use constant  MPFR_RNDN      => 0;
-    use constant  MPFR_RNDZ      => 1;
-    use constant  MPFR_RNDU      => 2;
-    use constant  MPFR_RNDD      => 3;
-    use constant  MPFR_RNDA      => 4;
-    use constant  _UOK_T         => 1;
-    use constant  _IOK_T         => 2;
-    use constant  _NOK_T         => 3;
-    use constant  _POK_T         => 4;
-    use constant  _MATH_MPFR_T   => 5;
-    use constant  _MATH_GMPf_T   => 6;
-    use constant  _MATH_GMPq_T   => 7;
-    use constant  _MATH_GMPz_T   => 8;
-    use constant  _MATH_GMP_T    => 9;
-    use constant  _MATH_MPC_T    => 10;
+    use constant  GMP_RNDN            => 0;
+    use constant  GMP_RNDZ            => 1;
+    use constant  GMP_RNDU            => 2;
+    use constant  GMP_RNDD            => 3;
+    use constant  MPFR_RNDN           => 0;
+    use constant  MPFR_RNDZ           => 1;
+    use constant  MPFR_RNDU           => 2;
+    use constant  MPFR_RNDD           => 3;
+    use constant  MPFR_RNDA           => 4;
+    use constant  _UOK_T              => 1;
+    use constant  _IOK_T              => 2;
+    use constant  _NOK_T              => 3;
+    use constant  _POK_T              => 4;
+    use constant  _MATH_MPFR_T        => 5;
+    use constant  _MATH_GMPf_T        => 6;
+    use constant  _MATH_GMPq_T        => 7;
+    use constant  _MATH_GMPz_T        => 8;
+    use constant  _MATH_GMP_T         => 9;
+    use constant  _MATH_MPC_T         => 10;
+    use constant MPFR_FLAGS_UNDERFLOW => 1;
+    use constant MPFR_FLAGS_OVERFLOW  => 2;
+    use constant MPFR_FLAGS_NAN       => 4;
+    use constant MPFR_FLAGS_INEXACT   => 8;
+    use constant MPFR_FLAGS_ERANGE    => 16;
+    use constant MPFR_FLAGS_DIVBY0    => 32;
+    use constant MPFR_FLAGS_ALL       => 63;
 
 
     use subs qw(MPFR_VERSION MPFR_VERSION_MAJOR MPFR_VERSION_MINOR
@@ -156,6 +163,9 @@ Rmpfr_buildopt_tune_case Rmpfr_frexp Rmpfr_grandom Rmpfr_z_sub Rmpfr_buildopt_gm
 prec_cast bytes
 MPFR_DBL_DIG MPFR_LDBL_DIG MPFR_FLT128_DIG
 mpfr_max_orig_len mpfr_min_inter_prec mpfr_min_inter_base mpfr_max_orig_base
+Rmpfr_fmodquo Rmpfr_fpif_export Rmpfr_fpif_import Rmpfr_flags_clear Rmpfr_flags_set
+Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr_roundeven
+Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc
 );
 
     our $VERSION = '3.33';
@@ -251,6 +261,9 @@ Rmpfr_buildopt_tune_case Rmpfr_frexp Rmpfr_grandom Rmpfr_z_sub Rmpfr_buildopt_gm
 prec_cast
 MPFR_DBL_DIG MPFR_LDBL_DIG MPFR_FLT128_DIG
 mpfr_max_orig_len mpfr_min_inter_prec mpfr_min_inter_base mpfr_max_orig_base
+Rmpfr_fmodquo Rmpfr_fpif_export Rmpfr_fpif_import Rmpfr_flags_clear Rmpfr_flags_set
+Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr_roundeven
+Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc
 )]);
 
 $Math::MPFR::NNW = 0; # Set to 1 to allow "non-numeric" warnings for operations involving
@@ -1903,6 +1916,9 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_eint ($rop, $op, $rnd)
      Set $rop to the exponential integral of $op, rounded in the
      direction $rnd. See the MPFR documentation for details.
+     As of mpfr-3.2.0 Rmpfr_eint() returns the value of the
+     E1/eint1 function for negative input. (With previous versions
+     of mpfr NaN was returned for negative argument.)
 
    $si = Rmpfr_li2 ($rop, $op, $rnd);
     Set $rop to real part of the dilogarithm of $op, rounded in the
@@ -2226,6 +2242,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $si = Rmpfr_grandom($rop1, $rop2, $state, $rnd);
     Available only with mpfr-3.1.0 and later.
+    Deprecated as of mpfr-3.2.0.
     Generate two random floats according to a standard normal
     gaussian distribution. The floating-point numbers $rop1 and
     $rop2 can be seen as if a random real number were generated
