@@ -6150,7 +6150,6 @@ void Rmpfr_fmodquo(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
 #if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
      dXSARGS;
      long ret, q;
-     CHECK_ROUNDING_VALUE
      ret = mpfr_fmodquo(*a, &q, *b, *c, (mp_rnd_t)SvUV(round));
      ST(0) = sv_2mortal(newSViv(q));
      ST(1) = sv_2mortal(newSViv(ret));
