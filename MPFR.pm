@@ -865,7 +865,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    precision, assuming both output and input use rounding to nearest,
    will recover the original value of $op.
 
-   The following functions are simply wrappers around an mpfr
+   The following functions are generally wrappers around an mpfr
    function of the same name. eg. Rmpfr_swap() is a wrapper around
    mpfr_swap().
 
@@ -880,21 +880,34 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    where $r1 *is* the same reference to the same mpfr structure,
    would add $r1 to itself and store the result in $r1. Alternatively,
    you could (courtesy of operator overloading) simply code it
-   as $r1 += $r1. Otoh, Rmpfr_add($r1, $r2, $r3, $rnd), where each of the
-   arguments is a different reference to a different mpfr structure
-   would add $r2 to $r3 and store the result in $r1. Alternatively
-   it could be coded as $r1 = $r2 + $r3.
+   as $r1 += $r1 (or even as $r *= 2).
+   Otoh, Rmpfr_add($r1, $r2, $r3, $rnd), where each of the arguments
+   is a different reference to a different mpfr structure would add
+   $r2 to $r3 and store the result in $r1. Alternatively it could be
+   coded as $r1 = $r2 + $r3.
 
    "$ui" means any integer that will fit into a C 'unsigned long int',
 
    "$si" means any integer that will fit into a C 'signed long int'.
 
+   "$uj" means any integer that will fit into a C 'uintmax_t'. Don't
+   use any of these functions unless your perl's UV is at least as big
+   as a 'uintmax_t'.
+
    "$sj" means any integer that will fit into a C 'intmax_t'. Don't
-   use any of these functions unless your perl was compiled with 64
-   bit support.
+   use any of these functions unless your perl's IV is at least as big
+   as an 'intmax_t'.
 
    "$double" is a C double and "$float" is a C float ... but both will
    be represented in Perl as an NV.
+
+   "$ld" means a long double. Don't use these functions if the precision
+   of your Perl's NV is less than the precision of a 'long double'.
+
+   "$f128" means a __float128. Don't use these functions unless your
+   Perl's NV has quad precision && mpfr has been configured with
+   '--enable-float128'. (Note that versions of mpfr prior to 3.2.0
+   cannot be configured with '--enable-float128'.)
 
    "$bool" means a value (usually a 'signed long int') in which
    the only interest is whether it evaluates as false or true.
@@ -906,7 +919,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    and above). Valid bases for MPFR numbers are 0 and 2 to 36 (2 to 62
    if Math::MPFR has been built against mpfr-3.0.0 or later).
 
-   "$rnd" is simply one of the 4 rounding mode values (discussed above).
+   "$rnd" is simply one of the 5 rounding mode values (discussed above).
 
    "$p" is the (signed int) value for precision.
 
@@ -921,7 +934,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     is used in overloaded operations.
 
    $si = Rmpfr_get_default_rounding_mode();
-    Returns the numeric value (0, 1, 2 or 3) of the
+    Returns the numeric value (0, 1, 2, 3 or 4) of the
     current default rounding mode. This will initially be 0.
 
    $si = Rmpfr_prec_round($rop, $p, $rnd);
@@ -935,128 +948,6 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     original value of $rop, and negative when it is smaller.  The
     precision $p can be any integer between RMPFR_PREC_MIN and
     RMPFR_PREC_MAX.
-
-   ##########
-
-   EXCEPTIONS
-
-   $si = Rmpfr_subnormalize ($op, $si, $rnd);
-    This function rounds $op emulating subnormal number arithmetic.
-    See the MPFR documentation for mpfr_subnormalize at:
-    www.mpfr.org/mpfr-current/mpfr.html#Function-and-Type-Index
-
-   $si =  Rmpfr_get_emin();
-   $si =  Rmpfr_get_emax();
-    Return the (current) smallest and largest exponents
-    allowed for a floating-point variable.
-
-   $si = Rmpfr_get_emin_min();
-   $si = Rmpfr_get_emin_max();
-   $si = Rmpfr_get_emax_min();
-   $si = Rmpfr_get_emax_max();
-    Return the minimum and maximum of the smallest and largest
-    exponents allowed for 'mpfr_set_emin' and 'mpfr_set_emax'. These
-    values are implementation dependent
-
-   $bool =  Rmpfr_set_emin($si);
-   $bool =  Rmpfr_set_emax($si);
-    Set the smallest and largest exponents allowed for a
-    floating-point variable.  Return a non-zero value when $si is not
-    in the range of exponents accepted by the implementation (in that
-    case the smallest or largest exponent is not changed), and zero
-    otherwise. If the user changes the exponent range, it is her/his
-    responsibility to check that all current floating-point variables
-    are in the new allowed range (for example using 'Rmpfr_check_range',
-    otherwise the subsequent behaviour will be undefined, in the sense
-    of the ISO C standard.
-
-   $si2 = Rmpfr_check_range($op, $si1, $rnd);
-    This function has changed from earlier implementations.
-    It now forces $op to be in the current range of acceptable
-    values, $si1 the current ternary value: negative if $op is
-    smaller than the exact value, positive if $op is larger than the
-    exact value and zero if $op is exact (before the call). It generates
-    an underflow or an overflow if the exponent of $op is outside the
-    current allowed range; the value of $si1 may be used to avoid a
-    double rounding. This function returns zero if the rounded result
-    is equal to the exact one, a positive value if the rounded result
-    is larger than the exact one, a negative value if the rounded
-    result is smaller than the exact one. Note that unlike most
-    functions, the result is compared to the exact one, not the input
-    value $op, i.e. the ternary value is propagated.
-    Note: If $op is an infinity and $si1 is different from zero
-    (i.e., if the rounded result is an inexact infinity), then the
-    overflow flag is set.
-
-   Rmpfr_set_underflow();
-   Rmpfr_set_overflow();
-   Rmpfr_set_nanflag();
-   Rmpfr_set_inexflag();
-   Rmpfr_set_erangeflag();
-   Rmpfr_set_divby0();     # mpfr-3.1.0 and later only
-   Rmpfr_clear_underflow();
-   Rmpfr_clear_overflow();
-   Rmpfr_clear_nanflag();
-   Rmpfr_clear_inexflag();
-   Rmpfr_clear_erangeflag();
-   Rmpfr_clear_divby0();   # mpfr-3.1.0 and later only
-    Set/clear the underflow, overflow, invalid, inexact, erange and
-    divide-by-zero flags.
-
-   Rmpfr_clear_flags();
-    Clear all global flags (underflow, overflow, inexact, invalid,
-    erange and divide-by-zero).
-
-   $bool = Rmpfr_underflow_p();
-   $bool = Rmpfr_overflow_p();
-   $bool = Rmpfr_nanflag_p();
-   $bool = Rmpfr_inexflag_p();
-   $bool = Rmpfr_erangeflag_p();
-   $bool = Rmpfr_divby0_p();   # mpfr-3.1.0 and later only
-    Return the corresponding (underflow, overflow, invalid, inexact,
-    erange, divide-by-zero) flag, which is non-zero iff the flag is set.
-
-   Rmpfr_flags_clear($mask);            # needs mpfr-3.2.0 or later
-   Rmpfr_flags_set($mask);              # needs mpfr-3.2.0 or later
-   $mask2 = Rmpfr_flags_test($mask);    # needs mpfr-3.2.0 or later
-   $mask  = Rmpfr_flags_save();         # needs mpfr-3.2.0 or later
-   Rmpfr_flags_restore($mask1, $mask2); # needs mpfr-3.2.0 or later
-    $mask is an integer value resulting from OR'ing (or adding) any of
-    the following constants together:
-     MPFR_FLAGS_UNDERFLOW
-     MPFR_FLAGS_OVERFLOW
-     MPFR_FLAGS_NAN
-     MPFR_FLAGS_INEXACT
-     MPFR_FLAGS_ERANGE
-     MPFR_FLAGS_DIVBY0
-     MPFR_FLAGS_ALL
-    MPFR_FLAGS_ALL is the same as all of those constants OR'ed (added)
-    together. Examples:
-
-    Clear the divby0 and nan flags, without affecting the status of
-    any other flags:
-     Rmpfr_flags_clear(MPFR_FLAGS_DIVBY0|MPFR_FLAGS_NAN);
-
-    Set the underflow and erange flags, without affecting the status of
-    any other flags:
-     Rmpfr_flags_set(MPFR_FLAGS_UNDERFLOW|MPFR_FLAGS_ERANGE);
-
-    Test the status of specific flags, ignoring all other flags. This
-    particular example will set $mask to the value of MPFR_FLAGS_NAN
-    if the nan flag is set - else $mask will be set to zero:
-     $mask = Rmpfr_flags_test(MPFR_FLAGS_UNDERFLOW);
-
-    Return all flags:
-     $mask = Rmpfr_flags_save();
-    Equivalently, this can be done with:
-     $mask = Rmpfr_flags_test(MPFR_FLAGS_ALL);
-
-    Set flags specified in $mask2 to the state specified in $mask1,
-    For this example, the overflow flag will be set && the nan flag
-    will be cleared. The underflow flag will remain untouched.
-     $mask1 = MPFR_FLAGS_UNDERFLOW | MPFR_FLAGS_OVERFLOW;
-     $mask2 = MPFR_FLAGS_OVERFLOW  | MPFR_FLAGS_NAN;
-     Rmpfr_flags_restore($mask1, $mask2);
 
    ##############
 
@@ -1144,8 +1035,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_set($rop, $op, $rnd);
    $si = Rmpfr_set_ui($rop, $ui, $rnd);
    $si = Rmpfr_set_si($rop, $si, $rnd);
-   $si = Rmpfr_set_sj($rop, $sj, $rnd); # 64 bit
-   $si = Rmpfr_set_uj($rop, $uj, $rnd); # 64 bit
+   $si = Rmpfr_set_sj($rop, $sj, $rnd);
+   $si = Rmpfr_set_uj($rop, $uj, $rnd);
    $si = Rmpfr_set_d($rop, $double, $rnd);
    $si = Rmpfr_set_ld($rop, $ld, $rnd); # long double
    $si = Rmpfr_set_NV($rop, $nv, $rnd); # double/long double/__float128
@@ -1182,8 +1073,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $si = Rmpfr_set_ui_2exp($rop, $ui, $exp, $rnd);
    $si = Rmpfr_set_si_2exp($rop, $si, $exp, $rnd);
-   $si = Rmpfr_set_uj_2exp($rop, $sj, $exp, $rnd); # 64 bit
-   $si = Rmpfr_set_sj_2exp($rop, $sj, $exp, $rnd); # 64 bit
+   $si = Rmpfr_set_uj_2exp($rop, $sj, $exp, $rnd);
+   $si = Rmpfr_set_sj_2exp($rop, $sj, $exp, $rnd);
    $si = Rmpfr_set_z_2exp($rop, $z, $exp, $rnd); # mpfr-3.0.0 & later only
     Set the value of $rop from the 2nd arg multiplied by two to the
     power $exp, rounded towards the given direction $rnd.  Note that
@@ -1343,11 +1234,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    ($rop, $si) = Rmpfr_init_set_d_nobless($double, $rnd);
    ($rop, $si) = Rmpfr_init_set_ld($double, $rnd);
    ($rop, $si) = Rmpfr_init_set_ld_nobless($double, $rnd);
-   ($rop, $si) = Rmpfr_init_set_f($f, $rnd);# $f is a mpf object
+   ($rop, $si) = Rmpfr_init_set_f($f, $rnd);        # $f is a mpf object
    ($rop, $si) = Rmpfr_init_set_f_nobless($f, $rnd);# $f is a mpf object
-   ($rop, $si) = Rmpfr_init_set_z($z, $rnd);# $z is a mpz object
+   ($rop, $si) = Rmpfr_init_set_z($z, $rnd);        # $z is a mpz object
    ($rop, $si) = Rmpfr_init_set_z_nobless($z, $rnd);# $z is a mpz object
-   ($rop, $si) = Rmpfr_init_set_q($q, $rnd);# $q is a mpq object
+   ($rop, $si) = Rmpfr_init_set_q($q, $rnd);        # $q is a mpq object
    ($rop, $si) = Rmpfr_init_set_q_nobless($q, $rnd);# $q is a mpq object
     Initialize $rop and set its value from the 1st arg, rounded to
     direction $rnd. The precision of $rop will be taken from the
@@ -1403,25 +1294,25 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     support mpfr_get_uj and mpfr_get_sj functions - which may happen,
     for example, with libraries built with Microsoft Compilers.)
 
-   $bool = Rmpfr_fits_ushort_p($op, $rnd); # fits in unsigned short
-   $bool = Rmpfr_fits_sshort_p($op, $rnd); # fits in signed short
-   $bool = Rmpfr_fits_uint_p($op, $rnd); # fits in unsigned int
-   $bool = Rmpfr_fits_sint_p($op, $rnd); # fits in signed int
-   $bool = Rmpfr_fits_ulong_p($op, $rnd); # fits in unsigned long
-   $bool = Rmpfr_fits_slong_p($op, $rnd); # fits in signed long
+   $bool = Rmpfr_fits_ushort_p($op, $rnd);  # fits in unsigned short
+   $bool = Rmpfr_fits_sshort_p($op, $rnd);  # fits in signed short
+   $bool = Rmpfr_fits_uint_p($op, $rnd);    # fits in unsigned int
+   $bool = Rmpfr_fits_sint_p($op, $rnd);    # fits in signed int
+   $bool = Rmpfr_fits_ulong_p($op, $rnd);   # fits in unsigned long
+   $bool = Rmpfr_fits_slong_p($op, $rnd);   # fits in signed long
    $bool = Rmpfr_fits_uintmax_p($op, $rnd); # fits in uintmax_t
-   $bool = Rmpfr_fits_intmax_p($op, $rnd); # fits in intmax_t
-   $bool = Rmpfr_fits_IV_p($op, $rnd); # fits in perl IV
-   $bool = Rmpfr_fits_UV_p($op, $rnd); # fits in perl UV
+   $bool = Rmpfr_fits_intmax_p($op, $rnd);  # fits in intmax_t
+   $bool = Rmpfr_fits_IV_p($op, $rnd);      # fits in perl IV
+   $bool = Rmpfr_fits_UV_p($op, $rnd);      # fits in perl UV
     Return non-zero if $op would fit in the respective data
     type, when rounded to an integer in the direction $rnd.
 
    $ui = Rmpfr_get_ui($op, $rnd);
    $si = Rmpfr_get_si($op, $rnd);
-   $sj = Rmpfr_get_sj($op, $rnd); # 64 bit builds only
-   $uj = Rmpfr_get_uj($op, $rnd); # 64 bit builds only
-   $uv = Rmpfr_get_UV($op, $rnd); # 32 and 64 bit
-   $iv = Rmpfr_get_IV($op, $rnd); # 32 and 64 bit
+   $sj = Rmpfr_get_sj($op, $rnd);
+   $uj = Rmpfr_get_uj($op, $rnd);
+   $uv = Rmpfr_get_UV($op, $rnd);
+   $iv = Rmpfr_get_IV($op, $rnd);
     Convert $op to an 'unsigned long long', a 'signed long', a
     'signed long long', an 'unsigned long long', a 'UV', or an
     'IV' - after rounding it with respect to $rnd.
@@ -1432,26 +1323,29 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $double = Rmpfr_get_d($op, $rnd);
    $ld     = Rmpfr_get_ld($op, $rnd);
-   $f128   = Rmpfr_get_float128($op, $rnd); # nvtype must be __float128
-                                            # mpfr-3.2.0 or later
+   $f128   = Rmpfr_get_float128($op, $rnd); # nvtype must be quad prec.
+                                            # mpfr-3.2.0 or later &&
+                                            # built with __float128
+                                            # support
    $nv     = Rmpfr_get_NV($op, $rnd);    # double/long double/__float128
-   $float  = Rmpfr_get_flt($op, $rnd);   # mpfr-3.0.0 and later.
+   $float  = Rmpfr_get_flt($op, $rnd);   # mpfr-3.0.0 and later
    Rmpfr_get_LD($LD, $op, $rnd); # $LD is a Math::LongDouble object.
-   Rmpfr_get_DECIMAL64($d64, $op, $rnd); # mpfr-3.1.1 and later.
-                                         # $d64 is a Math::Decimal64
-                                         # object.
+   Rmpfr_get_DECIMAL64($d64, $op, $rnd); # mpfr-3.1.1 and later &&
+                                         # built with _Decimal64
+                                         # support. $d64 is a
+                                         # Math::Decimal64 object.
    Rmpfr_get_FLOAT128($F128, $op, $rnd); # mpfr-3.2.0 and later.
                                          # $F128 is a Math::Float128
                                          # object.
-    Convert $op to a 'double' a 'long double' an 'NV', a float, a
-    __float128, a Math::LongDouble object, a Math::Decimal64 object, or
+    Convert $op to a 'double', a 'long double', a __float128, an 'NV',
+    a float, a Math::LongDouble object, a Math::Decimal64 object, or
     a Math::Float128 object using the rounding mode $rnd.
 
    $double = Rmpfr_get_d1($op);
     Convert $op to a double, using the default MPFR rounding mode
     (see function 'mpfr_set_default_rounding_mode').
 
-   $si = Rmpfr_get_z_exp($z, $op); # $z is a mpz object
+   $si = Rmpfr_get_z_exp($z, $op);  # $z is a mpz object
    $si = Rmpfr_get_z_2exp($z, $op); # $z is a mpz object
     (Identical functions. Use either - 'get_z_exp' might one day
     be removed.)
@@ -1521,9 +1415,9 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $si = Rmpfr_sub($rop, $op1, $op2, $rnd);
    $si = Rmpfr_sub_ui($rop, $op, $ui, $rnd);
-   $si = Rmpfr_sub_z($rop, $op, $z, $rnd); # $z is a mpz object.
-   $si = Rmpfr_z_sub($rop, $z, $op, $rnd); # mpfr-3.1.0 and later only
-   $si = Rmpfr_sub_q($rop, $op, $q, $rnd); # $q is a mpq object.
+   $si = Rmpfr_sub_z($rop, $op, $z, $rnd);  # $z is a mpz object.
+   $si = Rmpfr_z_sub($rop, $z, $op, $rnd);  # mpfr-3.1.0 and later only
+   $si = Rmpfr_sub_q($rop, $op, $q, $rnd);  # $q is a mpq object.
    $si = Rmpfr_ui_sub($rop, $ui, $op, $rnd);
    $si = Rmpfr_si_sub($rop, $si1, $op, $rnd);
    $si = Rmpfr_sub_si($rop, $op, $si1, $rnd);
@@ -1538,8 +1432,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_mul_ui($rop, $op, $ui, $rnd);
    $si = Rmpfr_mul_si($rop, $op, $si1, $rnd);
    $si = Rmpfr_mul_d($rop, $op, $double, $rnd);
-   $si = Rmpfr_mul_z($rop, $op, $z, $rnd); # $z is a mpz object.
-   $si = Rmpfr_mul_q($rop, $op, $q, $rnd); # $q is a mpq object.
+   $si = Rmpfr_mul_z($rop, $op, $z, $rnd);   # $z is a mpz object.
+   $si = Rmpfr_mul_q($rop, $op, $q, $rnd);   # $q is a mpq object.
     Set $rop to 2nd arg * 3rd arg rounded in the direction $rnd.
     Return 0 if the result is exact, a positive value if $rop is
     greater than 2nd arg times 3rd arg, a negative value otherwise.
@@ -1551,8 +1445,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_si_div($rop, $si1, $op, $rnd);
    $si = Rmpfr_div_d($rop, $op, $double, $rnd);
    $si = Rmpfr_d_div($rop, $double, $op, $rnd);
-   $si = Rmpfr_div_z($rop, $op, $z, $rnd); # $z is a mpz object.
-   $si = Rmpfr_div_q($rop, $op, $q, $rnd); # $q is a mpq object.
+   $si = Rmpfr_div_z($rop, $op, $z, $rnd);   # $z is a mpz object.
+   $si = Rmpfr_div_q($rop, $op, $q, $rnd);   # $q is a mpq object.
     Set $rop to 2nd arg / 3rd arg rounded in the direction $rnd.
     These functions return 0 if the division is exact, a positive
     value when $rop is larger than 2nd arg divided by 3rd arg,
@@ -1586,7 +1480,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_ui_pow_ui($rop, $ui, $ui, $rnd);
    $si = Rmpfr_ui_pow($rop, $ui, $op, $rnd);
    $si = Rmpfr_pow($rop, $op1, $op2, $rnd);
-   $si = Rmpfr_pow_z($rop, $op1, $z, $rnd); # $z is a mpz object
+   $si = Rmpfr_pow_z($rop, $op1, $z, $rnd);  # $z is a mpz object
     Set $rop to 2nd arg raised to 3rd arg, rounded to the directio
     $rnd with the precision of $rop.  Return zero iff the result is
     exact, a positive value when the result is greater than 2nd arg
@@ -2086,6 +1980,128 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     MPFR_PREC_MAX.
     Return 0 iff the export/import was successful.
 
+   ##########
+
+   EXCEPTIONS
+
+   $si = Rmpfr_subnormalize ($op, $si, $rnd);
+    This function rounds $op emulating subnormal number arithmetic.
+    See the MPFR documentation for mpfr_subnormalize at:
+    www.mpfr.org/mpfr-current/mpfr.html#Function-and-Type-Index
+
+   $si =  Rmpfr_get_emin();
+   $si =  Rmpfr_get_emax();
+    Return the (current) smallest and largest exponents
+    allowed for a floating-point variable.
+
+   $si = Rmpfr_get_emin_min();
+   $si = Rmpfr_get_emin_max();
+   $si = Rmpfr_get_emax_min();
+   $si = Rmpfr_get_emax_max();
+    Return the minimum and maximum of the smallest and largest
+    exponents allowed for 'mpfr_set_emin' and 'mpfr_set_emax'. These
+    values are implementation dependent
+
+   $bool =  Rmpfr_set_emin($si);
+   $bool =  Rmpfr_set_emax($si);
+    Set the smallest and largest exponents allowed for a
+    floating-point variable.  Return a non-zero value when $si is not
+    in the range of exponents accepted by the implementation (in that
+    case the smallest or largest exponent is not changed), and zero
+    otherwise. If the user changes the exponent range, it is her/his
+    responsibility to check that all current floating-point variables
+    are in the new allowed range (for example using 'Rmpfr_check_range',
+    otherwise the subsequent behaviour will be undefined, in the sense
+    of the ISO C standard.
+
+   $si2 = Rmpfr_check_range($op, $si1, $rnd);
+    This function has changed from earlier implementations.
+    It now forces $op to be in the current range of acceptable
+    values, $si1 the current ternary value: negative if $op is
+    smaller than the exact value, positive if $op is larger than the
+    exact value and zero if $op is exact (before the call). It generates
+    an underflow or an overflow if the exponent of $op is outside the
+    current allowed range; the value of $si1 may be used to avoid a
+    double rounding. This function returns zero if the rounded result
+    is equal to the exact one, a positive value if the rounded result
+    is larger than the exact one, a negative value if the rounded
+    result is smaller than the exact one. Note that unlike most
+    functions, the result is compared to the exact one, not the input
+    value $op, i.e. the ternary value is propagated.
+    Note: If $op is an infinity and $si1 is different from zero
+    (i.e., if the rounded result is an inexact infinity), then the
+    overflow flag is set.
+
+   Rmpfr_set_underflow();
+   Rmpfr_set_overflow();
+   Rmpfr_set_nanflag();
+   Rmpfr_set_inexflag();
+   Rmpfr_set_erangeflag();
+   Rmpfr_set_divby0();     # mpfr-3.1.0 and later only
+   Rmpfr_clear_underflow();
+   Rmpfr_clear_overflow();
+   Rmpfr_clear_nanflag();
+   Rmpfr_clear_inexflag();
+   Rmpfr_clear_erangeflag();
+   Rmpfr_clear_divby0();   # mpfr-3.1.0 and later only
+    Set/clear the underflow, overflow, invalid, inexact, erange and
+    divide-by-zero flags.
+
+   Rmpfr_clear_flags();
+    Clear all global flags (underflow, overflow, inexact, invalid,
+    erange and divide-by-zero).
+
+   $bool = Rmpfr_underflow_p();
+   $bool = Rmpfr_overflow_p();
+   $bool = Rmpfr_nanflag_p();
+   $bool = Rmpfr_inexflag_p();
+   $bool = Rmpfr_erangeflag_p();
+   $bool = Rmpfr_divby0_p();   # mpfr-3.1.0 and later only
+    Return the corresponding (underflow, overflow, invalid, inexact,
+    erange, divide-by-zero) flag, which is non-zero iff the flag is set.
+
+   Rmpfr_flags_clear($mask);            # needs mpfr-3.2.0 or later
+   Rmpfr_flags_set($mask);              # needs mpfr-3.2.0 or later
+   $mask2 = Rmpfr_flags_test($mask);    # needs mpfr-3.2.0 or later
+   $mask  = Rmpfr_flags_save();         # needs mpfr-3.2.0 or later
+   Rmpfr_flags_restore($mask1, $mask2); # needs mpfr-3.2.0 or later
+    $mask is an integer value resulting from OR'ing (or adding) any of
+    the following constants together:
+     MPFR_FLAGS_UNDERFLOW
+     MPFR_FLAGS_OVERFLOW
+     MPFR_FLAGS_NAN
+     MPFR_FLAGS_INEXACT
+     MPFR_FLAGS_ERANGE
+     MPFR_FLAGS_DIVBY0
+     MPFR_FLAGS_ALL
+    MPFR_FLAGS_ALL is the same as all of those constants OR'ed (added)
+    together. Examples:
+
+    Clear the divby0 and nan flags, without affecting the status of
+    any other flags:
+     Rmpfr_flags_clear(MPFR_FLAGS_DIVBY0|MPFR_FLAGS_NAN);
+
+    Set the underflow and erange flags, without affecting the status of
+    any other flags:
+     Rmpfr_flags_set(MPFR_FLAGS_UNDERFLOW|MPFR_FLAGS_ERANGE);
+
+    Test the status of specific flags, ignoring all other flags. This
+    particular example will set $mask to the value of MPFR_FLAGS_NAN
+    if the nan flag is set - else $mask will be set to zero:
+     $mask = Rmpfr_flags_test(MPFR_FLAGS_UNDERFLOW);
+
+    Return all flags:
+     $mask = Rmpfr_flags_save();
+    Equivalently, this can be done with:
+     $mask = Rmpfr_flags_test(MPFR_FLAGS_ALL);
+
+    Set flags specified in $mask2 to the state specified in $mask1,
+    For this example, the overflow flag will be set && the nan flag
+    will be cleared. The underflow flag will remain untouched.
+     $mask1 = MPFR_FLAGS_UNDERFLOW | MPFR_FLAGS_OVERFLOW;
+     $mask2 = MPFR_FLAGS_OVERFLOW  | MPFR_FLAGS_NAN;
+     Rmpfr_flags_restore($mask1, $mask2);
+
    #############
 
    MISCELLANEOUS
@@ -2154,7 +2170,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     (that is, mpfr was built with either '--with-gmp-build' or
     '--enable-gmp-internals' configure option), return zero otherwise.
 
-   $str = Rmpfr_buildopt_tune_case(); # mpfr-3.1.0 and later only
+   $str = Rmpfr_buildopt_tune_case();  # mpfr-3.1.0 and later only
     Return a string saying which thresholds file has been used at
     compile time.  This file is normally selected from the processor
     type. If "make tune" has been used, then it will return
@@ -2184,7 +2200,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     $si = Rmpfr_rint_ceil($rop, $op, $rnd);
     $si = Rmpfr_rint_floor($rop, $op, $rnd);
     $si = Rmpfr_rint_round($rop, $op, $rnd);
-    $si = Rmpfr_rint_roundeven($rop, $op, $rnd); # mpfr-3.2.0 & later
+    $si = Rmpfr_rint_roundeven($rop, $op, $rnd);  # mpfr-3.2.0 & later
     $si = Rmpfr_rint_trunc($rop, $op, $rnd);
      Set $rop to $op rounded to an integer. 'Rmpfr_rint_ceil' rounds to
      the next higher or equal integer, 'Rmpfr_rint_floor' to the next
@@ -2323,8 +2339,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     to be more likely to trigger corner-case bugs.  Negative
     random numbers are generated when $si is negative.
 
-   $si = Rmpfr_urandom ($rop, $state, $rnd); # mpfr-3.0.0 and
-                                             # later only
+   $si = Rmpfr_urandom ($rop, $state, $rnd);  # mpfr-3.0.0 and
+                                              # later only
     Generate a uniformly distributed random float.  The
     floating-point number $rop can be seen as if a random real
     number is generated according to the continuous uniform
@@ -2346,8 +2362,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     by calling one of the Rmpfr_randinit functions (below), then
     seed $state by calling one of the Rmpfr_randseed functions.
 
-   $si = Rmpfr_nrandom ($rop, $state, $rnd); # mpfr-3.2.0 and
-                                             # later only
+   $si = Rmpfr_nrandom ($rop, $state, $rnd);  # mpfr-3.2.0 and
+                                              # later only
     Generate a random floating-point number according to a standard
     normal Gaussian distribution (with mean zero and variance one).
     The floating-point number $rop can be seen as if a random real
@@ -2355,8 +2371,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     distribution and then rounded in the direction $rnd.
     This function is more efficient than Rmpfr_grandom.
 
-   $si = Rmpfr_erandom($rop, $state, $rnd); # mpfr-3.2.0 and
-                                            # later only
+   $si = Rmpfr_erandom($rop, $state, $rnd);  # mpfr-3.2.0 and
+                                             # later only
      Generate one random floating-point number according to an
      exponential distribution, with mean one.  Other characteristics
      are identical to 'Rmpfr_nrandom'.
