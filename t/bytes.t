@@ -8,6 +8,33 @@ print  "# Using Math::MPFR version ", $Math::MPFR::VERSION, "\n";
 print  "# Using mpfr library version ", MPFR_VERSION_STRING, "\n";
 print  "# Using gmp library version ", Math::MPFR::gmp_v(), "\n";
 
+warn "\nbyteorder: ", $Config{byteorder}, "\n";
+
+my $kind;
+
+my %ldkind = (
+ -1 => 'unknown',
+  0 => 'double',
+  1 => '"IEEE" 754 128-bit little endian',
+  2 => '"IEEE" 754 128-bit big endian',
+  3 => 'x86 80-bit little endian',
+  4 => 'x86 80-bit big endian',
+  5 => 'double-double 128-bit little endian',
+  6 => 'double-double 128-bit big endian',
+);
+
+if(defined $Config{longdblkind}) {
+  $kind = $Config{longdblkind};
+  warn "longdblkind: $kind: $ldkind{$kind}\n";
+}
+else {
+  warn "\$Config{longdblkind} not defined for this build of perl $]\n";
+}
+
+warn "HAVE_IEEE_754_LONG_DOUBLE defined is ", Math::MPFR::_have_IEEE_754_long_double(), "\n";
+warn "HAVE_EXTENDED_PRECISION_LONG_DOUBLE is ", Math::MPFR::_have_extended_precision_long_double(), "\n";
+
+
 print "1..43\n";
 
 my $arb = 40;
@@ -266,7 +293,8 @@ else {
 
 eval {Math::MPFR::_ld_bytes_fr($fr_breaker, 64);};
 
-if($@ =~ /^Precison of 1st arg supplied to _ld_bytes_fr must be 64, not 200/) {print "ok 16\n"}
+
+if($@ =~ /^Precison of 1st arg \(200\) supplied to _ld_bytes_fr must match 2nd arg \(64\)/) {print "ok 16\n"}
 else {
   warn "\$\@: $@\n";
   print "not ok 16\n";
@@ -349,7 +377,7 @@ my $h;
 
 eval{$h = Math::MPFR::bytes($d_fr, 'Long Double');};
 
-if($@ =~ /^Precison of 1st arg supplied to _ld_bytes_fr must be 64, not 53/) {print "ok 22\n"}
+if($@ =~ /^Precison of 1st arg \(53\) supplied to _ld_bytes_fr must match 2nd arg \(64\)/) {print "ok 22\n"}
 else {
   warn "\$\@: $@";
   print "not ok 22\n";
