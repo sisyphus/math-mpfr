@@ -593,6 +593,12 @@ sub bytes {
     return $ret;
   }
 
+  if(lc($type) eq 'ieee long double') {
+    $ret = $itsa == 4 ? join '', _ld_bytes   ($val, 113)
+                      : join '', _ld_bytes_fr($val, 113);
+    return $ret;
+  }
+
   if(lc($type) eq 'double-double') {
     $ret = $itsa == 4 ? join '', _dd_bytes   ($val, 106)
                       : join '', _dd_bytes_fr($val, 106);
@@ -2297,19 +2303,49 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     as running set_nnum(0).)
 
    $bytes = Math::MPFR::bytes($val, $type);
-    $type must be either 'double', 'long double', 'double-double',
-    or '__float128', though both upper and lower cases of the
-    characters is acceptable.
+    $type must be either 'double', 'long double', 'IEEE long double',
+    'double-double', or '__float128' (all case-insensitive).
     $val must either be a string (eg '1.6e+45', '2.3', '0x17.8')
     or a Math::MPFR object.
     For the given value expressed by the string (or encapsulated in
-    the object) the hex representation of that value for the given
+    the object) the internal hex form of that value  for the given
     ($type) datatype is returned.
-    If $val is a Math::MPFR object, its precision must be 53 if
-    $type is double, 64 if $type is 'long double', 106 if $type is
-    'double-double', or 113 if $type is '__float128'.
-    NOTE: Setting $type to '__float128' causes a fatal error if
-    Math::MPFR::MPFR_WANT_FLOAT128() returns false.
+
+    eg:
+      bytes('2.3', 'double') returns the string 3ff4cccccccccccd
+
+    If $val is a Math::MPFR object, its precision must be:
+      53  if $type is 'double'
+      64  if $type is 'long double'
+      113 if $type is 'IEEE long double' or '__float128'
+      106 if $type is 'double-double'
+
+    'double' assumes 53-bit precision (8-byte) double.
+    'long double' assumes 64-bit precision (80-bit) long double.
+    'ieee long double' assumes 113-bit precision (16-byte) IEEE 754
+     long double.
+    'double-double' assumes 106-bit prec (16-byte) double-double
+    '__float128' assumes 113-bit prec (16-byte) __float128.
+
+
+    You should specify 'long double' only if your compiler's long
+    double matches the above assumption.
+    You should specify 'ieee long double' only if your compiler's
+    long double matches the above assumption.
+    If your compiler's 'long double' matches neither of those
+    assumptions but is the same as the double, then you need to
+    specify 'double'.
+
+    You can get representations of a 'double' and a 'double-double'
+    on all but the rarest of architectures.
+    You can also get the representation of a __float128 if both
+    Math::MPFR and mpfr have been built with quadmath support - in
+    which case Math::MPFR::_MPFR_WANT_FLOAT128() will return 1.
+    Note however, that not all architectures support quadmath, and
+    even then mpfr-3.2.0 or later is needed.
+    If you have the __float128 representation you also have the
+    IEEE long double representation, as they are identical.
+
 
    ##############
 
