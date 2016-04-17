@@ -86,11 +86,11 @@ print "If this is wrong, see the \"Float128 conversion\" section in the README\n
 
 $defines .= $Config::Config{byteorder} =~ /^1234/ ? " -DMPFR_HAVE_LENDIAN" : " -DMPFR_HAVE_BENDIAN";
 
-if(defined $Config{longdblsize}) {
-  if($Config{longdblsize} == 1 || $Config{longdblsize} == 2) {
+if(defined $Config{longdblkind}) {
+  if($Config{longdblsize} == 1 || $Config{longdblkind} == 2) {
     $defines .= " -DHAVE_IEEE_754_LONG_DOUBLE";
   }
-  if($Config{longdblsize} == 3 || $Config{longdblsize} == 4) {
+  if($Config{longdblkind} == 3 || $Config{longdblkind} == 4) {
     $defines .= " -DHAVE_EXTENDED_PRECISION_LONG_DOUBLE";
   }
 }
