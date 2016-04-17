@@ -5931,13 +5931,13 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
   dXSARGS;
   mpfr_t temp;
   long double ld;
-  int i, n = 10;
+  int i, n;
   char * buff;
   void * p = &ld;
 
-  if(bits != 64) {
+  if(bits != 64 && bits != 113) {
     if(bits == 106) warn("\nYou probably want to call Math::MPFR::_dd_bytes\n");
-    croak("2nd arg to Math::MPFR::_ld_bytes must be 64");
+    croak("2nd arg to Math::MPFR::_ld_bytes must be 64 or 113");
   }
 
   if(SvUV(_itsa(aTHX_ str)) != 4)
@@ -5946,7 +5946,7 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
   if((size_t)bits != LDBL_MANT_DIG)
     croak("2nd arg (%u) supplied to Math::MPFR::_ld_bytes does not match LDBL_MANT_DIG (%u)", bits, LDBL_MANT_DIG);
 
-  mpfr_init2(temp, 64);
+  mpfr_init2(temp, bits);
 
   mpfr_set_str(temp, SvPV_nolen(str), 0, GMP_RNDN);
 
@@ -5958,6 +5958,8 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
   if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_ld_bytes function");
 
   sp = mark;
+
+  n = bits == 64 ? 10 : 16;
 
 #ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
   for (i = 0; i < n; i++) {
@@ -5981,17 +5983,17 @@ void _ld_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
   dXSARGS;
   long double ld;
-  int i, n = 10;
+  int i, n;
   char * buff;
   void * p = &ld;
 
-  if(bits != 64) {
+  if(bits != 64 && bits != 113) {
     if(bits == 106) warn("\nYou probably want to call Math::MPFR::_dd_bytes_fr\n");
-    croak("2nd arg to Math::MPFR::_ld_bytes_fr must be 64");
+    croak("2nd arg to Math::MPFR::_ld_bytes_fr must be 64 or 113");
   }
 
-  if(mpfr_get_prec(*str) != 64)
-    croak("Precison of 1st arg supplied to _ld_bytes_fr must be 64, not %u", mpfr_get_prec(*str));
+  if(mpfr_get_prec(*str) != bits)
+    croak("Precison of 1st arg (%u) supplied to _ld_bytes_fr must match 2nd arg (%d)", mpfr_get_prec(*str), bits);
 
   if((size_t)bits != LDBL_MANT_DIG)
     croak("2nd arg (%u) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG (%u)", bits, LDBL_MANT_DIG);
@@ -6002,6 +6004,8 @@ void _ld_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
   if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_ld_bytes_fr function");
 
   sp = mark;
+
+  n = bits == 64 ? 10 : 16;
 
 #ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
   for (i = 0; i < n; i++) {
@@ -6285,7 +6289,21 @@ int Rmpfr_gamma_inc(mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, int round) {
 #endif
 }
 
+int _have_IEEE_754_long_double(void) {
+#if defined(HAVE_IEEE_754_LONG_DOUBLE)
+    return 1;
+#else
+    return 0;
+#endif
+}
 
+int _have_extended_precision_long_double(void) {
+#if defined(HAVE_EXTENDED_PRECISION_LONG_DOUBLE)
+    return 1;
+#else
+    return 0;
+#endif
+}
 
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
@@ -10422,4 +10440,12 @@ Rmpfr_gamma_inc (rop, op1, op2, round)
 	mpfr_t *	op1
 	mpfr_t *	op2
 	int	round
+
+int
+_have_IEEE_754_long_double ()
+
+
+int
+_have_extended_precision_long_double ()
+
 
