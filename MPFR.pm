@@ -2308,11 +2308,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     $val must either be a string (eg '1.6e+45', '2.3', '0x17.8')
     or a Math::MPFR object.
     For the given value expressed by the string (or encapsulated in
-    the object) the internal hex form of that value  for the given
+    the object) the internal hex form of that value for the given
     ($type) datatype is returned.
 
     eg:
-      bytes('2.3', 'double') returns the string 3ff4cccccccccccd
+      bytes('1.3', 'double') returns the string 3ff4cccccccccccd
 
     If $val is a Math::MPFR object, its precision must be:
       53  if $type is 'double'
