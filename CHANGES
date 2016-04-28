@@ -5,6 +5,8 @@
     Rmpfr_flags_test, Rmpfr_flags_save, Rmpfr_flags_restore, Rmpfr_rint_roundeven, Rmpfr_roundeven,
     Rmpfr_nrandom, Rmpfr_erandom, Rmpfr_fmma, Rmpfr_fmms, Rmpfr_log_ui and Rmpfr_gamma_inc
  - Add support for IEEE 754 long doubles to bytes() function, and rewrite bytes() documentation.
+ - Remove library functions (gmp_v and Rmpfr_get_version) from Math::MPFR::V, as we don't want any
+   library functions in that module.
 
 3.32
  - Corrections to fixes to t/DoubleDouble2.t and t/bytes.t. (Same problem existed with
