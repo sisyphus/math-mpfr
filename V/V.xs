@@ -45,6 +45,9 @@ SV * ___GMP_CFLAGS(pTHX) {
 #endif
 }
 
+/*
+Removed - don't want library functions in this module
+
 SV * gmp_v(pTHX) {
 #if __GNU_MP_VERSION >= 4
      return newSVpv(gmp_version, 0);
@@ -53,6 +56,7 @@ SV * gmp_v(pTHX) {
      return newSVpv("0", 0);
 #endif
 }
+*/
 
 SV * _MPFR_VERSION(pTHX) {
      return newSVuv(MPFR_VERSION);
@@ -74,9 +78,13 @@ SV * _MPFR_VERSION_STRING(pTHX) {
      return newSVpv(MPFR_VERSION_STRING, 0);
 }
 
+/*
+Removed - don't want library functions in this module
+
 SV * Rmpfr_get_version(pTHX) {
      return newSVpv(mpfr_get_version(), 0);
 }
+*/
 
 
 MODULE = Math::MPFR::V  PACKAGE = Math::MPFR::V
@@ -120,13 +128,6 @@ OUTPUT:  RETVAL
 
 
 SV *
-gmp_v ()
-CODE:
-  RETVAL = gmp_v (aTHX);
-OUTPUT:  RETVAL
-
-
-SV *
 _MPFR_VERSION ()
 CODE:
   RETVAL = _MPFR_VERSION (aTHX);
@@ -158,13 +159,6 @@ SV *
 _MPFR_VERSION_STRING ()
 CODE:
   RETVAL = _MPFR_VERSION_STRING (aTHX);
-OUTPUT:  RETVAL
-
-
-SV *
-Rmpfr_get_version ()
-CODE:
-  RETVAL = Rmpfr_get_version (aTHX);
 OUTPUT:  RETVAL
 
 
