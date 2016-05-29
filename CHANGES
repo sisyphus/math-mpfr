@@ -6,7 +6,9 @@
     Rmpfr_nrandom, Rmpfr_erandom, Rmpfr_fmma, Rmpfr_fmms, Rmpfr_log_ui and Rmpfr_gamma_inc
  - Add support for IEEE 754 long doubles to bytes() function, and rewrite bytes() documentation.
  - Remove library functions (gmp_v and Rmpfr_get_version) from Math::MPFR::V, as we don't want any
-   library functions in that module.
+    library functions in that module.
+ - Handle the setting of the NaN flag with mpfr_add/sub_ui/si functions for versions of mpfr (3.1.4
+    and earlier only). ZThe bug should be fixed in later versions of mpfr.
 
 3.32
  - Corrections to fixes to t/DoubleDouble2.t and t/bytes.t. (Same problem existed with
