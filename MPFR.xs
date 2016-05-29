@@ -69,6 +69,19 @@ typedef __float128 float128;
                             /* For earlier versions of mpfr, we fix this bug in */
                             /* our own code                                     */
 
+#define NANFLAG_BUG 196868  /* A bug affecting setting of the NaN flag          */
+                            /* Fixed in mpfr after MPFR_VERSION 196867 (3.1.4)  */
+                            /* For earlier versions of mpfr, we fix this bug in */
+                            /* our own code                                     */
+
+#if  !defined(MPFR_VERSION) || (defined(MPFR_VERSION) && MPFR_VERSION <= NANFLAG_BUG)
+#define DEAL_WITH_NANFLAG_BUG if(mpfr_nan_p(*b))mpfr_set_nanflag();
+#define DEAL_WITH_NANFLAG_BUG_OVERLOADED if(mpfr_nan_p(*(INT2PTR(mpfr_t *,SvIV(SvRV(a))))))mpfr_set_nanflag();
+#else
+#define DEAL_WITH_NANFLAG_BUG
+#define DEAL_WITH_NANFLAG_BUG_OVERLOADED
+#endif
+
 /* Squash some annoying compiler warnings (Microsoft compilers only). */
 
 #ifdef _MSC_VER
@@ -921,6 +934,7 @@ SV * Rmpfr_add(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
 
 SV * Rmpfr_add_ui(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round){
      CHECK_ROUNDING_VALUE
+     DEAL_WITH_NANFLAG_BUG
      return newSViv(mpfr_add_ui(*a, *b, (unsigned long)SvUV(c), (mp_rnd_t)SvUV(round)));
 }
 
@@ -931,6 +945,7 @@ SV * Rmpfr_add_d(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round){
 
 SV * Rmpfr_add_si(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round){
      CHECK_ROUNDING_VALUE
+     DEAL_WITH_NANFLAG_BUG
      return newSViv(mpfr_add_si(*a, *b, (int)SvIV(c), (mp_rnd_t)SvUV(round)));
 }
 
@@ -951,6 +966,7 @@ SV * Rmpfr_sub(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
 
 SV * Rmpfr_sub_ui(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
      CHECK_ROUNDING_VALUE
+     DEAL_WITH_NANFLAG_BUG
      return newSViv(mpfr_sub_ui(*a, *b, (unsigned long)SvUV(c), (mp_rnd_t)SvUV(round)));
 }
 
@@ -1800,13 +1816,15 @@ SV * Rmpfr_get_z(pTHX_ mpz_t * a, mpfr_t * b, SV * round) {
 #endif
 }
 
-SV * Rmpfr_si_sub(pTHX_ mpfr_t * a, SV * b, mpfr_t * c, SV * round) {
+SV * Rmpfr_si_sub(pTHX_ mpfr_t * a, SV * c, mpfr_t * b, SV * round) {
      CHECK_ROUNDING_VALUE
-     return newSViv(mpfr_si_sub(*a, (long)SvIV(b), *c, (mp_rnd_t)SvUV(round)));
+     DEAL_WITH_NANFLAG_BUG
+     return newSViv(mpfr_si_sub(*a, (long)SvIV(c), *b, (mp_rnd_t)SvUV(round)));
 }
 
 SV * Rmpfr_sub_si(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round){
      CHECK_ROUNDING_VALUE
+     DEAL_WITH_NANFLAG_BUG
      return newSViv(mpfr_sub_si(*a, *b, (long)SvIV(c), (mp_rnd_t)SvUV(round)));
 }
 
@@ -2594,6 +2612,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
      }
 #endif
 #else
+     DEAL_WITH_NANFLAG_BUG_OVERLOADED
      if(SvUOK(b)) {
        mpfr_add_ui(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), SvUV(b), __gmpfr_default_rounding_mode);
        return obj_ref;
@@ -2721,6 +2740,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
      }
 #endif
 #else
+     DEAL_WITH_NANFLAG_BUG_OVERLOADED
      if(SvUOK(b)) {
        if(third == &PL_sv_yes) mpfr_ui_sub(*mpfr_t_obj, SvUV(b), *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), __gmpfr_default_rounding_mode);
        else mpfr_sub_ui(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), SvUV(b), __gmpfr_default_rounding_mode);
@@ -4523,6 +4543,7 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
      }
 #endif
 #else
+     DEAL_WITH_NANFLAG_BUG_OVERLOADED
      if(SvUOK(b)) {
        mpfr_sub_ui(*(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), SvUV(b), __gmpfr_default_rounding_mode);
        return a;
@@ -4643,6 +4664,7 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
      }
 #endif
 #else
+     DEAL_WITH_NANFLAG_BUG_OVERLOADED
      if(SvUOK(b)) {
        mpfr_add_ui(*(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), SvUV(b), __gmpfr_default_rounding_mode);
        return a;
@@ -5381,10 +5403,11 @@ SV * _get_xs_version(pTHX) {
      return newSVpv(XS_VERSION, 0);
 }
 
-SV * overload_inc(pTHX_ SV * p, SV * second, SV * third) {
-     SvREFCNT_inc(p);
-     mpfr_add_ui(*(INT2PTR(mpfr_t *, SvIV(SvRV(p)))), *(INT2PTR(mpfr_t *, SvIV(SvRV(p)))), 1, __gmpfr_default_rounding_mode);
-     return p;
+SV * overload_inc(pTHX_ SV * a, SV * second, SV * third) {
+     DEAL_WITH_NANFLAG_BUG_OVERLOADED
+     SvREFCNT_inc(a);
+     mpfr_add_ui(*(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIV(SvRV(a)))), 1, __gmpfr_default_rounding_mode);
+     return a;
 }
 
 SV * overload_dec(pTHX_ SV * p, SV * second, SV * third) {
@@ -6304,6 +6327,15 @@ int _have_extended_precision_long_double(void) {
     return 0;
 #endif
 }
+
+int nanflag_bug(void) {
+#if !defined(MPFR_VERSION) || (defined(MPFR_VERSION) && MPFR_VERSION <= NANFLAG_BUG)
+    return 1;
+#else
+    return 0;
+#endif
+}
+
 
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
@@ -8506,13 +8538,13 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
-Rmpfr_si_sub (a, b, c, round)
+Rmpfr_si_sub (a, c, b, round)
 	mpfr_t *	a
-	SV *	b
-	mpfr_t *	c
+	SV *	c
+	mpfr_t *	b
 	SV *	round
 CODE:
-  RETVAL = Rmpfr_si_sub (aTHX_ a, b, c, round);
+  RETVAL = Rmpfr_si_sub (aTHX_ a, c, b, round);
 OUTPUT:  RETVAL
 
 SV *
@@ -9842,12 +9874,12 @@ OUTPUT:  RETVAL
 
 
 SV *
-overload_inc (p, second, third)
-	SV *	p
+overload_inc (a, second, third)
+	SV *	a
 	SV *	second
 	SV *	third
 CODE:
-  RETVAL = overload_inc (aTHX_ p, second, third);
+  RETVAL = overload_inc (aTHX_ a, second, third);
 OUTPUT:  RETVAL
 
 SV *
@@ -10447,5 +10479,9 @@ _have_IEEE_754_long_double ()
 
 int
 _have_extended_precision_long_double ()
+
+
+int
+nanflag_bug ()
 
 
