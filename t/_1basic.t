@@ -7,6 +7,7 @@ use Math::MPFR::V;
 print "1..8\n";
 
 warn "\n# Using Math::MPFR version ", $Math::MPFR::VERSION, "\n";
+warn "# MPFR_VERSION is ", MPFR_VERSION, "\n";
 warn "# Using mpfr library version ", MPFR_VERSION_STRING, "\n";
 warn "# Using gmp library version ", Math::MPFR::gmp_v(), "\n";
 warn "# GMP_LIMB_BITS is ", Math::MPFR::_GMP_LIMB_BITS, "\n" if defined Math::MPFR::_GMP_LIMB_BITS;
