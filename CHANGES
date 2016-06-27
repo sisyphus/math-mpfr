@@ -9,6 +9,7 @@
     library functions in that module.
  - Handle the setting of the NaN flag with mpfr_add/sub_ui/si functions for versions of mpfr (3.1.4
     and earlier only). ZThe bug should be fixed in later versions of mpfr.
+ - Replace SvNV() with the more efficient SvNVX() in those places where we know that SvNOK() is true.
 
 3.32
  - Corrections to fixes to t/DoubleDouble2.t and t/bytes.t. (Same problem existed with
