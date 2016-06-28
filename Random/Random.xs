@@ -89,7 +89,7 @@ SV * Rmpfr_randinit_lc_2exp(pTHX_ SV * a, SV * c, SV * m2exp ) {
        if(strEQ(h, "Math::GMP") ||
           strEQ(h, "GMP::Mpz")  ||
           strEQ(h, "Math::GMPz"))
-            gmp_randinit_lc_2exp(*state, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (unsigned long)SvUV(c), (unsigned long)SvUV(m2exp));
+            gmp_randinit_lc_2exp(*state, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (unsigned long)SvUV(c), (unsigned long)SvUV(m2exp));
        else croak("First arg to Rmpfr_randinit_lc_2exp is of invalid type");
      }
 
