@@ -29,15 +29,15 @@ SV * prec_cast(pTHX_ SV * iv) {
      mp_prec_t * p;
      SV * obj_ref, * obj;
 
-     if(!SvIOK(iv)) croak("Arg supplied to Math::MPFR::Prec::prec_cast(aTHX) must be an IV/UV");
+     if(!SvIOK(iv)) croak("Arg supplied to Math::MPFR::Prec::prec_cast must be an IV/UV");
 
      Newx(p, 1, mp_prec_t);
-     if(p == NULL) croak("Failed to allocate memory in Math::MPFR::Prec::prec_cast(aTHX) function");
+     if(p == NULL) croak("Failed to allocate memory in Math::MPFR::Prec::prec_cast function");
 
      obj_ref = newSV(0);
      obj = newSVrv(obj_ref, "Math::MPFR::Prec");
 
-     *p = (mp_prec_t)SvUV(iv);
+     *p = (mp_prec_t)SvUVX(iv);
 
      sv_setiv(obj, INT2PTR(IV,p));
      SvREADONLY_on(obj);
@@ -45,7 +45,7 @@ SV * prec_cast(pTHX_ SV * iv) {
 }
 
 void DESTROY(pTHX_ SV *  rop) {
-     Safefree(INT2PTR(mp_prec_t *, SvIV(SvRV(rop))));
+     Safefree(INT2PTR(mp_prec_t *, SvIVX(SvRV(rop))));
 }
 
 
