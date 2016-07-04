@@ -891,6 +891,17 @@ SV * Rmpfr_get_ld_2exp(pTHX_ SV * exp, mpfr_t * p, SV * round){
      CHECK_ROUNDING_VALUE
      ret = mpfr_get_ld_2exp(&_exp, *p, (mp_rnd_t)SvUV(round));
      sv_setiv(exp, _exp);
+#if defined(NV_IS_FLOAT128)
+  /*
+     Casting long double Inf to __float128 might result in NaN - affects linux, too.
+     https://sourceforge.net/p/mingw-w64/bugs/479/
+     So we therefore take the cautious approach and simply avoid
+     making that cast. In this instance we do this by casting the
+     double Inf to a __float128.
+  */
+     if(isinf(ret))
+       return newSVnv(mpfr_get_d(*p, (mp_rnd_t)SvUV(round)));
+#endif
      return newSVnv(ret);
 #else
      croak("Rmpfr_get_ld_2exp not implemented on this build of perl - use Rmpfr_get_d_2exp instead");
@@ -904,6 +915,17 @@ SV * Rmpfr_get_ld(pTHX_ mpfr_t * p, SV * round){
      CHECK_ROUNDING_VALUE
 #ifdef USE_LONG_DOUBLE
 #ifndef _MSC_VER
+#if defined(NV_IS_FLOAT128)
+  /*
+     Casting long double Inf to __float128 might result in NaN - affects linux, too.
+     https://sourceforge.net/p/mingw-w64/bugs/479/
+     So we therefore take the cautious approach and simply avoid
+     making that cast. In this instance we do this by casting the
+     double Inf to a __float128.
+  */
+     if(isinf(mpfr_get_ld(*p, (mp_rnd_t)SvUV(round))))
+       return newSVnv(mpfr_get_d(*p, (mp_rnd_t)SvUV(round)));
+#endif
      return newSVnv(mpfr_get_ld(*p, (mp_rnd_t)SvUV(round)));
 #else
      croak("Rmpfr_get_ld not implemented on this build of perl - use Rmpfr_get_d instead");
@@ -1979,6 +2001,17 @@ SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
 #if defined(CAN_PASS_FLOAT128)
   return newSVnv(mpfr_get_float128(*x, (mp_rnd_t)SvUV(round)));
 #elif defined(USE_LONG_DOUBLE)
+#if defined(NV_IS_FLOAT128)
+  /*
+     Casting long double Inf to __float128 might result in NaN - affects linux, too.
+     https://sourceforge.net/p/mingw-w64/bugs/479/
+     So we therefore take the cautious approach and simply avoid
+     making that cast. In this instance we do this by casting the
+     double Inf to __float128.
+  */
+     if(isinf(mpfr_get_ld(*x, (mp_rnd_t)SvUV(round))))
+       return newSVnv(mpfr_get_d(*x, (mp_rnd_t)SvUV(round)));
+#endif
   return newSVnv(mpfr_get_ld(*x, (mp_rnd_t)SvUV(round)));
 #else
   return newSVnv(mpfr_get_d(*x, (mp_rnd_t)SvUV(round)));
