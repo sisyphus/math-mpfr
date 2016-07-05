@@ -1,3 +1,5 @@
+3.34
+
 3.33
  - Document Rmpfr_grandom as deprecated as of mpfr-3.2.0.
  - Add the following functions which will be available when mpfr-3.2.0 (or higher) is installed:
@@ -8,7 +10,7 @@
  - Remove library functions (gmp_v and Rmpfr_get_version) from Math::MPFR::V, as we don't want any
     library functions in that module.
  - Handle the setting of the NaN flag with mpfr_add/sub_ui/si functions for versions of mpfr (3.1.4
-    and earlier only). ZThe bug should be fixed in later versions of mpfr.
+    and earlier only). The bug should be fixed in later versions of mpfr.
  - Replace SvNV/SvUV/SvIV with SvNVX/SvUVX/SvIVX where appropriate.
  - Add Rmpfr_buildopt_float128_p and Rmpfr_buildopt_sharedcache_p
  - t/_1basic.t now ouptuts the values of the various (available) buildopt functions.
