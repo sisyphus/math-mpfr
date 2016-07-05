@@ -6369,6 +6369,22 @@ int nanflag_bug(void) {
 #endif
 }
 
+SV * Rmpfr_buildopt_float128_p(pTHX) {
+#if MPFR_VERSION_MAJOR >= 4
+     return newSViv(mpfr_buildopt_float128_p());
+#else
+     croak("Rmpfr_buildopt_float128_p not implemented with this version of the mpfr library - we have %s but need at least 4.0.0", MPFR_VERSION_STRING);
+#endif
+}
+
+SV * Rmpfr_buildopt_sharedcache_p(pTHX) {
+#if MPFR_VERSION_MAJOR >= 4
+     return newSViv(mpfr_buildopt_sharedcache_p());
+#else
+     croak("Rmpfr_buildopt_sharedcache_p not implemented with this version of the mpfr library - we have %s but need at least 4.0.0", MPFR_VERSION_STRING);
+#endif
+}
+
 
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
@@ -10516,5 +10532,19 @@ _have_extended_precision_long_double ()
 
 int
 nanflag_bug ()
+
+
+SV *
+Rmpfr_buildopt_float128_p ()
+CODE:
+  RETVAL = Rmpfr_buildopt_float128_p (aTHX);
+OUTPUT:  RETVAL
+
+
+SV *
+Rmpfr_buildopt_sharedcache_p ()
+CODE:
+  RETVAL = Rmpfr_buildopt_sharedcache_p (aTHX);
+OUTPUT:  RETVAL
 
 
