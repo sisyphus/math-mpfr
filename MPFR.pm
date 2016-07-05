@@ -2171,10 +2171,21 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     support (that is mpfr was built with the '--enable-decimal-float'
     configure option), return zero otherwise.
 
+   $bool = Rmpfr_buildopt_float128_p(); # mpfr-4.0.0 and later only
+    Return a non-zero value if mpfr was compiled with __float128
+    support (that is mpfr was built with the '--enable-decimal-float'
+    configure option), return zero otherwise.
+
    $bool = Rmpfr_buildopt_gmpinternals_p(); # mpfr-3.1.0 and later only
     Return a non-zero value if mpfr was compiled with gmp internals
     (that is, mpfr was built with either '--with-gmp-build' or
     '--enable-gmp-internals' configure option), return zero otherwise.
+
+   $bool = Rmpfr_buildopt_sharedcache_p(); # mpfr-4.0.0 and later only
+    Return a non-zero value if MPFR was compiled so that all threads
+    share the same cache for the one MPFR constant, like `mpfr_const_pi'
+    or `mpfr_const_log2' (that is, MPFR was built with the
+    `--enable-shared-cache' configure option), return zero otherwise.
 
    $str = Rmpfr_buildopt_tune_case();  # mpfr-3.1.0 and later only
     Return a string saying which thresholds file has been used at
