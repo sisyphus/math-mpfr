@@ -351,7 +351,7 @@ if(!$@) {
 }
 else {
   warn "\nSkipping tests 21 .. $tests - couldn't load Math::GMPZ:\n\$\@: $@\n";
-  for(9 .. $tests) {print "ok $_\n"};
+  for(21 .. $tests) {print "ok $_\n"};
 }
 
 
