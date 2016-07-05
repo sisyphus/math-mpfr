@@ -170,7 +170,7 @@ Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr
 Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc
 );
 
-    our $VERSION = '3.33';
+    our $VERSION = '3.34';
     #$VERSION = eval $VERSION;
 
     DynaLoader::bootstrap Math::MPFR $VERSION;
