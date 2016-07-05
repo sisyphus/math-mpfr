@@ -18,6 +18,44 @@ elsif(pack("L", 305419897) eq pack("V", 305419897)) {warn "# Machine appears to 
 
 warn "# Byte Order: ", $Config{byteorder}, "\n";
 
+my $evaluate;
+
+eval {$evaluate = Rmpfr_buildopt_tls_p()};
+if(!$@) {
+  $evaluate ? warn "# mpfr library built WITH thread safety\n"
+            : warn "# mpfr library built WITHOUT thread safety\n";
+}
+
+eval {$evaluate = Rmpfr_buildopt_decimal_p()};
+if(!$@) {
+  $evaluate ? warn "# mpfr library built WITH _Decimal64 support\n"
+            : warn "# mpfr library built WITHOUT _Decimal64 support\n";
+}
+
+eval {$evaluate = Rmpfr_buildopt_float128_p()};
+if(!$@) {
+  $evaluate ? warn "# mpfr library built WITH __float128 support\n"
+            : warn "# mpfr library built WITHOUT __float128 support\n";
+}
+
+eval {$evaluate = Rmpfr_buildopt_gmpinternals_p()};
+if(!$@) {
+  $evaluate ? warn "# mpfr library built WITH gmp internals\n"
+            : warn "# mpfr library built WITHOUT gmp internals\n";
+}
+
+eval {$evaluate = Rmpfr_buildopt_sharedcache_p()};
+if(!$@) {
+  $evaluate ? warn "# mpfr library built WITH shared cache\n"
+            : warn "# mpfr library built WITHOUT shared cache\n";
+}
+
+eval {$evaluate = Rmpfr_buildopt_tune_case()};
+if(!$@) {
+  $evaluate ? warn "# mpfr library thresholds file: $evaluate\n"
+            : warn "# mpfr library thresholds file: $evaluate\n";
+}
+
 if($Math::MPFR::VERSION eq '3.33') {print "ok 1\n"}
 else {print "not ok 1 $Math::MPFR::VERSION\n"}
 
