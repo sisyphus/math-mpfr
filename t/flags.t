@@ -278,9 +278,19 @@ if(!$@) {
     print "not ok 22\n";
   }
 
-  Rmpfr_z_sub($nan, $z, $nan, MPFR_RNDN); # OK
+  eval {Rmpfr_z_sub($nan, $z, $nan, MPFR_RNDN)}; # OK
 
-  if(Rmpfr_nanflag_p()) {
+  if($@) {
+    if($@ =~ /Rmpfr_z_sub not implemented with this version of the mpfr library/) {
+      warn "\nSkipping test 23 - Rmpfr_z_sub not implemented\n";
+      print "ok 23\n";
+    }
+    else {
+      warn "\n\$\@: $@\n";
+      print "not ok 23\n";
+    }
+  }
+  elsif(Rmpfr_nanflag_p()) {
     print "ok 23\n";
     Rmpfr_clear_nanflag();
   }
