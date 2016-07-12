@@ -12,7 +12,7 @@
     library functions in that module.
  - Handle the setting of the NaN flag with mpfr_add/sub_ui/si functions for versions of mpfr (3.1.4
     and earlier only). The bug should be fixed in later versions of mpfr.
- - Replace SvNV/SvUV/SvIV with SvNVX/SvUVX/SvIVX where appropriate.
+ - Replace SvNV/SvUV/SvIV with SvNVX/SvUVX/SvIVX where appropriate. (In typemap, too.)
  - Add Rmpfr_buildopt_float128_p and Rmpfr_buildopt_sharedcache_p
  - t/_1basic.t now ouptuts the values of the various (available) buildopt functions.
 
