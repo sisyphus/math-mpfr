@@ -25,7 +25,7 @@ MPFR_WANT_FLOAT128       : Defined by Makefile.PL if $have_float128 is
                            The quadmath.h header is included iff this symbol
                            is defined - and that's all we use it for.
                            This symbol does not imply that NV_IS_FLOAT128
-                           been defined - perhaps we have defined
+                           has been defined - perhaps we have defined
                            MPFR_WANT_FLOAT128 solely because we wish make
                            use of the Math::Float128-Math::MPFR interface.
                            $have_float128 must not be set to a true value
