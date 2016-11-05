@@ -40,8 +40,8 @@ for(@ARGV) {
                       # This will also define MPFR_WANT_FLOAT128 (as that needs to be defined
                       # before mpfr.h is included).
 
-my $float128_message = $have_float128 ? "Attempting to build with __float128 support\n"
-                                  : "Building without __float128 support\n";
+my $float128_message = $have_float128 ? "Assuming that the mpfr library was built with __float128 support\n"
+                                  : "NOT assuming that the mpfr library was built with __float128 support\n";
 
 my $defines = $] < 5.008 ? "-DOLDPERL" : "-DNEWPERL";
 
@@ -54,17 +54,19 @@ else {
 }
 
 if($use_long_double == -1) {}
-elsif($use_long_double == 1) {$defines .= " -DUSE_LONG_DOUBLE"}
+elsif($use_long_double == 1) {
+  $defines .= " -DNV_IS_FLOAT128" if $Config{nvtype} eq '__float128';
+  $defines .= " -DNV_IS_LONG_DOUBLE" if $Config{nvtype} eq 'long double';
+}
 else {
   if($Config::Config{nvsize} > 8 ) {
-    $defines .= " -DUSE_LONG_DOUBLE";
+    $defines .= " -DNV_IS_FLOAT128" if $Config{nvtype} eq '__float128';
+    $defines .= " -DNV_IS_LONG_DOUBLE" if $Config{nvtype} eq 'long double';
   }
 }
 
 $defines .= " -DMPFR_WANT_DECIMAL_FLOATS" if $have_decimal64;
 $defines .= " -DMPFR_WANT_FLOAT128" if $have_float128;
-$defines .= " -DNV_IS_FLOAT128" if $Config{nvtype} eq '__float128';
-$defines .= " -DNV_IS_LONG_DOUBLE" if $Config{nvtype} eq 'long double';
 
 print "\nThis module requires the following C libraries:\n";
 print " gmp-4.2.0 (or later)\n mpfr-2.4.0 (or later)\n\n";
@@ -73,10 +75,15 @@ $defines =~ /-DMATH_MPFR_NEED_LONG_LONG_INT/ ? print "Building with 'long long' 
 
 print "If this is wrong, see the \"64-bit support\" section in the README\n\n";
 
-$defines =~ /-DUSE_LONG_DOUBLE/ ? print "Building with 'long double' support\n" :
-                                 print "Building without 'long double' support\n";
+($defines =~ /-DNV_IS_LONG_DOUBLE/) ? print "Building with 'long double' support\n"
+                                    : print "Building without 'long double' support\n";
 
 print "If this is wrong, see the \"64-bit support\" section in the README\n\n";
+
+($defines =~ /-DNV_IS_FLOAT128/) ? print "Building with '__float128' support\n"
+                                 : print "Building without '__float128' support\n";
+
+print "If this is wrong, see the \"Float128 conversion\" section in the README\n\n";
 
 print "\n$d64_message";
 print "If this is wrong, see the \"Decimal64 conversion\" section in the README\n\n";
