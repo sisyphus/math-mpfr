@@ -12,45 +12,52 @@
 #include "XSUB.h"
 
 
+
 /*************************************************
 Documentation of symbols defined by Math::MPFR
 
-I hope to make this tidier when mpfr-4.0.0 is released
+NV_IS_LONG_DOUBLE        : Automatically defined by Makefile.PL iff
+                           $Config{nvtype} is 'long double'.
+
+NV_IS_FLOAT128           : Automatically defined by Makefile.PL iff
+                           $Config{nvtype} is __float128
+                           If NV_IS_FLOAT128 is defined we include the
+                           quadmath.h header.
 
 MPFR_WANT_FLOAT128       : Defined by Makefile.PL if $have_float128 is
                            set to a true value. $have_float128 can be set
                            to a true value by either editing the Makefile.PL
                            appropriately or by specifying F128=1 in the
                            Makefile.PL's @ARGV.
-                           The quadmath.h header is included iff this symbol
-                           is defined - and that's all we use it for.
-                           This symbol does not imply that NV_IS_FLOAT128
+                           The quadmath.h header is included if this symbol
+                           is defined.
+                           NOTE: If MPFR_WANT_FLOAT128 is defined, it is
+                           assumed that the mpfr library was built with
+                           __float128 support - ie was configured with the
+                           '--enable-float128' option.
+                           MPFR_WANT_FLOAT128 must NOT be defined if the
+                           mpfr library has NOT been built with __float128
+                           support.
+                           MPFR_WANT_FLOAT128 does not imply that NV_IS_FLOAT128
                            has been defined - perhaps we have defined
-                           MPFR_WANT_FLOAT128 solely because we wish make
+                           MPFR_WANT_FLOAT128 solely because we wish to make
                            use of the Math::Float128-Math::MPFR interface.
-                           $have_float128 must not be set to a true value
-                           if the mpfr library has NOT been built with
-                           __float128 support.
 
-NV_IS_FLOAT128           : Automatically defined by Makefile.PL iff
-                           $Config{nvtype} is __float128
-                           In this case, perl.h should pull in quadmath.h so
-                           we don't #include quadmath.h simply because
-                           NV_IS_FLOAT128 has been defined.
-
-NV_IS_LONG_DOUBLE        : Automatically defined by Makefile.PL iff
-                           $Config{nvtype} is 'long double'.
-
-CAN_PASS_FLOAT128        : Defined only when NV_IS_FLOAT128 is defined,
-                           and then only if the mpfr library is at version
-                           4.0.0 or later. (There was no __float128 support
-                           in the mpfr library prior to 4.0.0.)
-                           DANGER: The assumption is that if those 2
-                           conditions are met then the mpfr library has
-                           been built with __float128 support, which may
-                           not be the case if the mpfr auto-detection of
-                           __float128 availability malfunctions (or is
-                           bypassed/disabled.)
+CAN_PASS_FLOAT128        : Defined only when both MPFR_WANT_FLOAT128 and
+                           NV_IS_FLOAT128 is defined, and then only if the mpfr
+                           library is at version 4.0.0 or later. (There was no
+                           __float128 support in the mpfr library prior to
+                           4.0.0.)
+                           DANGER: The assumption is that if all of those
+                           conditions are met then the mpfr library has been
+                           built with __float128 support, which won't be the
+                           case if MPFR_WANT_FLOAT128 has been defined even
+                           though the mpfr library wasn't configured with
+                           '--enable-float128'.
+                           I haven't yet found a way of managing this - it's
+                           instead left up to the person building Math::MPFR to
+                           NOT permit MATH_MPFR_WANT_FLOAT128 to be defined
+                           unless mpfr WAS configured with --enable-float128.
 
 MPFR_WANT_DECIMAL_FLOATS : The symbol needs to be defined (before mpfr.h is
                            included) in order to enable _Decimal64 support.
@@ -65,7 +72,7 @@ MPFR_WANT_DECIMAL_FLOATS : The symbol needs to be defined (before mpfr.h is
                            Math::Decimal64-Math::MPFR interface. Otherwise
                            there's no point (apparent to me) in defining it.
 
-HAVE_IEEE_754_LONG_DOUBLE :
+HAVE_IEEE_754_LONG_DOUBLE :Used only by the test suite.
                            Defined by Makefile.PL iff
                            ($Config{longdblkind} == 1 ||
                             $Config{longdblkind} == 2)
@@ -73,22 +80,12 @@ HAVE_IEEE_754_LONG_DOUBLE :
                            long double.
 
 HAVE_EXTENDED_PRECISION_LONG_DOUBLE :
+                           Used only by the test suite.
                            Defined by Makefile.PL iff
                            ($Config{longdblkind} == 3 ||
                             $Config{longdblkind} == 4)
                            This implies that nvtype is the extended
                            precision (80-bit) long double.
-
-USE_LONG_DOUBLE          : Defined by Makefile.PL if
-                           $Config{nvsize} > 8 && $use_long_double (in the
-                           Makefile.PL) has not been manually changed to -1.
-                           This symbol will also be defined if
-                           $use_long_double is manually altered to 1.
-                           The setting of this symbol is taken to imply that
-                           nvtype is either 'long double' or '__float128'.
-                           Conversely, if the symbol is not defined, then
-                           the implication is that $Config{nvsize} is 8 and
-                           $Config{nvtype} is double.
 
 REQUIRED_LDBL_MANT_DIG   : Defined to float.h's LDBL_MANT_DIG unless
                            LDBL_MANT_DIG is 106 (ie long double is
@@ -139,6 +136,7 @@ IVSIZE_BITS              : Defined only if MATH_MPFR_NEED_LONG_LONG_INT is
                            code 64 wherever it occurs in the code.
 
 *************************************************/
+
 #include <stdio.h>
 
 #if defined MATH_MPFR_NEED_LONG_LONG_INT
@@ -152,7 +150,7 @@ IVSIZE_BITS              : Defined only if MATH_MPFR_NEED_LONG_LONG_INT is
 #include <mpfr.h>
 #include <float.h>
 
-#ifdef MPFR_WANT_FLOAT128
+#if defined(MPFR_WANT_FLOAT128) || defined(NV_IS_FLOAT128)
 #include <quadmath.h>
 #if defined(NV_IS_FLOAT128) && defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
 #define CAN_PASS_FLOAT128
@@ -260,8 +258,45 @@ return 0;
 }
 
 int NNW_val(pTHX) {
-  /* return the numeric value of $Math::MPFR::NNW */
+  /* return the numeric value of $Math::MPFR::NNW - ie the no. of non-numeric instances encountered */
   return SvIV(get_sv("Math::MPFR::NNW", 0));
+}
+
+int _is_infnanstring(char * s) {
+
+  /*************************************
+  * if input string    =~ /^\-inf/i return -1
+  * elsif input string =~ /^\+?inf/i return 1
+  * elsif input string =~ /^(\-|\+)?nan/i return 2
+  * else return 0
+  **************************************/
+
+  int sign = 1;
+
+  if(s[0] == '-') {
+    sign = -1;
+    s++;
+  }
+  else {
+    if(s[0] == '+') s++;
+  }
+
+  if((s[0] == 'i' || s[0] == 'I') && (s[1] == 'n' || s[1] == 'N') && (s[2] == 'f' || s[2] == 'F'))
+    return sign;
+
+  if((s[0] == 'n' || s[0] == 'N') && (s[1] == 'a' || s[1] == 'A') && (s[2] == 'n' || s[2] == 'N'))
+    return 2;
+
+#ifdef _WIN32 /* older Win32 perls stringify infinities as(-)1.#INF and nans as (-)1.#IND
+              *  They may perhaps also denote nans differently (not sure) - for the moment
+              *  I'll cater only for the "1.#IND" format. */
+
+   if(!strcmp(s, "1.#INF")) return sign;
+   if(!strcmp(s, "1.#IND")) return 2;
+
+#endif
+
+  return 0;
 }
 
 void Rmpfr_set_default_rounding_mode(pTHX_ SV * round) {
@@ -462,7 +497,7 @@ void Rmpfr_init_set_d(pTHX_ SV * q, SV * round) {
 }
 
 void Rmpfr_init_set_ld(pTHX_ SV * q, SV * round) {
-#ifdef USE_LONG_DOUBLE
+#ifdef NV_IS_LONG_DOUBLE
 #ifndef _MSC_VER
      dXSARGS;
      mpfr_t * mpfr_t_obj;
@@ -693,7 +728,7 @@ void Rmpfr_init_set_d_nobless(pTHX_ SV * q, SV * round) {
 }
 
 void Rmpfr_init_set_ld_nobless(pTHX_ SV * q, SV * round) {
-#ifdef USE_LONG_DOUBLE
+#ifdef NV_IS_LONG_DOUBLE
 #ifndef _MSC_VER
      dXSARGS;
      mpfr_t * mpfr_t_obj;
@@ -921,7 +956,7 @@ SV * Rmpfr_set_sj(pTHX_ mpfr_t * p, SV * q, SV * round) {
 
 SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, SV * round) {
      CHECK_ROUNDING_VALUE
-#if defined(USE_LONG_DOUBLE) && !defined(_MSC_VER) && !defined(CAN_PASS_FLOAT128)
+#if defined(NV_IS_LONG_DOUBLE) && !defined(_MSC_VER)
      return newSViv(mpfr_set_ld(*p, (long double)SvNV(q), (mp_rnd_t)SvUV(round)));
 #elif defined(CAN_PASS_FLOAT128)
      return newSViv(mpfr_set_float128(*p, (float128)SvNV(q), (mp_rnd_t)SvUV(round)));
@@ -932,7 +967,7 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, SV * round) {
 
 SV * Rmpfr_set_ld(pTHX_ mpfr_t * p, SV * q, SV * round) {
      CHECK_ROUNDING_VALUE
-#ifdef USE_LONG_DOUBLE
+#ifdef NV_IS_LONG_DOUBLE
 #ifndef _MSC_VER
      return newSViv(mpfr_set_ld(*p, (long double)SvNV(q), (mp_rnd_t)SvUV(round)));
 #else
@@ -1011,7 +1046,7 @@ SV * Rmpfr_get_d_2exp(pTHX_ SV * exp, mpfr_t * p, SV * round){
 }
 
 SV * Rmpfr_get_ld_2exp(pTHX_ SV * exp, mpfr_t * p, SV * round){
-#ifdef USE_LONG_DOUBLE
+#ifdef NV_IS_LONG_DOUBLE
 #ifndef _MSC_VER
      long _exp;
      long double ret;
@@ -1040,7 +1075,7 @@ SV * Rmpfr_get_ld_2exp(pTHX_ SV * exp, mpfr_t * p, SV * round){
 
 SV * Rmpfr_get_ld(pTHX_ mpfr_t * p, SV * round){
      CHECK_ROUNDING_VALUE
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
 #ifndef _MSC_VER
 #if defined(NV_IS_FLOAT128)
   /*
@@ -1312,7 +1347,7 @@ int Rmpfr_cmp_d(mpfr_t * a, double b) {
 }
 
 int Rmpfr_cmp_ld(pTHX_ mpfr_t * a, SV * b) {
-#ifdef USE_LONG_DOUBLE
+#ifdef NV_IS_LONG_DOUBLE
 #ifndef _MSC_VER
      return mpfr_cmp_ld(*a, (long double)SvNV(b));
 #else
@@ -2127,7 +2162,7 @@ SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
      CHECK_ROUNDING_VALUE
 #if defined(CAN_PASS_FLOAT128)
   return newSVnv(mpfr_get_float128(*x, (mp_rnd_t)SvUV(round)));
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
 #if defined(NV_IS_FLOAT128)
   /*
      Casting long double Inf to __float128 might result in NaN - affects linux, too.
@@ -2669,7 +2704,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
        return obj_ref;
      }
 
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
@@ -2794,7 +2829,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
        return obj_ref;
      }
 
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
@@ -2924,7 +2959,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
        mpfr_clear(t);
        return obj_ref;
      }
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
@@ -3060,7 +3095,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
        mpfr_clear(t);
      }
 
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
@@ -3232,7 +3267,7 @@ SV * overload_gt(pTHX_ mpfr_t * a, SV * b, SV * third) {
        mpfr_set_float128(t, (float128)SvNVX(b), __gmpfr_default_rounding_mode);
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
        ret = mpfr_cmp_ld(*a, (long double)SvNVX(b));
 #else
        ret = mpfr_cmp_d(*a, (double)SvNVX(b));
@@ -3340,7 +3375,7 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
        mpfr_set_float128(t, (float128)SvNVX(b), __gmpfr_default_rounding_mode);
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
        ret = mpfr_cmp_ld(*a, (long double)SvNVX(b));
 #else
        ret = mpfr_cmp_d(*a, (double)SvNVX(b));
@@ -3449,7 +3484,7 @@ SV * overload_lt(pTHX_ mpfr_t * a, SV * b, SV * third) {
        mpfr_set_float128(t, (float128)SvNVX(b), __gmpfr_default_rounding_mode);
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
        ret = mpfr_cmp_ld(*a, (long double)SvNVX(b));
 #else
        ret = mpfr_cmp_d(*a, (double)SvNVX(b));
@@ -3558,7 +3593,7 @@ SV * overload_lte(pTHX_ mpfr_t * a, SV * b, SV * third) {
        mpfr_set_float128(t, (float128)SvNVX(b), __gmpfr_default_rounding_mode);
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
        ret = mpfr_cmp_ld(*a, (long double)SvNVX(b));
 #else
        ret = mpfr_cmp_d(*a, (double)SvNVX(b));
@@ -3671,7 +3706,7 @@ SV * overload_spaceship(pTHX_ mpfr_t * a, SV * b, SV * third) {
        mpfr_set_float128(t, (float128)SvNVX(b), __gmpfr_default_rounding_mode);
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
        ret = mpfr_cmp_ld(*a, (long double)SvNVX(b));
 #else
        ret = mpfr_cmp_d(*a, (double)SvNVX(b));
@@ -3777,7 +3812,7 @@ SV * overload_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
        mpfr_set_float128(t, (float128)SvNVX(b), __gmpfr_default_rounding_mode);
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
        ret = mpfr_cmp_ld(*a, (long double)SvNVX(b));
 #else
        ret = mpfr_cmp_d(*a, (double)SvNVX(b));
@@ -3879,7 +3914,7 @@ SV * overload_not_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
        mpfr_set_float128(t, (float128)SvNVX(b), __gmpfr_default_rounding_mode);
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
        ret = mpfr_cmp_ld(*a, (long double)SvNVX(b));
 #else
        ret = mpfr_cmp_d(*a, (double)SvNVX(b));
@@ -4018,7 +4053,7 @@ SV * overload_pow(pTHX_ SV * p, SV * second, SV * third) {
        mpfr_init2(t, FLT128_MANT_DIG);
        mpfr_set_float128(t, (float128)SvNVX(second), __gmpfr_default_rounding_mode);
 
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(second), __gmpfr_default_rounding_mode);
@@ -4264,7 +4299,7 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
 #if defined(CAN_PASS_FLOAT128)
        mpfr_init2(t, FLT128_MANT_DIG);
        mpfr_set_float128(t, (float128)SvNVX(b), __gmpfr_default_rounding_mode);
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
 #else
@@ -4490,7 +4525,7 @@ SV * overload_pow_eq(pTHX_ SV * p, SV * second, SV * third) {
 #if defined(CAN_PASS_FLOAT128)
        mpfr_init2(t, FLT128_MANT_DIG);
        mpfr_set_float128(t, (float128)SvNVX(second), __gmpfr_default_rounding_mode);
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(second), __gmpfr_default_rounding_mode);
 #else
@@ -4610,7 +4645,7 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
        mpfr_init2(t, FLT128_MANT_DIG);
        mpfr_set_float128(t, (float128)SvNVX(b), __gmpfr_default_rounding_mode);
 
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
@@ -4730,7 +4765,7 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
        mpfr_init2(t, FLT128_MANT_DIG);
        mpfr_set_float128(t, (float128)SvNVX(b), __gmpfr_default_rounding_mode);
 
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
@@ -4851,7 +4886,7 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
        mpfr_init2(t, FLT128_MANT_DIG);
        mpfr_set_float128(t, (float128)SvNVX(b), __gmpfr_default_rounding_mode);
 
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
@@ -4972,7 +5007,7 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
        mpfr_init2(t, FLT128_MANT_DIG);
        mpfr_set_float128(t, (float128)SvNVX(b), __gmpfr_default_rounding_mode);
 
-#elif defined(USE_LONG_DOUBLE)
+#elif defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
@@ -5054,7 +5089,7 @@ int _has_longlong(void) {
 }
 
 int _has_longdouble(void) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
     return 1;
 #else
     return 0;
@@ -6529,6 +6564,10 @@ CODE:
   RETVAL = NNW_val (aTHX);
 OUTPUT:  RETVAL
 
+
+int
+_is_infnanstring (s)
+	char *	s
 
 void
 Rmpfr_set_default_rounding_mode (round)
