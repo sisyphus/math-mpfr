@@ -137,7 +137,7 @@ Rmpfr_rint_floor Rmpfr_rint_round Rmpfr_rint_trunc Rmpfr_root Rmpfr_round
 Rmpfr_sec Rmpfr_sech Rmpfr_set Rmpfr_set_d Rmpfr_set_default_prec
 Rmpfr_set_default_rounding_mode Rmpfr_set_emax Rmpfr_set_emin Rmpfr_set_erangeflag
 Rmpfr_set_exp Rmpfr_set_f Rmpfr_set_inexflag Rmpfr_set_inf Rmpfr_set_ld Rmpfr_set_LD
-Rmpfr_set_NV
+Rmpfr_set_NV Rmpfr_cmp_NV
 Rmpfr_set_nan Rmpfr_set_nanflag Rmpfr_set_overflow Rmpfr_set_prec
 Rmpfr_set_prec_raw Rmpfr_set_q Rmpfr_set_si Rmpfr_set_si_2exp Rmpfr_set_sj
 Rmpfr_set_sj_2exp Rmpfr_set_str Rmpfr_set_ui Rmpfr_set_ui_2exp
@@ -237,7 +237,7 @@ Rmpfr_rint_floor Rmpfr_rint_round Rmpfr_rint_trunc Rmpfr_root Rmpfr_round
 Rmpfr_sec Rmpfr_sech Rmpfr_set Rmpfr_set_d Rmpfr_set_default_prec
 Rmpfr_set_default_rounding_mode Rmpfr_set_emax Rmpfr_set_emin Rmpfr_set_erangeflag
 Rmpfr_set_exp Rmpfr_set_f Rmpfr_set_inexflag Rmpfr_set_inf Rmpfr_set_ld Rmpfr_set_LD
-Rmpfr_set_NV
+Rmpfr_set_NV Rmpfr_cmp_NV
 Rmpfr_set_nan Rmpfr_set_nanflag Rmpfr_set_overflow Rmpfr_set_prec
 Rmpfr_set_prec_raw Rmpfr_set_q Rmpfr_set_si Rmpfr_set_si_2exp Rmpfr_set_sj
 Rmpfr_set_sj_2exp Rmpfr_set_str Rmpfr_set_ui Rmpfr_set_ui_2exp
@@ -1045,17 +1045,18 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_set_uj($rop, $uj, $rnd);
    $si = Rmpfr_set_d($rop, $double, $rnd);
    $si = Rmpfr_set_ld($rop, $ld, $rnd); # long double
-   $si = Rmpfr_set_NV($rop, $nv, $rnd); # double/long double/__float128
+   $si = Rmpfr_set_NV($rop, $nv, $rnd); # double/long double/__float128,
+                                        # depending upon perl's nvtype.
    $si = Rmpfr_set_LD($rop, $LD, $rnd); # $LD is a Math::LongDouble object
    $si = Rmpfr_set_z($rop, $z, $rnd); # $z is a mpz object.
    $si = Rmpfr_set_q($rop, $q, $rnd); # $q is a mpq object.
    $si = Rmpfr_set_f($rop, $f, $rnd); # $f is a mpf object.
    $si = Rmpfr_set_flt($rop, $float, $rnd); # mpfr-3.0.0 and later only
-   $si = Rmpfr_set_float128($rop, $f128, $rnd); # mpfr-3.2.0 and later
+   $si = Rmpfr_set_float128($rop, $f128, $rnd); # mpfr-4.0.0 and later
    $si = Rmpfr_set_DECIMAL64($rop, $D64, $rnd) # mpfr-3.1.1 and later
                                                # only. $D64 is a
                                                # Math::Decimal64 object
-   $si = Rmpfr_set_FLOAT128($rop, $F128, $rnd) # mpfr-3.2.0 and later
+   $si = Rmpfr_set_FLOAT128($rop, $F128, $rnd) # mpfr-4.0.0 and later
                                                # only. $F128 is a
                                                # Math::Float128 object
     Set the value of $rop from 2nd arg, rounded to the precision of
@@ -1068,14 +1069,6 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     number (this happens for 0.1 for instance), in which case it is
     first rounded by the C compiler to a double-precision number,
     and then only to a mpfr floating-point number.
-
-    NOTE: If your perl's nvtype is 'long double' use Rmpfr_set_ld() or
-    Rmpfr_set_NV(), but if your perl's nvtype is 'double' and you want
-    to set a value whose precision is that of 'long double', then
-    install Math::LongDouble and use Rmpfr_set_LD().
-    Rmpfr_set_NV simply calls either mpfr_set_ld, mpfr_set_ld, or
-    mpfr_set_float128 as appropriate for your Math::MPFR and perl
-    configuration.
 
    $si = Rmpfr_set_ui_2exp($rop, $ui, $exp, $rnd);
    $si = Rmpfr_set_si_2exp($rop, $si, $exp, $rnd);
@@ -1544,6 +1537,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_cmp_z($op, $z); # $z is a mpz object
    $si = Rmpfr_cmp_q($op, $q); # $q is a mpq object
    $si = Rmpfr_cmp_f($op, $f); # $f is a mpf object
+   $si = Rmpfr_cmp_NV($op, $nv);
     Compare 1st and 2nd args. In the case of 'Rmpfr_cmpabs()'
     compare the absolute values of the 2 args.  Return a positive
     value if 1st arg > 2nd arg, zero if 1st arg = 2nd arg, and a
@@ -2618,7 +2612,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
     3. If the variable is an NV (floating point value) then that
        value is used. The variable is considered to be an NV if the
-       NOK flag is set.
+       NOK flag is set && the POK flag is unset.
 
     4. If the variable is a string (ie the POK flag is set) then the
        value of that string is used. If the POK flag is set, but the
