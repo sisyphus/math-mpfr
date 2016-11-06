@@ -2,6 +2,7 @@
  - eval{} Rmpfr_z_sub in t/flags.t (test 23).
  - Remove -DUSE_LONG_DOUBLE (from Makefile.PL).
  - Add _is_infnanstring to MPFR.xs (for use with overloaded string operations).
+ - Add Rmpfr_cmp_NV.
 
 3.33
  - Document Rmpfr_grandom as deprecated as of mpfr-3.2.0.
