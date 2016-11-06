@@ -70,7 +70,7 @@ line (just a few lines down from the top of the file ... the comments
 in that file should make it clear).
 
 Similarly, if your perl's Config reports that 'nvsize' is greater than
-8 then Math::MPFR will, be built with access to the mpfr_*_ld functions.
+8 then Math::MPFR will be built with access to the mpfr_*_ld functions.
 Else, access to those functions is, by default, denied. Again, you can
 override the default by opening up the Makefile.PL and uncommenting the
 appropriate line.
@@ -101,7 +101,8 @@ could edit the Makefile.PL before building Math::MPFR and set its
 $have_decimal64 variable to 1.)
 
 Similarly, ensuring that Decimal64 support is *not* built in can be
-achieved by leaving $have_decimal64 set to zero.
+achieved by omitting the D64=1 argument && by not altering the value
+assigned to $have_decimal64.
 
 =========================================================
 Conversion between Math::Float128 and Math::MPFR objects
@@ -113,10 +114,10 @@ objects.
 For this feature to be available you firstly need a compiler that has
 the __float128 data type.
 Then you need to build and install Math::Float128.
-You'll also need to have the mpfr library (version 3.2.0 at least)
+You'll also need to have the mpfr library (version 4.0.0 at least)
 built with __float128 support. See the mpfr documentation for details
 of that aspect. (It's just a matter of providing Configure with the
---enable-float128 option when building mpfr-3.2.0 or later.)
+--enable-float128 option when building mpfr-4.0.0 or later.)
 
 If those pre-conditions are met, you also need to provide F128=1
 as a command line argument to 'perl Makefile.PL'. (Altenatively you
@@ -124,7 +125,8 @@ could edit the Makefile.PL before building Math::MPFR and set its
 $have_float128 variable to 1.)
 
 Similarly, ensuring that __float128 support is *not* built in can be
-achieved by leaving $have_float128 set to zero.
+achieved by not providing the F128=1 argument && by not changing the
+value of $have_float128 in the Makefile.PL.
 
 ==========================================================
 Conversion between Math::LongDouble and Math::MPFR objects
@@ -153,7 +155,7 @@ Configure arg .... but, it will not work for all architectures
 and compilers.
 
 If $Config{nvtype} specifies '__float128' && if your mpfr library
-(need 3.2.0 or later) was built with --enable-float128 then you
+(need 4.0.0 or later) was built with --enable-float128 then you
 can pass your __float128 NV values to and from Math::MPFR using
 the Rmpfr_set_float128() and Rmpfr_get_float128() functions.
 And the overloaded operations will also accept the __float128 NV
