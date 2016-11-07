@@ -2891,31 +2891,23 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
              warn("Inf/NaN string used in overloaded multiplication (*) contains superfluous characters");
          }
          if(inf_or_nan == 2) {
-           mpfr_set_nanflag();
            mpfr_set_nan(*mpfr_t_obj);
-           return obj_ref;
-         }
-         if(mpfr_zero_p(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))))) {
            mpfr_set_nanflag();
-           mpfr_set_nan(*mpfr_t_obj);
            return obj_ref;
          }
-         if(mpfr_signbit(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))))) inf_or_nan *= -1;
-         if(inf_or_nan < 0) {
-           mpfr_set_inf(*mpfr_t_obj, inf_or_nan);
-           return obj_ref;
-         }
+
          mpfr_set_inf(*mpfr_t_obj, inf_or_nan);
-         return obj_ref;
        }
-     ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
-     if(ret) {
-       nnum++;
-       if(SvIV(get_sv("Math::MPFR::NNW", 0)))
-         warn("string used in overloaded multiplication (*) contains non-numeric characters");
-     }
-     mpfr_mul(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
-     return obj_ref;
+       else {
+         ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+         if(ret) {
+           nnum++;
+           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+             warn("string used in overloaded multiplication (*) contains non-numeric characters");
+         }
+       }
+       mpfr_mul(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
+       return obj_ref;
      }
 
      if(sv_isobject(b)) {
@@ -3040,37 +3032,23 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
            inf_or_nan /= 10;
            nnum++;
            if(SvIV(get_sv("Math::MPFR::NNW", 0)))
-             warn("Inf/NaN string used in overloaded addition (+) contains superfluous characters");
+             warn("Inf/NaN string used in overloaded add (*) contains superfluous characters");
          }
          if(inf_or_nan == 2) {
-           mpfr_set_nanflag();
            mpfr_set_nan(*mpfr_t_obj);
-           return obj_ref;
-         }
-         if(inf_or_nan < 0) {
-           if(!mpfr_signbit(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a))))) &&
-               mpfr_inf_p(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))))) {
-             mpfr_set_nanflag();
-             mpfr_set_nan(*mpfr_t_obj);
-             return obj_ref;
-           }
-           mpfr_set_inf(*mpfr_t_obj, -1);
-           return obj_ref;
-         }
-         if(mpfr_signbit(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a))))) &&
-             mpfr_inf_p(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))))) {
            mpfr_set_nanflag();
-           mpfr_set_nan(*mpfr_t_obj);
            return obj_ref;
          }
-         mpfr_set_inf(*mpfr_t_obj, 1);
-         return obj_ref;
+
+         mpfr_set_inf(*mpfr_t_obj, inf_or_nan);
        }
-       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
-       if(ret) {
-         nnum++;
-         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
-           warn("string used in overloaded addition (+) contains non-numeric characters");
+       else {
+         ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+         if(ret) {
+           nnum++;
+           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+             warn("string used in overloaded add (+) contains non-numeric characters");
+         }
        }
        mpfr_add(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
        return obj_ref;
@@ -3208,38 +3186,23 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
            inf_or_nan /= 10;
            nnum++;
            if(SvIV(get_sv("Math::MPFR::NNW", 0)))
-             warn("Inf/NaN string used in overloaded subtraction (-) contains superfluous characters");
+             warn("Inf/NaN string used in overloaded sub (-) contains superfluous characters");
          }
          if(inf_or_nan == 2) {
-           mpfr_set_nanflag();
            mpfr_set_nan(*mpfr_t_obj);
+           mpfr_set_nanflag();
            return obj_ref;
          }
-         if(mpfr_inf_p(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))))) {
-           if(mpfr_signbit(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a))))) && inf_or_nan < 0) {
-             mpfr_set_nanflag();
-             mpfr_set_nan(*mpfr_t_obj);
-             return obj_ref;
-           }
-           if(!mpfr_signbit(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a))))) && inf_or_nan > 0) {
-             mpfr_set_nanflag();
-             mpfr_set_nan(*mpfr_t_obj);
-             return obj_ref;
-           }
-         }
-         if(third == &PL_sv_yes) inf_or_nan *= -1;
-         if(inf_or_nan < 0) {
-           mpfr_set_inf(*mpfr_t_obj, -1);
-           return obj_ref;
-         }
-         mpfr_set_inf(*mpfr_t_obj, 1);
-         return obj_ref;
+
+         mpfr_set_inf(*mpfr_t_obj, inf_or_nan);
        }
-       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
-       if(ret) {
-         nnum++;
-         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
-           warn("string used in overloaded subtraction (-) contains non-numeric characters");
+       else {
+         ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+         if(ret) {
+           nnum++;
+           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+             warn("string used in overloaded sub (-) contains non-numeric characters");
+         }
        }
        if(third == &PL_sv_yes) mpfr_sub(*mpfr_t_obj, *mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), __gmpfr_default_rounding_mode);
        else mpfr_sub(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
@@ -3382,30 +3345,20 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
              warn("Inf/NaN string used in overloaded div (/) contains superfluous characters");
          }
          if(inf_or_nan == 2) {
-           mpfr_set_erangeflag();
            mpfr_set_nan(*mpfr_t_obj);
-           return obj_ref;
-         }
-         if(mpfr_inf_p(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))))) {
            mpfr_set_nanflag();
-           mpfr_set_nan(*mpfr_t_obj);
            return obj_ref;
          }
-         if(mpfr_signbit(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))))) inf_or_nan *= -1;
-         if(inf_or_nan < 0) {
-           if(third == &PL_sv_yes) mpfr_set_zero(*mpfr_t_obj, inf_or_nan);
-           else mpfr_set_inf(*mpfr_t_obj, inf_or_nan);
-           return obj_ref;
-         }
-         if(third == &PL_sv_yes) mpfr_set_zero(*mpfr_t_obj, inf_or_nan);
-         else mpfr_set_inf(*mpfr_t_obj, inf_or_nan);
-         return obj_ref;
+
+         mpfr_set_inf(*mpfr_t_obj, inf_or_nan);
        }
-       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
-       if(ret) {
-         nnum++;
-         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
-           warn("string used in overloaded division (/) contains non-numeric characters");
+       else {
+         ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+         if(ret) {
+           nnum++;
+           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+             warn("string used in overloaded div (/) contains non-numeric characters");
+         }
        }
        if(third == &PL_sv_yes) mpfr_div(*mpfr_t_obj, *mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), __gmpfr_default_rounding_mode);
        else mpfr_div(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
