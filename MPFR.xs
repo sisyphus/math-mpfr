@@ -2298,44 +2298,23 @@ SV * Rmpfr_get_UV(pTHX_ mpfr_t * x, SV * round) {
      croak("Rmpfr_get_UV not implemented on this build of perl");
 }
 
-SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
+SV * _Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
+
+     CHECK_ROUNDING_VALUE
 
 #if defined(CAN_PASS_FLOAT128)
 
-     CHECK_ROUNDING_VALUE
      return newSVnv(mpfr_get_float128(*x, (mp_rnd_t)SvUV(round)));
 
 #elif defined(NV_IS_FLOAT128)
 
 /* FLT128_MAX is 1.18973149535723176508575932662800702e4932Q */
-     double my_inf = 2e4932Q;
-     mpfr_t t;
-
-     CHECK_ROUNDING_VALUE
-     if(mpfr_inf_p(*x)) {
-       if(mpfr_signbit(*x)) return newSVnv(my_inf * -1);
-       return newSVnv(my_inf);
-     }
-
-     if(mpfr_inf_p(*x)) return newSVnv(my_inf / my_inf);
-
-     if(mpfr_zero_p(*x)) {
-       if(mpfr_signbit(*x)) return newSVnv(-0.0Q);
-       return newSVnv(0.0Q);
-     }
-
-     mpfr_init2(t, FLT128_MANT_DIG);
-
-     mpfr_clear(t);
-
-     croak("Yet to finish this part of Rmpfr_get_NV");
+     croak("Currently done in perl space"); /* should never be called */
 
 #elif defined(NV_IS_LONG_DOUBLE)
 
-     CHECK_ROUNDING_VALUE
      return newSVnv(mpfr_get_ld(*x, (mp_rnd_t)SvUV(round)));
 #else
-     CHECK_ROUNDING_VALUE
      return newSVnv(mpfr_get_d(*x, (mp_rnd_t)SvUV(round)));
 #endif
 
@@ -6783,6 +6762,14 @@ SV * Rmpfr_buildopt_sharedcache_p(pTHX) {
 #endif
 }
 
+int _nv_is_float128(void) {
+#if defined(NV_IS_FLOAT128)
+    return 1;
+#else
+    return 0;
+#endif
+}
+
 
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
@@ -9237,11 +9224,11 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
-Rmpfr_get_NV (x, round)
+_Rmpfr_get_NV (x, round)
 	mpfr_t *	x
 	SV *	round
 CODE:
-  RETVAL = Rmpfr_get_NV (aTHX_ x, round);
+  RETVAL = _Rmpfr_get_NV (aTHX_ x, round);
 OUTPUT:  RETVAL
 
 SV *
@@ -10956,5 +10943,9 @@ Rmpfr_buildopt_sharedcache_p ()
 CODE:
   RETVAL = Rmpfr_buildopt_sharedcache_p (aTHX);
 OUTPUT:  RETVAL
+
+
+int
+_nv_is_float128 ()
 
 
