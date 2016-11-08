@@ -39,6 +39,7 @@ t/MPFR_RND.t
 t/nan_cmp.t
 t/native_float128.t
 t/neg_zero_bug.t
+t/NOK_and_POK.t
 t/not_zero.t
 t/new.t
 t/new_in_3.2.0.t
