@@ -273,6 +273,9 @@ Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc
 $Math::MPFR::NNW = 0; # Set to 1 to allow "non-numeric" warnings for operations involving
                       # strings that contain non-numeric characters.
 
+$Math::MPFR::NOK_POK = 0; # Set to 1 to allow warnings in new() and overloaded operations when
+                          # a scalar that has set both NOK (NV) and POK (PV) flags is encountered
+
 sub dl_load_flags {0} # Prevent DynaLoader from complaining and croaking
 
 sub Rmpfr_out_str {
@@ -614,6 +617,34 @@ sub bytes {
   die "2nd arg to Math::MPFR::bytes must be (case-insensitive) either 'double', 'double-double', 'long double' or '__float128'";
 }
 
+sub Rmpfr_get_NV {
+  if(Math::MPFR::_nv_is_float128()) {
+    if(Math::MPFR::_can_pass_float128()) {return _Rmpfr_get_NV(@_)}
+    else {
+      # Hopefully, we'll eventually be doing this in C space
+      my $t = Rmpfr_init2(113);
+      Rmpfr_set($t, $_[0], $_[1]);
+      if(Rmpfr_nan_p($t)) {return (999**(999*999)) / (999**(999*999))}
+      if(Rmpfr_inf_p($t)) {
+        if(Rmpfr_signbit($t)) {return (999**(999*999)) * -1};
+        return (999**(999*999));
+      }
+      if(Rmpfr_zero_p($t)) {
+        if(Rmpfr_signbit($t)) {return -0.0}
+        return 0.0;
+      }
+
+      my($str, $exponent) = Rmpfr_deref2($t, 16, 0, MPFR_RNDN);
+
+      my $nv = hex $str;
+      $exponent -= length($str);
+      $nv *= 2**($exponent * 4);
+      return $nv;
+    }
+  }
+  else {return _Rmpfr_get_NV(@_)}
+}
+
 *Rmpfr_get_z_exp             = \&Rmpfr_get_z_2exp;
 *prec_cast                   = \&Math::MPFR::Prec::prec_cast;
 *Rmpfr_randinit_default      = \&Math::MPFR::Random::Rmpfr_randinit_default;
@@ -823,7 +854,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    There are 3 ways to pass __float128 values to/from
    Math::MPFR:
 
-    1) Install Math::Float128, build the mpfr-3.2.0 (or later)
+    1) Install Math::Float128, build the mpfr-4.0.0 (or later)
     library with the configure option --enable-float128, and build
     Math::MPFR by providing the "F128=1" arg to the Makefile.pl:
 
@@ -835,7 +866,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
       Rmpfr_set_FLOAT128() and Rmpfr_get_FLOAT128()
 
     2) Build perl (5.21.4 or later) with -Dusequadmath; build the
-    mpfr-3.2.0 (or later) library with the configure option
+    mpfr-4.0.0 (or later) library with the configure option
     --enable-float128, and then build Math::MPFR by providing the
     "F128=1" arg to the Makefile.pl:
 
@@ -1218,10 +1249,20 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     mpfr-3.0.0 or later). If $arg is a string and no
     additional argument is supplied, an attempt is made to deduce
     base. See 'Rmpfr_set_str' above for an explanation of how
-    that deduction is attempted. For finer grained control, use
-    one of the 'Rmpfr_init_set_*' functions documented immediately
-    below.
-    Note that these functions return a list of 2 values.
+    that deduction is attempted.
+
+    NOTE: If $arg is *both* an NV (floating point value) and PV
+    (string), then the value specified by the PV (string) will be
+    used. This is probably what you want (less likely so with
+    perl-5.18.4 and earlier).
+    However, there's no guaranteed way for the new() function to
+    correctly tell and it's best to avoid passing such values, or
+    to explicitly use the value you want by doing an Rmpfr_init()
+    followed by the appropriate 'Rmpfr_set_*' function documented in
+    the previous section. Or, if such exists, you could instead call
+    the appropriate 'Rmpfr_init_set_*' function documented
+    immediately below.
+    Note that these functions (below) return a list of 2 values.
 
    ($rop, $si) = Rmpfr_init_set($op, $rnd);
    ($rop, $si) = Rmpfr_init_set_nobless($op, $rnd);
@@ -2613,6 +2654,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     3. If the variable is an NV (floating point value) then that
        value is used. The variable is considered to be an NV if the
        NOK flag is set && the POK flag is unset.
+       Note therefore, that if the variable is both an NV (NOK flag
+       set) and PV (POK flag also set) then the string value in the
+       PV slot will be used. This is probably, but not necessarily,
+       what you want, and it's recommended not to pass such values
+       to the overloaded operators.
 
     4. If the variable is a string (ie the POK flag is set) then the
        value of that string is used. If the POK flag is set, but the
