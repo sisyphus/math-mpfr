@@ -505,40 +505,30 @@ if(Math::MPFR->new(10) <  $ninf ) {
 }
 else {print "ok 64\n"}
 
-if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
-  if(Math::MPFR->new(10) < "$strinf") {print "ok 65\n"}
-  else {
-    warn "\n 10 >= $strinf\n";
-    print "not ok 65\n";
-  }
-}
+if(Math::MPFR->new(10) < "$strinf") {print "ok 65\n"}
 else {
-  eval{$x = (Math::MPFR->new(10) < "$strinf")};
-  if($@ =~ /Invalid string supplied to Math::MPFR::overload_lt/) {print "ok 65\n"}
-  else {
-    warn "\n\$\@: $@\n";
-    print "not ok 65\n";
-  }
+  warn "\n 10 >= $strinf\n";
+  print "not ok 65\n";
 }
 
-eval{$x = (Math::MPFR->new(10) <  $nan )};
-if($@ =~ /In Rmpfr_cmp_NV, cannot coerce a NaN to a Math::MPFR value/) {print "ok 66\n"}
+$x = (Math::MPFR->new(10) <  $nan );
+if(!$x) {print "ok 66\n"}
 else {
-  warn "\n\$\@: $@\n";
+  warn "\n 10 < NaN\n";
   print "not ok 66\n";
 }
 
-eval{$x = (Math::MPFR->new(10) < "$strnan")};
-if($@ =~ /Invalid string supplied to Math::MPFR::overload_lt/) {print "ok 67\n"}
+$x = (Math::MPFR->new(10) < "$strnan");
+if(!$x) {print "ok 67\n"}
 else {
-  warn "\n\$\@: $@\n";
+  warn "\n 10 < NaN\n";
   print "not ok 67\n";
 }
 
-eval{$x = (Math::MPFR->new(10) < "61.2")};
-if($@ =~ /Invalid string supplied to Math::MPFR::overload_lt/) {print "ok 68\n"}
+$x = (Math::MPFR->new(10) < "61.2");
+if($x) {print "ok 68\n"}
 else {
-  warn "\n\$\@: $@\n";
+  warn "\n 10 >= 61.2\n";
   print "not ok 68\n";
 }
 
@@ -562,40 +552,30 @@ if(Math::MPFR->new(10) <=  $ninf ) {
 }
 else {print "ok 71\n"}
 
-if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
-  if(Math::MPFR->new(10) <= "$strinf") {print "ok 72\n"}
-  else {
-    warn "\n 10 > infinity\n";
-    print "not ok 72\n";
-  }
-}
+if(Math::MPFR->new(10) <= "$strinf") {print "ok 72\n"}
 else {
-  eval{$x = (Math::MPFR->new(10) <= "$strinf")};
-  if($@ =~ /Invalid string supplied to Math::MPFR::overload_lte/) {print "ok 72\n"}
-  else {
-    warn "\n\$\@: $@\n";
-    print "not ok 72\n";
-  }
+  warn "\n 10 > infinity\n";
+  print "not ok 72\n";
 }
 
-eval{$x = (Math::MPFR->new(10) <=  $nan )};
-if($@ =~ /In Rmpfr_cmp_NV, cannot coerce a NaN to a Math::MPFR value/) {print "ok 73\n"}
+$x = (Math::MPFR->new(10) <=  $nan );
+if(!$x) {print "ok 73\n"}
 else {
-  warn "\n\$\@: $@\n";
+  warn "\n 10 > NaN\n";
   print "not ok 73\n";
 }
 
-eval{$x = (Math::MPFR->new(10) <= "$strnan")};
-if($@ =~ /Invalid string supplied to Math::MPFR::overload_lte/) {print "ok 74\n"}
+$x = (Math::MPFR->new(10) <= "$strnan");
+if(!$x) {print "ok 74\n"}
 else {
-  warn "\n\$\@: $@\n";
+  warn "\n 10 > NaN\n";
   print "not ok 74\n";
 }
 
-eval{$x = (Math::MPFR->new(10) <= "61.2")};
-if($@ =~ /Invalid string supplied to Math::MPFR::overload_lte/) {print "ok 75\n"}
+$x = (Math::MPFR->new(10) <= "61.2");
+if($x) {print "ok 75\n"}
 else {
-  warn "\n\$\@: $@\n";
+  warn "\n 10 > 61.2\n";
   print "not ok 75\n";
 }
 
@@ -618,40 +598,30 @@ else {
   print "not ok 78\n";
 }
 
-if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
-  if(Math::MPFR->new(10) >= "$strinf") {
-    warn "\n 10 >= infinity\n";
-    print "not ok 79\n";
-  }
-  else {print "ok 79\n"}
+if(Math::MPFR->new(10) >= "$strinf") {
+  warn "\n 10 >= infinity\n";
+  print "not ok 79\n";
 }
-else {
-  eval{$x = (Math::MPFR->new(10) >= "$strinf")};
-  if($@ =~ /Invalid string supplied to Math::MPFR::overload_gte/) {print "ok 79\n"}
-  else {
-    warn "\n\$\@: $@\n";
-    print "not ok 79\n";
-  }
-}
+else {print "ok 79\n"}
 
-eval{$x = (Math::MPFR->new(10) >=  $nan )};
-if($@ =~ /In Rmpfr_cmp_NV, cannot coerce a NaN to a Math::MPFR value/) {print "ok 80\n"}
+$x = (Math::MPFR->new(10) >=  $nan );
+if(!$x) {print "ok 80\n"}
 else {
-  warn "\n\$\@: $@\n";
+  warn "\n 10 >= NaN\n";
   print "not ok 80\n";
 }
 
-eval{$x = (Math::MPFR->new(10) >= "$strnan")};
-if($@ =~ /Invalid string supplied to Math::MPFR::overload_gte/) {print "ok 81\n"}
+$x = (Math::MPFR->new(10) >= "$strnan");
+if(!$x) {print "ok 81\n"}
 else {
-  warn "\n\$\@: $@\n";
+  warn "\n 10 >= NaN\n";
   print "not ok 81\n";
 }
 
-eval{$x = (Math::MPFR->new(10) >= "61.2")};
-if($@ =~ /Invalid string supplied to Math::MPFR::overload_gte/) {print "ok 82\n"}
+$x = (Math::MPFR->new(10) >= "61.2");
+if(!$x) {print "ok 82\n"}
 else {
-  warn "\n\$\@: $@\n";
+  warn "\n 10 >= 61.2\n";
   print "not ok 82\n";
 }
 
@@ -675,40 +645,30 @@ else {
   print "not ok 85\n";
 }
 
-if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
-  if(Math::MPFR->new(10) > "$strinf") {
-    warn "\n 10 > infinity\n";
-    print "not ok 86\n";
-  }
-  else {print "ok 86\n"}
+if(Math::MPFR->new(10) > "$strinf") {
+  warn "\n 10 > infinity\n";
+  print "not ok 86\n";
 }
-else {
-  eval{$x = (Math::MPFR->new(10) > "$strinf")};
-  if($@ =~ /Invalid string supplied to Math::MPFR::overload_gt/) {print "ok 86\n"}
-  else {
-    warn "\n\$\@: $@\n";
-    print "not ok 86\n";
-  }
-}
+else {print "ok 86\n"}
 
-eval{$x = (Math::MPFR->new(10) >  $nan )};
-if($@ =~ /In Rmpfr_cmp_NV, cannot coerce a NaN to a Math::MPFR value/) {print "ok 87\n"}
+$x = (Math::MPFR->new(10) >  $nan );
+if(!$x) {print "ok 87\n"}
 else {
-  warn "\n\$\@: $@\n";
+  warn "\n 10 > NaN\n";
   print "not ok 87\n";
 }
 
-eval{$x = (Math::MPFR->new(10) > "$strnan")};
-if($@ =~ /Invalid string supplied to Math::MPFR::overload_gt/) {print "ok 88\n"}
+$x = (Math::MPFR->new(10) > "$strnan");
+if(!$x) {print "ok 88\n"}
 else {
-  warn "\n\$\@: $@\n";
+  warn "\n 10 > NaN\n";
   print "not ok 88\n";
 }
 
-eval{$x = (Math::MPFR->new(10) > "61.2")};
-if($@ =~ /Invalid string supplied to Math::MPFR::overload_gt/) {print "ok 89\n"}
+$x = (Math::MPFR->new(10) > "61.2");
+if(!$x) {print "ok 89\n"}
 else {
-  warn "\n\$\@: $@\n";
+  warn "\n 10 > 61.2\n";
   print "not ok 89\n";
 }
 
@@ -782,40 +742,30 @@ else {
 #########################
 #########################
 
-if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
-  if((Math::MPFR->new(10) <=> "$strinf") < 0) {print "ok 101\n"}
-  else {
-    warn "\n 10 !< inf\n";
-    print "not ok 101\n";
-  }
-}
+if((Math::MPFR->new(10) <=> "$strinf") < 0) {print "ok 101\n"}
 else {
-  eval{$x = (Math::MPFR->new(10) <=> "$strinf")};
-  if($@ =~ /Invalid string supplied to Math::MPFR::overload_spaceship/) {print "ok 101\n"}
-  else {
-    warn "\n\$\@: $@\n";
-    print "not ok 101\n";
-  }
+  warn "\n 10 >= inf\n";
+  print "not ok 101\n";
 }
 
-eval{$x = (Math::MPFR->new(10) <=>  $nan )};
-if($@ =~ /In Rmpfr_cmp_NV, cannot coerce a NaN to a Math::MPFR value/) {print "ok 102\n"}
+$x = (Math::MPFR->new(10) <=>  $nan );
+if(!defined($x)) {print "ok 102\n"}
 else {
-  warn "\n\$\@: $@\n";
+  warn "\n \$x: $x\n";
   print "not ok 102\n";
 }
 
-eval{$x = (Math::MPFR->new(10) <=> "$strnan")};
-if($@ =~ /Invalid string supplied to Math::MPFR::overload_spaceship/) {print "ok 103\n"}
+$x = (Math::MPFR->new(10) <=> "$strnan");
+if(!defined($x)) {print "ok 103\n"}
 else {
-  warn "\n\$\@: $@\n";
+  warn "\n \$x: $x\n";
   print "not ok 103\n";
 }
 
-eval{$x = (Math::MPFR->new(10) <=> "61.2")};
-if($@ =~ /Invalid string supplied to Math::MPFR::overload_spaceship/) {print "ok 104\n"}
+$x = (Math::MPFR->new(10) <=> "61.2");
+if($x < 0) {print "ok 104\n"}
 else {
-  warn "\n\$\@: $@\n";
+  warn "\n \$x: $x\n";
   print "not ok 104\n";
 }
 
@@ -835,72 +785,62 @@ else {
 ##########################
 
 
-if("$strninf" =~ /^\-inf/i || $^O =~ /MSWin/) {
-  my $z = Math::MPFR->new(-3);
+my $z = Math::MPFR->new(-3);
 
-  if($z == "$strninf") {
-    warn "\n $z == infinity\n";
-    print "not ok 107\n";
-  }
-  else {print "ok 107\n"}
-
-  if($z != "$strninf") {print "ok 108\n"}
-  else {
-    warn "\n $z == infinity\n";
-    print "not ok 108\n";
-  }
-
-  if($z > "$strninf") {print "ok 109\n"}
-  else {
-    warn "\n $z <= infinity\n";
-    print "not ok 109\n";
-  }
-
-  if($z >= "$strninf") {print "ok 110\n"}
-  else {
-    warn "\n $z < infinity\n";
-    print "not ok 110\n";
-  }
-
-  if($z < "$strninf") {
-    warn "\n $z < infinity\n";
-    print "not ok 111\n";
-  }
-  else {print "ok 111\n"}
-
-  if($z <= "$strninf") {
-    warn "\n $z <= infinity\n";
-    print "not ok 112\n";
-  }
-  else {print "ok 112\n"}
-
-  if(($z <=> "$strninf") > 0) {print "ok 113\n"}
-  else {
-    warn "\n $z !> infinity\n";
-    print "not ok 113\n";
-  }
+if($z == "$strninf") {
+  warn "\n $z == infinity\n";
+  print "not ok 107\n";
 }
+else {print "ok 107\n"}
+
+if($z != "$strninf") {print "ok 108\n"}
 else {
-  warn "\n Skipping tests 107..113 (not MSWin, and -iNf !~ /^\\-inf/i)\n";
-  for(107 .. 113 ) {print "ok $_\n"}
+  warn "\n $z == infinity\n";
+  print "not ok 108\n";
 }
 
-if(Math::MPFR->new(0.005859375) == '3/512') {print "ok 114\n"}
+if($z > "$strninf") {print "ok 109\n"}
 else {
-   warn "\nExpected 3/512, Got ", Math::MPFR->new(0.005859375);
+  warn "\n $z <= infinity\n";
+  print "not ok 109\n";
+}
+
+if($z >= "$strninf") {print "ok 110\n"}
+else {
+  warn "\n $z < infinity\n";
+  print "not ok 110\n";
+}
+
+if($z < "$strninf") {
+  warn "\n $z < infinity\n";
+  print "not ok 111\n";
+}
+else {print "ok 111\n"}
+
+if($z <= "$strninf") {
+  warn "\n $z <= infinity\n";
+  print "not ok 112\n";
+}
+else {print "ok 112\n"}
+
+if(($z <=> "$strninf") > 0) {print "ok 113\n"}
+else {
+  warn "\n $z !> infinity\n";
+  print "not ok 113\n";
+}
+
+if(Math::MPFR->new(0.005859375) == 3 / 512) {print "ok 114\n"}
+else {
    print "not ok 114\n";
 }
 
-
-if(Math::MPFR->new(585937.5e-8) == '3/512') {print "ok 115\n"}
+if(Math::MPFR->new(585937.5e-8) == 3 / 512) {print "ok 115\n"}
 else {
-   warn "\nExpected 3/512, Got ", Math::MPFR->new(585937.5e-8);
    print "not ok 115\n";
 }
 
-if(Math::MPFR->new(-86.0009765625) == '-88065/1024') {print "ok 116\n"}
+if(Math::MPFR->new(-86.0009765625) == -88065 / 1024) {print "ok 116\n"}
 else {
-   warn "\nExpected -88065/1024, Got ", Math::MPFR->new(-86.0009765625);
    print "not ok 116\n";
 }
 
