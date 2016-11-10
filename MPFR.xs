@@ -261,12 +261,14 @@ int NNW_val(pTHX) {
   return SvIV(get_sv("Math::MPFR::NNW", 0));
 }
 
-int _is_infnanstring(char * s) {
+int _win32_infnanstring(char * s) { /* MS Windows only - detect 1.#INF and 1.#IND
+                                     * Need to do this to correctly handle a scalar
+                                     * that is both NOK and POK on older win32 perls */
 
   /*************************************
-  * if input string    =~ /^\-inf/i return -1
-  * elsif input string =~ /^\+?inf/i return 1
-  * elsif input string =~ /^(\-|\+)?nan/i return 2
+  * if input string    =~ /^\-1\.#INF$/ return -1
+  * elsif input string =~ /^\+?1\.#INF$/i return 1
+  * elsif input string =~ /^(\-|\+)?1\.#IND$/i return 2
   * else return 0
   **************************************/
 
@@ -281,24 +283,8 @@ int _is_infnanstring(char * s) {
     if(s[0] == '+') s++;
   }
 
-  if((s[0] == 'i' || s[0] == 'I') && (s[1] == 'n' || s[1] == 'N') && (s[2] == 'f' || s[2] == 'F')) {
-    if(s[3] != 0) factor = 10;
-    return sign * factor;
-  }
-
-  if((s[0] == 'n' || s[0] == 'N') && (s[1] == 'a' || s[1] == 'A') && (s[2] == 'n' || s[2] == 'N')) {
-    if(s[3] != 0) factor = 10;
-    return 2 * factor;
-  }
-
-#ifdef _WIN32 /* older Win32 perls stringify infinities as(-)1.#INF and nans as (-)1.#IND
-              *  They may perhaps also denote nans differently (not sure) - for the moment
-              *  I'll cater only for the "1.#IND" format. */
-
   if(!strcmp(s, "1.#INF")) return sign;
   if(!strcmp(s, "1.#IND")) return 2;
-
-#endif
 
   return 0;
 }
@@ -607,7 +593,12 @@ void Rmpfr_init_set_str(pTHX_ SV * q, SV * base, SV * round) {
      dXSARGS;
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
+#ifdef _WIN32
+     int inf_or_nan, ret = (int)SvIV(base);
+#else
      int ret = (int)SvIV(base);
+#endif
+
 
      CHECK_ROUNDING_VALUE
 
@@ -622,7 +613,20 @@ void Rmpfr_init_set_str(pTHX_ SV * q, SV * base, SV * round) {
      obj = newSVrv(obj_ref, "Math::MPFR");
      sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
      SvREADONLY_on(obj);
-     ret = mpfr_init_set_str(*mpfr_t_obj, SvPV_nolen(q), ret, (mp_rnd_t)SvUV(round));
+
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(q));
+       if(inf_or_nan) {
+         mpfr_init(*mpfr_t_obj);
+         if(inf_or_nan != 2) mpfr_set_inf(*mpfr_t_obj, inf_or_nan);
+       }
+       else {
+         ret = mpfr_init_set_str(*mpfr_t_obj, SvPV_nolen(q), 0, (mp_rnd_t)SvUV(round));
+       }
+#else
+       ret = mpfr_init_set_str(*mpfr_t_obj, SvPV_nolen(q), 0, (mp_rnd_t)SvUV(round));
+
+#endif
      if(ret) {
        nnum++;
        if(SvIV(get_sv("Math::MPFR::NNW", 0)))
@@ -1139,11 +1143,31 @@ SV * Rmpfr_set_f(pTHX_ mpfr_t * p, mpf_t * q, SV * round) {
 }
 
 int Rmpfr_set_str(pTHX_ mpfr_t * p, SV * num, SV * base, SV * round) {
+#ifdef _WIN32
+    int ret, inf_or_nan, b = (int)SvIV(base);
+#else
     int ret, b = (int)SvIV(base);
+#endif
      CHECK_ROUNDING_VALUE
      if(b < 0 || b > MAXIMUM_ALLOWABLE_BASE || b == 1)
         croak("3rd argument supplied to Rmpfr_set_str is out of allowable range");
-     ret = mpfr_set_str(*p, SvPV_nolen(num), b, (mp_rnd_t)SvUV(round));
+
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(num));
+       if(inf_or_nan) {
+         if(inf_or_nan == 2) {
+           mpfr_set_nan(*p);
+         }
+
+         else mpfr_set_inf(*p, inf_or_nan);
+       }
+       else {
+         ret = mpfr_set_str(*p, SvPV_nolen(num), 0, (mp_rnd_t)SvUV(round));
+       }
+#else
+       ret = mpfr_set_str(*p, SvPV_nolen(num), 0, (mp_rnd_t)SvUV(round));
+
+#endif
      if(ret) {
        nnum++;
        if(SvIV(get_sv("Math::MPFR::NNW", 0)))
@@ -2552,8 +2576,12 @@ SV * Rmpfr_fits_UV_p(pTHX_ mpfr_t * x, SV * round) {
 }
 
 SV * Rmpfr_strtofr(pTHX_ mpfr_t * a, SV * str, SV * base, SV * round) {
+#ifdef _WIN32
+     int inf_or_nan, b = (int)SvIV(base);
+#else
      int b = (int)SvIV(base);
-     /* char ** endptr; */
+#endif
+
 #if MPFR_VERSION_MAJOR < 3
      CHECK_ROUNDING_VALUE
      if(b < 0 || b > MAXIMUM_ALLOWABLE_BASE || b == 1)
@@ -2561,7 +2589,26 @@ SV * Rmpfr_strtofr(pTHX_ mpfr_t * a, SV * str, SV * base, SV * round) {
 #else
      if(b < 0 || b > 62 || b == 1) croak("3rd argument supplied to Rmpfr_strtofr is out of allowable range");
 #endif
-     return newSViv(mpfr_strtofr(*a, SvPV_nolen(str), NULL, b, (mp_rnd_t)SvUV(round)));
+
+
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(str));
+       if(inf_or_nan) {
+         if(inf_or_nan == 2) {
+           mpfr_set_nan(*a);
+           return newSViv(0);
+         }
+
+         mpfr_set_inf(*a, inf_or_nan);
+         return newSViv(0);
+       }
+       else {
+         return newSViv(mpfr_strtofr(*a, SvPV_nolen(str), NULL, b, (mp_rnd_t)SvUV(round)));
+       }
+#else
+       return newSViv(mpfr_strtofr(*a, SvPV_nolen(str), NULL, b, (mp_rnd_t)SvUV(round)));
+
+#endif
 }
 
 void Rmpfr_set_erangeflag(void) {
@@ -2782,7 +2829,9 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj, t;
      SV * obj_ref, * obj;
      int ret;
+#ifdef _WIN32
      int inf_or_nan;
+#endif
 
      Newx(mpfr_t_obj, 1, mpfr_t);
      if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_mul function");
@@ -2862,15 +2911,10 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SvPOK(b)) {
        if(SvNOK(b) && SvIV(get_sv("Math::MPFR::NOK_POK", 0)))
-         warn("Scalar passed to overload_mul is both NV and PV.Using PV (string) value");
-       inf_or_nan = _is_infnanstring(SvPV_nolen(b));
+         warn("Scalar passed to overload_mul is both NV and PV. Using PV (string) value");
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(b));
        if(inf_or_nan) {
-         if(inf_or_nan >= 10 || inf_or_nan <= -10) {
-           inf_or_nan /= 10;
-           nnum++;
-           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
-             warn("Inf/NaN string used in overloaded multiplication (*) contains superfluous characters");
-         }
          if(inf_or_nan == 2) {
            mpfr_set_nan(*mpfr_t_obj);
            mpfr_set_nanflag();
@@ -2881,11 +2925,15 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
        }
        else {
          ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
-         if(ret) {
-           nnum++;
-           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
-             warn("string used in overloaded multiplication (*) contains non-numeric characters");
-         }
+       }
+#else
+       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+
+#endif
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded multiplication (*) contains non-numeric characters");
        }
        mpfr_mul(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
        return obj_ref;
@@ -2927,7 +2975,10 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
 SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj, t;
      SV * obj_ref, * obj;
-     int ret, inf_or_nan;
+     int ret;
+#ifdef _WIN32
+     int inf_or_nan;
+#endif
 
      Newx(mpfr_t_obj, 1, mpfr_t);
      if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_add function");
@@ -3008,15 +3059,10 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SvPOK(b)) {
        if(SvNOK(b) && SvIV(get_sv("Math::MPFR::NOK_POK", 0)))
-         warn("Scalar passed to overload_add is both NV and PV.Using PV (string) value");
-       inf_or_nan = _is_infnanstring(SvPV_nolen(b));
+         warn("Scalar passed to overload_add is both NV and PV. Using PV (string) value");
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(b));
        if(inf_or_nan) {
-         if(inf_or_nan >= 10 || inf_or_nan <= -10) {
-           inf_or_nan /= 10;
-           nnum++;
-           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
-             warn("Inf/NaN string used in overloaded add (*) contains superfluous characters");
-         }
          if(inf_or_nan == 2) {
            mpfr_set_nan(*mpfr_t_obj);
            mpfr_set_nanflag();
@@ -3027,11 +3073,15 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
        }
        else {
          ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
-         if(ret) {
-           nnum++;
-           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
-             warn("string used in overloaded add (+) contains non-numeric characters");
-         }
+       }
+#else
+       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+
+#endif
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded addition (+) contains non-numeric characters");
        }
        mpfr_add(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
        return obj_ref;
@@ -3073,7 +3123,10 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
 SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj, t;
      SV * obj_ref, * obj;
-     int ret, inf_or_nan;
+     int ret;
+#ifdef _WIN32
+     int inf_or_nan;
+#endif
 
      Newx(mpfr_t_obj, 1, mpfr_t);
      if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_sub function");
@@ -3164,15 +3217,10 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SvPOK(b)) {
        if(SvNOK(b) && SvIV(get_sv("Math::MPFR::NOK_POK", 0)))
-         warn("Scalar passed to overload_sub is both NV and PV.Using PV (string) value");
-       inf_or_nan = _is_infnanstring(SvPV_nolen(b));
+         warn("Scalar passed to overload_sub is both NV and PV. Using PV (string) value");
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(b));
        if(inf_or_nan) {
-         if(inf_or_nan >= 10 || inf_or_nan <= -10) {
-           inf_or_nan /= 10;
-           nnum++;
-           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
-             warn("Inf/NaN string used in overloaded sub (-) contains superfluous characters");
-         }
          if(inf_or_nan == 2) {
            mpfr_set_nan(*mpfr_t_obj);
            mpfr_set_nanflag();
@@ -3183,11 +3231,15 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
        }
        else {
          ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
-         if(ret) {
-           nnum++;
-           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
-             warn("string used in overloaded sub (-) contains non-numeric characters");
-         }
+       }
+#else
+       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+
+#endif
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded subtraction (-) contains non-numeric characters");
        }
        if(third == &PL_sv_yes) mpfr_sub(*mpfr_t_obj, *mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), __gmpfr_default_rounding_mode);
        else mpfr_sub(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
@@ -3231,7 +3283,10 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
 SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj, t;
      SV * obj_ref, * obj;
-     int ret, inf_or_nan;
+     int ret;
+#ifdef _WIN32
+     int inf_or_nan;
+#endif
 
      Newx(mpfr_t_obj, 1, mpfr_t);
      if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_div function");
@@ -3322,15 +3377,10 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SvPOK(b)) {
        if(SvNOK(b) && SvIV(get_sv("Math::MPFR::NOK_POK", 0)))
-         warn("Scalar passed to overload_div is both NV and PV.Using PV (string) value");
-       inf_or_nan = _is_infnanstring(SvPV_nolen(b));
+         warn("Scalar passed to overload_div is both NV and PV. Using PV (string) value");
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(b));
        if(inf_or_nan) {
-         if(inf_or_nan >= 10 || inf_or_nan <= -10) {
-           inf_or_nan /= 10;
-           nnum++;
-           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
-             warn("Inf/NaN string used in overloaded div (/) contains superfluous characters");
-         }
          if(inf_or_nan == 2) {
            mpfr_set_nan(*mpfr_t_obj);
            mpfr_set_nanflag();
@@ -3341,11 +3391,15 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
        }
        else {
          ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
-         if(ret) {
-           nnum++;
-           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
-             warn("string used in overloaded div (/) contains non-numeric characters");
-         }
+       }
+#else
+       ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+
+#endif
+       if(ret) {
+         nnum++;
+         if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+           warn("string used in overloaded division (/) contains non-numeric characters");
        }
        if(third == &PL_sv_yes) mpfr_div(*mpfr_t_obj, *mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), __gmpfr_default_rounding_mode);
        else mpfr_div(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
@@ -3423,6 +3477,9 @@ SV * overload_abs(pTHX_ mpfr_t * p, SV * second, SV * third) {
 SV * overload_gt(pTHX_ mpfr_t * a, SV * b, SV * third) {
      mpfr_t t;
      int ret;
+#ifdef _WIN32
+     int inf_or_nan;
+#endif
 
      if(mpfr_nan_p(*a)){
        mpfr_set_erangeflag();
@@ -3503,12 +3560,44 @@ SV * overload_gt(pTHX_ mpfr_t * a, SV * b, SV * third) {
      if(SvPOK(b)) {
        if(SvNOK(b) && SvIV(get_sv("Math::MPFR::NOK_POK", 0)))
          warn("Scalar passed to overload_gt is both NV and PV.Using PV (string) value");
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(b));
+       if(inf_or_nan) {
+         if(inf_or_nan != 2) {
+           mpfr_init(t);
+           mpfr_set_inf(t, inf_or_nan);
+         }
+         else { /* it's a NaN */
+           mpfr_set_erangeflag();
+           return newSViv(0);
+         }
+       }
+       else {
+         ret = mpfr_init_set_str(t, (char *)SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+         if(ret) {
+           nnum++;
+           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+             warn("string used in overloaded comparison (!=) contains non-numeric characters");
+         }
+         if(mpfr_nan_p(t)) {
+           mpfr_clear(t);
+           mpfr_set_erangeflag();
+           return newSViv(0);
+         }
+       }
+#else
        ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
        if(ret) {
          nnum++;
          if(SvIV(get_sv("Math::MPFR::NNW", 0)))
            warn("string used in overloaded comparison (>) contains non-numeric characters");
        }
+       if(mpfr_nan_p(t)) {
+         mpfr_clear(t);
+         mpfr_set_erangeflag();
+         return newSViv(0);
+       }
+#endif
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(third == &PL_sv_yes) ret *= -1;
@@ -3530,6 +3619,9 @@ SV * overload_gt(pTHX_ mpfr_t * a, SV * b, SV * third) {
 SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
      mpfr_t t;
      int ret;
+#ifdef _WIN32
+     int inf_or_nan;
+#endif
 
      if(mpfr_nan_p(*a)){
        mpfr_set_erangeflag();
@@ -3614,12 +3706,44 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
      if(SvPOK(b)) {
        if(SvNOK(b) && SvIV(get_sv("Math::MPFR::NOK_POK", 0)))
          warn("Scalar passed to overload_gte is both NV and PV.Using PV (string) value");
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(b));
+       if(inf_or_nan) {
+         if(inf_or_nan != 2) {
+           mpfr_init(t);
+           mpfr_set_inf(t, inf_or_nan);
+         }
+         else { /* it's a NaN */
+           mpfr_set_erangeflag();
+           return newSViv(0);
+         }
+       }
+       else {
+         ret = mpfr_init_set_str(t, (char *)SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+         if(ret) {
+           nnum++;
+           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+             warn("string used in overloaded comparison (!=) contains non-numeric characters");
+         }
+         if(mpfr_nan_p(t)) {
+           mpfr_clear(t);
+           mpfr_set_erangeflag();
+           return newSViv(0);
+         }
+       }
+#else
        ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
        if(ret) {
          nnum++;
          if(SvIV(get_sv("Math::MPFR::NNW", 0)))
            warn("string used in overloaded comparison (>=) contains non-numeric characters");
        }
+       if(mpfr_nan_p(t)) {
+         mpfr_clear(t);
+         mpfr_set_erangeflag();
+         return newSViv(0);
+       }
+#endif
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(third == &PL_sv_yes) ret *= -1;
@@ -3641,6 +3765,9 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
 SV * overload_lt(pTHX_ mpfr_t * a, SV * b, SV * third) {
      mpfr_t t;
      int ret;
+#ifdef _WIN32
+     int inf_or_nan;
+#endif
 
      if(mpfr_nan_p(*a)){
        mpfr_set_erangeflag();
@@ -3725,12 +3852,44 @@ SV * overload_lt(pTHX_ mpfr_t * a, SV * b, SV * third) {
      if(SvPOK(b)) {
        if(SvNOK(b) && SvIV(get_sv("Math::MPFR::NOK_POK", 0)))
          warn("Scalar passed to overload_lt is both NV and PV.Using PV (string) value");
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(b));
+       if(inf_or_nan) {
+         if(inf_or_nan != 2) {
+           mpfr_init(t);
+           mpfr_set_inf(t, inf_or_nan);
+         }
+         else { /* it's a NaN */
+           mpfr_set_erangeflag();
+           return newSViv(0);
+         }
+       }
+       else {
+         ret = mpfr_init_set_str(t, (char *)SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+         if(ret) {
+           nnum++;
+           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+             warn("string used in overloaded comparison (!=) contains non-numeric characters");
+         }
+         if(mpfr_nan_p(t)) {
+           mpfr_clear(t);
+           mpfr_set_erangeflag();
+           return newSViv(0);
+         }
+       }
+#else
        ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
        if(ret) {
          nnum++;
          if(SvIV(get_sv("Math::MPFR::NNW", 0)))
            warn("string used in overloaded comparison (<) contains non-numeric characters");
        }
+       if(mpfr_nan_p(t)) {
+         mpfr_clear(t);
+         mpfr_set_erangeflag();
+         return newSViv(0);
+       }
+#endif
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(third == &PL_sv_yes) ret *= -1;
@@ -3752,6 +3911,9 @@ SV * overload_lt(pTHX_ mpfr_t * a, SV * b, SV * third) {
 SV * overload_lte(pTHX_ mpfr_t * a, SV * b, SV * third) {
      mpfr_t t;
      int ret;
+#ifdef _WIN32
+     int inf_or_nan;
+#endif
 
      if(mpfr_nan_p(*a)){
        mpfr_set_erangeflag();
@@ -3836,12 +3998,44 @@ SV * overload_lte(pTHX_ mpfr_t * a, SV * b, SV * third) {
      if(SvPOK(b)) {
        if(SvNOK(b) && SvIV(get_sv("Math::MPFR::NOK_POK", 0)))
          warn("Scalar passed to overload_lte is both NV and PV.Using PV (string) value");
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(b));
+       if(inf_or_nan) {
+         if(inf_or_nan != 2) {
+           mpfr_init(t);
+           mpfr_set_inf(t, inf_or_nan);
+         }
+         else { /* it's a NaN */
+           mpfr_set_erangeflag();
+           return newSViv(0);
+         }
+       }
+       else {
+         ret = mpfr_init_set_str(t, (char *)SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+         if(ret) {
+           nnum++;
+           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+             warn("string used in overloaded comparison (!=) contains non-numeric characters");
+         }
+         if(mpfr_nan_p(t)) {
+           mpfr_clear(t);
+           mpfr_set_erangeflag();
+           return newSViv(0);
+         }
+       }
+#else
        ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
        if(ret) {
          nnum++;
          if(SvIV(get_sv("Math::MPFR::NNW", 0)))
            warn("string used in overloaded comparison (<=) contains non-numeric characters");
        }
+       if(mpfr_nan_p(t)) {
+         mpfr_clear(t);
+         mpfr_set_erangeflag();
+         return newSViv(0);
+       }
+#endif
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(third == &PL_sv_yes) ret *= -1;
@@ -3862,6 +4056,9 @@ SV * overload_lte(pTHX_ mpfr_t * a, SV * b, SV * third) {
 SV * overload_spaceship(pTHX_ mpfr_t * a, SV * b, SV * third) {
      mpfr_t t;
      int ret;
+#ifdef _WIN32
+     int inf_or_nan;
+#endif
 
      if(mpfr_nan_p(*a)) {
        mpfr_set_erangeflag();
@@ -3952,12 +4149,44 @@ SV * overload_spaceship(pTHX_ mpfr_t * a, SV * b, SV * third) {
      if(SvPOK(b)) {
        if(SvNOK(b) && SvIV(get_sv("Math::MPFR::NOK_POK", 0)))
          warn("Scalar passed to overload_spaceship is both NV and PV.Using PV (string) value");
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(b));
+       if(inf_or_nan) {
+         if(inf_or_nan != 2) {
+           mpfr_init(t);
+           mpfr_set_inf(t, inf_or_nan);
+         }
+         else { /* it's a NaN */
+           mpfr_set_erangeflag();
+           return &PL_sv_undef;
+         }
+       }
+       else {
+         ret = mpfr_init_set_str(t, (char *)SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+         if(ret) {
+           nnum++;
+           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+             warn("string used in overloaded comparison (!=) contains non-numeric characters");
+         }
+         if(mpfr_nan_p(t)) {
+           mpfr_clear(t);
+           mpfr_set_erangeflag();
+           return &PL_sv_undef;
+         }
+       }
+#else
        ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
        if(ret) {
          nnum++;
          if(SvIV(get_sv("Math::MPFR::NNW", 0)))
-           warn("string used in overloaded comparison (<=>) contains non-numeric characters");
+           warn("string used in overloaded comparison (<=) contains non-numeric characters");
        }
+       if(mpfr_nan_p(t)) {
+         mpfr_clear(t);
+         mpfr_set_erangeflag();
+         return &PL_sv_undef;
+       }
+#endif
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(third == &PL_sv_yes) ret *= -1;
@@ -3980,6 +4209,9 @@ SV * overload_spaceship(pTHX_ mpfr_t * a, SV * b, SV * third) {
 SV * overload_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
      mpfr_t t;
      int ret;
+#ifdef _WIN32
+     int inf_or_nan;
+#endif
 
      if(mpfr_nan_p(*a)){
        mpfr_set_erangeflag();
@@ -4058,12 +4290,44 @@ SV * overload_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
      if(SvPOK(b)) {
        if(SvNOK(b) && SvIV(get_sv("Math::MPFR::NOK_POK", 0)))
          warn("Scalar passed to overload_equiv is both NV and PV.Using PV (string) value");
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(b));
+       if(inf_or_nan) {
+         if(inf_or_nan != 2) {
+           mpfr_init(t);
+           mpfr_set_inf(t, inf_or_nan);
+         }
+         else { /* it's a NaN */
+           mpfr_set_erangeflag();
+           return newSViv(0);
+         }
+       }
+       else {
+         ret = mpfr_init_set_str(t, (char *)SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+         if(ret) {
+           nnum++;
+           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+             warn("string used in overloaded comparison (==) contains non-numeric characters");
+         }
+         if(mpfr_nan_p(t)) {
+           mpfr_clear(t);
+           mpfr_set_erangeflag();
+           return newSViv(0);
+         }
+       }
+#else
        ret = mpfr_init_set_str(t, (char *)SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
        if(ret) {
          nnum++;
          if(SvIV(get_sv("Math::MPFR::NNW", 0)))
            warn("string used in overloaded comparison (==) contains non-numeric characters");
        }
+       if(mpfr_nan_p(t)) {
+         mpfr_clear(t);
+         mpfr_set_erangeflag();
+         return newSViv(0);
+       }
+#endif
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(ret == 0) return newSViv(1);
@@ -4084,6 +4348,9 @@ SV * overload_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
 SV * overload_not_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
      mpfr_t t;
      int ret;
+#ifdef _WIN32
+     int inf_or_nan;
+#endif
 
      if(mpfr_nan_p(*a)){
        mpfr_set_erangeflag();
@@ -4161,13 +4428,45 @@ SV * overload_not_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
 
      if(SvPOK(b)) {
        if(SvNOK(b) && SvIV(get_sv("Math::MPFR::NOK_POK", 0)))
-         warn("Scalar passed to overload_not_equiv is both NV and PV.Using PV (string) value");
+         warn("Scalar passed to overload_not_equiv is both NV and PV. Using PV (string) value");
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(b));
+       if(inf_or_nan) {
+         if(inf_or_nan != 2) {
+           mpfr_init(t);
+           mpfr_set_inf(t, inf_or_nan);
+         }
+         else { /* it's a NaN */
+           mpfr_set_erangeflag();
+           return newSViv(1);
+         }
+       }
+       else {
+         ret = mpfr_init_set_str(t, (char *)SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+         if(ret) {
+           nnum++;
+           if(SvIV(get_sv("Math::MPFR::NNW", 0)))
+             warn("string used in overloaded comparison (!=) contains non-numeric characters");
+         }
+         if(mpfr_nan_p(t)) {
+           mpfr_clear(t);
+           mpfr_set_erangeflag();
+           return newSViv(1);
+         }
+       }
+#else
        ret = mpfr_init_set_str(t, (char *)SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
        if(ret) {
          nnum++;
          if(SvIV(get_sv("Math::MPFR::NNW", 0)))
            warn("string used in overloaded comparison (!=) contains non-numeric characters");
        }
+       if(mpfr_nan_p(t)) {
+         mpfr_clear(t);
+         mpfr_set_erangeflag();
+         return newSViv(1);
+       }
+#endif
        ret = mpfr_cmp(*a, t);
        mpfr_clear(t);
        if(ret != 0) return newSViv(1);
@@ -4221,6 +4520,9 @@ SV * overload_pow(pTHX_ SV * p, SV * second, SV * third) {
      mpfr_t * mpfr_t_obj, t;
      SV * obj_ref, * obj;
      int ret;
+#ifdef _WIN32
+     int inf_or_nan;
+#endif
 
      Newx(mpfr_t_obj, 1, mpfr_t);
      if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_pow function");
@@ -4310,12 +4612,29 @@ SV * overload_pow(pTHX_ SV * p, SV * second, SV * third) {
 
      if(SvPOK(second)) {
        if(SvNOK(second) && SvIV(get_sv("Math::MPFR::NOK_POK", 0)))
-         warn("Scalar passed to overload_pow is both NV and PV.Using PV (string) value");
+         warn("Scalar passed to overload_pow is both NV and PV. Using PV (string) value");
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(second));
+       if(inf_or_nan) {
+         if(inf_or_nan == 2) {
+           mpfr_set_nan(*mpfr_t_obj);
+           mpfr_set_nanflag();
+           return obj_ref;
+         }
+
+         mpfr_set_inf(*mpfr_t_obj, inf_or_nan);
+       }
+       else {
+         ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(second), 0, __gmpfr_default_rounding_mode);
+       }
+#else
        ret = mpfr_set_str(*mpfr_t_obj, SvPV_nolen(second), 0, __gmpfr_default_rounding_mode);
+
+#endif
        if(ret) {
          nnum++;
          if(SvIV(get_sv("Math::MPFR::NNW", 0)))
-           warn("string used in overloaded exponentiation (**) contains non-numeric characters");
+           warn("string used in overloaded power (**) contains non-numeric characters");
        }
        if(third == &PL_sv_yes) mpfr_pow(*mpfr_t_obj, *mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(p)))), __gmpfr_default_rounding_mode);
        else mpfr_pow(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(p)))), *mpfr_t_obj, __gmpfr_default_rounding_mode);
@@ -4710,6 +5029,9 @@ void Rmpfr_randseed_ui(pTHX_ SV * state, SV * seed) {
 SV * overload_pow_eq(pTHX_ SV * p, SV * second, SV * third) {
      mpfr_t t;
      int ret;
+#ifdef _WIN32
+     int inf_or_nan;
+#endif
 
      SvREFCNT_inc(p);
 
@@ -4782,7 +5104,23 @@ SV * overload_pow_eq(pTHX_ SV * p, SV * second, SV * third) {
      if(SvPOK(second)) {
        if(SvNOK(second) && SvIV(get_sv("Math::MPFR::NOK_POK", 0)))
          warn("Scalar passed to overload_pow_eq is both NV and PV.Using PV (string) value");
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(second));
+       mpfr_init(t);
+       if(inf_or_nan) {
+         if(inf_or_nan == 2) {
+           mpfr_set_nan(t);
+         }
+
+         else mpfr_set_inf(t, inf_or_nan);
+       }
+       else {
+         ret = mpfr_set_str(t, SvPV_nolen(second), 0, __gmpfr_default_rounding_mode);
+       }
+#else
        ret = mpfr_init_set_str(t, SvPV_nolen(second), 0, __gmpfr_default_rounding_mode);
+
+#endif
        if(ret) {
          nnum++;
          if(SvIV(get_sv("Math::MPFR::NNW", 0)))
@@ -4827,6 +5165,9 @@ SV * overload_pow_eq(pTHX_ SV * p, SV * second, SV * third) {
 SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpfr_t t;
      int ret;
+#ifdef _WIN32
+     int inf_or_nan;
+#endif
 
      SvREFCNT_inc(a);
 
@@ -4907,7 +5248,23 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
      if(SvPOK(b)) {
        if(SvNOK(b) && SvIV(get_sv("Math::MPFR::NOK_POK", 0)))
          warn("Scalar passed to overload_div_eq is both NV and PV.Using PV (string) value");
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(b));
+       mpfr_init(t);
+       if(inf_or_nan) {
+         if(inf_or_nan == 2) {
+           mpfr_set_nan(t);
+         }
+
+         else mpfr_set_inf(t, inf_or_nan);
+       }
+       else {
+         ret = mpfr_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       }
+#else
        ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+
+#endif
        if(ret) {
          nnum++;
          if(SvIV(get_sv("Math::MPFR::NNW", 0)))
@@ -4949,6 +5306,9 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
 SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpfr_t t;
      int ret;
+#ifdef _WIN32
+     int inf_or_nan;
+#endif
 
      SvREFCNT_inc(a);
 
@@ -5030,7 +5390,23 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
      if(SvPOK(b)) {
        if(SvNOK(b) && SvIV(get_sv("Math::MPFR::NOK_POK", 0)))
          warn("Scalar passed to overload_sub_eq is both NV and PV.Using PV (string) value");
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(b));
+       mpfr_init(t);
+       if(inf_or_nan) {
+         if(inf_or_nan == 2) {
+           mpfr_set_nan(t);
+         }
+
+         else mpfr_set_inf(t, inf_or_nan);
+       }
+       else {
+         ret = mpfr_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       }
+#else
        ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+
+#endif
        if(ret) {
          nnum++;
          if(SvIV(get_sv("Math::MPFR::NNW", 0)))
@@ -5072,6 +5448,9 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
 SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpfr_t t;
      int ret;
+#ifdef _WIN32
+     int inf_or_nan;
+#endif
 
      SvREFCNT_inc(a);
 
@@ -5153,7 +5532,23 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
      if(SvPOK(b)) {
        if(SvNOK(b) && SvIV(get_sv("Math::MPFR::NOK_POK", 0)))
          warn("Scalar passed to overload_add_eq is both NV and PV.Using PV (string) value");
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(b));
+       mpfr_init(t);
+       if(inf_or_nan) {
+         if(inf_or_nan == 2) {
+           mpfr_set_nan(t);
+         }
+
+         else mpfr_set_inf(t, inf_or_nan);
+       }
+       else {
+         ret = mpfr_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       }
+#else
        ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+
+#endif
        if(ret) {
          nnum++;
          if(SvIV(get_sv("Math::MPFR::NNW", 0)))
@@ -5195,6 +5590,9 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
 SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpfr_t t;
      int ret;
+#ifdef _WIN32
+     int inf_or_nan;
+#endif
 
      SvREFCNT_inc(a);
 
@@ -5276,7 +5674,23 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
      if(SvPOK(b)) {
        if(SvNOK(b) && SvIV(get_sv("Math::MPFR::NOK_POK", 0)))
          warn("Scalar passed to overload_mul_eq is both NV and PV.Using PV (string) value");
+#ifdef _WIN32
+       inf_or_nan = _win32_infnanstring(SvPV_nolen(b));
+       mpfr_init(t);
+       if(inf_or_nan) {
+         if(inf_or_nan == 2) {
+           mpfr_set_nan(t);
+         }
+
+         else mpfr_set_inf(t, inf_or_nan);
+       }
+       else {
+         ret = mpfr_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+       }
+#else
        ret = mpfr_init_set_str(t, SvPV_nolen(b), 0, __gmpfr_default_rounding_mode);
+
+#endif
        if(ret) {
          nnum++;
          if(SvIV(get_sv("Math::MPFR::NNW", 0)))
@@ -6814,7 +7228,10 @@ int _nv_is_float128(void) {
 #endif
 }
 
-
+int _SvNOK(pTHX_ SV * in) {
+  if(SvNOK(in)) return 1;
+  return 0;
+}
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
 
@@ -6833,7 +7250,7 @@ OUTPUT:  RETVAL
 
 
 int
-_is_infnanstring (s)
+_win32_infnanstring (s)
 	char *	s
 
 void
@@ -10992,4 +11409,11 @@ OUTPUT:  RETVAL
 int
 _nv_is_float128 ()
 
+
+int
+_SvNOK (in)
+	SV *	in
+CODE:
+  RETVAL = _SvNOK (aTHX_ in);
+OUTPUT:  RETVAL
 
