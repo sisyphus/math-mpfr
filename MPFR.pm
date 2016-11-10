@@ -437,6 +437,11 @@ sub new {
 
     if($type == _POK_T) {
       if(@_ > 1) {die "Too many arguments supplied to new() - expected no more than two"}
+      if(_SvNOK($arg1)) {
+        if($Math::MPFR::NOK_POK) {
+          warn "Scalar passed to new() is both NV and PV. Using PV (string) value";
+        }
+      }
       $base = shift if @_;
       if($base < 0 || $base == 1 || $base > 36) {die "Invalid value for base"}
       @ret = Rmpfr_init_set_str($arg1, $base, Rmpfr_get_default_rounding_mode());
