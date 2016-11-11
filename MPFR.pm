@@ -438,6 +438,7 @@ sub new {
     if($type == _POK_T) {
       if(@_ > 1) {die "Too many arguments supplied to new() - expected no more than two"}
       if(_SvNOK($arg1)) {
+        set_nok_pok(nok_pokflag() + 1);
         if($Math::MPFR::NOK_POK) {
           warn "Scalar passed to new() is both NV and PV. Using PV (string) value";
         }
@@ -2345,13 +2346,28 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     many times such strings were passed to mpfr functions . The
     flag can be reset to 0 by running clear_nnum().
 
+   $iv = Math::MPFR::nok_pokflag(); # not exported
+    Returns the value of the nok_pok flag. This flag is
+    initialized to zero, but incemented by 1 whenever a
+    scalar that is both a float (NOK) and string (POK) is passed
+    new() or to an overloaded operator. The value of the flag
+    therefore tells us how many times such events occurred . The
+    flag can be reset to 0 by running clear_nok_pok().
+
    Math::MPFR::set_nnum($iv); # not exported
     Resets the global non-numeric flag to the value specified by
     $iv.
 
+   Math::MPFR::set_nok_pok($iv); # not exported
+    Resets the nok_pok flag to the value specified by $iv.
+
    Math::MPFR::clear_nnum(); # not exported
     Resets the global non-numeric flag to 0.(Essentially the same
     as running set_nnum(0).)
+
+   Math::MPFR::clear_nok_pok(); # not exported
+    Resets the nok_pok flag to 0.(Essentially the same
+    as running set_nok_pok(0).)
 
    $bytes = Math::MPFR::bytes($val, $type);
     $type must be either 'double', 'long double', 'IEEE long double',
