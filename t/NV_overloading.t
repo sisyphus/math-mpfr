@@ -181,7 +181,7 @@ $ret = Math::MPFR->new(10) - "61.2";
 if($ret == -51.2) {print "ok 23\n"}
 else {
   warn "\n 23: Got $ret\n";
-  print "not ok 23\n;"
+  print "not ok 23\n";
 }
 
 if(Math::MPFR->new(10) - 61.2 == '-51.2') {
@@ -189,7 +189,7 @@ if(Math::MPFR->new(10) - 61.2 == '-51.2') {
 }
 else {
   warn "\n 24: Got $ret\n";
-  print "not ok 24\n;"
+  print "not ok 24\n";
 }
 
 $ret = Math::MPFR->new(10);
