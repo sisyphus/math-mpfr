@@ -91,9 +91,9 @@ else {
 }
 
 eval{$ret = Math::MPFR->new(10) + "61.2"};
-if($ret == 71.2) {print "ok 11\n"}
+if($ret > 71.19999999 && $ret < 71.20000001) {print "ok 11\n"}
 else {
-  warn "\n Expected 71.2\n Got ", Math::MPFR->new(10) + "61.2", "\n";
+  warn "\n Expected approx 71.2\n Got ", Math::MPFR->new(10) + "61.2", "\n";
   print "not ok 11\n";
 }
 
@@ -178,7 +178,7 @@ else {
 }
 
 $ret = Math::MPFR->new(10) - "61.2";
-if($ret == -51.2) {print "ok 23\n"}
+if($ret > -51.20000001 && $ret < -51.19999999) {print "ok 23\n"}
 else {
   warn "\n 23: Got $ret\n";
   print "not ok 23\n";
@@ -272,9 +272,9 @@ else {
 Rmpfr_set_ui($ret, 10, MPFR_RNDN);
 
 $ret += "61.2";
-if($ret == 71.2) {print "ok 35\n"}
+if($ret > 71.19999999 && $ret < 71.20000001) {print "ok 35\n"}
 else {
-  warn "\n Expected 71.2\n Got $ret\n";
+  warn "\n Expected approx 71.2\n Got $ret\n";
   print "not ok 35\n";
 }
 
@@ -319,7 +319,7 @@ else {
 Rmpfr_set_ui($ret, 10, MPFR_RNDN);
 
 $ret -= "61.2";
-if($ret == -51.2) {print "ok 41\n"}
+if($ret > -51.20000001 && $ret < -51.19999999) {print "ok 41\n"}
 else {
   warn "\n Expected -51.2\n Got $ret\n";
   print "not ok 41\n";
