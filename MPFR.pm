@@ -623,34 +623,6 @@ sub bytes {
   die "2nd arg to Math::MPFR::bytes must be (case-insensitive) either 'double', 'double-double', 'long double' or '__float128'";
 }
 
-sub Rmpfr_get_NV {
-  if(Math::MPFR::_nv_is_float128()) {
-    if(Math::MPFR::_can_pass_float128()) {return _Rmpfr_get_NV(@_)}
-    else {
-      # Hopefully, we'll eventually be doing this in C space
-      my $t = Rmpfr_init2(113);
-      Rmpfr_set($t, $_[0], $_[1]);
-      if(Rmpfr_nan_p($t)) {return (999**(999*999)) / (999**(999*999))}
-      if(Rmpfr_inf_p($t)) {
-        if(Rmpfr_signbit($t)) {return (999**(999*999)) * -1};
-        return (999**(999*999));
-      }
-      if(Rmpfr_zero_p($t)) {
-        if(Rmpfr_signbit($t)) {return -0.0}
-        return 0.0;
-      }
-
-      my($str, $exponent) = Rmpfr_deref2($t, 16, 0, MPFR_RNDN);
-
-      my $nv = hex $str;
-      $exponent -= length($str);
-      $nv *= 2**($exponent * 4);
-      return $nv;
-    }
-  }
-  else {return _Rmpfr_get_NV(@_)}
-}
-
 *Rmpfr_get_z_exp             = \&Rmpfr_get_z_2exp;
 *prec_cast                   = \&Math::MPFR::Prec::prec_cast;
 *Rmpfr_randinit_default      = \&Math::MPFR::Random::Rmpfr_randinit_default;
