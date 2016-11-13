@@ -1,6 +1,7 @@
 MANIFEST
 Makefile.PL
 MPFR.pm
+math_mpfr_include.h
 MPFR.xs
 README
 CHANGES
@@ -30,6 +31,7 @@ t/DoubleDouble2.t
 t/exceptions.t
 t/flags.t
 t/float128_conv.t
+t/get_NV.t
 t/grandom.t
 t/integer_string.t
 t/inits.t
