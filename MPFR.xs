@@ -761,7 +761,7 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
 
      char * buffer;
      int exp, exp2 = 0;
-     __float128 ld, buffer_size;
+     float128 ld, buffer_size;
      int returned;
 
 #if MPFR_VERSION_MAJOR < 3
@@ -769,24 +769,19 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
        croak("Illegal rounding value supplied for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
 #endif
 
-     ld = (__float128)SvNVX(q);
+     ld = (float128)SvNVX(q);
      if(ld != ld) {
        mpfr_set_nan(*p);
        return newSViv(0);
      }
 
      if(ld != 0.0Q && (ld / ld != 1)) {
-       mpfr_set_inf(*p);
+       returned = ld > 0.0Q ? 1 : -1
+       mpfr_set_inf(*p, returned);
        return newSViv(0);
      }
 
-     if(ld == 0.0Q) {
-       mpfr_set_zero(*p);
-       return newSViv(0);
-     }
-
-
-     ld = frexpq((__float128)SvNVX(q), &exp);
+     ld = frexpq((float128)SvNVX(q), &exp);
 
      while(ld != floorq(ld)) {
           ld *= 2;
@@ -804,8 +799,8 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
      returned = mpfr_set_str(*p, buffer, 10, (mp_rnd_t)round);
      Safefree(buffer);
 
-     if (exp2 > exp) mpfr_div_2ui(*p, *p, exp2 - exp);
-     else mpfr_mul_2ui(*p, *p, exp - exp2);
+     if (exp2 > exp) mpfr_div_2ui(*p, *p, exp2 - exp, GMP_RNDN);
+     else mpfr_mul_2ui(*p, *p, exp - exp2, GMP_RNDN);
      return newSViv(returned);
 
 #else
@@ -838,10 +833,10 @@ int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
      mpfr_t t;
      char * buffer;
      int exp, exp2 = 0;
-     __float128 ld, buffer_size;
+     float128 ld, buffer_size;
      int returned;
 
-     ld = (__float128)SvNV(b);
+     ld = (float128)SvNV(b);
      if(ld != ld) {
        mpfr_set_erangeflag;
        return 0;
@@ -853,8 +848,12 @@ int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
            if(mpfr_signbit(*a)) return -1;
            return 0;
          }
+         return -1;
        }
-       if(mpfr_signbit(*a)) return 0;
+       if(mpfr_inf_p(*a)) {
+         if(mpfr_signbit(*a)) return 0;
+         return 1;
+       }
        return 1;
      }
 
@@ -865,7 +864,7 @@ int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
      }
 
 
-     ld = frexpq((__float128)SvNV(b), &exp);
+     ld = frexpq((float128)SvNV(b), &exp);
 
      while(ld != floorq(ld)) {
           ld *= 2;
@@ -884,8 +883,8 @@ int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
      returned = mpfr_set_str(t, buffer, 10, GMP_RNDN);
      Safefree(buffer);
 
-     if (exp2 > exp) mpfr_div_2ui(t, t, exp2 - exp);
-     else mpfr_mul_2ui(t, t, exp - exp2);
+     if (exp2 > exp) mpfr_div_2ui(t, t, exp2 - exp, GMP_RNDN);
+     else mpfr_mul_2ui(t, t, exp - exp2, GMP_RNDN);
 
      returned = mpfr_cmp(*a, t);
      mpfr_clear(t);
@@ -1000,11 +999,11 @@ SV * Rmpfr_get_ld_2exp(pTHX_ SV * exp, mpfr_t * p, SV * round){
 #if defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
 #if defined(NV_IS_FLOAT128)
   /*
-     Casting long double Inf to __float128 might result in NaN - affects linux, too.
+     Casting long double Inf to float128 might result in NaN - affects linux, too.
      https://sourceforge.net/p/mingw-w64/bugs/479/
      So we therefore take the cautious approach and simply avoid
      making that cast. In this instance we do this by casting the
-     double Inf to a __float128.
+     double Inf to a float128.
   */
      if(mpfr_inf_p(*p))
        return newSVnv(mpfr_get_d(*p, (mp_rnd_t)SvUV(round)));
@@ -1029,11 +1028,11 @@ SV * Rmpfr_get_ld(pTHX_ mpfr_t * p, SV * round){
 #if defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
 #if defined(NV_IS_FLOAT128)
   /*
-     Casting long double Inf to __float128 results in NaN with some versions of gcc.
+     Casting long double Inf to float128 results in NaN with some versions of gcc.
      https://sourceforge.net/p/mingw-w64/bugs/479/
      So we therefore take the cautious approach and simply avoid
      making that cast. In this instance we do this by casting the
-     double Inf to a __float128.
+     double Inf to a float128.
   */
      if(mpfr_inf_p(*p))
        return newSVnv(mpfr_get_d(*p, (mp_rnd_t)SvUV(round)));
@@ -2109,7 +2108,7 @@ SV * Rmpfr_get_UV(pTHX_ mpfr_t * x, SV * round) {
      croak("Rmpfr_get_UV not implemented on this build of perl");
 }
 
-SV * _Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
+SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
@@ -2119,8 +2118,115 @@ SV * _Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
 
 #elif defined(NV_IS_FLOAT128)
 
-/* FLT128_MAX is 1.18973149535723176508575932662800702e4932Q */
-     croak("Currently done in perl space"); /* should never be called */
+     mpfr_t t;
+     int i, exp;
+     char *out;
+     float128 ret = 0.0Q, sign = 1.0Q;
+/*
+     float128 add_on[113] = {
+      1e0Q, 2e0Q, 4e0Q, 8e0Q, 16e0Q, 32e0Q, 64e0Q, 128e0Q, 256e0Q, 512e0Q, 1024e0Q,
+      2048e0Q, 4096e0Q, 8192e0Q, 16384e0Q, 32768e0Q, 65536e0Q, 131072e0Q, 262144e0Q,
+      524288e0Q, 1048576e0Q, 2097152e0Q, 4194304e0Q, 8388608e0Q, 16777216e0Q, 33554432e0Q,
+      67108864e0Q, 134217728e0Q, 268435456e0Q, 536870912e0Q, 1073741824e0Q, 2147483648e0Q,
+      4294967296e0Q, 8589934592e0Q, 17179869184e0Q, 34359738368e0Q, 68719476736e0Q,
+      137438953472e0Q, 274877906944e0Q, 549755813888e0Q, 1099511627776e0Q, 2199023255552e0Q,
+      4398046511104e0Q, 8796093022208e0Q, 17592186044416e0Q, 35184372088832e0Q,
+      70368744177664e0Q, 140737488355328e0Q, 281474976710656e0Q, 562949953421312e0Q,
+      1125899906842624e0Q, 2251799813685248e0Q, 4503599627370496e0Q, 9007199254740992e0Q,
+      18014398509481984e0Q, 36028797018963968e0Q, 72057594037927936e0Q, 144115188075855872e0Q,
+      288230376151711744e0Q, 576460752303423488e0Q, 1152921504606846976e0Q,
+      2305843009213693952e0Q, 4611686018427387904e0Q, 9223372036854775808e0Q,
+      18446744073709551616e0Q, 36893488147419103232e0Q, 73786976294838206464e0Q,
+      147573952589676412928e0Q, 295147905179352825856e0Q, 590295810358705651712e0Q,
+      1180591620717411303424e0Q, 2361183241434822606848e0Q, 4722366482869645213696e0Q,
+      9444732965739290427392e0Q, 18889465931478580854784e0Q, 37778931862957161709568e0Q,
+      75557863725914323419136e0Q, 151115727451828646838272e0Q, 302231454903657293676544e0Q,
+      604462909807314587353088e0Q, 1208925819614629174706176e0Q, 2417851639229258349412352e0Q,
+      4835703278458516698824704e0Q, 9671406556917033397649408e0Q, 19342813113834066795298816e0Q,
+      38685626227668133590597632e0Q, 77371252455336267181195264e0Q,
+      154742504910672534362390528e0Q, 309485009821345068724781056e0Q,
+      618970019642690137449562112e0Q, 1237940039285380274899124224e0Q,
+      2475880078570760549798248448e0Q, 4951760157141521099596496896e0Q,
+      9903520314283042199192993792e0Q, 19807040628566084398385987584e0Q,
+      39614081257132168796771975168e0Q, 79228162514264337593543950336e0Q,
+      158456325028528675187087900672e0Q, 316912650057057350374175801344e0Q,
+      633825300114114700748351602688e0Q, 1267650600228229401496703205376e0Q,
+      2535301200456458802993406410752e0Q, 5070602400912917605986812821504e0Q,
+      10141204801825835211973625643008e0Q, 20282409603651670423947251286016e0Q,
+      40564819207303340847894502572032e0Q, 81129638414606681695789005144064e0Q,
+      162259276829213363391578010288128e0Q, 324518553658426726783156020576256e0Q,
+      649037107316853453566312041152512e0Q, 1298074214633706907132624082305024e0Q,
+      2596148429267413814265248164610048e0Q, 5192296858534827628530496329220096e0Q };
+*/
+     float128 add_on[113] = {
+      5192296858534827628530496329220096e0Q, 2596148429267413814265248164610048e0Q,
+      1298074214633706907132624082305024e0Q, 649037107316853453566312041152512e0Q,
+      324518553658426726783156020576256e0Q, 162259276829213363391578010288128e0Q,
+      81129638414606681695789005144064e0Q, 40564819207303340847894502572032e0Q,
+      20282409603651670423947251286016e0Q, 10141204801825835211973625643008e0Q,
+      5070602400912917605986812821504e0Q, 2535301200456458802993406410752e0Q,
+      1267650600228229401496703205376e0Q, 633825300114114700748351602688e0Q,
+      316912650057057350374175801344e0Q, 158456325028528675187087900672e0Q, 79228162514264337593543950336e0Q,
+      39614081257132168796771975168e0Q, 19807040628566084398385987584e0Q, 9903520314283042199192993792e0Q,
+      4951760157141521099596496896e0Q, 2475880078570760549798248448e0Q, 1237940039285380274899124224e0Q,
+      618970019642690137449562112e0Q, 309485009821345068724781056e0Q, 154742504910672534362390528e0Q,
+      77371252455336267181195264e0Q, 38685626227668133590597632e0Q, 19342813113834066795298816e0Q,
+      9671406556917033397649408e0Q, 4835703278458516698824704e0Q, 2417851639229258349412352e0Q,
+      1208925819614629174706176e0Q, 604462909807314587353088e0Q, 302231454903657293676544e0Q,
+      151115727451828646838272e0Q, 75557863725914323419136e0Q, 37778931862957161709568e0Q,
+      18889465931478580854784e0Q, 9444732965739290427392e0Q, 4722366482869645213696e0Q,
+      2361183241434822606848e0Q, 1180591620717411303424e0Q, 590295810358705651712e0Q, 295147905179352825856e0Q,
+      147573952589676412928e0Q, 73786976294838206464e0Q, 36893488147419103232e0Q, 18446744073709551616e0Q,
+      9223372036854775808e0Q, 4611686018427387904e0Q, 2305843009213693952e0Q, 1152921504606846976e0Q,
+      576460752303423488e0Q, 288230376151711744e0Q, 144115188075855872e0Q, 72057594037927936e0Q,
+      36028797018963968e0Q, 18014398509481984e0Q, 9007199254740992e0Q, 4503599627370496e0Q,
+      2251799813685248e0Q, 1125899906842624e0Q, 562949953421312e0Q, 281474976710656e0Q, 140737488355328e0Q,
+      70368744177664e0Q, 35184372088832e0Q, 17592186044416e0Q, 8796093022208e0Q, 4398046511104e0Q,
+      2199023255552e0Q, 1099511627776e0Q, 549755813888e0Q, 274877906944e0Q, 137438953472e0Q, 68719476736e0Q,
+      34359738368e0Q, 17179869184e0Q, 8589934592e0Q, 4294967296e0Q, 2147483648e0Q, 1073741824e0Q, 536870912e0Q,
+      268435456e0Q, 134217728e0Q, 67108864e0Q, 33554432e0Q, 16777216e0Q, 8388608e0Q, 4194304e0Q, 2097152e0Q,
+      1048576e0Q, 524288e0Q, 262144e0Q, 131072e0Q, 65536e0Q, 32768e0Q, 16384e0Q, 8192e0Q, 4096e0Q, 2048e0Q,
+      1024e0Q, 512e0Q, 256e0Q, 128e0Q, 64e0Q, 32e0Q, 16e0Q, 8e0Q, 4e0Q, 2e0Q, 1e0Q };
+
+     mpfr_init2(t, 113);
+     mpfr_set(t, *x, (mp_rnd_t)SvUV(round));
+
+     if(mpfr_nan_p(t)) {
+       mpfr_clear(t);
+       return newSVnv((float128)Rmpfr_get_d(aTHX_ t, GMP_RNDN));
+     }
+
+     if(mpfr_inf_p(t)) {
+       mpfr_clear(t);
+       return newSVnv((float128)Rmpfr_get_d(aTHX_ t, GMP_RNDN));
+     }
+
+     out = mpfr_get_str(0, &exp, 2, 113, t, (mp_rnd_t)SvUV(round));
+     if(out == NULL) croak("An error occurred with mpfr_get_str in Rmpfr_set_NV\n");
+
+     mpfr_clear(t);
+
+     if(out[0] == '-') {
+       sign = -1.0Q;
+       out++;
+     }
+     else {
+       if(out[0] == '+') out++;
+     }
+
+     for(i = 0; i < 113; i++) {
+       if(out[i] == '1') ret += add_on[i];
+     }
+
+     if(exp > 113) {
+       for(i = 0; i > exp - 113; i++) ret *= 2.0Q;
+     }
+
+     if(exp < 113) {
+       for(i = exp; i < 113; i++) ret /= 2.0Q;
+     }
+
+     return newSVnv(ret * sign);
 
 #elif defined(NV_IS_LONG_DOUBLE)
 
@@ -6668,11 +6774,11 @@ void _ld_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
 
  /* For Math::NV - added in version 3.26 */
- /* Assumes 128-bit __float128 (113-bit precision mantissa) */
+ /* Assumes 128-bit float128 (113-bit precision mantissa) */
 
 #ifndef MPFR_WANT_FLOAT128
 
-  croak("__float128 support not built into this Math::MPFR");
+  croak("float128 support not built into this Math::MPFR");
 
 #else
 
@@ -6724,11 +6830,11 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
 
 void _f128_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
- /* Assumes 128-bit __float128 (113-bit precision mantissa) */
+ /* Assumes 128-bit float128 (113-bit precision mantissa) */
 
 #ifndef MPFR_WANT_FLOAT128
 
-  croak("__float128 support not built into this Math::MPFR");
+  croak("float128 support not built into this Math::MPFR");
 
 #else
 
@@ -9450,11 +9556,11 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
-_Rmpfr_get_NV (x, round)
+Rmpfr_get_NV (x, round)
 	mpfr_t *	x
 	SV *	round
 CODE:
-  RETVAL = _Rmpfr_get_NV (aTHX_ x, round);
+  RETVAL = Rmpfr_get_NV (aTHX_ x, round);
 OUTPUT:  RETVAL
 
 SV *
