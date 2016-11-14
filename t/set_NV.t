@@ -4,7 +4,7 @@ use Math::MPFR qw(:mpfr);
 
 print "1..6\n";
 
-Rmpfr_set_default_prec(70);
+Rmpfr_set_default_prec(120);
 
 my $fr1 = Rmpfr_init();
 my $fr2 = Rmpfr_init();
