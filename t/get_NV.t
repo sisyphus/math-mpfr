@@ -13,7 +13,7 @@ if($nan == $nan) {
   exit 0;
 }
 
-print "1..9\n";
+print "1..10\n";
 
 Rmpfr_set_default_prec(200);
 
@@ -78,4 +78,11 @@ if($check == 0.0) {print "ok 9\n"}
 else {
   warn "\n Expected zero, Got $check\n";
   print "not ok 9\n";
+}
+
+$check = Rmpfr_get_NV(Math::MPFR->new(), MPFR_RNDN);
+if($check != $check) {print "ok 10\n"}
+else {
+  warn "\n Expected NaN, Got $check\n";
+  print "not ok 10\n";
 }
