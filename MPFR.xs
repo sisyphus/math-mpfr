@@ -1036,6 +1036,13 @@ SV * Rmpfr_get_ld(pTHX_ mpfr_t * p, SV * round){
   */
      if(mpfr_inf_p(*p))
        return newSVnv(mpfr_get_d(*p, (mp_rnd_t)SvUV(round)));
+
+#elif LDBL_MANT_DIG == 106
+#if !defined(MPFR_VERSION) || (defined(MPFR_VERSION) && MPFR_VERSION <= DD_INF_BUG)
+     double d = mpfr_get_ld(*p, (mp_rnd_t)SvUV(round));
+
+     if(d == 0.0 || d != d || d / d != 1) return newSVnv((long double)d);
+#endif
 #endif
 #ifndef _MSC_VER
      return newSVnv(mpfr_get_ld(*p, (mp_rnd_t)SvUV(round)));
