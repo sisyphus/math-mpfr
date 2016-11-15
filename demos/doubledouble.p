@@ -46,7 +46,7 @@ sub dd_str {
   my $val = Rmpfr_init2(2098); # Max precision that can be encapsulated in doubledouble
   Rmpfr_set_str($val, $_[0], 0, MPFR_RNDN);
   my $msd = Rmpfr_get_d($val, MPFR_RNDN);
-  if($msd / $msd != 1) {return ($msd, 0.0)} # it's  inf, nan or zero.
+  if($msd == 0 || $msd != $msd || $msd / $msd != 1) {return ($msd, 0.0)} # it's  inf, nan or zero.
   $val -= $msd;
   return ($msd, Rmpfr_get_d($val, MPFR_RNDN));
 }
@@ -58,7 +58,7 @@ sub dd_obj {
   my $prec = Rmpfr_get_prec($obj);
   die "arg to dd_obj() has $prec bits of precision - but needs to have 2098 bits" if $prec != 2098;
   my $msd = Rmpfr_get_d($obj, MPFR_RNDN);
-  if($msd / $msd != 1) {return ($msd, 0.0)} # it's  inf, nan or zero.
+  if($msd == 0 || $msd != $msd || $msd / $msd != 1) {return ($msd, 0.0)} # it's  inf, nan or zero.
   $obj -= $msd;
   return ($msd, Rmpfr_get_d($obj, MPFR_RNDN));
 }
