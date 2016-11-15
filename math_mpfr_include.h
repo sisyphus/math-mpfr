@@ -204,6 +204,13 @@ typedef __float128 float128;
                             /* For earlier versions of mpfr, we fix this bug in */
                             /* our own code                                     */
 
+#define DD_INF_BUG 196869   /* mpfr_get_ld on (double-double platforms only)    */
+                            /* might return NaN when it sould return Inf.       */
+                            /* Presumably, this will be                         */
+                            /* fixed in mpfr after MPFR_VERSION 196869 (3.1.5)  */
+                            /* For earlier versions of mpfr, we fix this bug in */
+                            /* our own code                                     */
+
 #if  !defined(MPFR_VERSION) || (defined(MPFR_VERSION) && MPFR_VERSION <= NANFLAG_BUG)
 #define DEAL_WITH_NANFLAG_BUG if(mpfr_nan_p(*b))mpfr_set_nanflag();
 #define DEAL_WITH_NANFLAG_BUG_OVERLOADED if(mpfr_nan_p(*(INT2PTR(mpfr_t *,SvIVX(SvRV(a))))))mpfr_set_nanflag();
