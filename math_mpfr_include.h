@@ -141,7 +141,7 @@ IVSIZE_BITS              : Defined only if MATH_MPFR_NEED_LONG_LONG_INT is
 #endif
 #if defined(__MINGW32__) && !defined(__MINGW64__)
 typedef __float128 float128 __attribute__ ((aligned(32)));
-#elif defined(__MINGW64__)
+#elif defined(__MINGW64__) || (defined(DEBUGGING) && defined(NV_IS_DOUBLE))
 typedef __float128 float128 __attribute__ ((aligned(8)));
 #else
 typedef __float128 float128;
