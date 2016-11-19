@@ -102,6 +102,10 @@ if(defined $Config{longdblkind}) {
   }
 }
 
+$defines .= " -DNV_IS_DOUBLE"
+  if $Config{nvtype} eq 'double';
+
+
 my %options = (
   NAME => 'Math::MPFR',
   AUTHOR => 'Sisyphus (sisyphus at (@) cpan dot (.) org)',
