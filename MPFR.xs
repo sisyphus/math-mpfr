@@ -743,19 +743,23 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
 
 #if defined(NV_IS_LONG_DOUBLE) && !defined(_MSC_VER)
 
+     if(!SvNOK(q)) croak("Second arg given to Rmpfr_set_NV is not an NV");
+
 #if MPFR_VERSION_MAJOR < 3
      if((mp_rnd_t)round > 3)
        croak("Illegal rounding value supplied for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
 #endif
-     return newSViv(mpfr_set_ld(*p, (long double)SvNV(q), (mp_rnd_t)round));
+     return newSViv(mpfr_set_ld(*p, (long double)SvNVX(q), (mp_rnd_t)round));
 
 #elif defined(CAN_PASS_FLOAT128)
 
+     if(!SvNOK(q)) croak("Second arg given to Rmpfr_set_NV is not an NV");
+
 #if MPFR_VERSION_MAJOR < 3
      if((mp_rnd_t)round > 3)
        croak("Illegal rounding value supplied for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
 #endif
-     return newSViv(mpfr_set_float128(*p, (float128)SvNV(q), (mp_rnd_t)round));
+     return newSViv(mpfr_set_float128(*p, (float128)SvNVX(q), (mp_rnd_t)round));
 
 #elif defined(NV_IS_FLOAT128)
 
@@ -764,12 +768,15 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
      float128 ld, buffer_size;
      int returned;
 
+     if(!SvNOK(q)) croak("Second arg given to Rmpfr_set_NV is not an NV");
+
 #if MPFR_VERSION_MAJOR < 3
      if((mp_rnd_t)round > 3)
        croak("Illegal rounding value supplied for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
 #endif
 
      ld = (float128)SvNVX(q);
+
      if(ld != ld) {
        mpfr_set_nan(*p);
        return newSViv(0);
@@ -789,7 +796,7 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
      }
 
      buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-     buffer_size = ceill(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
+     buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
      Newxz(buffer, buffer_size + 5, char);
 
@@ -804,11 +811,14 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
      return newSViv(returned);
 
 #else
+
+     if(!SvNOK(q)) croak("Second arg given to Rmpfr_set_NV is not an NV");
+
 #if MPFR_VERSION_MAJOR < 3
      if((mp_rnd_t)round > 3)
        croak("Illegal rounding value supplied for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
 #endif
-     return newSViv(mpfr_set_d (*p, (double)SvNV(q), (mp_rnd_t)round));
+     return newSViv(mpfr_set_d (*p, (double)SvNVX(q), (mp_rnd_t)round));
 #endif
 }
 
@@ -872,7 +882,7 @@ int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
      }
 
      buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-     buffer_size = ceill(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
+     buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
      Newxz(buffer, buffer_size + 5, char);
 
