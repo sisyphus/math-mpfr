@@ -70,17 +70,18 @@ $defines .= " -DMPFR_WANT_FLOAT128" if $have_float128;
 
 print "\nThis module requires the following C libraries:\n";
 print " gmp-4.2.0 (or later)\n mpfr-2.4.0 (or later)\n\n";
-$defines =~ /-DMATH_MPFR_NEED_LONG_LONG_INT/ ? print "Building with 'long long' support\n" :
+$defines =~ /\-DMATH_MPFR_NEED_LONG_LONG_INT/ ? print "Building with 'long long' support\n" :
                                  print "Building without 'long long' support\n";
 
 print "If this is wrong, see the \"64-bit support\" section in the README\n\n";
 
-($defines =~ /-DNV_IS_LONG_DOUBLE/) ? print "Building with 'long double' support\n"
+($defines =~ /\-DNV_IS_LONG_DOUBLE/ || $defines =~ /\-DNV_IS_FLOAT128/)
+                                    ? print "Building with 'long double' support\n"
                                     : print "Building without 'long double' support\n";
 
 print "If this is wrong, see the \"64-bit support\" section in the README\n\n";
 
-($defines =~ /-DNV_IS_FLOAT128/) ? print "Building with '__float128' support\n"
+($defines =~ /\-DNV_IS_FLOAT128/) ? print "Building with '__float128' support\n"
                                  : print "Building without '__float128' support\n";
 
 print "If this is wrong, see the \"Float128 conversion\" section in the README\n\n";
@@ -104,6 +105,10 @@ if(defined $Config{longdblkind}) {
 
 $defines .= " -DNV_IS_DOUBLE"
   if $Config{nvtype} eq 'double';
+
+if($^O =~ /MSWin32/i && $] < 5.022) {
+  $defines .= " -D_WIN32_BIZARRE_INFNAN";
+}
 
 
 my %options = (
