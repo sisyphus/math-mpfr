@@ -1,6 +1,8 @@
 3.35
  - In Makefile.PL define -DNV_IS_DOUBLE if appropriate (for use in math_mpfr_include.h as part of
    fix for __float128 handling in nvtype=double DEBUGGING builds of perl).
+ - Tighten the conditions under which _win32_infnanstring() is called. (Now called only if OS is
+   MS Windows && $] < 5.022.)
 
 3.34
  - eval{} Rmpfr_z_sub in t/flags.t (test 23).
