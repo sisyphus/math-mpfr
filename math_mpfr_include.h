@@ -119,6 +119,11 @@ IVSIZE_BITS              : Defined only if MATH_MPFR_NEED_LONG_LONG_INT is
                            that it could (currently) be replaced with a hard
                            code 64 wherever it occurs in the code.
 
+_WIN32_BIZARRE_INFNAN    : Defined (on Windows only) when the perl version
+                           (as expressed by $]) is less than 5.022.
+                           These earlier perl versions generally stringified
+                           NaNs as (-)1.#IND and (-)1.#INF.
+
 *************************************************/
 
 #include <stdio.h>
