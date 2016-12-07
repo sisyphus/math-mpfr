@@ -1,7 +1,7 @@
 # Mainly want to test that:
 # inf and nan are handled correctly when passed to overloaded subs (including when they're passed as strings)
 # valid floating point NV's are handled correctly when passed to overloaded subs
-# valid floating point values are a fatal error when passed as a string
+# invalid floating point values are a fatal error when passed as a string
 
 use strict;
 use warnings;
