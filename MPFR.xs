@@ -793,7 +793,7 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
        return newSViv(0);
      }
 
-     ld = frexpq((float128)SvNVX(q), &exp);
+     ld = frexpq(ld, &exp);
 
      while(ld != floorq(ld)) {
           ld *= 2;
@@ -879,7 +879,7 @@ int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
      }
 
 
-     ld = frexpq((float128)SvNV(b), &exp);
+     ld = frexpq(ld, &exp);
 
      while(ld != floorq(ld)) {
           ld *= 2;
@@ -6413,6 +6413,8 @@ void _readonly_on(pTHX_ SV * sv) {
 void _readonly_off(pTHX_ SV * sv) {
      SvREADONLY_off(sv);
 }
+
+/* Do not remove _can_pass_float128 - it's used by the Math::MPFI Makefile.PL */
 
 int _can_pass_float128(void) {
 
