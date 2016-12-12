@@ -4,8 +4,8 @@ use Math::MPFR qw(:mpfr);
 
 print "1..26\n";
 
-my $n = '98765' x 80;
-my $r = '98765' x 80;
+my $n = '98765' x 1000;
+my $r = '98765' x 1000;
 my $z;
 my $check = 0;
 
