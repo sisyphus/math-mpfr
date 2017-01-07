@@ -623,6 +623,23 @@ sub bytes {
   die "2nd arg to Math::MPFR::bytes must be (case-insensitive) either 'double', 'double-double', 'long double' or '__float128'";
 }
 
+sub Rmpfr_round_nearest_away {
+  my $coderef = shift;
+  my $rop = shift;
+  my $temp = Rmpfr_init2(Rmpfr_get_prec($rop) + 1);
+  my $ret = $coderef->($temp, @_, MPFR_RNDN);
+
+  if($ret) { # not a midpoint value
+    Rmpfr_set($rop, $temp, $ret < 0 ? MPFR_RNDA : MPFR_RNDZ);
+    return $ret;
+  }
+
+  Rmpfr_set($rop, $temp, MPFR_RNDZ);
+  if(Rmpfr_equal_p($rop, $temp) || Rmpfr_nan_p($rop)) {return 0} # least significant bit of $temp is 0
+
+  return Rmpfr_set($rop, $temp, MPFR_RNDA); # least significant bit of $temp is 1
+}
+
 *Rmpfr_get_z_exp             = \&Rmpfr_get_z_2exp;
 *prec_cast                   = \&Math::MPFR::Prec::prec_cast;
 *Rmpfr_randinit_default      = \&Math::MPFR::Random::Rmpfr_randinit_default;
@@ -2322,7 +2339,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Returns the value of the nok_pok flag. This flag is
     initialized to zero, but incemented by 1 whenever a
     scalar that is both a float (NOK) and string (POK) is passed
-    new() or to an overloaded operator. The value of the flag
+    to new() or to an overloaded operator. The value of the flag
     therefore tells us how many times such events occurred . The
     flag can be reset to 0 by running clear_nok_pok().
 
