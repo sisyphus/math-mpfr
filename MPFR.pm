@@ -168,7 +168,7 @@ mpfr_max_orig_len mpfr_min_inter_prec mpfr_min_inter_base mpfr_max_orig_base
 Rmpfr_fmodquo Rmpfr_fpif_export Rmpfr_fpif_import Rmpfr_flags_clear Rmpfr_flags_set
 Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr_roundeven
 Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc
-Rmpfr_round_nearest_away
+Rmpfr_round_nearest_away is_rop_min
 );
 
     our $VERSION = '3.35';
@@ -269,7 +269,7 @@ mpfr_max_orig_len mpfr_min_inter_prec mpfr_min_inter_base mpfr_max_orig_base
 Rmpfr_fmodquo Rmpfr_fpif_export Rmpfr_fpif_import Rmpfr_flags_clear Rmpfr_flags_set
 Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr_roundeven
 Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc
-Rmpfr_round_nearest_away
+Rmpfr_round_nearest_away is_rop_min
 )]);
 
 $Math::MPFR::NNW = 0; # Set to 1 to allow "non-numeric" warnings for operations involving
@@ -653,6 +653,16 @@ sub Rmpfr_round_nearest_away {
   return Rmpfr_set($rop, $temp, MPFR_RNDA); # least significant bit of $temp is 1
 }
 
+sub is_rop_min {
+  my $coderef = shift;
+  my $rop = shift;
+  my $temp = Rmpfr_init2(Rmpfr_get_prec($rop));
+  $coderef -> ($temp,@_, MPFR_RNDA);
+  Rmpfr_abs($temp, $temp, MPFR_RNDN);
+  if(Rmpfr_equal_p($temp, Math::MPFR->new('0.1@' . Rmpfr_get_emin_min(), 2))) {return 1}
+  return 0;
+}
+
 *Rmpfr_get_z_exp             = \&Rmpfr_get_z_2exp;
 *prec_cast                   = \&Math::MPFR::Prec::prec_cast;
 *Rmpfr_randinit_default      = \&Math::MPFR::Random::Rmpfr_randinit_default;
@@ -816,29 +826,9 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     NaN result (Not-a-Number) always corresponds to an
     inexact return value.
 
-   Rmpfr_round_nearest_away(\&function, $rop, @input_args);
-    NOTE: THIS FUNCTION IS EXPERIMENTAL
-    This is a perl implementation (and not a wrapping) of
-    the mpfr_round_nearest_away macro introduced in
-    mpfr-4.0.0. You can use this function so long as
-    Math::MPFR has been built against mpfr-3.0.0 or later.
-    This rounding is defined in the same way as MPFR_RNDN,
-    except in case of tie, where the value away from zero is
-    returned.
-    The first arg is a reference to the perl subroutine you
-    wish to call, and the remaining args are the args that
-    the subroutine usually takes (minus the rounding arg).
-    For example:
-
-    $ret = Rmpfr_round_nearest_away(\&Rmpfr_add, $rop,
-                                    $op1, $op2);
-
-    $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $rop,
-                                    '1e-200', 10);
-
-    $ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round,
-                                    $rop, $prec);
-
+   See also the Rmpfr_round_nearest_away() function in the
+   ROUNDING MODE FUNCTIONS section for the experimental
+   "round to nearest, ties away from zero".
 
 =head1 MEMORY MANAGEMENT
 
@@ -994,13 +984,16 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    ##############
 
-   ROUNDING MODES
+   ROUNDING MODE FUNCTIONS
 
    Rmpfr_set_default_rounding_mode($rnd);
-    Sets the default rounding mode to $rnd.
-    The default rounding mode is to nearest initially (GMP_RNDN).
-    The default rounding mode is the rounding mode that
-    is used in overloaded operations.
+    Sets the default rounding mode to $rnd (where $rnd can be one of
+    MPFR_RNDN, MPFR_RNDU, MPFR_RNDZ, MPFR_RNDD and MPFR_RNDA.
+    Note that MPFR_RNDA is avaiable only if Math::MPFR has been built
+    against mpfr-3.0.0 or later.
+    The default rounding mode is to nearest initially (MPFR_RNDN).
+    The default rounding mode is the rounding mode that is used in
+    in overloaded operations.
 
    $si = Rmpfr_get_default_rounding_mode();
     Returns the numeric value (0, 1, 2, 3 or 4) of the
@@ -1017,6 +1010,47 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     original value of $rop, and negative when it is smaller.  The
     precision $p can be any integer between RMPFR_PREC_MIN and
     RMPFR_PREC_MAX.
+
+   $si = Rmpfr_round_nearest_away(\&function, $rop, @input_args);
+    NOTE: This function is EXPERIMENTAL.
+    It may not correctly handle values in the vicinity of
+    0.5 * (2 ** Rmpfr_get_emin()). If you are working with
+    values of that order you should first run something like:
+
+    if(is_rop_min(\&function, $rop, @input_args) {
+      die "Avoid Rmpfr_round_nearest_away for this calc";
+    }
+
+    This is a perl implementation (and not a wrapping) of
+    the mpfr_round_nearest_away macro introduced in
+    mpfr-4.0.0. You can use this function so long as
+    Math::MPFR has been built against mpfr-3.0.0 or later.
+    This rounding is defined in the same way as MPFR_RNDN,
+    except in case of tie, where the value away from zero is
+    returned.
+    The first arg is a reference to the perl subroutine you
+    wish to call, and the remaining args are the args that
+    the subroutine usually takes (minus the rounding arg).
+    For example:
+
+    $ret = Rmpfr_round_nearest_away(\&Rmpfr_add, $rop,
+                                    $op1, $op2);
+
+    $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $rop,
+                                    '1e-200', 10);
+
+    $ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round,
+                                    $rop, $prec);
+
+    The "function" being called must be one that returns the
+    ternary int (-ve for "less than", 0 for "exact", and +ve for
+    "greater than").
+
+   $bool = is_rop_min(\&function, $rop, @input_args);
+    (See Rmpfr_round_nearest_away documentation above.)
+    Returns 1 if \&function->($rop, @input_args, MPFR_RNDA)
+    would set $rop to 0.5 * (2 ** Rmpfr_get_emin()).
+    Else returns 0.
 
    ##############
 
