@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Math::MPFR qw(:mpfr);
 
-print "1..23\n";
+print "1..42\n";
 
 my $ok = 1;
 
@@ -621,10 +621,12 @@ else {
   print "not ok 21\n";
 }
 
+####################################
+
+# Change precision to 53.
 Rmpfr_set_prec($small_1, 53);
 Rmpfr_set_prec($small_2, 53);
 
-# Change precision from 3 back to 53.
 Rmpfr_set_d($small_1, 7.4, MPFR_RNDN);
 Rmpfr_set_d($small_2, 6.6, MPFR_RNDN);
 
@@ -642,4 +644,197 @@ if($ret > 0 && $small_2 == 7) {print "ok 23\n"}
 else {
   warn "\n \$ret: $ret\n \$small_2:$small_2\n";
   print "not ok 23\n";
+}
+
+####################################
+
+# Change precision to 53.
+Rmpfr_set_prec($small_1, 53);
+Rmpfr_set_prec($small_2, 53);
+
+Rmpfr_set_d($small_1, 7.5, MPFR_RNDN);
+Rmpfr_set_d($small_2, 6.5, MPFR_RNDN);
+
+$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $small_1, 4);
+
+if($ret == 0 && $small_1 == 7.5) {print "ok 24\n"}
+else {
+  warn "\n \$ret: $ret\n \$small_1:$small_1\n";
+  print "not ok 24\n";
+}
+
+$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $small_2, 4);
+
+if($ret == 0 && $small_2 == 6.5) {print "ok 25\n"}
+else {
+  warn "\n \$ret: $ret\n \$small_2:$small_2\n";
+  print "not ok 25\n";
+}
+
+####################################
+
+# Change precision to 53.
+Rmpfr_set_prec($small_1, 53);
+Rmpfr_set_prec($small_2, 53);
+
+Rmpfr_set_d($small_1, 7.25, MPFR_RNDN);
+Rmpfr_set_d($small_2, 6.25, MPFR_RNDN);
+
+$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $small_1, 3);
+
+if($ret < 0 && $small_1 == 7) {print "ok 26\n"}
+else {
+  warn "\n \$ret: $ret\n \$small_1:$small_1\n";
+  print "not ok 26\n";
+}
+
+$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $small_2, 3);
+
+if($ret < 0 && $small_2 == 6) {print "ok 27\n"}
+else {
+  warn "\n \$ret: $ret\n \$small_2:$small_2\n";
+  print "not ok 27\n";
+}
+
+####################################
+
+# Change precision to 53.
+Rmpfr_set_prec($small_1, 53);
+Rmpfr_set_prec($small_2, 53);
+
+Rmpfr_set_d($small_1, 7.0, MPFR_RNDN);
+Rmpfr_set_d($small_2, 6.0, MPFR_RNDN);
+
+$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $small_1, 3);
+
+if($ret == 0 && $small_1 == 7) {print "ok 28\n"}
+else {
+  warn "\n \$ret: $ret\n \$small_1:$small_1\n";
+  print "not ok 28\n";
+}
+
+$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $small_2, 3);
+
+if($ret == 0 && $small_2 == 6) {print "ok 29\n"}
+else {
+  warn "\n \$ret: $ret\n \$small_2:$small_2\n";
+  print "not ok 29\n";
+}
+
+####################################
+
+my $nan  = Rmpfr_init();
+my $inf  = Math::MPFR->new(1)  / Math::MPFR->new(0);
+my $ninf = Math::MPFR->new(-1) / Math::MPFR->new(0);
+
+####################################
+
+$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $nan, 2);
+
+if(Rmpfr_get_prec($nan) == 2 && Rmpfr_nan_p($nan) && $ret == 0) {print "ok 30\n"}
+else {
+  warn "\n prec: ", Rmpfr_get_prec($nan), "\n \$nan: $nan\n \$ret: $ret\n";
+  print "not ok 30\n";
+}
+
+####################################
+
+$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $inf, 2);
+
+if(Rmpfr_get_prec($inf) == 2 && Rmpfr_inf_p($inf) && $ret == 0 && $inf > 0) {print "ok 31\n"}
+else {
+  warn "\n prec: ", Rmpfr_get_prec($inf), "\n \$inf: $inf\n \$ret: $ret\n";
+  print "not ok 31\n";
+}
+
+####################################
+
+$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $ninf, 2);
+
+if(Rmpfr_get_prec($ninf) == 2 && Rmpfr_inf_p($ninf) && $ret == 0 && $ninf < 0) {print "ok 32\n"}
+else {
+  warn "\n prec: ", Rmpfr_get_prec($ninf), "\n \$ninf: $ninf\n \$ret: $ret\n";
+  print "not ok 32\n";
+}
+
+####################################
+####################################
+
+my $rop = Rmpfr_init();
+my $min = Rmpfr_init();
+my $minstring = '0.1@' . Rmpfr_get_emin_min();
+Rmpfr_set_str($min, $minstring, 2, MPFR_RNDN);
+
+my $mul = Math::MPFR->new(2);
+Rmpfr_pow_si($mul, $mul, Rmpfr_get_emin_min(), MPFR_RNDN);
+
+if($mul * 0.5 == $min) {print "ok 33\n"}
+else {
+  warn "\n $mul * 0.5 != $min\n Ensuing tests may fail\n";
+  print "not ok 33\n";
+}
+
+if(is_rop_min(\&Rmpfr_mul_d, $rop, $mul, 0.5)) {print "ok 34\n"}
+else {
+  Rmpfr_mul_d($rop, $mul, 0.5, MPFR_RNDA);
+  warn "\n \$rop: $rop\n";
+  print "not ok 34\n";
+}
+
+if(is_rop_min(\&Rmpfr_mul_d, $rop, $mul, 0.25)) {print "ok 35\n"}
+else {
+  Rmpfr_mul_d($rop, $mul, 0.25, MPFR_RNDA);
+  warn "\n \$rop: $rop\n";
+  print "not ok 35\n";
+}
+
+if(is_rop_min(\&Rmpfr_mul_d, $rop, $mul, 0.0625)) {print "ok 36\n"}
+else {
+  Rmpfr_mul_d($rop, $mul, 0.0625, MPFR_RNDA);
+  warn "\n \$rop: $rop\n";
+  print "not ok 36\n";
+}
+
+if(!is_rop_min(\&Rmpfr_mul_d, $rop, $mul, 0.75)) {print "ok 37\n"}
+else {
+  Rmpfr_mul_d($rop, $mul, 0.75, MPFR_RNDA);
+  warn "\n \$rop: $rop\n";
+  print "not ok 37\n";
+}
+
+################################
+
+if(is_rop_min(\&Rmpfr_mul_d, $rop, $mul, -0.5)) {print "ok 38\n"}
+else {
+  Rmpfr_mul_d($rop, $mul, -0.5, MPFR_RNDA);
+  warn "\n \$rop: $rop\n";
+  print "not ok 38\n";
+}
+
+if(is_rop_min(\&Rmpfr_mul_d, $rop, $mul, -0.25)) {print "ok 39\n"}
+else {
+  Rmpfr_mul_d($rop, $mul, -0.25, MPFR_RNDA);
+  warn "\n \$rop: $rop\n";
+  print "not ok 39\n";
+}
+
+if(is_rop_min(\&Rmpfr_mul_d, $rop, $mul, -0.0625)) {print "ok 40\n"}
+else {
+  Rmpfr_mul_d($rop, $mul, -0.0625, MPFR_RNDA);
+  warn "\n \$rop: $rop\n";
+  print "not ok 40\n";
+}
+
+if(!is_rop_min(\&Rmpfr_mul_d, $rop, $mul, -0.75)) {print "ok 41\n"}
+else {
+  Rmpfr_mul_d($rop, $mul, -0.75, MPFR_RNDA);
+  warn "\n \$rop: $rop\n";
+  print "not ok 41\n";
+}
+
+if(!is_rop_min(\&Rmpfr_mul_d, $rop, $mul, -0.0)) {print "ok 42\n"}
+else {
+  Rmpfr_mul_d($rop, $mul, -0.0, MPFR_RNDA);
+  warn "\n \$rop: $rop\n";
+  print "not ok 42\n";
 }
