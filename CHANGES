@@ -4,6 +4,7 @@
  - Tighten the conditions under which _win32_infnanstring() is called. (Now called only if OS is
    MS Windows && $] < 5.022.)
  - Add Rmpfr_round_nearest_away()
+ - Move POD from MPFR.pm to MPFR.pod
 
 3.34
  - eval{} Rmpfr_z_sub in t/flags.t (test 23).
