@@ -7089,6 +7089,42 @@ int _SvPOK(pTHX_ SV * in) {
   return 0;
 }
 
+int _get_bit(char * s, mpfr_prec_t p) {
+
+  if(s[p] == '1') return 1;
+  return 0;
+
+}
+
+/*
+ A function to return the least
+ significant bit of the mantissa:
+*/
+
+SV * _lsb(pTHX_ mpfr_t * a) {
+
+  char * buffer;
+  mpfr_exp_t exponent;
+  mpfr_prec_t p = mpfr_get_prec(*a);
+
+  if(!mpfr_number_p(*a)) return newSVuv(0);
+
+  Newxz(buffer, p + 2, char);
+  if(buffer == NULL) croak("Failed to allocate memory in _lsb function");
+
+  mpfr_get_str(buffer, &exponent, 2, (size_t)p, *a, GMP_RNDN);
+
+  if(!mpfr_signbit(*a)) p--;
+
+  p = _get_bit(buffer, p);
+
+  Safefree(buffer);
+
+  return newSVuv((UV) p);
+}
+
+
+
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
 
@@ -11322,5 +11358,12 @@ _SvPOK (in)
 	SV *	in
 CODE:
   RETVAL = _SvPOK (aTHX_ in);
+OUTPUT:  RETVAL
+
+SV *
+_lsb (a)
+	mpfr_t *	a
+CODE:
+  RETVAL = _lsb (aTHX_ a);
 OUTPUT:  RETVAL
 
