@@ -625,32 +625,63 @@ sub bytes {
   die "2nd arg to Math::MPFR::bytes must be (case-insensitive) either 'double', 'double-double', 'long double' or '__float128'";
 }
 
+#sub Rmpfr_round_nearest_away { # superceded
+#  my $coderef = shift;
+#  my $rop = shift;
+#  my $temp = Rmpfr_init2(Rmpfr_get_prec($rop) + 1);
+#  my $ret;
+#
+# if($coderef == \&Rmpfr_prec_round) {
+#    Rmpfr_set($temp, $rop, MPFR_RNDN);
+#    $ret = Rmpfr_prec_round($temp, $_[0] + 1, MPFR_RNDN);
+#
+#    if(!$ret) {return Rmpfr_prec_round($rop, $_[0], MPFR_RNDA)}
+#    return Rmpfr_prec_round($rop, $_[0], MPFR_RNDN);
+#  }
+#  else {
+#    $ret = $coderef->($temp, @_, MPFR_RNDN);
+#  }
+#
+#  if($ret) { # not a midpoint value
+#    Rmpfr_set($rop, $temp, $ret < 0 ? MPFR_RNDA : MPFR_RNDZ);
+#    return $ret;
+#  }
+#
+#  Rmpfr_set($rop, $temp, MPFR_RNDZ);
+#  if(Rmpfr_equal_p($rop, $temp) || Rmpfr_nan_p($rop)) {return 0} # least significant bit of $temp is 0
+#
+#  return Rmpfr_set($rop, $temp, MPFR_RNDA); # least significant bit of $temp is 1
+#}
+
 sub Rmpfr_round_nearest_away {
   my $coderef = shift;
   my $rop = shift;
-  my $temp = Rmpfr_init2(Rmpfr_get_prec($rop) + 1);
+  my $big_prec = Rmpfr_get_prec($rop) + 1;
   my $ret;
 
   if($coderef == \&Rmpfr_prec_round) {
+    my $temp = Rmpfr_init2($big_prec); # need a temp object
     Rmpfr_set($temp, $rop, MPFR_RNDN);
     $ret = Rmpfr_prec_round($temp, $_[0] + 1, MPFR_RNDN);
 
     if(!$ret) {return Rmpfr_prec_round($rop, $_[0], MPFR_RNDA)}
     return Rmpfr_prec_round($rop, $_[0], MPFR_RNDN);
   }
-  else {
-    $ret = $coderef->($temp, @_, MPFR_RNDN);
-  }
+
+  Rmpfr_set_prec($rop, $big_prec);
+  $ret =  $coderef->($rop, @_, MPFR_RNDN);
 
   if($ret) { # not a midpoint value
-    Rmpfr_set($rop, $temp, $ret < 0 ? MPFR_RNDA : MPFR_RNDZ);
+    Rmpfr_prec_round($rop, $big_prec - 1, $ret < 0 ? MPFR_RNDA : MPFR_RNDZ);
     return $ret;
   }
 
-  Rmpfr_set($rop, $temp, MPFR_RNDZ);
-  if(Rmpfr_equal_p($rop, $temp) || Rmpfr_nan_p($rop)) {return 0} # least significant bit of $temp is 0
+  if(_lsb($rop) == 0) {
+    Rmpfr_prec_round($rop, $big_prec - 1, MPFR_RNDZ);
+    return 0;
+  }
 
-  return Rmpfr_set($rop, $temp, MPFR_RNDA); # least significant bit of $temp is 1
+  return Rmpfr_prec_round($rop, $big_prec - 1, MPFR_RNDA);
 }
 
 sub is_rop_min {
