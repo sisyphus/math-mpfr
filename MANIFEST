@@ -1,6 +1,7 @@
 MANIFEST
 Makefile.PL
 MPFR.pm
+MPFR.pod
 math_mpfr_include.h
 MPFR.xs
 README
@@ -55,6 +56,7 @@ t/pod.t
 t/printf.t
 t/remainder.t
 t/Rmpfr_get_q.t
+t/rndna.t
 t/set_NV.t
 t/set_str.t
 t/sign.t
