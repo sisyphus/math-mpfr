@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Math::MPFR qw(:mpfr);
 
-print "1..42\n";
+print "1..48\n";
 
 my $ok = 1;
 
@@ -838,3 +838,113 @@ else {
   warn "\n \$rop: $rop\n";
   print "not ok 42\n";
 }
+
+Rmpfr_set_default_prec(41);
+
+my $ps = Math::MPFR->new();
+my $ns = Math::MPFR->new();
+
+$ok = 1;
+
+for(1..100) {
+  my $str = int(rand(2));
+  my $str_check = $str;
+  for(1..40) {$str .= int(rand(2))}
+  my $str_keep = $str;
+  $str_check = substr($str, -1, 1) if $str_check;
+  my $mul = int(rand(2)) == 0 ? 1 : -1;
+  my $exponent = int(rand(100));
+  $exponent *= $mul;
+  $str .= '@' . $exponent;
+  Rmpfr_set_str($ps, $str, 2, MPFR_RNDN);
+  Rmpfr_neg($ns, $ps, MPFR_RNDN);
+  my $lsb = Math::MPFR::_lsb($ps);
+
+  if(Math::MPFR::_lsb($ns) != $lsb) {$ok = 2}
+
+  if(substr($str, 0, 1) eq '0' && "$lsb" ne '0') {
+    $ok = 3;
+  }
+
+  if(substr($str_keep, 0, 1) eq '1' && substr($str_keep, -1, 1) eq '1' && "$lsb" ne '1') {
+    warn "\n \$str_keep: $str_keep\n \$lsb: $lsb\n";
+    $ok = 4;
+  }
+
+  if($lsb != $str_check) {$ok = 0}
+}
+
+if($ok == 1) {print "ok 43\n"}
+else {
+  warn "\n \$ok: $ok\n";
+  print "not ok 43\n";
+}
+
+$ok = 1;
+
+Rmpfr_set_default_prec(67);
+
+my $ps2 = Math::MPFR->new();
+my $ns2 = Math::MPFR->new();
+
+for(1..100) {
+  my $str = int(rand(2));
+  my $str_check = $str;
+  for(1..66) {$str .= int(rand(2))}
+  my $str_keep = $str;
+  $str_check = substr($str, -1, 1) if $str_check;
+  my $mul = int(rand(2)) == 0 ? 1 : -1;
+  my $exponent = int(rand(1000));
+  $exponent *= $mul;
+  $str .= '@' . $exponent;
+  Rmpfr_set_str($ps2, $str, 2, MPFR_RNDN);
+  Rmpfr_neg($ns2, $ps2, MPFR_RNDN);
+  my $lsb = Math::MPFR::_lsb($ps2);
+
+  if(Math::MPFR::_lsb($ns2) != $lsb) {$ok = 2}
+
+  if(substr($str, 0, 1) eq '0' && "$lsb" ne '0') {
+    $ok = 3;
+  }
+
+  if(substr($str_keep, 0, 1) eq '1' && substr($str_keep, -1, 1) eq '1' && "$lsb" ne '1') {
+    warn "\n \$str_keep: $str_keep\n \$lsb: $lsb\n";
+    $ok = 4;
+  }
+
+  if($lsb != $str_check) {$ok = 0}
+}
+
+if($ok == 1) {print "ok 44\n"}
+else {
+  warn "\n \$ok: $ok\n";
+  print "not ok 44\n";
+}
+
+$ok = 1;
+
+if(Math::MPFR::_lsb(Math::MPFR->new()) == 0) {print "ok 45\n"}
+else {
+  warn "\n ", Math::MPFR::_lsb(Math::MPFR->new()), "\n";
+  print "not ok 45\n";
+}
+
+if(Math::MPFR::_lsb(Math::MPFR->new(1) / Math::MPFR->new(0)) == 0) {print "ok 46\n"}
+else {
+  warn "\n ", Math::MPFR::_lsb(Math::MPFR->new(1) / Math::MPFR->new(0)), "\n";
+  print "not ok 46\n";
+}
+
+if(Math::MPFR::_lsb(Math::MPFR->new(-1) / Math::MPFR->new(0)) == 0) {print "ok 47\n"}
+else {
+  warn "\n ", Math::MPFR::_lsb(Math::MPFR->new(-1) / Math::MPFR->new(0)), "\n";
+  print "not ok 47\n";
+}
+
+if(Math::MPFR::_lsb(Math::MPFR->new(0)) == 0) {print "ok 48\n"}
+else {
+  warn "\n ", Math::MPFR::_lsb(Math::MPFR->new(0)), "\n";
+  print "not ok 48\n";
+}
+
+
