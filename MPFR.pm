@@ -668,7 +668,7 @@ sub Rmpfr_round_nearest_away {
     return Rmpfr_prec_round($rop, $_[0], MPFR_RNDN);
   }
 
-  Rmpfr_set_prec($rop, $big_prec);
+  Rmpfr_prec_round($rop, $big_prec, MPFR_RNDN);
   $ret =  $coderef->($rop, @_, MPFR_RNDN);
 
   if($ret) { # not a midpoint value
