@@ -7089,9 +7089,14 @@ int _SvPOK(pTHX_ SV * in) {
   return 0;
 }
 
-int _get_bit(char * s, mpfr_prec_t p) {
+/*
+Expects to return either 0 or 1:
+*/
+
+int _get_bit(pTHX_ char * s, mpfr_prec_t p) {
 
   if(s[p] == '1') return 1;
+  if(s[p] != '0') croak ("Invalid bit value in Math::MPFR::_get_bit");
   return 0;
 
 }
@@ -7107,7 +7112,12 @@ SV * _lsb(pTHX_ mpfr_t * a) {
   mpfr_exp_t exponent;
   mpfr_prec_t p = mpfr_get_prec(*a);
 
-  if(!mpfr_number_p(*a)) return newSVuv(0);
+  if(mpfr_nan_p(*a)) {
+    mpfr_set_nanflag();
+    return newSVuv(0);
+  }
+
+  if(mpfr_inf_p(*a)) return newSVuv(0);
 
   Newxz(buffer, p + 2, char);
   if(buffer == NULL) croak("Failed to allocate memory in _lsb function");
@@ -7116,11 +7126,11 @@ SV * _lsb(pTHX_ mpfr_t * a) {
 
   if(!mpfr_signbit(*a)) p--;
 
-  p = _get_bit(buffer, p);
+  p = (mpfr_prec_t)_get_bit(aTHX_ buffer, p);
 
   Safefree(buffer);
 
-  return newSVuv((UV) p);
+  return newSVuv((UV)p);
 }
 
 
