@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Math::MPFR qw(:mpfr);
 
-print "1..61\n";
+print "1..75\n";
 
 my $ok = 1;
 my $have_gmpq = 0;
@@ -1062,7 +1062,132 @@ if($have_gmpz) {
   }
 }
 else {
- warn "\n Skipping tests 55 & 56\n as Math::GMPz failed to load\n";
+ warn "\n Skipping tests 60 & 61\n as Math::GMPz failed to load\n";
  print "ok 60\n";
  print "ok 61\n";
+}
+
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+
+Rmpfr_set_d($op, 15.25, MPFR_RNDN);
+
+$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul, $prop, $op, Math::MPFR->new(2));
+if($inex > 0 && $prop == 31) {print "ok 62\n"}
+else {
+  warn "\n \$inex: $inex\n \$prop: $prop\n";
+  print "not ok 62\n";
+}
+
+$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul, $prop, $op * -1, Math::MPFR->new(2));
+if($inex < 0 && $prop == -31) {print "ok 63\n"}
+else {
+  warn "\n \$inex: $inex\n \$prop: $prop\n";
+  print "not ok 63\n";
+}
+
+$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $prop, $op, 2.0);
+if($inex > 0 && $prop == 31) {print "ok 64\n"}
+else {
+  warn "\n \$inex: $inex\n \$prop: $prop\n";
+  print "not ok 64\n";
+}
+
+$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $prop, $op * -1, 2.0);
+if($inex < 0 && $prop == -31) {print "ok 65\n"}
+else {
+  warn "\n \$inex: $inex\n \$prop: $prop\n";
+  print "not ok 65\n";
+}
+
+if($have_gmpq) {
+
+  $inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_q, $prop, $op, Math::GMPq->new(2.0));
+  if($inex > 0 && $prop == 31) {print "ok 66\n"}
+  else {
+    warn "\n \$inex: $inex\n \$prop: $prop\n";
+    print "not ok 66\n";
+  }
+
+  $inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_q, $prop, $op * -1, Math::GMPq->new(2.0));
+  if($inex < 0 && $prop == -31) {print "ok 67\n"}
+  else {
+    warn "\n \$inex: $inex\n \$prop: $prop\n";
+    print "not ok 67\n";
+  }
+}
+else {
+ warn "\n Skipping tests 66 & 67\n as Math::GMPq failed to load\n";
+ print "ok 55\n";
+ print "ok 56\n";
+}
+
+$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_si, $prop, $op, 2);
+if($inex > 0 && $prop == 31) {print "ok 68\n"}
+else {
+  warn "\n \$inex: $inex\n \$prop: $prop\n";
+  print "not ok 68\n";
+}
+
+$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_si, $prop, $op, -2);
+if($inex < 0 && $prop == -31) {print "ok 69\n"}
+else {
+  warn "\n \$inex: $inex\n \$prop: $prop\n";
+  print "not ok 69\n";
+}
+
+$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_ui, $prop, $op, 2);
+if($inex > 0 && $prop == 31) {print "ok 70\n"}
+else {
+  warn "\n \$inex: $inex\n \$prop: $prop\n";
+  print "not ok 70\n";
+}
+
+if($have_gmpz) {
+
+  $inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_z, $prop, $op, Math::GMPz->new(2.0));
+  if($inex > 0 && $prop == 31) {print "ok 71\n"}
+  else {
+    warn "\n \$inex: $inex\n \$prop: $prop\n";
+    print "not ok 71\n";
+  }
+
+  $inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_z, $prop, $op * -1, Math::GMPz->new(2.0));
+  if($inex < 0 && $prop == -31) {print "ok 72\n"}
+  else {
+    warn "\n \$inex: $inex\n \$prop: $prop\n";
+    print "not ok 72\n";
+  }
+}
+else {
+ warn "\n Skipping tests 71 & 72\n as Math::GMPz failed to load\n";
+ print "ok 71\n";
+ print "ok 72\n";
+}
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+
+my $sqr = Rmpfr_init2(4);
+$inex = Rmpfr_set_d($sqr, 2.5, MPFR_RNDN);
+
+if(!$inex) {print "ok 73\n"}
+else {
+  warn "\n \$inex: $inex\n";
+  print "not ok 73\n";
+}
+
+$inex = Rmpfr_round_nearest_away(\&Rmpfr_sqr, $sqr, $sqr);
+
+if($inex > 0 && $sqr == 6.5) {print "ok 74\n"}
+else {
+  warn "\n \$inex: $inex\n \$sqr: $sqr\n";
+  print "not ok 74\n";
+}
+
+Rmpfr_set_d($sqr, 2.5, MPFR_RNDN);
+
+$inex = Rmpfr_sqr($sqr, $sqr, MPFR_RNDN);
+
+if($inex < 0 && $sqr == 6) {print "ok 75\n"}
+else {
+  warn "\n \$inex: $inex\n \$sqr: $sqr\n";
+  print "not ok 75\n";
 }
