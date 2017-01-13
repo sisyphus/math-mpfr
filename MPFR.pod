@@ -338,10 +338,9 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     RMPFR_PREC_MAX.
 
    $si = Rmpfr_round_nearest_away(\&function, $rop, @input_args);
-    NOTE: This function is EXPERIMENTAL.
-    It may not correctly handle values in the vicinity of
-    0.5 * (2 ** Rmpfr_get_emin()). If you are working with
-    values of that order you should first run something like:
+    This function might not correctly handle values in the
+    vicinity of 0.5 * (2 ** Rmpfr_get_emin()). If you are working
+    with values of that order you should first run something like:
 
     if(is_rop_min(\&function, $rop, @input_args) {
       die "Avoid Rmpfr_round_nearest_away for this calc";
