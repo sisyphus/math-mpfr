@@ -374,7 +374,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $bool = is_rop_min(\&function, $rop, @input_args);
     (See Rmpfr_round_nearest_away documentation above.)
     Returns 1 if \&function->($rop, @input_args, MPFR_RNDA)
-    would set $rop to 0.5 * (2 ** Rmpfr_get_emin()).
+    sets $rop to 0.5 * (2 ** Rmpfr_get_emin()).
     Else returns 0.
 
    ##############
