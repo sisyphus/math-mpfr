@@ -5,6 +5,9 @@ use Config;
 
 print "1..130\n";
 
+warn "\n # minimum allowed exponent: ", Rmpfr_get_emin_min(), "\n";
+warn   " # current minimum exponent: ", Rmpfr_get_emin(), "\n";
+
 my $ok = 1;
 my $have_gmpq = 0;
 my $have_gmpz = 0;
@@ -374,6 +377,8 @@ for my $suffix('000', '100') {
 ####################################
 ####################################
 ####################################
+
+Rmpfr_set_emin(Rmpfr_get_emin_min());
 
 $ok = 1;
 
