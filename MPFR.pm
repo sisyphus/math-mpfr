@@ -690,7 +690,7 @@ sub is_rop_min {
   my $temp = Rmpfr_init2(Rmpfr_get_prec($rop));
   $coderef -> ($temp,@_, MPFR_RNDA);
   Rmpfr_abs($temp, $temp, MPFR_RNDN);
-  if(Rmpfr_equal_p($temp, Math::MPFR->new('0.1@' . Rmpfr_get_emin_min(), 2))) {return 1}
+  if(Rmpfr_equal_p($temp, Math::MPFR->new('0.1@' . Rmpfr_get_emin(), 2))) {return 1}
   return 0;
 }
 
