@@ -168,7 +168,7 @@ mpfr_max_orig_len mpfr_min_inter_prec mpfr_min_inter_base mpfr_max_orig_base
 Rmpfr_fmodquo Rmpfr_fpif_export Rmpfr_fpif_import Rmpfr_flags_clear Rmpfr_flags_set
 Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr_roundeven
 Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc
-Rmpfr_round_nearest_away is_rop_min
+Rmpfr_round_nearest_away rndna
 );
 
     our $VERSION = '3.35';
@@ -269,7 +269,7 @@ mpfr_max_orig_len mpfr_min_inter_prec mpfr_min_inter_base mpfr_max_orig_base
 Rmpfr_fmodquo Rmpfr_fpif_export Rmpfr_fpif_import Rmpfr_flags_clear Rmpfr_flags_set
 Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr_roundeven
 Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc
-Rmpfr_round_nearest_away is_rop_min
+Rmpfr_round_nearest_away rndna
 )]);
 
 $Math::MPFR::NNW = 0; # Set to 1 to allow "non-numeric" warnings for operations involving
@@ -625,35 +625,7 @@ sub bytes {
   die "2nd arg to Math::MPFR::bytes must be (case-insensitive) either 'double', 'double-double', 'long double' or '__float128'";
 }
 
-#sub Rmpfr_round_nearest_away { # superceded
-#  my $coderef = shift;
-#  my $rop = shift;
-#  my $temp = Rmpfr_init2(Rmpfr_get_prec($rop) + 1);
-#  my $ret;
-#
-# if($coderef == \&Rmpfr_prec_round) {
-#    Rmpfr_set($temp, $rop, MPFR_RNDN);
-#    $ret = Rmpfr_prec_round($temp, $_[0] + 1, MPFR_RNDN);
-#
-#    if(!$ret) {return Rmpfr_prec_round($rop, $_[0], MPFR_RNDA)}
-#    return Rmpfr_prec_round($rop, $_[0], MPFR_RNDN);
-#  }
-#  else {
-#    $ret = $coderef->($temp, @_, MPFR_RNDN);
-#  }
-#
-#  if($ret) { # not a midpoint value
-#    Rmpfr_set($rop, $temp, $ret < 0 ? MPFR_RNDA : MPFR_RNDZ);
-#    return $ret;
-#  }
-#
-#  Rmpfr_set($rop, $temp, MPFR_RNDZ);
-#  if(Rmpfr_equal_p($rop, $temp) || Rmpfr_nan_p($rop)) {return 0} # least significant bit of $temp is 0
-#
-#  return Rmpfr_set($rop, $temp, MPFR_RNDA); # least significant bit of $temp is 1
-#}
-
-sub Rmpfr_round_nearest_away {
+sub rndna {
   my $coderef = shift;
   my $rop = shift;
   my $big_prec = Rmpfr_get_prec($rop) + 1;
@@ -684,14 +656,66 @@ sub Rmpfr_round_nearest_away {
   return Rmpfr_prec_round($rop, $big_prec - 1, MPFR_RNDA);
 }
 
-sub is_rop_min {
+sub Rmpfr_round_nearest_away {
   my $coderef = shift;
   my $rop = shift;
-  my $temp = Rmpfr_init2(Rmpfr_get_prec($rop));
-  $coderef -> ($temp,@_, MPFR_RNDA);
-  Rmpfr_abs($temp, $temp, MPFR_RNDN);
-  if(Rmpfr_equal_p($temp, Math::MPFR->new('0.1@' . Rmpfr_get_emin(), 2))) {return 1}
-  return 0;
+  my $big_prec = Rmpfr_get_prec($rop) + 1;
+  my $ret;
+
+  my $emin = Rmpfr_get_emin();
+
+  if($emin <= Rmpfr_get_emin_min()) {
+    warn "\n Rmpfr_round_nearest_away requires that emin ($emin)\n",
+         " be greater than or equal to emin_min (", Rmpfr_get_emin_min(), "\n";
+    die " You need to set emin (using Rmpfr_set_emin()) accordingly";
+  }
+
+  Rmpfr_set_emin($emin - 1);
+
+  if($coderef == \&Rmpfr_prec_round) {
+    my $temp = Rmpfr_init2($big_prec); # need a temp object
+    Rmpfr_set($temp, $rop, MPFR_RNDN);
+    $ret = Rmpfr_prec_round($temp, $_[0] + 1, MPFR_RNDN);
+
+    if(!$ret) {
+      $ret = Rmpfr_prec_round($rop, $_[0], MPFR_RNDA);
+      Rmpfr_set_emin($emin);
+      return $ret;
+    }
+    $ret = Rmpfr_prec_round($rop, $_[0], MPFR_RNDN);
+    Rmpfr_set_emin($emin);
+    return $ret;
+  }
+
+  Rmpfr_prec_round($rop, $big_prec, MPFR_RNDN);
+  $ret =  $coderef->($rop, @_, MPFR_RNDN);
+
+  if($ret) { # not a midpoint value
+    Rmpfr_prec_round($rop, $big_prec - 1, $ret < 0 ? MPFR_RNDA : MPFR_RNDZ);
+    Rmpfr_set_emin($emin);
+    return $ret;
+  }
+
+  my $nuisance = Rmpfr_init();
+  Rmpfr_set_ui ($nuisance, 2, MPFR_RNDD);
+  Rmpfr_pow_si ($nuisance, $nuisance, Rmpfr_get_emin(), MPFR_RNDD);
+  Rmpfr_div_2ui($nuisance, $nuisance, 1, MPFR_RNDD);
+
+  if(abs($rop) == $nuisance) {
+    Rmpfr_mul_ui($rop, $rop, 2, MPFR_RNDD);
+    Rmpfr_set_emin($emin);
+    return (Rmpfr_signbit($rop) ? -1 : 1);
+  }
+
+  if(_lsb($rop) == 0) {
+    Rmpfr_prec_round($rop, $big_prec - 1, MPFR_RNDZ);
+    Rmpfr_set_emin($emin);
+    return 0;
+  }
+
+  $ret = Rmpfr_prec_round($rop, $big_prec - 1, MPFR_RNDA);
+  Rmpfr_set_emin($emin);
+  return $ret;
 }
 
 *Rmpfr_get_z_exp             = \&Rmpfr_get_z_2exp;
