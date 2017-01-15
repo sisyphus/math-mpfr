@@ -338,14 +338,6 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     RMPFR_PREC_MAX.
 
    $si = Rmpfr_round_nearest_away(\&function, $rop, @input_args);
-    This function might not correctly handle values in the
-    vicinity of 0.5 * (2 ** Rmpfr_get_emin()). If you are working
-    with values of that order you should first run something like:
-
-    if(is_rop_min(\&function, $rop, @input_args) {
-      die "Avoid Rmpfr_round_nearest_away for this calc";
-    }
-
     This is a perl implementation (and not a wrapping) of
     the mpfr_round_nearest_away macro introduced in
     mpfr-4.0.0. You can use this function so long as
@@ -371,11 +363,19 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     ternary int (-ve for "less than", 0 for "exact", and +ve for
     "greater than").
 
-   $bool = is_rop_min(\&function, $rop, @input_args);
-    (See Rmpfr_round_nearest_away documentation above.)
-    Returns 1 if \&function->($rop, @input_args, MPFR_RNDA)
-    sets $rop to 0.5 * (2 ** Rmpfr_get_emin()).
-    Else returns 0.
+    Unlike the more efficient rndna(), this function requires that
+    Rmpfr_get_emin() is greater than Rmpfr_get_emin_min().
+    If you're not concerned about correct rounding (nearest away) of
+    the value +/- 0.25 * (2 ** Rmpfr_get_emin()) then you can instead
+    use the rndna function (immediately below).
+
+
+   $si = rndna(\&function, $rop, @input_args);
+    A more efficient version of the (above) Rmpfr_round_nearest_away
+    function. However, it will not correctly deal with the value
+    +/- 0.25 * (2 ** Rmpfr_get_emin()).
+    Unlike Rmpfr_round_nearest_away(), this function allows that
+    Rmpfr_get_emin() == Rmpfr_get_emin_min().
 
    ##############
 
