@@ -5,8 +5,8 @@ use Config;
 
 print "1..130\n";
 
-warn "\n # minimum allowed exponent: ", Rmpfr_get_emin_min(), "\n";
-warn   " # current minimum exponent: ", Rmpfr_get_emin(), "\n";
+warn "\n # Minimum allowed exponent: ", Rmpfr_get_emin_min(), "\n";
+warn   " # Current minimum exponent: ", Rmpfr_get_emin(), "\n";
 
 my $ok = 1;
 my $have_gmpq = 0;
@@ -378,7 +378,7 @@ for my $suffix('000', '100') {
 ####################################
 ####################################
 
-Rmpfr_set_emin(Rmpfr_get_emin_min());
+#Rmpfr_set_emin(Rmpfr_get_emin_min());
 
 $ok = 1;
 
@@ -776,11 +776,11 @@ else {
 
 my $rop = Rmpfr_init();
 my $min = Rmpfr_init();
-my $minstring = '0.1@' . Rmpfr_get_emin_min();
+my $minstring = '0.1@' . Rmpfr_get_emin();
 Rmpfr_set_str($min, $minstring, 2, MPFR_RNDN);
 
 my $mul = Math::MPFR->new(2);
-Rmpfr_pow_si($mul, $mul, Rmpfr_get_emin_min(), MPFR_RNDN);
+Rmpfr_pow_si($mul, $mul, Rmpfr_get_emin(), MPFR_RNDN);
 
 if($mul * 0.5 == $min) {print "ok 33\n"}
 else {
@@ -788,68 +788,90 @@ else {
   print "not ok 33\n";
 }
 
-if(is_rop_min(\&Rmpfr_mul_d, $rop, $mul, 0.5)) {print "ok 34\n"}
+if(Rmpfr_get_emin() == Rmpfr_get_emin_min()) {
+  eval {$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, 0.25);};
+
+  if($@ =~ /Rmpfr_round_nearest_away requires that/) {print "ok 34\n"}
+  else {
+    warn "\n\$\@: $@\n";
+    print "not ok 34\n";
+  }
+}
 else {
-  Rmpfr_mul_d($rop, $mul, 0.5, MPFR_RNDA);
-  warn "\n \$rop: $rop\n";
-  print "not ok 34\n";
+  warn "\n Skipping test 34 - Rmpfr_get_emin() != Rmpfr_get_emin_min()\n";
+  print "ok 34\n";
 }
 
-if(is_rop_min(\&Rmpfr_mul_d, $rop, $mul, 0.25)) {print "ok 35\n"}
+my $inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, 0.25);
+
+if($inex == 1 && $rop == 0.5 * (Math::MPFR->new(2) ** Rmpfr_get_emin())) {print "ok 35\n"}
 else {
-  Rmpfr_mul_d($rop, $mul, 0.25, MPFR_RNDA);
-  warn "\n \$rop: $rop\n";
+  warn "\n \$inex: $inex\n \$rop: $rop\n";
   print "not ok 35\n";
 }
 
-if(is_rop_min(\&Rmpfr_mul_d, $rop, $mul, 0.0625)) {print "ok 36\n"}
+$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, 0.0625);
+
+if($inex == -1 && $rop == 0) {print "ok 36\n"}
+
 else {
-  Rmpfr_mul_d($rop, $mul, 0.0625, MPFR_RNDA);
-  warn "\n \$rop: $rop\n";
+  warn "\n \$inex: $inex\n \$rop: $rop\n";
   print "not ok 36\n";
 }
 
-if(!is_rop_min(\&Rmpfr_mul_d, $rop, $mul, 0.75)) {print "ok 37\n"}
+$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, 0.75);
+
+if($inex == 0 && $rop > $min) {print "ok 37\n"}
 else {
-  Rmpfr_mul_d($rop, $mul, 0.75, MPFR_RNDA);
-  warn "\n \$rop: $rop\n";
+#  Rmpfr_mul_d($rop, $mul, 0.75, MPFR_RNDA);
+  warn "\n \$inex: $inex\n \$rop: $rop\n";
   print "not ok 37\n";
 }
 
 ################################
 
-if(is_rop_min(\&Rmpfr_mul_d, $rop, $mul, -0.5)) {print "ok 38\n"}
+$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, -0.5);
+
+if($inex == 0 && abs($rop) == $min) {print "ok 38\n"}
 else {
-  Rmpfr_mul_d($rop, $mul, -0.5, MPFR_RNDA);
-  warn "\n \$rop: $rop\n";
+#  Rmpfr_mul_d($rop, $mul, -0.5, MPFR_RNDA);
+  warn "\n\$inex: $inex\n \$rop: $rop\n";
   print "not ok 38\n";
 }
 
-if(is_rop_min(\&Rmpfr_mul_d, $rop, $mul, -0.25)) {print "ok 39\n"}
+$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, -0.25);
+
+if($inex == -1 && abs($rop) == $min) {print "ok 39\n"}
 else {
-  Rmpfr_mul_d($rop, $mul, -0.25, MPFR_RNDA);
-  warn "\n \$rop: $rop\n";
+#  Rmpfr_mul_d($rop, $mul, -0.25, MPFR_RNDA);
+  warn "\n\$inex: $inex\n \$rop: $rop\n";
   print "not ok 39\n";
 }
 
-if(is_rop_min(\&Rmpfr_mul_d, $rop, $mul, -0.0625)) {print "ok 40\n"}
+$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, -0.0625);
+
+if($inex == 1 && $rop ==0) {print "ok 40\n"}
 else {
-  Rmpfr_mul_d($rop, $mul, -0.0625, MPFR_RNDA);
-  warn "\n \$rop: $rop\n";
+#  Rmpfr_mul_d($rop, $mul, -0.0625, MPFR_RNDA);
+  warn "\n\$inex: $inex\n \$rop: $rop\n";
   print "not ok 40\n";
 }
 
-if(!is_rop_min(\&Rmpfr_mul_d, $rop, $mul, -0.75)) {print "ok 41\n"}
+$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, -0.75);
+
+if($inex == 0 && $rop < $min * -1) {print "ok 41\n"}
 else {
-  Rmpfr_mul_d($rop, $mul, -0.75, MPFR_RNDA);
-  warn "\n \$rop: $rop\n";
+#  Rmpfr_mul_d($rop, $mul, -0.75, MPFR_RNDA);
+  warn "\n\$inex: $inex\n \$rop: $rop\n";
   print "not ok 41\n";
 }
 
-if(!is_rop_min(\&Rmpfr_mul_d, $rop, $mul, -0.0)) {print "ok 42\n"}
+$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, -0.0);
+
+if($inex == 0 && $rop == 0 && Rmpfr_signbit($rop)) {print "ok 42\n"}
 else {
-  Rmpfr_mul_d($rop, $mul, -0.0, MPFR_RNDA);
-  warn "\n \$rop: $rop\n";
+#  Rmpfr_mul_d($rop, $mul, -0.0, MPFR_RNDA);
+  warn "\n\$inex: $inex\n \$rop: $rop\n sign: ", Rmpfr_sgn($rop), "\n";
   print "not ok 42\n";
 }
 
@@ -964,7 +986,7 @@ else {
 my $prop = Rmpfr_init2(5);
 my $op = Math::MPFR->new(30.5);
 
-my $inex = Rmpfr_round_nearest_away(\&Rmpfr_abs, $prop, $op);
+$inex = Rmpfr_round_nearest_away(\&Rmpfr_abs, $prop, $op);
 if($inex > 0 && $prop == 31) {print "ok 49\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
