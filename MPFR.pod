@@ -153,7 +153,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     inexact return value.
 
    See also the Rmpfr_round_nearest_away() function in the
-   ROUNDING MODE FUNCTIONS section for the experimental
+   ROUNDING MODE FUNCTIONS section for the mode
    "round to nearest, ties away from zero".
 
 =head1 MEMORY MANAGEMENT
