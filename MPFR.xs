@@ -1014,11 +1014,15 @@ SV * Rmpfr_get_ld_2exp(pTHX_ SV * exp, mpfr_t * p, SV * round){
 #if defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
 #if defined(NV_IS_FLOAT128)
   /*
-     Casting long double Inf to float128 might result in NaN - affects linux, too.
+     Casting long double Inf to float128 might result in NaN.
+     This is GCC bug 77265, which was fixed for GCC 7:
+     https://gcc.gnu.org/bugzilla/show_bug.cgi?id=77265
+     The fix might yet be backported to GCC 6. (Not sure.)
+     It was earlier reported (also by me) to MinGW:
      https://sourceforge.net/p/mingw-w64/bugs/479/
-     So we therefore take the cautious approach and simply avoid
-     making that cast. In this instance we do this by casting the
-     double Inf to a float128.
+     Let us take the cautious approach and simply avoid
+     making that cast. Instead, we will cast the double Inf
+     to a float128.
   */
      if(mpfr_inf_p(*p))
        return newSVnv(mpfr_get_d(*p, (mp_rnd_t)SvUV(round)));
@@ -1043,11 +1047,15 @@ SV * Rmpfr_get_ld(pTHX_ mpfr_t * p, SV * round){
 #if defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
 #if defined(NV_IS_FLOAT128)
   /*
-     Casting long double Inf to float128 results in NaN with some versions of gcc.
+     Casting long double Inf to float128 might result in NaN.
+     This is GCC bug 77265, which was fixed for GCC 7:
+     https://gcc.gnu.org/bugzilla/show_bug.cgi?id=77265
+     The fix might yet be backported to GCC 6. (Not sure.)
+     It was earlier reported (also by me) to MinGW:
      https://sourceforge.net/p/mingw-w64/bugs/479/
-     So we therefore take the cautious approach and simply avoid
-     making that cast. In this instance we do this by casting the
-     double Inf to a float128.
+     Let us take the cautious approach and simply avoid
+     making that cast. Instead, we will cast the double Inf
+     to a float128.
   */
      if(mpfr_inf_p(*p))
        return newSVnv(mpfr_get_d(*p, (mp_rnd_t)SvUV(round)));
