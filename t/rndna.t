@@ -34,7 +34,7 @@ for(1..10) {
 
   if($inex) {die "Rmpfr_set_str falsely returned $inex"}
 
-  my $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+  my $ret = rndna($coderef, $shortrop, $longrop);
 
   # $shortrop should always be rounded up, $longrop is exact.
 
@@ -43,7 +43,7 @@ for(1..10) {
    warn "\n gt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
   }
 
-  $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $str, 2);
+  $ret = rndna(\&Rmpfr_strtofr, $check, $str, 2);
   unless($shortrop == $check && $ret > 0) {
    $ok = 0;
    warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n";
@@ -51,7 +51,7 @@ for(1..10) {
 
   $longrop *= -1;
 
-  $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+  $ret = rndna($coderef, $shortrop, $longrop);
 
   # $shortrop should always be rounded down, $longrop is exact.
 
@@ -60,7 +60,7 @@ for(1..10) {
    warn "\n lt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
   }
 
-  $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $nstr, 2);
+  $ret = rndna(\&Rmpfr_strtofr, $check, $nstr, 2);
   unless($shortrop == $check && $ret < 0) {
    $ok = 0;
    warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n \$ret: $ret\n";
@@ -87,7 +87,7 @@ for(1..10) {
 
   if($inex) {die "Rmpfr_set_str falsely returned $inex"}
 
-  my $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+  my $ret = rndna($coderef, $shortrop, $longrop);
 
   # $shortrop should always be rounded up, $longrop is exact.
 
@@ -96,7 +96,7 @@ for(1..10) {
     warn "\n gt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
   }
 
-  $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $str, 2);
+  $ret = rndna(\&Rmpfr_strtofr, $check, $str, 2);
   unless($shortrop == $check && $ret > 0) {
     $ok = 0;
     warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n \$ret: $ret\n";
@@ -104,7 +104,7 @@ for(1..10) {
 
   $longrop *= -1;
 
-  $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+  $ret = rndna($coderef, $shortrop, $longrop);
 
   # $shortrop should always be rounded down, $longrop is exact.
 
@@ -113,7 +113,7 @@ for(1..10) {
    warn "\n lt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
   }
 
-  $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $nstr, 2);
+  $ret = rndna(\&Rmpfr_strtofr, $check, $nstr, 2);
   unless($shortrop == $check && $ret < 0) {
     $ok = 0;
     warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n \$ret: $ret\n";
@@ -141,7 +141,7 @@ for(1..10) {
 
   if($inex) {die "Rmpfr_set_str falsely returned $inex"}
 
-  my $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+  my $ret = rndna($coderef, $shortrop, $longrop);
 
   # $shortrop should always be rounded down, $longrop is exact.
 
@@ -150,7 +150,7 @@ for(1..10) {
    warn "\n gt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
   }
 
-  $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $str, 2);
+  $ret = rndna(\&Rmpfr_strtofr, $check, $str, 2);
   unless($shortrop == $check && $ret < 0) {
    $ok = 0;
    warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n \$ret: $ret\n";
@@ -158,7 +158,7 @@ for(1..10) {
 
   $longrop *= -1;
 
-  $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+  $ret = rndna($coderef, $shortrop, $longrop);
 
   # $shortrop should always be rounded up, $longrop is exact.
 
@@ -167,7 +167,7 @@ for(1..10) {
    warn "\n lt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
   }
 
-  $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $nstr, 2);
+  $ret = rndna(\&Rmpfr_strtofr, $check, $nstr, 2);
   unless($shortrop == $check && $ret > 0) {
    $ok = 0;
    warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n \$ret: $ret\n";
@@ -199,7 +199,7 @@ for my $suffix('010', '011', '110', '111') {
 
     if($inex) {die "Rmpfr_set_str falsely returned $inex"}
 
-    my $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+    my $ret = rndna($coderef, $shortrop, $longrop);
 
     # $shortrop should always be rounded up, $longrop is exact.
 
@@ -208,7 +208,7 @@ for my $suffix('010', '011', '110', '111') {
      warn "\n gt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
     }
 
-    $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $str, 2);
+    $ret = rndna(\&Rmpfr_strtofr, $check, $str, 2);
     unless($shortrop == $check && $ret > 0) {
      $ok = 0;
      warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n \$ret: $ret\n";
@@ -216,7 +216,7 @@ for my $suffix('010', '011', '110', '111') {
 
     $longrop *= -1;
 
-    $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+    $ret = rndna($coderef, $shortrop, $longrop);
 
     # $shortrop should always be rounded down, $longrop is exact.
 
@@ -225,7 +225,7 @@ for my $suffix('010', '011', '110', '111') {
       warn "\n lt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
     }
 
-    $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $nstr, 2);
+    $ret = rndna(\&Rmpfr_strtofr, $check, $nstr, 2);
     unless($shortrop == $check && $ret < 0) {
       $ok = 0;
       warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n \$ret: $ret\n";
@@ -266,7 +266,7 @@ for my $suffix('001', '101') {
 
     if($inex) {die "Rmpfr_set_str falsely returned $inex"}
 
-    my $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+    my $ret = rndna($coderef, $shortrop, $longrop);
 
     # $shortrop should always be rounded down, $longrop is exact.
 
@@ -275,7 +275,7 @@ for my $suffix('001', '101') {
       warn "\n gt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
     }
 
-    $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $str, 2);
+    $ret = rndna(\&Rmpfr_strtofr, $check, $str, 2);
     unless($shortrop == $check && $ret < 0) {
       $ok = 0;
       warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n \$ret: $ret\n";
@@ -283,7 +283,7 @@ for my $suffix('001', '101') {
 
     $longrop *= -1;
 
-    $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+    $ret = rndna($coderef, $shortrop, $longrop);
 
     # $shortrop should always be rounded up, $longrop is exact.
 
@@ -292,7 +292,7 @@ for my $suffix('001', '101') {
       warn "\n lt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
     }
 
-    $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $nstr, 2);
+    $ret = rndna(\&Rmpfr_strtofr, $check, $nstr, 2);
     unless($shortrop == $check && $ret > 0) {
       $ok = 0;
       warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n \$ret: $ret\n";
@@ -330,7 +330,7 @@ for my $suffix('000', '100') {
 
     if($inex) {die "Rmpfr_set_str falsely returned $inex"}
 
-    my $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+    my $ret = rndna($coderef, $shortrop, $longrop);
 
     # No rounding, result is exact.
 
@@ -339,7 +339,7 @@ for my $suffix('000', '100') {
       warn "\n gt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
     }
 
-    $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $str, 2);
+    $ret = rndna(\&Rmpfr_strtofr, $check, $str, 2);
     unless($shortrop == $check && $ret == 0) {
       $ok = 0;
       warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n \$ret: $ret\n";
@@ -347,7 +347,7 @@ for my $suffix('000', '100') {
 
     $longrop *= -1;
 
-    $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+    $ret = rndna($coderef, $shortrop, $longrop);
 
     # No rounding, result is exact
 
@@ -356,7 +356,7 @@ for my $suffix('000', '100') {
       warn "\n lt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
     }
 
-    $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $nstr, 2);
+    $ret = rndna(\&Rmpfr_strtofr, $check, $nstr, 2);
     unless($shortrop == $check && $ret == 0) {
       $ok = 0;
       warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n \$ret: $ret\n";
@@ -398,7 +398,7 @@ for(1..10) {
 
   if($inex) {die "Rmpfr_set_str falsely returned $inex"}
 
-  my $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+  my $ret = rndna($coderef, $shortrop, $longrop);
 
   # $shortrop should always be rounded up, $longrop is exact.
 
@@ -407,7 +407,7 @@ for(1..10) {
    warn "\n gt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
   }
 
-  $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $str, 2);
+  $ret = rndna(\&Rmpfr_strtofr, $check, $str, 2);
   unless($shortrop == $check && $ret > 0) {
    $ok = 0;
    warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n \$ret: $ret\n";
@@ -415,7 +415,7 @@ for(1..10) {
 
   $longrop *= -1;
 
-  $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+  $ret = rndna($coderef, $shortrop, $longrop);
 
   # $shortrop should always be rounded down, $longrop is exact.
 
@@ -424,7 +424,7 @@ for(1..10) {
    warn "\n lt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
   }
 
-  Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $nstr, 2);
+  rndna(\&Rmpfr_strtofr, $check, $nstr, 2);
   unless($shortrop == $check && $ret < 0) {
    $ok = 0;
    warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n \$ret: $ret\n";
@@ -451,7 +451,7 @@ for(1..10) {
 
   if($inex) {die "Rmpfr_set_str falsely returned $inex"}
 
-  my $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+  my $ret = rndna($coderef, $shortrop, $longrop);
 
   # $shortrop should always be rounded up, $longrop is exact.
 
@@ -460,7 +460,7 @@ for(1..10) {
    warn "\n gt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
   }
 
-  $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $str, 2);
+  $ret = rndna(\&Rmpfr_strtofr, $check, $str, 2);
   unless($shortrop == $check && $ret > 0) {
    $ok = 0;
    warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n \$ret: $ret\n";
@@ -468,7 +468,7 @@ for(1..10) {
 
   $longrop *= -1;
 
-  $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+  $ret = rndna($coderef, $shortrop, $longrop);
 
   # $shortrop should always be rounded down, $longrop is exact.
 
@@ -477,7 +477,7 @@ for(1..10) {
    warn "\n lt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
   }
 
-  $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $nstr, 2);
+  $ret = rndna(\&Rmpfr_strtofr, $check, $nstr, 2);
   unless($shortrop == $check && $ret < 0) {
    $ok = 0;
    warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n \$ret: $ret";
@@ -505,7 +505,7 @@ for(1..10) {
 
   if($inex) {die "Rmpfr_set_str falsely returned $inex"}
 
-  my $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+  my $ret = rndna($coderef, $shortrop, $longrop);
 
   # $shortrop should always be rounded down, $longrop is exact.
 
@@ -514,7 +514,7 @@ for(1..10) {
    warn "\n gt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
   }
 
-  $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $str, 2);
+  $ret = rndna(\&Rmpfr_strtofr, $check, $str, 2);
   unless($shortrop == $check && $ret < 0) {
    $ok = 0;
    warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n \$ret: $ret\n";
@@ -522,7 +522,7 @@ for(1..10) {
 
   $longrop *= -1;
 
-  $ret = Rmpfr_round_nearest_away($coderef, $shortrop, $longrop);
+  $ret = rndna($coderef, $shortrop, $longrop);
 
   # $shortrop should always be rounded up, $longrop is exact.
 
@@ -531,7 +531,7 @@ for(1..10) {
    warn "\n lt: \$shortrop: $shortrop\n \$longrop: $longrop\n \$ret: $ret\n";
   }
 
-  $ret = Rmpfr_round_nearest_away(\&Rmpfr_strtofr, $check, $nstr, 2);
+  $ret = rndna(\&Rmpfr_strtofr, $check, $nstr, 2);
   unless($shortrop == $check && $ret > 0) {
    $ok = 0;
    warn "\n gt: \$shortrop: $shortrop\n \$check: $check\n \$ret: $ret\n";
@@ -550,7 +550,7 @@ my $coderef = \&Rmpfr_set;
 ################
 
 Rmpfr_set_inf($longrop, 1);
-my $ret = Rmpfr_round_nearest_away($coderef,$shortrop, $longrop);
+my $ret = rndna($coderef,$shortrop, $longrop);
 
 if($shortrop == $longrop && $ret == 0) {
   print "ok 15\n";
@@ -564,7 +564,7 @@ else {
 ################
 
 Rmpfr_set_inf($longrop, -1);
-$ret = Rmpfr_round_nearest_away($coderef,$shortrop, $longrop);
+$ret = rndna($coderef,$shortrop, $longrop);
 
 if($shortrop == $longrop && $ret == 0) {
   print "ok 16\n";
@@ -578,7 +578,7 @@ else {
 ################
 
 Rmpfr_set_zero($longrop, 1);
-$ret = Rmpfr_round_nearest_away($coderef,$shortrop, $longrop);
+$ret = rndna($coderef,$shortrop, $longrop);
 
 if($shortrop == $longrop && $ret == 0) {
   print "ok 17\n";
@@ -592,7 +592,7 @@ else {
 ################
 
 Rmpfr_set_zero($longrop, -1);
-$ret = Rmpfr_round_nearest_away($coderef,$shortrop, $longrop);
+$ret = rndna($coderef,$shortrop, $longrop);
 
 if($shortrop == $longrop && $ret == 0) {
   print "ok 18\n";
@@ -606,7 +606,7 @@ else {
 ################
 
 Rmpfr_set_nan($longrop);
-$ret = Rmpfr_round_nearest_away($coderef,$shortrop, $longrop);
+$ret = rndna($coderef,$shortrop, $longrop);
 
 if(Rmpfr_nan_p($shortrop) && Rmpfr_nan_p($longrop) && $ret == 0) {
   print "ok 19\n";
@@ -619,7 +619,7 @@ else {
 my $small_1 = Math::MPFR->new(7.5);
 my $small_2 = Math::MPFR->new(6.5);
 
-$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $small_1, 3);
+$ret = rndna(\&Rmpfr_prec_round, $small_1, 3);
 
 if($ret > 0 && $small_1 == 8) {print "ok 20\n"}
 else {
@@ -627,7 +627,7 @@ else {
   print "not ok 20\n";
 }
 
-$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $small_2, 3);
+$ret = rndna(\&Rmpfr_prec_round, $small_2, 3);
 
 if($ret > 0 && $small_2 == 7) {print "ok 21\n"}
 else {
@@ -644,7 +644,7 @@ Rmpfr_set_prec($small_2, 53);
 Rmpfr_set_d($small_1, 7.4, MPFR_RNDN);
 Rmpfr_set_d($small_2, 6.6, MPFR_RNDN);
 
-$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $small_1, 3);
+$ret = rndna(\&Rmpfr_prec_round, $small_1, 3);
 
 if($ret < 0 && $small_1 == 7) {print "ok 22\n"}
 else {
@@ -652,7 +652,7 @@ else {
   print "not ok 22\n";
 }
 
-$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $small_2, 3);
+$ret = rndna(\&Rmpfr_prec_round, $small_2, 3);
 
 if($ret > 0 && $small_2 == 7) {print "ok 23\n"}
 else {
@@ -669,7 +669,7 @@ Rmpfr_set_prec($small_2, 53);
 Rmpfr_set_d($small_1, 7.5, MPFR_RNDN);
 Rmpfr_set_d($small_2, 6.5, MPFR_RNDN);
 
-$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $small_1, 4);
+$ret = rndna(\&Rmpfr_prec_round, $small_1, 4);
 
 if($ret == 0 && $small_1 == 7.5) {print "ok 24\n"}
 else {
@@ -677,7 +677,7 @@ else {
   print "not ok 24\n";
 }
 
-$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $small_2, 4);
+$ret = rndna(\&Rmpfr_prec_round, $small_2, 4);
 
 if($ret == 0 && $small_2 == 6.5) {print "ok 25\n"}
 else {
@@ -694,7 +694,7 @@ Rmpfr_set_prec($small_2, 53);
 Rmpfr_set_d($small_1, 7.25, MPFR_RNDN);
 Rmpfr_set_d($small_2, 6.25, MPFR_RNDN);
 
-$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $small_1, 3);
+$ret = rndna(\&Rmpfr_prec_round, $small_1, 3);
 
 if($ret < 0 && $small_1 == 7) {print "ok 26\n"}
 else {
@@ -702,7 +702,7 @@ else {
   print "not ok 26\n";
 }
 
-$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $small_2, 3);
+$ret = rndna(\&Rmpfr_prec_round, $small_2, 3);
 
 if($ret < 0 && $small_2 == 6) {print "ok 27\n"}
 else {
@@ -719,7 +719,7 @@ Rmpfr_set_prec($small_2, 53);
 Rmpfr_set_d($small_1, 7.0, MPFR_RNDN);
 Rmpfr_set_d($small_2, 6.0, MPFR_RNDN);
 
-$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $small_1, 3);
+$ret = rndna(\&Rmpfr_prec_round, $small_1, 3);
 
 if($ret == 0 && $small_1 == 7) {print "ok 28\n"}
 else {
@@ -727,7 +727,7 @@ else {
   print "not ok 28\n";
 }
 
-$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $small_2, 3);
+$ret = rndna(\&Rmpfr_prec_round, $small_2, 3);
 
 if($ret == 0 && $small_2 == 6) {print "ok 29\n"}
 else {
@@ -743,7 +743,7 @@ my $ninf = Math::MPFR->new(-1) / Math::MPFR->new(0);
 
 ####################################
 
-$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $nan, 2);
+$ret = rndna(\&Rmpfr_prec_round, $nan, 2);
 
 if(Rmpfr_get_prec($nan) == 2 && Rmpfr_nan_p($nan) && $ret == 0) {print "ok 30\n"}
 else {
@@ -753,7 +753,7 @@ else {
 
 ####################################
 
-$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $inf, 2);
+$ret = rndna(\&Rmpfr_prec_round, $inf, 2);
 
 if(Rmpfr_get_prec($inf) == 2 && Rmpfr_inf_p($inf) && $ret == 0 && $inf > 0) {print "ok 31\n"}
 else {
@@ -763,7 +763,7 @@ else {
 
 ####################################
 
-$ret = Rmpfr_round_nearest_away(\&Rmpfr_prec_round, $ninf, 2);
+$ret = rndna(\&Rmpfr_prec_round, $ninf, 2);
 
 if(Rmpfr_get_prec($ninf) == 2 && Rmpfr_inf_p($ninf) && $ret == 0 && $ninf < 0) {print "ok 32\n"}
 else {
@@ -789,9 +789,9 @@ else {
 }
 
 if(Rmpfr_get_emin() == Rmpfr_get_emin_min()) {
-  eval {$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, 0.25);};
+  eval {my $inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, 0.25);};
 
-  if($@ =~ /Rmpfr_round_nearest_away requires that/) {print "ok 34\n"}
+  if($@ =~ /You need to set emin \(using Rmpfr_set_emin/) {print "ok 34\n"}
   else {
     warn "\n\$\@: $@\n";
     print "not ok 34\n";
@@ -802,15 +802,17 @@ else {
   print "ok 34\n";
 }
 
-my $inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, 0.25);
+my $inex = rndna(\&Rmpfr_mul_d, $rop, $mul, 0.25);
 
-if($inex == 1 && $rop == 0.5 * (Math::MPFR->new(2) ** Rmpfr_get_emin())) {print "ok 35\n"}
+# Expect that rndna() gets it wrong (and check that's what happens):
+
+if($inex == -1 && $rop == 0 && !Rmpfr_signbit($rop)) {print "ok 35\n"}
 else {
   warn "\n \$inex: $inex\n \$rop: $rop\n";
   print "not ok 35\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, 0.0625);
+$inex = rndna(\&Rmpfr_mul_d, $rop, $mul, 0.0625);
 
 if($inex == -1 && $rop == 0) {print "ok 36\n"}
 
@@ -819,7 +821,7 @@ else {
   print "not ok 36\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, 0.75);
+$inex = rndna(\&Rmpfr_mul_d, $rop, $mul, 0.75);
 
 if($inex == 0 && $rop > $min) {print "ok 37\n"}
 else {
@@ -830,7 +832,7 @@ else {
 
 ################################
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, -0.5);
+$inex = rndna(\&Rmpfr_mul_d, $rop, $mul, -0.5);
 
 if($inex == 0 && abs($rop) == $min) {print "ok 38\n"}
 else {
@@ -839,16 +841,18 @@ else {
   print "not ok 38\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, -0.25);
+$inex = rndna(\&Rmpfr_mul_d, $rop, $mul, -0.25);
 
-if($inex == -1 && abs($rop) == $min) {print "ok 39\n"}
+# Expect that rndna() gets it wrong (and check that's what happens):
+
+if($inex == 1 && $rop == 0 && Rmpfr_signbit($rop)) {print "ok 39\n"}
 else {
 #  Rmpfr_mul_d($rop, $mul, -0.25, MPFR_RNDA);
   warn "\n\$inex: $inex\n \$rop: $rop\n";
   print "not ok 39\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, -0.0625);
+$inex = rndna(\&Rmpfr_mul_d, $rop, $mul, -0.0625);
 
 if($inex == 1 && $rop ==0) {print "ok 40\n"}
 else {
@@ -857,7 +861,7 @@ else {
   print "not ok 40\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, -0.75);
+$inex = rndna(\&Rmpfr_mul_d, $rop, $mul, -0.75);
 
 if($inex == 0 && $rop < $min * -1) {print "ok 41\n"}
 else {
@@ -866,7 +870,7 @@ else {
   print "not ok 41\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $rop, $mul, -0.0);
+$inex = rndna(\&Rmpfr_mul_d, $rop, $mul, -0.0);
 
 if($inex == 0 && $rop == 0 && Rmpfr_signbit($rop)) {print "ok 42\n"}
 else {
@@ -986,14 +990,14 @@ else {
 my $prop = Rmpfr_init2(5);
 my $op = Math::MPFR->new(30.5);
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_abs, $prop, $op);
+$inex = rndna(\&Rmpfr_abs, $prop, $op);
 if($inex > 0 && $prop == 31) {print "ok 49\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 49\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_abs, $prop, $op * -1);
+$inex = rndna(\&Rmpfr_abs, $prop, $op * -1);
 if($inex > 0 && $prop == 31) {print "ok 50\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1002,28 +1006,28 @@ else {
 
 Rmpfr_set_d($op, 29.5, MPFR_RNDN);
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_add, $prop, $op, Math::MPFR->new(1));
+$inex = rndna(\&Rmpfr_add, $prop, $op, Math::MPFR->new(1));
 if($inex > 0 && $prop == 31) {print "ok 51\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 51\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_add, $prop, $op * -1, Math::MPFR->new(-1));
+$inex = rndna(\&Rmpfr_add, $prop, $op * -1, Math::MPFR->new(-1));
 if($inex < 0 && $prop == -31) {print "ok 52\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 52\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_add_d, $prop, $op, 1.0);
+$inex = rndna(\&Rmpfr_add_d, $prop, $op, 1.0);
 if($inex > 0 && $prop == 31) {print "ok 53\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 53\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_add_d, $prop, $op * -1, -1.0);
+$inex = rndna(\&Rmpfr_add_d, $prop, $op * -1, -1.0);
 if($inex < 0 && $prop == -31) {print "ok 54\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1032,14 +1036,14 @@ else {
 
 if($have_gmpq) {
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_add_q, $prop, $op, Math::GMPq->new(1.0));
+  $inex = rndna(\&Rmpfr_add_q, $prop, $op, Math::GMPq->new(1.0));
   if($inex > 0 && $prop == 31) {print "ok 55\n"}
   else {
     warn "\n \$inex: $inex\n \$prop: $prop\n";
     print "not ok 55\n";
   }
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_add_q, $prop, $op * -1, Math::GMPq->new(-1.0));
+  $inex = rndna(\&Rmpfr_add_q, $prop, $op * -1, Math::GMPq->new(-1.0));
   if($inex < 0 && $prop == -31) {print "ok 56\n"}
   else {
     warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1052,21 +1056,21 @@ else {
  print "ok 56\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_add_si, $prop, $op, 1);
+$inex = rndna(\&Rmpfr_add_si, $prop, $op, 1);
 if($inex > 0 && $prop == 31) {print "ok 57\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 57\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_add_si, $prop, $op * -1, -1);
+$inex = rndna(\&Rmpfr_add_si, $prop, $op * -1, -1);
 if($inex < 0 && $prop == -31) {print "ok 58\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 58\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_add_ui, $prop, $op, 1);
+$inex = rndna(\&Rmpfr_add_ui, $prop, $op, 1);
 if($inex > 0 && $prop == 31) {print "ok 59\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1075,14 +1079,14 @@ else {
 
 if($have_gmpz) {
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_add_z, $prop, $op, Math::GMPz->new(1.0));
+  $inex = rndna(\&Rmpfr_add_z, $prop, $op, Math::GMPz->new(1.0));
   if($inex > 0 && $prop == 31) {print "ok 60\n"}
   else {
     warn "\n \$inex: $inex\n \$prop: $prop\n";
     print "not ok 60\n";
   }
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_add_z, $prop, $op * -1, Math::GMPz->new(-1.0));
+  $inex = rndna(\&Rmpfr_add_z, $prop, $op * -1, Math::GMPz->new(-1.0));
   if($inex < 0 && $prop == -31) {print "ok 61\n"}
   else {
     warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1099,28 +1103,28 @@ else {
 
 Rmpfr_set_d($op, 15.25, MPFR_RNDN);
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul, $prop, $op, Math::MPFR->new(2));
+$inex = rndna(\&Rmpfr_mul, $prop, $op, Math::MPFR->new(2));
 if($inex > 0 && $prop == 31) {print "ok 62\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 62\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul, $prop, $op * -1, Math::MPFR->new(2));
+$inex = rndna(\&Rmpfr_mul, $prop, $op * -1, Math::MPFR->new(2));
 if($inex < 0 && $prop == -31) {print "ok 63\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 63\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $prop, $op, 2.0);
+$inex = rndna(\&Rmpfr_mul_d, $prop, $op, 2.0);
 if($inex > 0 && $prop == 31) {print "ok 64\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 64\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_d, $prop, $op * -1, 2.0);
+$inex = rndna(\&Rmpfr_mul_d, $prop, $op * -1, 2.0);
 if($inex < 0 && $prop == -31) {print "ok 65\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1129,14 +1133,14 @@ else {
 
 if($have_gmpq) {
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_q, $prop, $op, Math::GMPq->new(2.0));
+  $inex = rndna(\&Rmpfr_mul_q, $prop, $op, Math::GMPq->new(2.0));
   if($inex > 0 && $prop == 31) {print "ok 66\n"}
   else {
     warn "\n \$inex: $inex\n \$prop: $prop\n";
     print "not ok 66\n";
   }
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_q, $prop, $op * -1, Math::GMPq->new(2.0));
+  $inex = rndna(\&Rmpfr_mul_q, $prop, $op * -1, Math::GMPq->new(2.0));
   if($inex < 0 && $prop == -31) {print "ok 67\n"}
   else {
     warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1149,21 +1153,21 @@ else {
  print "ok 67\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_si, $prop, $op, 2);
+$inex = rndna(\&Rmpfr_mul_si, $prop, $op, 2);
 if($inex > 0 && $prop == 31) {print "ok 68\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 68\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_si, $prop, $op, -2);
+$inex = rndna(\&Rmpfr_mul_si, $prop, $op, -2);
 if($inex < 0 && $prop == -31) {print "ok 69\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 69\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_ui, $prop, $op, 2);
+$inex = rndna(\&Rmpfr_mul_ui, $prop, $op, 2);
 if($inex > 0 && $prop == 31) {print "ok 70\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1172,14 +1176,14 @@ else {
 
 if($have_gmpz) {
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_z, $prop, $op, Math::GMPz->new(2.0));
+  $inex = rndna(\&Rmpfr_mul_z, $prop, $op, Math::GMPz->new(2.0));
   if($inex > 0 && $prop == 31) {print "ok 71\n"}
   else {
     warn "\n \$inex: $inex\n \$prop: $prop\n";
     print "not ok 71\n";
   }
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_mul_z, $prop, $op * -1, Math::GMPz->new(2.0));
+  $inex = rndna(\&Rmpfr_mul_z, $prop, $op * -1, Math::GMPz->new(2.0));
   if($inex < 0 && $prop == -31) {print "ok 72\n"}
   else {
     warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1202,7 +1206,7 @@ else {
   print "not ok 73\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_sqr, $sqr, $sqr);
+$inex = rndna(\&Rmpfr_sqr, $sqr, $sqr);
 
 if($inex > 0 && $sqr == 6.5) {print "ok 74\n"}
 else {
@@ -1224,28 +1228,28 @@ else {
 
 Rmpfr_set_d($op, 91.5, MPFR_RNDN);
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_div, $prop, $op, Math::MPFR->new(3));
+$inex = rndna(\&Rmpfr_div, $prop, $op, Math::MPFR->new(3));
 if($inex > 0 && $prop == 31) {print "ok 76\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 76\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_div, $prop, $op * -1, Math::MPFR->new(3));
+$inex = rndna(\&Rmpfr_div, $prop, $op * -1, Math::MPFR->new(3));
 if($inex < 0 && $prop == -31) {print "ok 77\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 77\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_div_d, $prop, $op, 3.0);
+$inex = rndna(\&Rmpfr_div_d, $prop, $op, 3.0);
 if($inex > 0 && $prop == 31) {print "ok 78\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 78\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_div_d, $prop, $op * -1, 3.0);
+$inex = rndna(\&Rmpfr_div_d, $prop, $op * -1, 3.0);
 if($inex < 0 && $prop == -31) {print "ok 79\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1254,14 +1258,14 @@ else {
 
 if($have_gmpq) {
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_div_q, $prop, $op, Math::GMPq->new(3.0));
+  $inex = rndna(\&Rmpfr_div_q, $prop, $op, Math::GMPq->new(3.0));
   if($inex > 0 && $prop == 31) {print "ok 80\n"}
   else {
     warn "\n \$inex: $inex\n \$prop: $prop\n";
     print "not ok 80\n";
   }
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_div_q, $prop, $op * -1, Math::GMPq->new(3.0));
+  $inex = rndna(\&Rmpfr_div_q, $prop, $op * -1, Math::GMPq->new(3.0));
   if($inex < 0 && $prop == -31) {print "ok 81\n"}
   else {
     warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1274,28 +1278,28 @@ else {
  print "ok 81\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_div_si, $prop, $op, 3);
+$inex = rndna(\&Rmpfr_div_si, $prop, $op, 3);
 if($inex > 0 && $prop == 31) {print "ok 82\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 82\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_div_si, $prop, $op, -3);
+$inex = rndna(\&Rmpfr_div_si, $prop, $op, -3);
 if($inex < 0 && $prop == -31) {print "ok 83\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 83\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_div_ui, $prop, $op, 3);
+$inex = rndna(\&Rmpfr_div_ui, $prop, $op, 3);
 if($inex > 0 && $prop == 31) {print "ok 84\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 84\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_div_ui, $prop, $op * -1, 3);
+$inex = rndna(\&Rmpfr_div_ui, $prop, $op * -1, 3);
 if($inex < 0 && $prop == -31) {print "ok 85\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1304,14 +1308,14 @@ else {
 
 if($have_gmpz) {
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_div_z, $prop, $op, Math::GMPz->new(3.0));
+  $inex = rndna(\&Rmpfr_div_z, $prop, $op, Math::GMPz->new(3.0));
   if($inex > 0 && $prop == 31) {print "ok 86\n"}
   else {
     warn "\n \$inex: $inex\n \$prop: $prop\n";
     print "not ok 86\n";
   }
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_div_z, $prop, $op * -1, Math::GMPz->new(3.0));
+  $inex = rndna(\&Rmpfr_div_z, $prop, $op * -1, Math::GMPz->new(3.0));
   if($inex < 0 && $prop == -31) {print "ok 87\n"}
   else {
     warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1326,42 +1330,42 @@ else {
 
 Rmpfr_set_d($op, 6.0, MPFR_RNDN);
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_ui_div, $prop, 183, $op);
+$inex = rndna(\&Rmpfr_ui_div, $prop, 183, $op);
 if($inex > 0 && $prop == 31) {print "ok 88\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 88\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_ui_div, $prop, 183, $op * -1);
+$inex = rndna(\&Rmpfr_ui_div, $prop, 183, $op * -1);
 if($inex < 0 && $prop == -31) {print "ok 89\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 89\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_si_div, $prop, 183, $op);
+$inex = rndna(\&Rmpfr_si_div, $prop, 183, $op);
 if($inex > 0 && $prop == 31) {print "ok 90\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 90\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_si_div, $prop, -183, $op);
+$inex = rndna(\&Rmpfr_si_div, $prop, -183, $op);
 if($inex < 0 && $prop == -31) {print "ok 91\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 91\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_d_div, $prop, 183.0, $op);
+$inex = rndna(\&Rmpfr_d_div, $prop, 183.0, $op);
 if($inex > 0 && $prop == 31) {print "ok 92\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 92\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_d_div, $prop, -183.0, $op);
+$inex = rndna(\&Rmpfr_d_div, $prop, -183.0, $op);
 if($inex < 0 && $prop == -31) {print "ok 93\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1372,7 +1376,7 @@ else {
 
 Rmpfr_set_d($prop, 1.5, MPFR_RNDN);
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_add, $prop, $prop, Math::MPFR->new(29));
+$inex = rndna(\&Rmpfr_add, $prop, $prop, Math::MPFR->new(29));
 if($inex > 0 && $prop == 31) {print "ok 94\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1381,7 +1385,7 @@ else {
 
 Rmpfr_set_d($prop, 1.5, MPFR_RNDN);
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_add, $prop, $prop * -1, Math::MPFR->new(-29));
+$inex = rndna(\&Rmpfr_add, $prop, $prop * -1, Math::MPFR->new(-29));
 if($inex < 0 && $prop == -31) {print "ok 95\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1390,7 +1394,7 @@ else {
 
 Rmpfr_set_d($prop, 2.0, MPFR_RNDN);
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul, $prop, $prop, Math::MPFR->new(15.25));
+$inex = rndna(\&Rmpfr_mul, $prop, $prop, Math::MPFR->new(15.25));
 if($inex > 0 && $prop == 31) {print "ok 96\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1399,7 +1403,7 @@ else {
 
 Rmpfr_set_d($prop, 2.0, MPFR_RNDN);
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_mul, $prop, $prop, Math::MPFR->new(-15.25));
+$inex = rndna(\&Rmpfr_mul, $prop, $prop, Math::MPFR->new(-15.25));
 if($inex < 0 && $prop == -31) {print "ok 97\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1408,7 +1412,7 @@ else {
 
 Rmpfr_set_d($prop, 1.5, MPFR_RNDN);
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_sub, $prop, $prop, Math::MPFR->new(-29));
+$inex = rndna(\&Rmpfr_sub, $prop, $prop, Math::MPFR->new(-29));
 if($inex > 0 && $prop == 31) {print "ok 98\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1417,7 +1421,7 @@ else {
 
 Rmpfr_set_d($prop, 1.5, MPFR_RNDN);
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_sub, $prop, $prop, Math::MPFR->new(32));
+$inex = rndna(\&Rmpfr_sub, $prop, $prop, Math::MPFR->new(32));
 if($inex < 0 && $prop == -31) {print "ok 99\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1428,28 +1432,28 @@ else {
 
 Rmpfr_set_d($op, 1.5, MPFR_RNDN);
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_sub, $prop, $op, Math::MPFR->new(-29));
+$inex = rndna(\&Rmpfr_sub, $prop, $op, Math::MPFR->new(-29));
 if($inex > 0 && $prop == 31) {print "ok 100\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 100\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_sub, $prop, $op * -1, Math::MPFR->new(29));
+$inex = rndna(\&Rmpfr_sub, $prop, $op * -1, Math::MPFR->new(29));
 if($inex < 0 && $prop == -31) {print "ok 101\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 101\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_sub_d, $prop, $op, -29.0);
+$inex = rndna(\&Rmpfr_sub_d, $prop, $op, -29.0);
 if($inex > 0 && $prop == 31) {print "ok 102\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 102\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_sub_d, $prop, $op * -1, 29.0);
+$inex = rndna(\&Rmpfr_sub_d, $prop, $op * -1, 29.0);
 if($inex < 0 && $prop == -31) {print "ok 103\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1458,14 +1462,14 @@ else {
 
 if($have_gmpq) {
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_sub_q, $prop, $op, Math::GMPq->new(-29));
+  $inex = rndna(\&Rmpfr_sub_q, $prop, $op, Math::GMPq->new(-29));
   if($inex > 0 && $prop == 31) {print "ok 104\n"}
   else {
     warn "\n \$inex: $inex\n \$prop: $prop\n";
     print "not ok 104\n";
   }
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_sub_q, $prop, $op * -1, Math::GMPq->new(29));
+  $inex = rndna(\&Rmpfr_sub_q, $prop, $op * -1, Math::GMPq->new(29));
   if($inex < 0 && $prop == -31) {print "ok 105\n"}
   else {
     warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1478,21 +1482,21 @@ else {
  print "ok 105\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_sub_si, $prop, $op, -29);
+$inex = rndna(\&Rmpfr_sub_si, $prop, $op, -29);
 if($inex > 0 && $prop == 31) {print "ok 106\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 106\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_sub_si, $prop, $op * -1, 29);
+$inex = rndna(\&Rmpfr_sub_si, $prop, $op * -1, 29);
 if($inex < 0 && $prop == -31) {print "ok 107\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 107\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_sub_ui, $prop, $op * -1, 29);
+$inex = rndna(\&Rmpfr_sub_ui, $prop, $op * -1, 29);
 if($inex < 0 && $prop == -31) {print "ok 108\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1501,21 +1505,21 @@ else {
 
 if($have_gmpz) {
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_sub_z, $prop, $op, Math::GMPz->new(-29));
+  $inex = rndna(\&Rmpfr_sub_z, $prop, $op, Math::GMPz->new(-29));
   if($inex > 0 && $prop == 31) {print "ok 109\n"}
   else {
     warn "\n \$inex: $inex\n \$prop: $prop\n";
     print "not ok 109\n";
   }
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_sub_z, $prop, $op * -1, Math::GMPz->new(29));
+  $inex = rndna(\&Rmpfr_sub_z, $prop, $op * -1, Math::GMPz->new(29));
   if($inex < 0 && $prop == -31) {print "ok 110\n"}
   else {
     warn "\n \$inex: $inex\n \$prop: $prop\n";
     print "not ok 110\n";
   }
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_z_sub, $prop, Math::GMPz->new(-29), $op);
+  $inex = rndna(\&Rmpfr_z_sub, $prop, Math::GMPz->new(-29), $op);
   if($inex < 0 && $prop == -31) {print "ok 111\n"}
   else {
     warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1531,35 +1535,35 @@ else {
 
 Rmpfr_set_d($op, 29.5, MPFR_RNDN);
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_ui_sub, $prop, 60, $op);
+$inex = rndna(\&Rmpfr_ui_sub, $prop, 60, $op);
 if($inex > 0 && $prop == 31) {print "ok 112\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 112\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_si_sub, $prop, 60, $op);
+$inex = rndna(\&Rmpfr_si_sub, $prop, 60, $op);
 if($inex > 0 && $prop == 31) {print "ok 113\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 113\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_si_sub, $prop, -60, $op * -1);
+$inex = rndna(\&Rmpfr_si_sub, $prop, -60, $op * -1);
 if($inex < 0 && $prop == -31) {print "ok 114\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 114\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_d_sub, $prop, 60.0, $op);
+$inex = rndna(\&Rmpfr_d_sub, $prop, 60.0, $op);
 if($inex > 0 && $prop == 31) {print "ok 115\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
   print "not ok 115\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_d_sub, $prop, -60.0, $op * -1);
+$inex = rndna(\&Rmpfr_d_sub, $prop, -60.0, $op * -1);
 if($inex < 0 && $prop == -31) {print "ok 116\n"}
 else {
   warn "\n \$inex: $inex\n \$prop: $prop\n";
@@ -1568,7 +1572,7 @@ else {
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_fac_ui, $prop, 6);
+$inex = rndna(\&Rmpfr_fac_ui, $prop, 6);
 
 if($inex > 0 && $prop == 736) {print "ok 117\n"}
 else {
@@ -1576,7 +1580,7 @@ else {
   print "not ok 117\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_sqrt, $prop, Math::MPFR->new(2025));
+$inex = rndna(\&Rmpfr_sqrt, $prop, Math::MPFR->new(2025));
 
 if($inex > 0 && $prop == 46) {print "ok 118\n"}
 else {
@@ -1584,7 +1588,7 @@ else {
   print "not ok 118\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_sqrt_ui, $prop, 2025);
+$inex = rndna(\&Rmpfr_sqrt_ui, $prop, 2025);
 
 if($inex > 0 && $prop == 46) {print "ok 119\n"}
 else {
@@ -1592,7 +1596,7 @@ else {
   print "not ok 119\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_root, $prop, Math::MPFR->new(2025), 2);
+$inex = rndna(\&Rmpfr_root, $prop, Math::MPFR->new(2025), 2);
 
 if($inex > 0 && $prop == 46) {print "ok 120\n"}
 else {
@@ -1600,7 +1604,7 @@ else {
   print "not ok 120\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_cbrt, $prop, Math::MPFR->new(91125));
+$inex = rndna(\&Rmpfr_cbrt, $prop, Math::MPFR->new(91125));
 
 if($inex > 0 && $prop == 46) {print "ok 121\n"}
 else {
@@ -1608,7 +1612,7 @@ else {
   print "not ok 121\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_set_ui, $prop, 45);
+$inex = rndna(\&Rmpfr_set_ui, $prop, 45);
 
 if($inex > 0 && $prop == 46) {print "ok 122\n"}
 else {
@@ -1616,7 +1620,7 @@ else {
   print "not ok 122\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_set_si, $prop, -45);
+$inex = rndna(\&Rmpfr_set_si, $prop, -45);
 
 if($inex < 0 && $prop == -46) {print "ok 123\n"}
 else {
@@ -1624,7 +1628,7 @@ else {
   print "not ok 123\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_set_d, $prop, 45.0);
+$inex = rndna(\&Rmpfr_set_d, $prop, 45.0);
 
 if($inex > 0 && $prop == 46) {print "ok 124\n"}
 else {
@@ -1634,7 +1638,7 @@ else {
 
 if($Config{nvtype} eq '__float128' && Math::MPFR::_can_pass_float128()) {
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_set_float128, $prop, 45.0);
+  $inex = rndna(\&Rmpfr_set_float128, $prop, 45.0);
 
   if($inex > 0 && $prop == 46) {print "ok 125\n"}
   else {
@@ -1650,7 +1654,7 @@ else {
 
 if($Config{nvtype} eq 'long double' || $Config{nvtype} eq '__float128') {
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_set_ld, $prop, 45.0);
+  $inex = rndna(\&Rmpfr_set_ld, $prop, 45.0);
 
   if($inex > 0 && $prop == 46) {print "ok 126\n"}
   else {
@@ -1664,7 +1668,7 @@ else {
    print "ok 126\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_ui_pow, $prop, 2025, Math::MPFR->new(0.5));
+$inex = rndna(\&Rmpfr_ui_pow, $prop, 2025, Math::MPFR->new(0.5));
 
 if($inex > 0 && $prop == 46) {print "ok 127\n"}
 else {
@@ -1672,7 +1676,7 @@ else {
   print "not ok 127\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_pow_si, $sqr, Math::MPFR->new(2.5), 2);
+$inex = rndna(\&Rmpfr_pow_si, $sqr, Math::MPFR->new(2.5), 2);
 
 if($inex > 0 && $sqr == 6.5) {print "ok 128\n"}
 else {
@@ -1680,7 +1684,7 @@ else {
   print "not ok 128\n";
 }
 
-$inex = Rmpfr_round_nearest_away(\&Rmpfr_pow_ui, $sqr, Math::MPFR->new(2.5), 2);
+$inex = rndna(\&Rmpfr_pow_ui, $sqr, Math::MPFR->new(2.5), 2);
 
 if($inex > 0 && $sqr == 6.5) {print "ok 129\n"}
 else {
@@ -1690,7 +1694,7 @@ else {
 
 if($have_gmpz) {
 
-  $inex = Rmpfr_round_nearest_away(\&Rmpfr_pow_z, $sqr, Math::MPFR->new(2.5), Math::GMPz->new(2));
+  $inex = rndna(\&Rmpfr_pow_z, $sqr, Math::MPFR->new(2.5), Math::GMPz->new(2));
 
   if($inex > 0 && $sqr == 6.5) {print "ok 130\n"}
   else {
