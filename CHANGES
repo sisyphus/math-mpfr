@@ -1,3 +1,5 @@
+3.36
+
 3.35
  - In Makefile.PL define -DNV_IS_DOUBLE if appropriate (for use in math_mpfr_include.h as part of
    fix for __float128 handling in nvtype=double DEBUGGING builds of perl).
