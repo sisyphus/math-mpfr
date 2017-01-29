@@ -171,7 +171,7 @@ Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc
 Rmpfr_round_nearest_away rndna
 );
 
-    our $VERSION = '3.35';
+    our $VERSION = '3.36';
     #$VERSION = eval $VERSION;
 
     DynaLoader::bootstrap Math::MPFR $VERSION;
@@ -666,7 +666,7 @@ sub Rmpfr_round_nearest_away {
 
   if($emin <= Rmpfr_get_emin_min()) {
     warn "\n Rmpfr_round_nearest_away requires that emin ($emin)\n",
-         " be greater than or equal to emin_min (", Rmpfr_get_emin_min(), "\n";
+         " be greater than or equal to emin_min (", Rmpfr_get_emin_min(), ")\n";
     die " You need to set emin (using Rmpfr_set_emin()) accordingly";
   }
 
