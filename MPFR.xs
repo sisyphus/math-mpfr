@@ -7141,6 +7141,78 @@ SV * _lsb(pTHX_ mpfr_t * a) {
   return newSVuv((UV)p);
 }
 
+int Rmpfr_rec_root(pTHX_ mpfr_t * rop, mpfr_t * op, unsigned long root, SV * rnd) {
+  /*
+    Originally supplied by Vincent Lefevre to mpfr mailing list.
+    See https://sympa.inria.fr/sympa/arc/mpfr/2016-12/msg00032.html
+    Sisyphus re-arranged it as an XSub and added handling of special
+    cases (inf/nan/zero).
+  */
+  mpfr_prec_t p;
+  mpfr_t t, u;
+  int inex1, inex2 = -1, inex3= 1;
+
+  CHECK_ROUNDING_VALUE
+
+  if(root == 0) {
+    if(mpfr_regular_p(*op)) {
+      if(mpfr_cmp_ui(*op, 1) < 0 && mpfr_cmp_si(*op, -1) > 0) {
+        mpfr_set_inf(*rop, 1);
+        return 0;
+      }
+      if(mpfr_cmp_ui(*op, 1) > 0 || mpfr_cmp_si(*op, -1) < 0) {
+        mpfr_set_zero(*rop, 1);
+        return 0;
+      }
+      mpfr_set_ui(*rop, 1, GMP_RNDN);
+      return 0;
+    }
+    if(mpfr_zero_p(*op)) {
+      mpfr_set_inf(*rop, 1);
+      return 0;
+    }
+
+    mpfr_set_nan(*rop);
+    mpfr_set_nanflag();
+    return 0;
+  }
+
+  /* At this point we know that "root" is greater than 0 */
+
+  if(mpfr_signbit(*op) && root % 2 == 0) {
+    if(!mpfr_zero_p(*op)) {
+      mpfr_set_nan(*rop);
+      mpfr_set_nanflag();
+      return 0;
+    }
+
+    mpfr_set_inf(*rop, -1);
+    return 0;
+  }
+
+  /*
+   All other special cases are handled correctly by the following code.
+   This is all checked in t/Rmpfr_rec_root.t. (At least, that's the intention.)
+  */
+
+  p = mpfr_get_prec(*rop);
+  mpfr_init2(t, p);
+  mpfr_init2(u, p);
+
+  while(
+        ( (inex2 != inex3) && ((inex2 <= 0 && inex3 >= 0) || (inex2 >= 0 && inex3 <= 0)) )
+        || mpfr_cmp(*rop, u)
+        ) {
+    mpfr_set_prec(t, mpfr_get_prec(t) + 8);
+    inex1 = mpfr_ui_div(t, 1, *op, GMP_RNDZ);
+    inex2 = mpfr_root(*rop, t, root, (mpfr_rnd_t)SvUV(rnd));
+    if(!inex1) return inex2;
+    mpfr_nextabove(t);
+    inex3 = mpfr_root(u, t, root, (mpfr_rnd_t)SvUV(rnd));
+  }
+  return inex2;
+}
+
 
 
 
@@ -11383,5 +11455,15 @@ _lsb (a)
 	mpfr_t *	a
 CODE:
   RETVAL = _lsb (aTHX_ a);
+OUTPUT:  RETVAL
+
+int
+Rmpfr_rec_root (rop, op, root, rnd)
+	mpfr_t *	rop
+	mpfr_t *	op
+	unsigned long	root
+	SV *	rnd
+CODE:
+  RETVAL = Rmpfr_rec_root (aTHX_ rop, op, root, rnd);
 OUTPUT:  RETVAL
 
