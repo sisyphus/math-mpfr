@@ -56,6 +56,7 @@ t/pod.t
 t/printf.t
 t/remainder.t
 t/Rmpfr_get_q.t
+t/Rmpfr_rec_root.t
 t/rndna.t
 t/rndna2.t
 t/set_NV.t
