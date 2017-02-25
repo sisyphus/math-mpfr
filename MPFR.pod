@@ -893,13 +893,20 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Return 0 if the operation is exact, a non-zero value otherwise.
 
    $si = Rmpfr_rec_sqrt($rop, $op, $rnd);
-    Set $rop to the reciprocal square root of $op rounded in the
-    direction $rnd. Set $rop to +Inf if $op is 0, and 0 if $op is
-    +Inf. Set $rop to NaN if $op is negative.
+    Set $rop to $op ** (-1 / 2) rounded in the direction $rnd. Set
+    $rop to +Inf if $op is 0, and 0 if $op is +Inf. Set $rop to NaN
+    if $op is less than zero.
+
+   $si = Rmpfr_rec_root($rop, $op, $ui, $rnd);
+    NOTE: There is no such mpfr function as mpfr_rec_root.
+    This function originally provided as a perl implementation by
+    Vincent Lefevre - and rewritten by sisyphus as an XSub.
+    (See https://sympa.inria.fr/sympa/arc/mpfr/2016-12/msg00032.html)
+
+    Set $rop to $op ** (-1 / $ui) rounded in the direction $rnd.
 
    $si = Rmpfr_cbrt($rop, $op, $rnd);
-    Set $rop to the cubic root (defined over the real numbers)
-    of $op, rounded in the direction $rnd.
+    Set $rop to the cubic root of $op, rounded in the direction $rnd.
 
    $si = Rmpfr_root($rop, $op, $ui $rnd);
     Set $rop to the $ui'th root of $op, rounded in the direction
