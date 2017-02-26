@@ -7167,10 +7167,6 @@ int Rmpfr_rec_root(pTHX_ mpfr_t * rop, mpfr_t * op, unsigned long root, SV * rnd
       mpfr_set_ui(*rop, 1, GMP_RNDN);
       return 0;
     }
-    if(mpfr_zero_p(*op)) {
-      mpfr_set_inf(*rop, 1);
-      return 0;
-    }
 
     mpfr_set_nan(*rop);
     mpfr_set_nanflag();
