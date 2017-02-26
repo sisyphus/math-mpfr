@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Math::MPFR qw(:mpfr);
 
-print "1..35\n";
+print "1..49\n";
 
 my($inex1, $inex2, $check);
 my($rop1, $rop2) = (Rmpfr_init(), Rmpfr_init());
@@ -132,19 +132,32 @@ else {
   print "not ok 15\n";
 }
 
+Rmpfr_clear_nanflag();
+
 $inex1 = Rmpfr_root    ($rop1, $pzero, 0, MPFR_RNDN);
+
+if(Rmpfr_nanflag_p()) {print "ok 16\n"}
+else {print "not ok 16\n"}
+
+Rmpfr_clear_nanflag();
+
 $inex2 = Rmpfr_rec_root($rop2, $pzero, 0, MPFR_RNDN);
 
-if($inex1 == $inex2) {print "ok 16\n"}
+if(Rmpfr_nanflag_p()) {print "ok 17\n"}
+else {print "not ok 17\n"}
+
+Rmpfr_clear_nanflag();
+
+if($inex1 == $inex2) {print "ok 18\n"}
 else {
   warn "\n \$inex1: $inex1\n \$inex2: $inex2\n";
-  print "not ok 16\n";
+  print "not ok 18\n";
 }
 
-if($rop1 == 1 / $rop2) {print "ok 17\n"}
+if(Rmpfr_nan_p($rop1) && Rmpfr_nan_p($rop2)) {print "ok 19\n"}
 else {
   warn "\n \$rop1: $rop1\n \$rop2: $rop2\n";
-  print "not ok 17\n";
+  print "not ok 19\n";
 }
 
 ## $op is +/- Inf ##
@@ -156,38 +169,21 @@ Rmpfr_set_d($op, 999**(999**999), MPFR_RNDN);
 $inex1 = Rmpfr_rec_sqrt($rop1, $op,        MPFR_RNDN);
 $inex2 = Rmpfr_rec_root($rop2, $op, $root, MPFR_RNDN);
 
-if($inex1 == $inex2) {print "ok 18\n"}
-else {
-  warn "\n \$inex1: $inex1\n \$inex2: $inex2\n";
-  print "not ok 18\n";
-}
-
-if($rop1 == $rop2) {print "ok 19\n"}
-else {
-  warn "\n \$rop1: $rop1\n \$rop2: $rop2\n";
-  print "not ok 19\n";
-}
-
-$op *= -1; # -Inf
-
-$inex1 = Rmpfr_rec_sqrt($rop1, $op,        MPFR_RNDN);
-$inex2 = Rmpfr_rec_root($rop2, $op, $root, MPFR_RNDN);
-
 if($inex1 == $inex2) {print "ok 20\n"}
 else {
   warn "\n \$inex1: $inex1\n \$inex2: $inex2\n";
   print "not ok 20\n";
 }
 
-if(Rmpfr_nan_p($rop1) && Rmpfr_nan_p($rop2)) {print "ok 21\n"}
+if($rop1 == $rop2) {print "ok 21\n"}
 else {
   warn "\n \$rop1: $rop1\n \$rop2: $rop2\n";
   print "not ok 21\n";
 }
 
-$root = 5;
+$op *= -1; # -Inf
 
-$inex1 = Rmpfr_root    ($rop1, $op, $root, MPFR_RNDN);
+$inex1 = Rmpfr_rec_sqrt($rop1, $op,        MPFR_RNDN);
 $inex2 = Rmpfr_rec_root($rop2, $op, $root, MPFR_RNDN);
 
 if($inex1 == $inex2) {print "ok 22\n"}
@@ -196,13 +192,13 @@ else {
   print "not ok 22\n";
 }
 
-if($rop1 == 1 / $rop2) {print "ok 23\n"}
+if(Rmpfr_nan_p($rop1) && Rmpfr_nan_p($rop2)) {print "ok 23\n"}
 else {
-  warn "\n \$check: $check\n";
+  warn "\n \$rop1: $rop1\n \$rop2: $rop2\n";
   print "not ok 23\n";
 }
 
-$op *= -1; # +Inf
+$root = 5;
 
 $inex1 = Rmpfr_root    ($rop1, $op, $root, MPFR_RNDN);
 $inex2 = Rmpfr_rec_root($rop2, $op, $root, MPFR_RNDN);
@@ -215,12 +211,14 @@ else {
 
 if($rop1 == 1 / $rop2) {print "ok 25\n"}
 else {
-  warn "\n \$rop1: $rop1\n \$rop2: $rop2\n";
+  warn "\n \$check: $check\n";
   print "not ok 25\n";
 }
 
-$inex1 = Rmpfr_root    ($rop1, $op, $root - 1, MPFR_RNDN);
-$inex2 = Rmpfr_rec_root($rop2, $op, $root - 1, MPFR_RNDN);
+$op *= -1; # +Inf
+
+$inex1 = Rmpfr_root    ($rop1, $op, $root, MPFR_RNDN);
+$inex2 = Rmpfr_rec_root($rop2, $op, $root, MPFR_RNDN);
 
 if($inex1 == $inex2) {print "ok 26\n"}
 else {
@@ -230,34 +228,49 @@ else {
 
 if($rop1 == 1 / $rop2) {print "ok 27\n"}
 else {
-  warn "\n \$check: $check\n";
+  warn "\n \$rop1: $rop1\n \$rop2: $rop2\n";
   print "not ok 27\n";
+}
+
+$inex1 = Rmpfr_root    ($rop1, $op, $root - 1, MPFR_RNDN);
+$inex2 = Rmpfr_rec_root($rop2, $op, $root - 1, MPFR_RNDN);
+
+if($inex1 == $inex2) {print "ok 28\n"}
+else {
+  warn "\n \$inex1: $inex1\n \$inex2: $inex2\n";
+  print "not ok 28\n";
+}
+
+if($rop1 == 1 / $rop2) {print "ok 29\n"}
+else {
+  warn "\n \$check: $check\n";
+  print "not ok 29\n";
 }
 
 Rmpfr_clear_nanflag();
 
 $inex1 = Rmpfr_root    ($rop1, $op, 0, MPFR_RNDN);
 
-if(Rmpfr_nanflag_p()) {print "ok 28\n"}
-else {print "not ok 28\n"}
+if(Rmpfr_nanflag_p()) {print "ok 30\n"}
+else {print "not ok 30\n"}
 
 Rmpfr_clear_nanflag();
 
 $inex2 = Rmpfr_rec_root($rop2, $op, 0, MPFR_RNDN);
 
-if(Rmpfr_nanflag_p()) {print "ok 29\n"}
-else {print "not ok 29\n"}
+if(Rmpfr_nanflag_p()) {print "ok 31\n"}
+else {print "not ok 31\n"}
 
-if($inex1 == $inex2) {print "ok 30\n"}
+if($inex1 == $inex2) {print "ok 32\n"}
 else {
   warn "\n \$inex1: $inex1\n \$inex2: $inex2\n";
-  print "not ok 30\n";
+  print "not ok 32\n";
 }
 
-if(Rmpfr_nan_p($rop1) && Rmpfr_nan_p($rop2) && Rmpfr_nanflag_p()) {print "ok 31\n"}
+if(Rmpfr_nan_p($rop1) && Rmpfr_nan_p($rop2) && Rmpfr_nanflag_p()) {print "ok 33\n"}
 else {
   warn "\n \$rop1: $rop1\n \$rop2: $rop2\n ", Rmpfr_nanflag_p(), "\n";
-  print "not ok 31\n";
+  print "not ok 33\n";
 }
 
 $op *= -1; # -Inf
@@ -266,24 +279,118 @@ Rmpfr_clear_nanflag();
 
 $inex1 = Rmpfr_root    ($rop1, $op, 0, MPFR_RNDN);
 
-if(Rmpfr_nanflag_p()) {print "ok 32\n"}
-else {print "not ok 32\n"}
+if(Rmpfr_nanflag_p()) {print "ok 34\n"}
+else {print "not ok 34\n"}
 
 Rmpfr_clear_nanflag();
 
 $inex2 = Rmpfr_rec_root($rop2, $op, 0, MPFR_RNDN);
 
-if(Rmpfr_nanflag_p()) {print "ok 33\n"}
-else {print "not ok 33\n"}
+if(Rmpfr_nanflag_p()) {print "ok 35\n"}
+else {print "not ok 35\n"}
 
-if($inex1 == $inex2) {print "ok 34\n"}
+if($inex1 == $inex2) {print "ok 36\n"}
 else {
   warn "\n \$inex1: $inex1\n \$inex2: $inex2\n";
-  print "not ok 34\n";
+  print "not ok 36\n";
 }
 
-if(Rmpfr_nan_p($rop1) && Rmpfr_nan_p($rop2) && Rmpfr_nanflag_p()) {print "ok 35\n"}
+if(Rmpfr_nan_p($rop1) && Rmpfr_nan_p($rop2) && Rmpfr_nanflag_p()) {print "ok 37\n"}
 else {
   warn "\n \$rop1: $rop1\n \$rop2: $rop2\n ", Rmpfr_nanflag_p(), "\n";
-  print "not ok 35\n";
+  print "not ok 37\n";
+}
+
+## $op is NaN
+## root is even, root is odd, root is 0
+
+Rmpfr_set_nan($op);
+$root = 2;
+
+Rmpfr_clear_nanflag();
+
+$inex1 = Rmpfr_rec_sqrt($rop1, $op,        MPFR_RNDN);
+
+if(Rmpfr_nanflag_p()) {print "ok 38\n"}
+else {print "not ok 38\n"}
+
+Rmpfr_clear_nanflag();
+
+$inex2 = Rmpfr_rec_root($rop2, $op, $root, MPFR_RNDN);
+
+if(Rmpfr_nanflag_p()) {print "ok 39\n"}
+else {print "not ok 39\n"}
+
+Rmpfr_clear_nanflag();
+
+if($inex1 == $inex2) {print "ok 40\n"}
+else {
+  warn "\n \$inex1: $inex1\n \$inex2: $inex2\n";
+  print "not ok 40\n";
+}
+
+if(Rmpfr_nan_p($rop1) && Rmpfr_nan_p($rop2)) {print "ok 41\n"}
+else {
+  warn "\n \$rop1: $rop1\n \$rop2: $rop2\n ", Rmpfr_nanflag_p(), "\n";
+  print "not ok 41\n";
+}
+
+$root = 5;
+
+Rmpfr_clear_nanflag();
+
+$inex1 = Rmpfr_root($rop1, $op, $root, MPFR_RNDN);
+
+if(Rmpfr_nanflag_p()) {print "ok 42\n"}
+else {print "not ok 42\n"}
+
+Rmpfr_clear_nanflag();
+
+$inex2 = Rmpfr_rec_root($rop2, $op, $root, MPFR_RNDN);
+
+if(Rmpfr_nanflag_p()) {print "ok 43\n"}
+else {print "not ok 43\n"}
+
+Rmpfr_clear_nanflag();
+
+if($inex1 == $inex2) {print "ok 44\n"}
+else {
+  warn "\n \$inex1: $inex1\n \$inex2: $inex2\n";
+  print "not ok 44\n";
+}
+
+if(Rmpfr_nan_p($rop1) && Rmpfr_nan_p($rop2)) {print "ok 45\n"}
+else {
+  warn "\n \$rop1: $rop1\n \$rop2: $rop2\n ", Rmpfr_nanflag_p(), "\n";
+  print "not ok 45\n";
+}
+
+$root = 0;
+
+Rmpfr_clear_nanflag();
+
+$inex1 = Rmpfr_root($rop1, $op, $root, MPFR_RNDN);
+
+if(Rmpfr_nanflag_p()) {print "ok 46\n"}
+else {print "not ok 46\n"}
+
+Rmpfr_clear_nanflag();
+
+$inex2 = Rmpfr_rec_root($rop2, $op, $root, MPFR_RNDN);
+
+if(Rmpfr_nanflag_p()) {print "ok 47\n"}
+else {print "not ok 47\n"}
+
+Rmpfr_clear_nanflag();
+
+if($inex1 == $inex2) {print "ok 48\n"}
+else {
+  warn "\n \$inex1: $inex1\n \$inex2: $inex2\n";
+  print "not ok 48\n";
+}
+
+if(Rmpfr_nan_p($rop1) && Rmpfr_nan_p($rop2)) {print "ok 49\n"}
+else {
+  warn "\n \$rop1: $rop1\n \$rop2: $rop2\n ", Rmpfr_nanflag_p(), "\n";
+  print "not ok 49\n";
 }
