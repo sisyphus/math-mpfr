@@ -6341,8 +6341,8 @@ SV * Rmpfr_get_float128(pTHX_ mpfr_t * op, SV * rnd) {
 }
 
 void Rmpfr_get_FLOAT128(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
-#if (!defined(MPFR_VERSION) || (MPFR_VERSION < MPFR_VERSION_NUM(3,2,0)))
-     croak("Perl interface to Rmpfr_get_FLOAT128 not available for this version (%s) of the mpfr library. We need at least version 3.2.0",
+#if (!defined(MPFR_VERSION) || (MPFR_VERSION < MPFR_VERSION_NUM(4,0,0)))
+     croak("Perl interface to Rmpfr_get_FLOAT128 not available for this version (%s) of the mpfr library. We need at least version 4.0.0",
               MPFR_VERSION_STRING);
 #endif
 
@@ -6371,8 +6371,8 @@ void Rmpfr_get_FLOAT128(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
 }
 
 SV * Rmpfr_set_FLOAT128(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
-#if (!defined(MPFR_VERSION) || (MPFR_VERSION < MPFR_VERSION_NUM(3,2,0)))
-     croak("Perl interface to Rmpfr_set_FLOAT128 not available for this version (%s) of the mpfr library. We need at least version 3.2.0",
+#if (!defined(MPFR_VERSION) || (MPFR_VERSION < MPFR_VERSION_NUM(4,0,0)))
+     croak("Perl interface to Rmpfr_set_FLOAT128 not available for this version (%s) of the mpfr library. We need at least version 4.0.0",
             MPFR_VERSION_STRING);
 #endif
 
@@ -6901,7 +6901,7 @@ SV * _GMP_NAIL_BITS(pTHX) {
 /* New in 3.2.0 */
 
 void Rmpfr_fmodquo(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
      dXSARGS;
      long ret, q;
      ret = mpfr_fmodquo(*a, &q, *b, *c, (mp_rnd_t)SvUV(round));
@@ -6909,133 +6909,133 @@ void Rmpfr_fmodquo(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
      ST(1) = sv_2mortal(newSViv(ret));
      XSRETURN(2);
 #else
-     croak("Rmpfr_fmodquo not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+     croak("Rmpfr_fmodquo not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
 int Rmpfr_fpif_export(pTHX_ FILE * stream, mpfr_t * op) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
      int ret = mpfr_fpif_export(stream, *op);
      fflush(stream);
      return ret;
 #else
-     croak("Rmpfr_fpif_export not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+     croak("Rmpfr_fpif_export not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
 int Rmpfr_fpif_import(pTHX_ mpfr_t * op, FILE * stream) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
      int ret = mpfr_fpif_import(*op, stream);
      fflush(stream);
      return ret;
 #else
-     croak("Rmpfr_fpif_import not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+     croak("Rmpfr_fpif_import not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
 void Rmpfr_flags_clear(unsigned int mask) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
      mpfr_flags_clear((mpfr_flags_t) mask);
 #else
-     croak("Rmpfr_flags_clear not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+     croak("Rmpfr_flags_clear not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
 void Rmpfr_flags_set(unsigned int mask) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
      mpfr_flags_set((mpfr_flags_t) mask);
 #else
-     croak("Rmpfr_flags_set not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+     croak("Rmpfr_flags_set not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
 unsigned int Rmpfr_flags_test(unsigned int mask) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
      mpfr_flags_t ret = mpfr_flags_test((mpfr_flags_t) mask);
      return (unsigned int)ret;
 #else
-     croak("Rmpfr_flags_test not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+     croak("Rmpfr_flags_test not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
 unsigned int Rmpfr_flags_save(void) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
      mpfr_flags_t ret = mpfr_flags_save();
      return (unsigned int)ret;
 #else
-     croak("Rmpfr_flags_save not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+     croak("Rmpfr_flags_save not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
 void Rmpfr_flags_restore(unsigned int flags, unsigned int mask) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
      mpfr_flags_restore((mpfr_flags_t) flags, (mpfr_flags_t) mask);
 #else
-     croak("Rmpfr_flags_restore not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+     croak("Rmpfr_flags_restore not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
 int Rmpfr_rint_roundeven(mpfr_t * rop, mpfr_t * op, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
     return(mpfr_rint_roundeven(*rop, *op, (mp_rnd_t)round));
 #else
-    croak("Rmpfr_rint_roundeven not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+    croak("Rmpfr_rint_roundeven not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
 int Rmpfr_roundeven(mpfr_t * rop, mpfr_t * op) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
      return(mpfr_roundeven(*rop, *op));
 #else
-     croak("Rmpfr_roundeven not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+     croak("Rmpfr_roundeven not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
 int Rmpfr_nrandom(mpfr_t * rop, gmp_randstate_t * state, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
      return(mpfr_nrandom(*rop, *state, (mp_rnd_t)round));
 #else
-     croak("Rmpfr_nrandom not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+     croak("Rmpfr_nrandom not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
 int Rmpfr_erandom(mpfr_t * rop, gmp_randstate_t * state, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
      return(mpfr_erandom(*rop, *state, (mp_rnd_t)round));
 #else
-    croak("Rmpfr_erandom not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+    croak("Rmpfr_erandom not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
 int Rmpfr_fmma(mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, mpfr_t * op3, mpfr_t * op4, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
     return(mpfr_fmma(*rop, *op1, *op2, *op3, *op4, (mp_rnd_t)round));
 #else
-    croak("Rmpfr_fmma not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+    croak("Rmpfr_fmma not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
 int Rmpfr_fmms(mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, mpfr_t * op3, mpfr_t * op4, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
     return(mpfr_fmms(*rop, *op1, *op2, *op3, *op4, (mp_rnd_t)round));
 #else
-    croak("Rmpfr_fmms not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+    croak("Rmpfr_fmms not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
 int Rmpfr_log_ui(mpfr_t * rop, unsigned long op, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
     return(mpfr_log_ui(*rop, op, (mp_rnd_t)round));
 #else
-    croak("Rmpfr_log_ui not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+    croak("Rmpfr_log_ui not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
 int Rmpfr_gamma_inc(mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0)
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
     return(mpfr_gamma_inc(*rop, *op1, *op2, (mp_rnd_t)round));
 #else
-    croak("Rmpfr_gamma_inc not implemented - need at least mpfr-3.2.0, have only %s", MPFR_VERSION_STRING);
+    croak("Rmpfr_gamma_inc not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
@@ -7155,19 +7155,6 @@ int Rmpfr_rec_root(pTHX_ mpfr_t * rop, mpfr_t * op, unsigned long root, SV * rnd
   CHECK_ROUNDING_VALUE
 
   if(root == 0) {
-    if(mpfr_regular_p(*op)) {
-      if(mpfr_cmp_ui(*op, 1) < 0 && mpfr_cmp_si(*op, -1) > 0) {
-        mpfr_set_inf(*rop, 1);
-        return 0;
-      }
-      if(mpfr_cmp_ui(*op, 1) > 0 || mpfr_cmp_si(*op, -1) < 0) {
-        mpfr_set_zero(*rop, 1);
-        return 0;
-      }
-      mpfr_set_ui(*rop, 1, GMP_RNDN);
-      return 0;
-    }
-
     mpfr_set_nan(*rop);
     mpfr_set_nanflag();
     return 0;
@@ -7207,6 +7194,14 @@ int Rmpfr_rec_root(pTHX_ mpfr_t * rop, mpfr_t * op, unsigned long root, SV * rnd
     inex3 = mpfr_root(u, t, root, (mpfr_rnd_t)SvUV(rnd));
   }
   return inex2;
+}
+
+int Rmpfr_beta(mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, int round) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+    return(mpfr_beta(*rop, *op1, *op2, (mp_rnd_t)round));
+#else
+    croak("Rmpfr_beta not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
+#endif
 }
 
 
@@ -11462,4 +11457,11 @@ Rmpfr_rec_root (rop, op, root, rnd)
 CODE:
   RETVAL = Rmpfr_rec_root (aTHX_ rop, op, root, rnd);
 OUTPUT:  RETVAL
+
+int
+Rmpfr_beta (rop, op1, op2, round)
+	mpfr_t *	rop
+	mpfr_t *	op1
+	mpfr_t *	op2
+	int	round
 
