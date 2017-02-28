@@ -167,7 +167,7 @@ MPFR_DBL_DIG MPFR_LDBL_DIG MPFR_FLT128_DIG
 mpfr_max_orig_len mpfr_min_inter_prec mpfr_min_inter_base mpfr_max_orig_base
 Rmpfr_fmodquo Rmpfr_fpif_export Rmpfr_fpif_import Rmpfr_flags_clear Rmpfr_flags_set
 Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr_roundeven
-Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc
+Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc Rmpfr_beta
 Rmpfr_round_nearest_away rndna
 );
 
@@ -268,7 +268,7 @@ MPFR_DBL_DIG MPFR_LDBL_DIG MPFR_FLT128_DIG
 mpfr_max_orig_len mpfr_min_inter_prec mpfr_min_inter_base mpfr_max_orig_base
 Rmpfr_fmodquo Rmpfr_fpif_export Rmpfr_fpif_import Rmpfr_flags_clear Rmpfr_flags_set
 Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr_roundeven
-Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc
+Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc Rmpfr_beta
 Rmpfr_round_nearest_away rndna
 )]);
 
