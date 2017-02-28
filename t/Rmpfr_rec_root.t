@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Math::MPFR qw(:mpfr);
 
-print "1..49\n";
+print "1..57\n";
 
 my($inex1, $inex2, $check);
 my($rop1, $rop2) = (Rmpfr_init(), Rmpfr_init());
@@ -65,6 +65,8 @@ else {
   warn "\n \$check: $check\n";
   print "not ok 7\n";
 }
+
+# see tests 50-57 for root = 0.
 
 ## $op is +/- 0 ##
 ## root is even, root is odd, root is 0
@@ -393,4 +395,62 @@ if(Rmpfr_nan_p($rop1) && Rmpfr_nan_p($rop2)) {print "ok 49\n"}
 else {
   warn "\n \$rop1: $rop1\n \$rop2: $rop2\n ", Rmpfr_nanflag_p(), "\n";
   print "not ok 49\n";
+}
+
+Rmpfr_set_ui($op, 42, MPFR_RNDN);
+
+# Now check regular values for root = 0 (which was missed earlier).
+
+Rmpfr_clear_nanflag();
+
+$inex1 = Rmpfr_root    ($rop1, $op, 0, MPFR_RNDN);
+
+if(Rmpfr_nanflag_p()) {print "ok 50\n"}
+else {print "not ok 50\n"}
+
+Rmpfr_clear_nanflag();
+
+$inex2 = Rmpfr_rec_root($rop2, $op, 0, MPFR_RNDN);
+
+if(Rmpfr_nanflag_p()) {print "ok 51\n"}
+else {print "not ok 51\n"}
+
+if($inex1 == $inex2) {print "ok 52\n"}
+else {
+  warn "\n \$inex1: $inex1\n \$inex2: $inex2\n";
+  print "not ok 52\n";
+}
+
+if(Rmpfr_nan_p($rop1) && Rmpfr_nan_p($rop2)) {print "ok 53\n"}
+else {
+  warn "\n \$rop1: $rop1\n \$rop2: $rop2\n ", Rmpfr_nanflag_p(), "\n";
+  print "not ok 53\n";
+}
+
+$op *= -1; # -42
+
+Rmpfr_clear_nanflag();
+
+$inex1 = Rmpfr_root    ($rop1, $op, 0, MPFR_RNDN);
+
+if(Rmpfr_nanflag_p()) {print "ok 54\n"}
+else {print "not ok 54\n"}
+
+Rmpfr_clear_nanflag();
+
+$inex2 = Rmpfr_rec_root($rop2, $op, 0, MPFR_RNDN);
+
+if(Rmpfr_nanflag_p()) {print "ok 55\n"}
+else {print "not ok 55\n"}
+
+if($inex1 == $inex2) {print "ok 56\n"}
+else {
+  warn "\n \$inex1: $inex1\n \$inex2: $inex2\n";
+  print "not ok 56\n";
+}
+
+if(Rmpfr_nan_p($rop1) && Rmpfr_nan_p($rop2)) {print "ok 57\n"}
+else {
+  warn "\n \$rop1: $rop1\n \$rop2: $rop2\n ", Rmpfr_nanflag_p(), "\n";
+  print "not ok 57\n";
 }
