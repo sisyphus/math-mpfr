@@ -905,6 +905,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
     Set $rop to $op ** (-1 / $ui) rounded in the direction $rnd.
 
+    May not correctly handle overflow or underflow.
+
    $si = Rmpfr_cbrt($rop, $op, $rnd);
     Set $rop to the cubic root of $op, rounded in the direction $rnd.
 
