@@ -7183,9 +7183,9 @@ int Rmpfr_rec_root(pTHX_ mpfr_t * rop, mpfr_t * op, unsigned long root, SV * rnd
   mpfr_init2(u, p);
 
   while(
-        ( (inex2 != inex3) && ((inex2 <= 0 && inex3 >= 0) || (inex2 >= 0 && inex3 <= 0)) )
+        (inex2 != inex3 && inex2 * inex3 <= 0)
         || mpfr_cmp(*rop, u)
-        ) {
+       ) {
     mpfr_set_prec(t, mpfr_get_prec(t) + 8);
     inex1 = mpfr_ui_div(t, 1, *op, GMP_RNDZ);
     inex2 = mpfr_root(*rop, t, root, (mpfr_rnd_t)SvUV(rnd));
