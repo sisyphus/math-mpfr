@@ -74,80 +74,99 @@ else {
 my $pzero = Math::MPFR->new(0);
 my $nzero = $pzero * -1;
 
+# $root is 5
+
+Rmpfr_clear_divby0();
+
 $inex1 = Rmpfr_root    ($rop1, $pzero, $root, MPFR_RNDN);
 $inex2 = Rmpfr_rec_root($rop2, $pzero, $root, MPFR_RNDN);
 
-if($inex1 == $inex2) {print "ok 8\n"}
+if($inex1 == $inex2 && Rmpfr_divby0_p()) {print "ok 8\n"}
 else {
-  warn "\n \$inex1: $inex1\n \$inex2: $inex2\n";
+  warn "\n \$inex1: $inex1\n \$inex2: $inex2\ndivby0: ", Rmpfr_divby0_p(), "\n";
   print "not ok 8\n";
 }
 
-if($rop1 == 1 / $rop2) {print "ok 9\n"}
+Rmpfr_clear_divby0();
+
+if($rop1 == 1 / $rop2 && !Rmpfr_divby0_p() && Rmpfr_signbit($rop1) == Rmpfr_signbit($rop2)) {print "ok 9\n"}
 else {
-  warn "\n \$rop1: $rop1\n \$rop2: $rop2\n";
+  warn "\n \$rop1: $rop1\n \$rop2: $rop2\ndivby0: ", Rmpfr_divby0_p(), "\n",
+       "signbits \$rop1: ", Rmpfr_signbit($rop1), " \$rop2: ", Rmpfr_signbit($rop2), "\n";
   print "not ok 9\n";
 }
 
 $inex1 = Rmpfr_root    ($rop1, $nzero, $root, MPFR_RNDN);
 $inex2 = Rmpfr_rec_root($rop2, $nzero, $root, MPFR_RNDN);
 
-if($inex1 == $inex2) {print "ok 10\n"}
+if($inex1 == $inex2 && Rmpfr_divby0_p()) {print "ok 10\n"}
 else {
-  warn "\n \$inex1: $inex1\n \$inex2: $inex2\n";
+  warn "\n \$inex1: $inex1\n \$inex2: $inex2\ndivby0: ", Rmpfr_divby0_p(), "\n";
   print "not ok 10\n";
 }
 
-if($rop1 == 1 / $rop2) {print "ok 11\n"}
+Rmpfr_clear_divby0();
+
+if($rop1 == 1 / $rop2 && !Rmpfr_divby0_p() && Rmpfr_signbit($rop1) == Rmpfr_signbit($rop2)) {print "ok 11\n"}
 else {
-  warn "\n \$rop1: $rop1\n \$rop2: $rop2\n";
+  warn "\n \$rop1: $rop1\n \$rop2: $rop2\ndivby0: ", Rmpfr_divby0_p(), "\n",
+       "signbits \$rop1: ", Rmpfr_signbit($rop1), " \$rop2: ", Rmpfr_signbit($rop2), "\n";
   print "not ok 11\n";
 }
 
 $inex1 = Rmpfr_root    ($rop1, $pzero, $root - 1, MPFR_RNDN);
 $inex2 = Rmpfr_rec_root($rop2, $pzero, $root - 1, MPFR_RNDN);
 
-if($inex1 == $inex2) {print "ok 12\n"}
+if($inex1 == $inex2 && Rmpfr_divby0_p()) {print "ok 12\n"}
 else {
-  warn "\n \$inex1: $inex1\n \$inex2: $inex2\n";
+  warn "\n \$inex1: $inex1\n \$inex2: $inex2\ndivby0: ", Rmpfr_divby0_p(), "\n";
   print "not ok 12\n";
 }
 
-if($rop1 == 1 / $rop2) {print "ok 13\n"}
+Rmpfr_clear_divby0();
+
+if($rop1 == 1 / $rop2 && !Rmpfr_divby0_p() && Rmpfr_signbit($rop1) == Rmpfr_signbit($rop2)) {print "ok 13\n"}
 else {
-  warn "\n \$rop1: $rop1\n \$rop2: $rop2\n";
+  warn "\n \$rop1: $rop1\n \$rop2: $rop2\ndivby0: ", Rmpfr_divby0_p(), "\n",
+       "signbits \$rop1: ", Rmpfr_signbit($rop1), " \$rop2: ", Rmpfr_signbit($rop2), "\n";
   print "not ok 13\n";
 }
 
 $inex1 = Rmpfr_root    ($rop1, $nzero, $root - 1, MPFR_RNDN);
 $inex2 = Rmpfr_rec_root($rop2, $nzero, $root - 1, MPFR_RNDN);
 
-if($inex1 == $inex2) {print "ok 14\n"}
+if($inex1 == $inex2 && Rmpfr_divby0_p()) {print "ok 14\n"}
 else {
-  warn "\n \$inex1: $inex1\n \$inex2: $inex2\n";
+  warn "\n \$inex1: $inex1\n \$inex2: $inex2\ndivby0: ", Rmpfr_divby0_p(), "\n";
   print "not ok 14\n";
 }
 
-if($rop1 == 1 / $rop2) {print "ok 15\n"}
+Rmpfr_clear_divby0();
+
+if($rop1 == 1 / $rop2 && !Rmpfr_divby0_p() && Rmpfr_signbit($rop1) != Rmpfr_signbit($rop2)) {print "ok 15\n"}
 else {
-  warn "\n \$rop1: $rop1\n \$rop2: $rop2\n";
+  warn "\n \$rop1: $rop1\n \$rop2: $rop2\ndivby0: ", Rmpfr_divby0_p(), "\n",
+       "signbits \$rop1: ", Rmpfr_signbit($rop1), " \$rop2: ", Rmpfr_signbit($rop2), "\n";
   print "not ok 15\n";
 }
 
+Rmpfr_clear_divby0();
 Rmpfr_clear_nanflag();
 
 $inex1 = Rmpfr_root    ($rop1, $pzero, 0, MPFR_RNDN);
 
-if(Rmpfr_nanflag_p()) {print "ok 16\n"}
+if(Rmpfr_nanflag_p() && !Rmpfr_divby0_p()) {print "ok 16\n"}
 else {print "not ok 16\n"}
 
+Rmpfr_clear_divby0();
 Rmpfr_clear_nanflag();
 
-$inex2 = Rmpfr_rec_root($rop2, $pzero, 0, MPFR_RNDN);
+$inex2 = Rmpfr_rec_root($rop2, $nzero, 0, MPFR_RNDN);
 
-if(Rmpfr_nanflag_p()) {print "ok 17\n"}
+if(Rmpfr_nanflag_p() && !Rmpfr_divby0_p()) {print "ok 17\n"}
 else {print "not ok 17\n"}
 
+Rmpfr_clear_divby0();
 Rmpfr_clear_nanflag();
 
 if($inex1 == $inex2) {print "ok 18\n"}
