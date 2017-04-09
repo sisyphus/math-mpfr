@@ -7160,17 +7160,24 @@ int Rmpfr_rec_root(pTHX_ mpfr_t * rop, mpfr_t * op, unsigned long root, SV * rnd
     return 0;
   }
 
-  /* At this point we know that "root" is greater than 0 */
+ /* At this point we know that "root" is greater than 0 */
+
+  if(mpfr_zero_p(*op)) {
+    mpfr_set_divby0();
+    if(root % 2) {
+      mpfr_set_inf(*rop, mpfr_signbit(*op) * -1);
+      return 0;
+    }
+    mpfr_set_inf(*rop, 1);
+    return 0;
+  }
+
+  /* and we now also know that op != 0 */
 
   if(mpfr_signbit(*op) && root % 2 == 0) {
-    if(!mpfr_zero_p(*op)) {
       mpfr_set_nan(*rop);
       mpfr_set_nanflag();
       return 0;
-    }
-
-    mpfr_set_inf(*rop, -1);
-    return 0;
   }
 
   /*
