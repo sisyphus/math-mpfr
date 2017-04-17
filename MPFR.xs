@@ -2717,6 +2717,65 @@ SV * Rmpfr_sum(pTHX_ mpfr_t * rop, SV * avref, SV * len, SV * round) {
      return newSVuv(ret);
 }
 
+void _fr_to_q(mpq_t * q, mpfr_t * fr) {
+   mpfr_exp_t exponent, denpow;
+   char * str;
+   size_t numlen;
+
+   if(!mpfr_number_p(*fr)) {
+     if(mpfr_nan_p(*fr))
+       croak ("In Math::MPFR::_fr_to_q, cannot coerce a NaN to a Math::GMPq value");
+     croak ("In Math::MPFR::_fr_to_q, cannot coerce an Inf to a Math::GMPq value");
+   }
+
+   str = mpfr_get_str(NULL, &exponent, 2, 0, *fr, GMP_RNDN);
+   mpz_set_str(mpq_numref(*q), str, 2);
+   mpz_set_ui (mpq_denref(*q), 1);
+   mpfr_free_str(str);
+   numlen = mpz_sizeinbase(mpq_numref(*q), 2);
+   denpow = numlen - exponent;
+
+   if(denpow < 0) {
+     mpz_mul_2exp(mpq_numref(*q), mpq_numref(*q), -denpow);
+   }
+   else {
+     mpz_mul_2exp(mpq_denref(*q), mpq_denref(*q), denpow);
+   }
+
+   mpq_canonicalize(*q);
+}
+
+int Rmpfr_q_div(mpfr_t * rop, mpq_t * q, mpfr_t * fr, int round) {
+    mpq_t * temp, t;
+    int ret;
+
+    temp = &t;
+    mpq_init(t);
+
+    _fr_to_q(temp, fr);
+    mpq_div(t, *q, t);
+    ret = mpfr_set_q(*rop, t, (mp_rnd_t)round);
+    mpq_clear(t);
+    return ret;
+}
+
+int Rmpfr_z_div(mpfr_t * rop, mpz_t * z, mpfr_t * fr, int round) {
+    mpq_t * temp, t, tz;
+    int ret;
+
+    temp = &t;
+    mpq_init(t);
+    mpq_init(tz);
+    mpq_set_z(tz, *z);
+
+    _fr_to_q(temp, fr);
+    mpq_div(t, tz, t);
+    ret = mpfr_set_q(*rop, t, (mp_rnd_t)round);
+    mpq_clear(t);
+    mpq_clear(tz);
+    return ret;
+}
+
 SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj, t;
      SV * obj_ref, * obj;
@@ -10140,6 +10199,37 @@ Rmpfr_sum (rop, avref, len, round)
 CODE:
   RETVAL = Rmpfr_sum (aTHX_ rop, avref, len, round);
 OUTPUT:  RETVAL
+
+void
+_fr_to_q (q, fr)
+	mpq_t *	q
+	mpfr_t *	fr
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        _fr_to_q(q, fr);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+int
+Rmpfr_q_div (rop, q, fr, round)
+	mpfr_t *	rop
+	mpq_t *	q
+	mpfr_t *	fr
+	int	round
+
+int
+Rmpfr_z_div (rop, z, fr, round)
+	mpfr_t *	rop
+	mpz_t *	z
+	mpfr_t *	fr
+	int	round
 
 SV *
 overload_mul (a, b, third)
