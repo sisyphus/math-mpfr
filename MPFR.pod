@@ -877,7 +877,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_div_d($rop, $op, $double, $rnd);
    $si = Rmpfr_d_div($rop, $double, $op, $rnd);
    $si = Rmpfr_div_z($rop, $op, $z, $rnd);   # $z is a mpz object.
+   $si = Rmpfr_z_div($rop, $z, $op, $rnd);   # $z is a mpz object.
    $si = Rmpfr_div_q($rop, $op, $q, $rnd);   # $q is a mpq object.
+   $si = Rmpfr_q_div($rop, $q, $op, $rnd);   # $q is a mpq object.
+    NOTE: The mpfr library does not provide mpfr_z_div and
+           mpfr_q_div functions.
     Set $rop to 2nd arg / 3rd arg rounded in the direction $rnd.
     These functions return 0 if the division is exact, a positive
     value when $rop is larger than 2nd arg divided by 3rd arg,
@@ -2035,11 +2039,6 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Again, each of those operations returns a Math::MPFR object
     containing the result of the operation.
     Each operation is conducted using current default rounding mode.
-
-    NOTE: If $G is a Math::GMPq object or a Math::GMPz object, then
-    the value of $G/$M is calculated by doing 1/($M/$G). This
-    involves *2* roundings of the value that is returned - once when
-    $M/$G is calculated, and again when the inverse is calculated.
 
     NOTE: In overloading a ** (power) operation that involves a
     Math::GMPq object, it is necessary to convert the Math::GMPq
