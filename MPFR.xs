@@ -2746,13 +2746,12 @@ void _fr_to_q(mpq_t * q, mpfr_t * fr) {
 }
 
 int Rmpfr_q_div(mpfr_t * rop, mpq_t * q, mpfr_t * fr, int round) {
-    mpq_t * temp, t;
+    mpq_t t;
     int ret;
 
-    temp = &t;
     mpq_init(t);
 
-    _fr_to_q(temp, fr);
+    _fr_to_q(&t, fr);
     mpq_div(t, *q, t);
     ret = mpfr_set_q(*rop, t, (mp_rnd_t)round);
     mpq_clear(t);
@@ -2760,15 +2759,14 @@ int Rmpfr_q_div(mpfr_t * rop, mpq_t * q, mpfr_t * fr, int round) {
 }
 
 int Rmpfr_z_div(mpfr_t * rop, mpz_t * z, mpfr_t * fr, int round) {
-    mpq_t * temp, t, tz;
+    mpq_t t, tz;
     int ret;
 
-    temp = &t;
     mpq_init(t);
     mpq_init(tz);
     mpq_set_z(tz, *z);
 
-    _fr_to_q(temp, fr);
+    _fr_to_q(&t, fr);
     mpq_div(t, tz, t);
     ret = mpfr_set_q(*rop, t, (mp_rnd_t)round);
     mpq_clear(t);
@@ -3353,21 +3351,34 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
          return obj_ref;
        }
        if(strEQ(h, "Math::GMPz")) {
-         mpfr_div_z(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))),
-                                      *(INT2PTR(mpz_t * , SvIVX(SvRV(b)))),
-                                      __gmpfr_default_rounding_mode);
-         /* *mpfr_t_obj gets rounded a second time if third == &PL_sv_yes */
-         if(third == &PL_sv_yes) mpfr_ui_div(*mpfr_t_obj, 1, *mpfr_t_obj, __gmpfr_default_rounding_mode);
+
+         if(third == &PL_sv_yes) {
+           Rmpfr_z_div(mpfr_t_obj, INT2PTR(mpz_t * , SvIVX(SvRV(b))),
+                                   INT2PTR(mpfr_t *, SvIVX(SvRV(a))),
+                                   __gmpfr_default_rounding_mode);
+         }
+         else {
+           mpfr_div_z(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))),
+                                   *(INT2PTR(mpz_t * , SvIVX(SvRV(b)))),
+                                   __gmpfr_default_rounding_mode);
+         }
          return obj_ref;
        }
        if(strEQ(h, "Math::GMPq")) {
-         mpfr_div_q(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))),
-                                      *(INT2PTR(mpq_t * , SvIVX(SvRV(b)))),
-                                      __gmpfr_default_rounding_mode);
-         /* *mpfr_t_obj gets rounded a second time if third == &PL_sv_yes */
-         if(third == &PL_sv_yes) mpfr_ui_div(*mpfr_t_obj, 1, *mpfr_t_obj, __gmpfr_default_rounding_mode);
+
+         if(third == &PL_sv_yes) {
+           Rmpfr_q_div(mpfr_t_obj, INT2PTR(mpq_t * , SvIVX(SvRV(b))),
+                                   INT2PTR(mpfr_t *, SvIVX(SvRV(a))),
+                                   __gmpfr_default_rounding_mode);
+         }
+         else {
+           mpfr_div_q(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))),
+                                   *(INT2PTR(mpq_t * , SvIVX(SvRV(b)))),
+                                   __gmpfr_default_rounding_mode);
+         }
          return obj_ref;
        }
+
        if(strEQ(h, "Math::GMPf")) {
          mpfr_init2(t, (mpfr_prec_t)mpf_get_prec(*(INT2PTR(mpf_t *, SvIVX(SvRV(b))))));
          mpfr_set_f(t, *(INT2PTR(mpf_t *, SvIVX(SvRV(b)))), __gmpfr_default_rounding_mode);
