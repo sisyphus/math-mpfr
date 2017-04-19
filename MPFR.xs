@@ -2749,6 +2749,12 @@ int Rmpfr_q_div(mpfr_t * rop, mpq_t * q, mpfr_t * fr, int round) {
     mpq_t t;
     int ret;
 
+    /* Handle Inf, NaN and zero values of *fr */
+    if(!mpfr_regular_p(*fr)) {
+      ret = mpfr_si_div(*rop, mpz_cmp_ui(mpq_numref(*q), 0), *fr, (mp_rnd_t)round);
+      return ret;
+    }
+
     mpq_init(t);
 
     _fr_to_q(&t, fr);
@@ -2761,6 +2767,12 @@ int Rmpfr_q_div(mpfr_t * rop, mpq_t * q, mpfr_t * fr, int round) {
 int Rmpfr_z_div(mpfr_t * rop, mpz_t * z, mpfr_t * fr, int round) {
     mpq_t t, tz;
     int ret;
+
+    /* Handle Inf, NaN and zero values of *fr */
+    if(!mpfr_regular_p(*fr)) {
+      ret = mpfr_si_div(*rop, mpz_cmp_ui(*z, 0), *fr, (mp_rnd_t)round);
+      return ret;
+    }
 
     mpq_init(t);
     mpq_init(tz);
