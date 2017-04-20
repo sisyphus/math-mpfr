@@ -3568,6 +3568,18 @@ SV * overload_gt(pTHX_ mpfr_t * a, SV * b, SV * third) {
        if(strEQ(h, "Math::MPFR")) {
           return newSVuv(mpfr_greater_p(*a, *(INT2PTR(mpfr_t *, SvIVX(SvRV(b))))));
        }
+
+       if(strEQ(h, "Math::GMPq")) {
+         ret = mpfr_cmp_q(*a, *(INT2PTR(mpq_t *, SvIVX(SvRV(b)))));
+         if(ret > 0) return newSViv(1);
+         return newSViv(0);
+       }
+
+       if(strEQ(h, "Math::GMPz")) {
+         ret = mpfr_cmp_z(*a, *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
+         if(ret > 0) return newSViv(1);
+         return newSViv(0);
+       }
      }
 
      croak("Invalid argument supplied to Math::MPFR::overload_gt");
@@ -3595,7 +3607,7 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret >= 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(SvIOK(b)) {
        mpfr_init2(t, (mpfr_prec_t)IVSIZE_BITS);
@@ -3605,7 +3617,7 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret >= 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 #else
      if(SvIOK(b)) {
        ret = mpfr_init_set_str(t, SvPV_nolen(b), 10, __gmpfr_default_rounding_mode);
@@ -3617,7 +3629,7 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret >= 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 #endif
 #else
      if(SvUOK(b)) {
@@ -3625,14 +3637,14 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret >= 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(SvIOK(b)) {
        ret = mpfr_cmp_si(*a, SvIVX(b));
        if(third == &PL_sv_yes) ret *= -1;
        if(ret >= 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 #endif
 
      if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
@@ -3656,7 +3668,7 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret >= 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(SvPOK(b)) {
 
@@ -3701,7 +3713,7 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret >= 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(sv_isobject(b)) {
        const char* h = HvNAME(SvSTASH(SvRV(b)));
@@ -3709,7 +3721,19 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
        if(strEQ(h, "Math::MPFR")) {
          return newSVuv(mpfr_greaterequal_p(*a, *(INT2PTR(mpfr_t *, SvIVX(SvRV(b))))));
          }
+
+       if(strEQ(h, "Math::GMPq")) {
+         ret = mpfr_cmp_q(*a, *(INT2PTR(mpq_t *, SvIVX(SvRV(b)))));
+         if(ret >= 0) return newSViv(1);
+         return newSViv(0);
        }
+
+       if(strEQ(h, "Math::GMPz")) {
+         ret = mpfr_cmp_z(*a, *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
+         if(ret >= 0) return newSViv(1);
+         return newSViv(0);
+       }
+     }
 
      croak("Invalid argument supplied to Math::MPFR::overload_gte");
 }
@@ -3849,6 +3873,18 @@ SV * overload_lt(pTHX_ mpfr_t * a, SV * b, SV * third) {
 
        if(strEQ(h, "Math::MPFR")) {
          return newSVuv(mpfr_less_p(*a, *(INT2PTR(mpfr_t *, SvIVX(SvRV(b))))));
+       }
+
+       if(strEQ(h, "Math::GMPq")) {
+         ret = mpfr_cmp_q(*a, *(INT2PTR(mpq_t *, SvIVX(SvRV(b)))));
+         if(ret < 0) return newSViv(1);
+         return newSViv(0);
+       }
+
+       if(strEQ(h, "Math::GMPz")) {
+         ret = mpfr_cmp_z(*a, *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
+         if(ret < 0) return newSViv(1);
+         return newSViv(0);
        }
      }
 
@@ -3990,6 +4026,18 @@ SV * overload_lte(pTHX_ mpfr_t * a, SV * b, SV * third) {
 
        if(strEQ(h, "Math::MPFR"))
          return newSVuv(mpfr_lessequal_p(*a, *(INT2PTR(mpfr_t *, SvIVX(SvRV(b))))));
+
+       if(strEQ(h, "Math::GMPq")) {
+         ret = mpfr_cmp_q(*a, *(INT2PTR(mpq_t *, SvIVX(SvRV(b)))));
+         if(ret <= 0) return newSViv(1);
+         return newSViv(0);
+       }
+
+       if(strEQ(h, "Math::GMPz")) {
+         ret = mpfr_cmp_z(*a, *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
+         if(ret <= 0) return newSViv(1);
+         return newSViv(0);
+       }
      }
 
      croak("Invalid argument supplied to Math::MPFR::overload_lte");
@@ -4138,6 +4186,14 @@ SV * overload_spaceship(pTHX_ mpfr_t * a, SV * b, SV * third) {
        if(strEQ(h, "Math::MPFR")) {
          return newSViv(mpfr_cmp(*a, *(INT2PTR(mpfr_t *, SvIVX(SvRV(b))))));
        }
+
+       if(strEQ(h, "Math::GMPq")) {
+         return newSViv(mpfr_cmp_q(*a, *(INT2PTR(mpq_t *, SvIVX(SvRV(b))))));
+       }
+
+       if(strEQ(h, "Math::GMPz")) {
+         return newSViv(mpfr_cmp_z(*a, *(INT2PTR(mpz_t *, SvIVX(SvRV(b))))));
+       }
      }
 
      croak("Invalid argument supplied to Math::MPFR::overload_spaceship");
@@ -4271,6 +4327,16 @@ SV * overload_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
 
        if(strEQ(h, "Math::MPFR")) {
          return newSVuv(mpfr_equal_p(*a, *(INT2PTR(mpfr_t *, SvIVX(SvRV(b))))));
+       }
+
+       if(strEQ(h, "Math::GMPq")) {
+         if(mpfr_cmp_q(*a, *(INT2PTR(mpq_t *, SvIVX(SvRV(b)))))) return newSViv(0);
+         return newSViv(1);
+       }
+
+       if(strEQ(h, "Math::GMPz")) {
+         if(mpfr_cmp_z(*a, *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))))) return newSViv(0);
+         return newSViv(1);
        }
      }
 
@@ -4406,6 +4472,16 @@ SV * overload_not_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
        if(strEQ(h, "Math::MPFR")) {
          if(mpfr_equal_p(*a, *(INT2PTR(mpfr_t *, SvIVX(SvRV(b)))))) return newSViv(0);
          return newSViv(1);
+       }
+
+       if(strEQ(h, "Math::GMPq")) {
+         if(mpfr_cmp_q(*a, *(INT2PTR(mpq_t *, SvIVX(SvRV(b)))))) return newSViv(1);
+         return newSViv(0);
+       }
+
+       if(strEQ(h, "Math::GMPz")) {
+         if(mpfr_cmp_z(*a, *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))))) return newSViv(1);
+         return newSViv(0);
        }
      }
 
