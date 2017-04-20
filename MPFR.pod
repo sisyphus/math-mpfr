@@ -2006,6 +2006,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
      = (The copy has the same precision as the copied object.)
      ""
 
+    All overloaded comparisons ( < <= > >= == != <=> ) between
+    Math::MPFR and Math::GMPz objects or between Math::MPFR and
+    Math::GMPq objects are now also permitted.
+   . allowed
+
     As of version 3.13 of Math::MPFR, some cross-class overloading
     is allowed.
     Let $M be a Math::MPFR object, and $G be any one of a Math::GMPz,
