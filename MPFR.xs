@@ -1012,7 +1012,7 @@ SV * Rmpfr_get_d_2exp(pTHX_ SV * exp, mpfr_t * p, SV * round){
 
 SV * Rmpfr_get_ld_2exp(pTHX_ SV * exp, mpfr_t * p, SV * round){
 #if defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
-#if defined(NV_IS_FLOAT128) && defined(__GNUC__) && __GNUC__ < 7
+#if defined(NV_IS_FLOAT128) && defined(__GNUC__) && ((__GNUC__ > 4 && __GNUC__ < 7) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 9))
   /*
      Casting long double Inf to float128 might result in NaN.
      This is GCC bug 77265, which was fixed for GCC 7:
@@ -1045,7 +1045,7 @@ SV * Rmpfr_get_ld_2exp(pTHX_ SV * exp, mpfr_t * p, SV * round){
 SV * Rmpfr_get_ld(pTHX_ mpfr_t * p, SV * round){
      CHECK_ROUNDING_VALUE
 #if defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
-#if defined(NV_IS_FLOAT128) && defined(__GNUC__) && __GNUC__ < 7
+#if defined(NV_IS_FLOAT128) && defined(__GNUC__) && ((__GNUC__ > 4 && __GNUC__ < 7) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 9))
   /*
      Casting long double Inf to float128 might result in NaN.
      This is GCC bug 77265, which was fixed for GCC 7:
