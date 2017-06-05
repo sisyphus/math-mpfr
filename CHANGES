@@ -7,6 +7,8 @@
  - Add Rmpfr_q_div and Rmpfr_z_div and use them in overload_div to replace the existing
    code (that was rounding twice).
  - Add overloading of comparisons with mpq_t and mpz_t
+ - use mpfr library of mpfr_get_q (in preference to homegrown rendition) iff
+   MPFR_VERSION_MAJOR >= 4.
 
 3.35
  - In Makefile.PL define -DNV_IS_DOUBLE if appropriate (for use in math_mpfr_include.h as part of
