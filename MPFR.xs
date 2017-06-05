@@ -2615,6 +2615,12 @@ SV * Rmpfr_get_f(pTHX_ mpf_t * a, mpfr_t * b, SV * round) {
 
 /* No need for rounding as result will be exact */
 void Rmpfr_get_q(mpq_t * a, mpfr_t * b) {
+
+#if defined(MPFR_VERSION_MAJOR) && MPFR_VERSION_MAJOR >= 4
+
+     mpfr_get_q(*a, *b);
+
+#else
      mpf_t temp;
 
      if(!mpfr_number_p(*b)) {
@@ -2627,6 +2633,7 @@ void Rmpfr_get_q(mpq_t * a, mpfr_t * b) {
        mpq_set_f (*a, temp);
        mpf_clear(temp);
      }
+#endif
 }
 
 SV * Rmpfr_sech(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
