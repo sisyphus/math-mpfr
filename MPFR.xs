@@ -6499,6 +6499,20 @@ SV * _DBL_MANT_DIG(pTHX) {
 SV * Rmpfr_get_float128(pTHX_ mpfr_t * op, SV * rnd) {
 
 #ifdef CAN_PASS_FLOAT128
+     mpfr_t temp;
+     float128 f;
+     mpfr_exp_t e = mpfr_get_exp(*op);
+
+     if(e < -16381 && e > -16494) {                  /* rounding modes unreliable for subnormal range */
+       e += 16494;
+       mpfr_init2(temp, mpfr_get_prec(*op));
+       mpfr_set(temp, *op, GMP_RNDZ);                /* exact - therefore rounding mode is irrelevant */
+       mpfr_prec_round(temp, e, (mp_rnd_t)SvUV(rnd));
+       f = mpfr_get_float128(temp, GMP_RNDZ);        /* exact - therefore rounding mode is irrelevant */
+       mpfr_clear(temp);
+       return newSVnv(temp);
+     }
+
      return newSVnv(mpfr_get_float128(*op, (mp_rnd_t)SvUV(rnd)));
 #else
      croak("Cannot use Rmpfr_get_float128 to return an NV");
@@ -6517,13 +6531,27 @@ void Rmpfr_get_FLOAT128(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
 */
 
 #ifdef MPFR_WANT_FLOAT128
+    mpfr_t temp;
+    mpfr_exp_t e = mpfr_get_exp(*op);
+
     if(sv_isobject(rop)) {
       const char* h = HvNAME(SvSTASH(SvRV(rop)));
 
       if(strEQ(h, "Math::Float128"))
-        *(INT2PTR(float128 *, SvIVX(SvRV(rop)))) = mpfr_get_float128(*op, (mp_rnd_t)SvUV(rnd));
 
-       else croak("1st arg (a %s object) supplied to Rmpfr_get_FLOAT128 needs to be a Math::Float128 object",
+        if(e < -16381 && e > -16494) {  /* MPFR doesn't always round __float128 subnormals correctly */
+          e += 16494;
+          mpfr_init2(temp, mpfr_get_prec(*op));
+          mpfr_set(temp, *op, GMP_RNDZ);       /* assignment is exact */
+          mpfr_prec_round(temp, e, (mp_rnd_t)SvUV(rnd));
+          *(INT2PTR(float128 *, SvIVX(SvRV(rop)))) = mpfr_get_float128(temp, GMP_RNDZ); /* assignment is exact */
+          mpfr_clear(temp);
+        }
+        else {
+          *(INT2PTR(float128 *, SvIVX(SvRV(rop)))) = mpfr_get_float128(*op, (mp_rnd_t)SvUV(rnd));
+        }
+
+      else croak("1st arg (a %s object) supplied to Rmpfr_get_FLOAT128 needs to be a Math::Float128 object",
                       HvNAME(SvSTASH(SvRV(rop))));
     }
     else croak("1st arg (which needs to be a Math::Float128 object) supplied to Rmpfr_get_FLOAT128 is not an object");
