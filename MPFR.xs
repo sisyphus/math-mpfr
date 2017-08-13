@@ -6510,7 +6510,7 @@ SV * Rmpfr_get_float128(pTHX_ mpfr_t * op, SV * rnd) {
        mpfr_prec_round(temp, e, (mp_rnd_t)SvUV(rnd));
        f = mpfr_get_float128(temp, GMP_RNDZ);        /* exact - therefore rounding mode is irrelevant */
        mpfr_clear(temp);
-       return newSVnv(temp);
+       return newSVnv(f);
      }
 
      return newSVnv(mpfr_get_float128(*op, (mp_rnd_t)SvUV(rnd)));
