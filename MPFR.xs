@@ -2143,6 +2143,19 @@ SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
      CHECK_ROUNDING_VALUE
 
 #if defined(CAN_PASS_FLOAT128)
+     mpfr_t temp;
+     float128 f;
+     mpfr_exp_t e = mpfr_get_exp(*x);
+
+     if(e < -16381 && e > -16494) {                  /* rounding modes unreliable for subnormal range */
+       e += 16494;
+       mpfr_init2(temp, mpfr_get_prec(*x));
+       mpfr_set(temp, *x, GMP_RNDZ);                /* exact - therefore rounding mode is irrelevant */
+       mpfr_prec_round(temp, e, (mp_rnd_t)SvUV(round));
+       f = mpfr_get_float128(temp, GMP_RNDZ);        /* exact - therefore rounding mode is irrelevant */
+       mpfr_clear(temp);
+       return newSVnv(f);
+     }
 
      return newSVnv(mpfr_get_float128(*x, (mp_rnd_t)SvUV(round)));
 
