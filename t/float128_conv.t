@@ -179,15 +179,23 @@ if($proceed) {
     print "not ok 14\n";
   }
 
+  # Any +ve non-zero value (no matter how small) will be rounded to a non-zero value under RNDA.
+  # Values anywhere between zero and the minimum subnormal value (as is the case here) will be
+  # rounded to that minimum subnormal value (6.47517511943802511092443895822764655e-4966)
+
   Rmpfr_get_FLOAT128($rop, $littlepos, MPFR_RNDA);
-  if(is_ZeroF128($rop) > 0) {print "ok 15\n"}
+  if(!is_ZeroF128($rop)) {print "ok 15\n"}
   else {
     warn "\n\$rop: $rop\n";
     print "not ok 15\n";
   }
 
+  # Any -ve non-zero value (no matter how close to zero) will be rounded to a non-zero value under RNDA.
+  # Values anywhere between zero and the negated minimum subnormal value (as is the case here) will be
+  # be rounded to that negated minimum subnormal value (-6.47517511943802511092443895822764655e-4966)
+
   Rmpfr_get_FLOAT128($rop, $littleneg, MPFR_RNDA);
-  if(is_ZeroF128($rop) < 0) {print "ok 16\n"}
+  if(!is_ZeroF128($rop)) {print "ok 16\n"}
   else {
     warn "\n\$rop: $rop\n";
     print "not ok 16\n";
