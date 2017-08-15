@@ -79,8 +79,8 @@ else {
 $proceed = Math::MPFR::_can_pass_float128();
 
 unless($proceed) {
-  my $why = "Cannot pass __float128 values to XSubs\n";
-  warn "\n Skipping tests: $why";
+  my $why = "Cannot receive __float128 values from XSubs\n";
+  warn "\n Skipping test 2: $why";
   print "ok 2\n";
 }
 else {
