@@ -2154,8 +2154,7 @@ SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
      mp_rnd_t r = (mp_rnd_t)SvUV(round);
      char *out;
      float128 ret = 0.0Q, sign = 1.0Q;
-/*
- currently not used
+
      float128 add_on[113] = {
       5192296858534827628530496329220096e0Q, 2596148429267413814265248164610048e0Q,
       1298074214633706907132624082305024e0Q, 649037107316853453566312041152512e0Q,
@@ -2185,7 +2184,6 @@ SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
       268435456e0Q, 134217728e0Q, 67108864e0Q, 33554432e0Q, 16777216e0Q, 8388608e0Q, 4194304e0Q, 2097152e0Q,
       1048576e0Q, 524288e0Q, 262144e0Q, 131072e0Q, 65536e0Q, 32768e0Q, 16384e0Q, 8192e0Q, 4096e0Q, 2048e0Q,
       1024e0Q, 512e0Q, 256e0Q, 128e0Q, 64e0Q, 32e0Q, 16e0Q, 8e0Q, 4e0Q, 2e0Q, 1e0Q };
-*/
 
      if(!mpfr_regular_p(*x)) return newSVnv((float128)mpfr_get_d(*x, GMP_RNDZ));
 
@@ -2249,7 +2247,7 @@ SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
      }
 
      for(i = 0; i < bits; i++) {
-       if(out[i] == '1') ret += powq(2.0Q, 112 - i);
+       if(out[i] == '1') ret += add_on[i];
      }
 
      if(c) out--;
