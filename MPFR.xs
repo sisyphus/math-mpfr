@@ -2149,9 +2149,13 @@ SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
 #elif defined(NV_IS_FLOAT128)
 
      mpfr_t t;
-     long i, exp, retract = 0;
+     int i, c = 0;
+     mpfr_prec_t exp, bits = 113;
+     mp_rnd_t r = (mp_rnd_t)SvUV(round);
      char *out;
      float128 ret = 0.0Q, sign = 1.0Q;
+/*
+ currently not used
      float128 add_on[113] = {
       5192296858534827628530496329220096e0Q, 2596148429267413814265248164610048e0Q,
       1298074214633706907132624082305024e0Q, 649037107316853453566312041152512e0Q,
@@ -2181,13 +2185,48 @@ SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
       268435456e0Q, 134217728e0Q, 67108864e0Q, 33554432e0Q, 16777216e0Q, 8388608e0Q, 4194304e0Q, 2097152e0Q,
       1048576e0Q, 524288e0Q, 262144e0Q, 131072e0Q, 65536e0Q, 32768e0Q, 16384e0Q, 8192e0Q, 4096e0Q, 2048e0Q,
       1024e0Q, 512e0Q, 256e0Q, 128e0Q, 64e0Q, 32e0Q, 16e0Q, 8e0Q, 4e0Q, 2e0Q, 1e0Q };
+*/
 
-     mpfr_init2(t, 113);
-     mpfr_set(t, *x, (mp_rnd_t)SvUV(round));
+     if(!mpfr_regular_p(*x)) return newSVnv((float128)mpfr_get_d(*x, GMP_RNDZ));
 
-     if(mpfr_nan_p(t) || mpfr_inf_p(t)) {
-       mpfr_clear(t);
-       return newSVnv((float128)mpfr_get_d(t, GMP_RNDN));
+     exp = mpfr_get_exp(*x);
+     if(exp < -16381)
+       bits = exp + 16494;
+
+     if(bits <= 0) {
+       mpfr_init2(t, 53);
+       if(mpfr_sgn(*x) > 0) {	/* positive */
+         mpfr_set_str(t, "0.1e-16494", 2, GMP_RNDZ);
+         c = mpfr_cmp(*x, t);
+         mpfr_clear(t);
+         if(c <= 0) {
+           if(r == GMP_RNDN || r == GMP_RNDD || r == GMP_RNDZ) return newSVnv(0.0Q);
+           return newSVnv(6.475175119438025110924438958227646552e-4966Q);
+         }
+         else {
+           if(r == GMP_RNDN || r == GMP_RNDU || r == MPFR_RNDA)
+             return newSVnv(6.475175119438025110924438958227646552e-4966Q);
+           return newSVnv(0.0Q);
+         }
+       }
+       else {			/* negative */
+         mpfr_set_str(t, "-0.1e-16494", 2, GMP_RNDZ);
+         c = mpfr_cmp(*x, t);
+         mpfr_clear(t);
+         if(c >= 0) {
+           if(r == GMP_RNDN || r == GMP_RNDU || r == GMP_RNDZ) return newSVnv(0.0Q);
+           return newSVnv(-6.475175119438025110924438958227646552e-4966Q);
+         }
+         if(c < 0) {
+           if(r == GMP_RNDN || r == GMP_RNDD || r == MPFR_RNDA)
+             return newSVnv(-6.475175119438025110924438958227646552e-4966Q);
+           return newSVnv(0.0Q);
+         }
+       }
+     }
+     else {
+       mpfr_init2(t, bits);
+       mpfr_set(t, *x, r);
      }
 
      Newxz(out, 115, char);
@@ -2200,31 +2239,23 @@ SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
      if(out[0] == '-') {
        sign = -1.0Q;
        out++;
-       retract++;
+       c++;
      }
      else {
        if(out[0] == '+') {
          out++;
-         retract++;
+         c++;
        }
      }
 
-     for(i = 0; i < 113; i++) {
-       if(out[i] == '1') ret += add_on[i];
+     for(i = 0; i < bits; i++) {
+       if(out[i] == '1') ret += powq(2.0Q, 112 - i);
      }
 
-     if(retract) out--;
+     if(c) out--;
      Safefree(out);
 
-     if(exp > 113) {
-       retract = exp - 113; /* re-using 'retract' */
-       for(i = 0; i < retract; i++) ret *= 2.0Q;
-     }
-
-     if(exp < 113) {
-       for(i = exp; i < 113; i++) ret /= 2.0Q;
-     }
-
+     ret *= powq(2.0Q, exp - 113);
      return newSVnv(ret * sign);
 
 #elif defined(NV_IS_LONG_DOUBLE)
