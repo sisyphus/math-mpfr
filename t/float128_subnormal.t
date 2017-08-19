@@ -11,7 +11,7 @@ if($Config{nvtype} ne '__float128') {
   exit 0;
 }
 
-print "1..40\n";
+print "1..50\n";
 
 my $str = '0.1e-16494';
 
@@ -380,6 +380,96 @@ if($ret == $z && $ret == $z_op) {print "ok 40\n"}
 else {
   warn "\n\$ret: $ret\n\$z: $z\n\$z_op: $z_op\n";
   print "not ok 40\n";
+}
+
+###############################
+###############################
+
+$str = '0.111e-16492';
+Rmpfr_set_str($op, $str, 2, MPFR_RNDZ);
+
+$ret = Rmpfr_get_NV($op, MPFR_RNDA);
+
+if($ret == $pmin_op * 4.0 && $ret == $pmin * 4.0) {print "ok 41\n"}
+else {
+  warn "\n\$ret: $ret\n";
+  print "not ok 41\n";
+}
+
+$ret = Rmpfr_get_NV($op, MPFR_RNDN);
+
+if($ret == $pmin_op * 4.0 && $ret == $pmin * 4.0) {print "ok 42\n"}
+else {
+  warn "\n\$ret: $ret\n";
+  print "not ok 42\n";
+}
+
+$ret = Rmpfr_get_NV($op, MPFR_RNDD);
+
+if($ret == $pmin_op * 3.0 && $ret == $pmin * 3.0) {print "ok 43\n"}
+else {
+  warn "\n\$ret: $ret\n";
+  print "not ok 43\n";
+}
+
+$ret = Rmpfr_get_NV($op, MPFR_RNDU);
+
+if($ret == $pmin_op * 4.0 && $ret == $pmin * 4.0)  {print "ok 44\n"}
+else {
+  warn "\n\$ret: $ret\n";
+  print "not ok 44\n";
+}
+
+$ret = Rmpfr_get_NV($op, MPFR_RNDZ);
+
+if($ret == $pmin_op * 3.0 && $ret == $pmin * 3.0)  {print "ok 45\n"}
+else {
+  warn "\n\$ret: $ret\n";
+  print "not ok 45\n";
+}
+
+###############################
+
+$op *= -1;
+
+$ret = Rmpfr_get_NV($op, MPFR_RNDA);
+
+if($ret == -$pmin_op * 4.0 && $ret == -$pmin * 4.0) {print "ok 46\n"}
+else {
+  warn "\n\$ret: $ret\n";
+  print "not ok 46\n";
+}
+
+$ret = Rmpfr_get_NV($op, MPFR_RNDN);
+
+if($ret == -$pmin_op * 4.0 && $ret == -$pmin * 4.0) {print "ok 47\n"}
+else {
+  warn "\n\$ret: $ret\n";
+  print "not ok 47\n";
+}
+
+$ret = Rmpfr_get_NV($op, MPFR_RNDU);
+
+if($ret == -$pmin_op * 3.0 && $ret == -$pmin * 3.0) {print "ok 48\n"}
+else {
+  warn "\n\$ret: $ret\n";
+  print "not ok 48\n";
+}
+
+$ret = Rmpfr_get_NV($op, MPFR_RNDD);
+
+if($ret == -$pmin_op * 4.0 && $ret == -$pmin * 4.0) {print "ok 49\n"}
+else {
+  warn "\n\$ret: $ret\n";
+  print "not ok 49\n";
+}
+
+$ret = Rmpfr_get_NV($op, MPFR_RNDZ);
+
+if($ret == -$pmin_op * 3.0 && $ret == -$pmin * 3.0) {print "ok 50\n"}
+else {
+  warn "\n\$ret: $ret\n";
+  print "not ok 50\n";
 }
 
 ###############################
