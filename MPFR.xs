@@ -2253,6 +2253,13 @@ SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
      if(c) out--;
      Safefree(out);
 
+     c = exp < -16381 ? exp + 16381 : 0;	/* function has already returned if exp < -16494 */
+
+     if(c) { 			/* powq(2.0Q, exp) will be zero - so do the calculation in 2 steps */
+       ret *= powq(2.0Q, c);
+       exp -= c;		/* exp += abs(c) */
+     }
+
      ret *= powq(2.0Q, exp - 113);
      return newSVnv(ret * sign);
 
