@@ -852,8 +852,8 @@ int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
      int returned;
 
      ld = (float128)SvNV(b);
-     if(ld != ld) {
-       mpfr_set_erangeflag;
+     if(ld != ld || mpfr_nan_p(*a)) {
+       mpfr_set_erangeflag();
        return 0;
      }
 
@@ -898,8 +898,7 @@ int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
      returned = mpfr_set_str(t, buffer, 10, GMP_RNDN);
      Safefree(buffer);
 
-     if (exp2 > exp) mpfr_div_2ui(t, t, exp2 - exp, GMP_RNDN);
-     else mpfr_mul_2ui(t, t, exp - exp2, GMP_RNDN);
+     mpfr_mul_2si(t, t, exp - exp2, GMP_RNDN);
 
      returned = mpfr_cmp(*a, t);
      mpfr_clear(t);
