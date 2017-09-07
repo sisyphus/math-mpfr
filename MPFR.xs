@@ -769,8 +769,8 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
 #elif defined(NV_IS_FLOAT128)
 
      char * buffer;
-     int exp, exp2 = 0;
-     float128 ld, buffer_size;
+     int exp;
+     float128 ld;
      int returned;
 
      if(!SvNOK(q)) croak("Second arg given to Rmpfr_set_NV is not an NV");
@@ -795,24 +795,20 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
 
      ld = frexpq(ld, &exp);
 
-     while(ld != floorq(ld)) {
-          ld *= 2;
-          exp2 += 1;
-     }
+     /* Convert ld to an integer by right shifting it 113 bits */
+     ld *= 1.0384593717069655257060992658440192e34Q;      /* ld *= powq(2.0Q, 113); */
+     Newxz(buffer, 40, char);
 
-     buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-     buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
+     returned = quadmath_snprintf(buffer, 40, "%.0Qf", ld);
 
-     Newxz(buffer, buffer_size + 5, char);
-
-     returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
      if(returned < 0) croak("In Rmpfr_set_NV, encoding error in quadmath_snprintf function");
-     if(returned >= buffer_size + 5) croak("In Rmpfr_set_NV, buffer given to quadmath_snprintf function was too small");
+     if(returned >= 40) croak("In Rmpfr_set_NV, buffer given to quadmath_snprintf function was too small");
+
      returned = mpfr_set_str(*p, buffer, 10, (mp_rnd_t)round);
      Safefree(buffer);
 
-     if (exp2 > exp) mpfr_div_2ui(*p, *p, exp2 - exp, GMP_RNDN);
-     else mpfr_mul_2ui(*p, *p, exp - exp2, GMP_RNDN);
+     mpfr_mul_2si(*p, *p, exp - 113, GMP_RNDN);
+
      return newSViv(returned);
 
 #else
@@ -847,8 +843,8 @@ int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
 
      mpfr_t t;
      char * buffer;
-     int exp, exp2 = 0;
-     float128 ld, buffer_size;
+     int exp;
+     float128 ld;
      int returned;
 
      ld = (float128)SvNV(b);
@@ -881,24 +877,19 @@ int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
 
      ld = frexpq(ld, &exp);
 
-     while(ld != floorq(ld)) {
-          ld *= 2;
-          exp2 += 1;
-     }
+     /* Convert ld to an integer by right shifting it 113 bits */
+     ld *= 1.0384593717069655257060992658440192e34Q;      /* ld *= powq(2.0Q, 113); */
+     Newxz(buffer, 40, char);
 
-     buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-     buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
-
-     Newxz(buffer, buffer_size + 5, char);
-
-     returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+     returned = quadmath_snprintf(buffer, 40, "%.0Qf", ld);
      if(returned < 0) croak("In Rmpfr_set_NV, encoding error in quadmath_snprintf function");
-     if(returned >= buffer_size + 5) croak("In Rmpfr_set_NV, buffer given to quadmath_snprintf function was too small");
+     if(returned >= 40) croak("In Rmpfr_set_NV, buffer given to quadmath_snprintf function was too small");
+
      mpfr_init2(t, FLT128_MANT_DIG);
      returned = mpfr_set_str(t, buffer, 10, GMP_RNDN);
      Safefree(buffer);
 
-     mpfr_mul_2si(t, t, exp - exp2, GMP_RNDN);
+     mpfr_mul_2si(t, t, exp - 113, GMP_RNDN);
 
      returned = mpfr_cmp(*a, t);
      mpfr_clear(t);
