@@ -1,8 +1,9 @@
 use strict;
 use warnings;
 use Math::MPFR qw(:mpfr);
+use Config;
 
-print "1..6\n";
+print "1..8\n";
 
 Rmpfr_set_default_prec(120);
 
@@ -69,4 +70,24 @@ if(Rmpfr_inf_p($fr1) && $fr1 < 0) {print "ok 6\n"}
 else {
   warn "\n Expected -Inf, got $fr1\n";
   print "not ok 6\n";
+}
+
+if($Config{nvtype} eq '__float128') {
+  my $nv_max = 1.18973149535723176508575932662800702e4932;
+  my $max = Rmpfr_init2(113);
+  Rmpfr_set_NV($max, $nv_max, MPFR_RNDN);
+  if($max == $nv_max) {print "ok 7\n"}
+  else {
+    warn "\n\$max: $max\n\$nv_max: $nv_max\n";
+    print "not ok 7\n";
+  }
+  if(!Rmpfr_cmp_NV($max, $nv_max)) {print "ok 8\n"}
+  else {
+    warn "\nRmpfr_cmp_NV() returned", Rmpfr_cmp_NV($max, $nv_max), "\nExpected 0\n";
+    print "not ok 8\n";
+  }
+}
+else {
+  warn "\nSkipping tests 7 and 8 - NV is not __float128\n";
+  print "ok 7\nok 8\n";
 }
