@@ -3,7 +3,7 @@ use warnings;
 use Math::MPFR qw(:mpfr);
 use Config;
 
-print "1..8\n";
+print "1..10\n";
 
 Rmpfr_set_default_prec(120);
 
@@ -86,8 +86,22 @@ if($Config{nvtype} eq '__float128') {
     warn "\nRmpfr_cmp_NV() returned", Rmpfr_cmp_NV($max, $nv_max), "\nExpected 0\n";
     print "not ok 8\n";
   }
+
+  my $nv_small_neg = -2.75423489483742700033038566794997947e-4928;
+  my $small_neg = Rmpfr_init2(113);
+  Rmpfr_set_NV($small_neg, $nv_small_neg, MPFR_RNDN);
+  if($small_neg == $nv_small_neg) {print "ok 9\n"}
+  else {
+    warn "\n\$small_neg: $small_neg\n\$nv_small_neg: $nv_small_neg\n";
+    print "not ok 9\n";
+  }
+  if(!Rmpfr_cmp_NV($small_neg, $nv_small_neg)) {print "ok 10\n"}
+  else {
+    warn "\nRmpfr_cmp_NV() returned", Rmpfr_cmp_NV($small_neg, $nv_small_neg), "\nExpected 0\n";
+    print "not ok 10\n";
+  }
 }
 else {
-  warn "\nSkipping tests 7 and 8 - NV is not __float128\n";
-  print "ok 7\nok 8\n";
+  warn "\nSkipping tests 7 to 10 - NV is not __float128\n";
+  print "ok 7\nok 8\nok 9\nok 10\n";
 }
