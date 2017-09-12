@@ -6658,7 +6658,7 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
   mpfr_t temp;
   double ld;
   int i, n = 8;
-  char * buff;
+  char buff[4];
   void * p = &ld;
 
   if(bits != 53)
@@ -6678,9 +6678,6 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
 
   mpfr_clear(temp);
 
-  Newx(buff, 4, char);
-  if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_d_bytes function");
-
   sp = mark;
 
 #ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
@@ -6693,7 +6690,6 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
     XPUSHs(sv_2mortal(newSVpv(buff, 0)));
   }
   PUTBACK;
-  Safefree(buff);
   XSRETURN(n);
 
 }
@@ -6705,7 +6701,7 @@ void _d_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
   dXSARGS;
   double ld;
   int i, n = 8;
-  char * buff;
+  char buff[4];
   void * p = &ld;
 
   if(bits != 53)
@@ -6719,9 +6715,6 @@ void _d_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
   ld = mpfr_get_d(*str, GMP_RNDN);
 
-  Newx(buff, 4, char);
-  if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_d_bytes_fr function");
-
   sp = mark;
 
 #ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
@@ -6734,7 +6727,6 @@ void _d_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
     XPUSHs(sv_2mortal(newSVpv(buff, 0)));
   }
   PUTBACK;
-  Safefree(buff);
   XSRETURN(n);
 
 }
@@ -6747,7 +6739,7 @@ void _dd_bytes(pTHX_ SV * str, unsigned int bits) {
   mpfr_t temp;
   double msd, lsd;
   int i, n = 8;
-  char * buff;
+  char buff[4];
   void * pm = &msd;
   void * pl = &lsd;
 
@@ -6767,9 +6759,6 @@ void _dd_bytes(pTHX_ SV * str, unsigned int bits) {
 
   mpfr_clear(temp);
 
-  Newx(buff, 4, char);
-  if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_dd_bytes function");
-
   sp = mark;
 
 #ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
@@ -6792,7 +6781,6 @@ void _dd_bytes(pTHX_ SV * str, unsigned int bits) {
     XPUSHs(sv_2mortal(newSVpv(buff, 0)));
   }
   PUTBACK;
-  Safefree(buff);
   XSRETURN(16);
 
 }
@@ -6805,7 +6793,7 @@ void _dd_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
   mpfr_t temp;
   double msd, lsd;
   int i, n = 8;
-  char * buff;
+  char buff[4];
   void * pm = &msd;
   void * pl = &lsd;
 
@@ -6825,9 +6813,6 @@ void _dd_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
   mpfr_clear(temp);
 
-  Newx(buff, 4, char);
-  if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_dd_bytes_fr function");
-
   sp = mark;
 
 #ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
@@ -6850,7 +6835,6 @@ void _dd_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
     XPUSHs(sv_2mortal(newSVpv(buff, 0)));
   }
   PUTBACK;
-  Safefree(buff);
   XSRETURN(16);
 
 }
@@ -6864,7 +6848,7 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
   mpfr_t temp;
   long double ld;
   int i, n;
-  char * buff;
+  char buff[4];
   void * p = &ld;
 
   if(bits != 64 && bits != 113) {
@@ -6886,9 +6870,6 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
 
   mpfr_clear(temp);
 
-  Newx(buff, 4, char);
-  if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_ld_bytes function");
-
   sp = mark;
 
   n = bits == 64 ? 10 : 16;
@@ -6903,7 +6884,6 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
     XPUSHs(sv_2mortal(newSVpv(buff, 0)));
   }
   PUTBACK;
-  Safefree(buff);
   XSRETURN(n);
 
 }
@@ -6916,7 +6896,7 @@ void _ld_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
   dXSARGS;
   long double ld;
   int i, n;
-  char * buff;
+  char buff[4];
   void * p = &ld;
 
   if(bits != 64 && bits != 113) {
@@ -6932,9 +6912,6 @@ void _ld_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
   ld = mpfr_get_ld(*str, GMP_RNDN);
 
-  Newx(buff, 4, char);
-  if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_ld_bytes_fr function");
-
   sp = mark;
 
   n = bits == 64 ? 10 : 16;
@@ -6949,7 +6926,6 @@ void _ld_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
     XPUSHs(sv_2mortal(newSVpv(buff, 0)));
   }
   PUTBACK;
-  Safefree(buff);
   XSRETURN(n);
 
 }
@@ -6969,7 +6945,7 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
   mpfr_t temp;
   float128 ld;
   int i, n = 16;
-  char * buff;
+  char buff[4];
   void * p = &ld;
 
   if(bits != 113)
@@ -6989,9 +6965,6 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
 
   mpfr_clear(temp);
 
-  Newx(buff, 4, char);
-  if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_f128_bytes function");
-
   sp = mark;
 
 #ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
@@ -7004,7 +6977,6 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
     XPUSHs(sv_2mortal(newSVpv(buff, 0)));
   }
   PUTBACK;
-  Safefree(buff);
   XSRETURN(n);
 
 #endif
@@ -7024,7 +6996,7 @@ void _f128_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
   dXSARGS;
   float128 ld;
   int i, n = 16;
-  char * buff;
+  char buff[4];
   void * p = &ld;
 
   if(bits != 113)
@@ -7038,9 +7010,6 @@ void _f128_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
   ld = mpfr_get_float128(*str, GMP_RNDN);
 
-  Newx(buff, 4, char);
-  if(buff == NULL) croak("Failed to allocate memory in Math::MPFR::_f128_bytes_fr function");
-
   sp = mark;
 
 #ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
@@ -7053,7 +7022,6 @@ void _f128_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
     XPUSHs(sv_2mortal(newSVpv(buff, 0)));
   }
   PUTBACK;
-  Safefree(buff);
   XSRETURN(n);
 
 #endif
