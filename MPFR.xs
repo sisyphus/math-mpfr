@@ -1542,12 +1542,12 @@ int Rmpfr_trunc(mpfr_t * a, mpfr_t * b) {
      return mpfr_trunc(*a, *b);
 }
 
-/* NO LONGER SUPPORTED
+/* NO LONGER SUPPORTED - use Rmpfr_nextabove instead
 SV * Rmpfr_add_one_ulp(mpfr_t * p, SV * round) {
      return newSViv(mpfr_add_one_ulp(*p, (mp_rnd_t)SvUV(round)));
 } */
 
-/* NO LONGER SUPPORTED
+/* NO LONGER SUPPORTED - use Rmpfr_nextbelow instead
 SV * Rmpfr_sub_one_ulp(mpfr_t * p, SV * round) {
      return newSViv(mpfr_sub_one_ulp(*p, (mp_rnd_t)SvUV(round)));
 } */
@@ -7361,6 +7361,14 @@ int Rmpfr_beta(mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, int round) {
 #endif
 }
 
+int Rmpfr_rootn_ui (mpfr_t * rop, mpfr_t * op, unsigned long k, int round) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+    return(mpfr_rootn_ui(*rop, *op, k, (mp_rnd_t)round));
+#else
+    croak("Rmpfr_rootn_ui not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
 
 
 
@@ -11651,5 +11659,12 @@ Rmpfr_beta (rop, op1, op2, round)
 	mpfr_t *	rop
 	mpfr_t *	op1
 	mpfr_t *	op2
+	int	round
+
+int
+Rmpfr_rootn_ui (rop, op, k, round)
+	mpfr_t *	rop
+	mpfr_t *	op
+	unsigned long	k
 	int	round
 
