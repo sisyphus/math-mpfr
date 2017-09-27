@@ -915,9 +915,16 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Set $rop to the cubic root of $op, rounded in the direction $rnd.
 
    $si = Rmpfr_root($rop, $op, $ui $rnd);
+    Deprecated in mpfr-4.0.0 - use Rmpfr_rootn_ui with mpfr-4.0.0.
     Set $rop to the $ui'th root of $op, rounded in the direction
     $rnd.  Return 0 if the operation is exact, a non-zero value
     otherwise.
+
+   $si = Rmpfr_rootn_ui($rop, $op, $ui $rnd); # mpfr-4.0.0 and later
+    Same as Rmpfr_root except that $rop is set to +0 (instead of -0)
+    when $op is -0 and $ui is even.
+    This function (and Rmpfr_cbrt) agree with the rootn function of
+    the IEEE 754-2008 standard (Section 9.2).
 
    $si = Rmpfr_pow_ui($rop, $op, $ui, $rnd);
    $si = Rmpfr_pow_si($rop, $op, $si, $rnd);
@@ -1858,7 +1865,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $si = Rmpfr_grandom($rop1, $rop2, $state, $rnd);
     Available only with mpfr-3.1.0 and later.
-    Deprecated as of mpfr-4.0.0.
+    Deprecated in mpfr-4.0.0. Use Rmpfr_nrandom with mpfr-4.0.0.
     Generate two random floats according to a standard normal
     gaussian distribution. The floating-point numbers $rop1 and
     $rop2 can be seen as if a random real number were generated
