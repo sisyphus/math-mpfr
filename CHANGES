@@ -4,6 +4,7 @@
    CAN_PASS_FLOAT128 was not defined.
  - Improve performance of Rmpfr_set_NV and Rmpfr_cmp_NV for quadmath builds of perl
    where CAN_PASS_FLOAT128 is not defined.
+ - Add Rmpfr_rootn_ui (mpfr-4.0.0 and later only).
 
 3.36
  - Add Rmpfr_rec_root, provided by Vincent Lefevre:
