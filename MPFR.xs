@@ -7345,10 +7345,18 @@ int Rmpfr_rec_root(pTHX_ mpfr_t * rop, mpfr_t * op, unsigned long root, SV * rnd
        ) {
     mpfr_set_prec(t, mpfr_get_prec(t) + 8);
     inex1 = mpfr_ui_div(t, 1, *op, GMP_RNDZ);
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+    inex2 = mpfr_rootn_ui(*rop, t, root, (mpfr_rnd_t)SvUV(rnd));
+#else
     inex2 = mpfr_root(*rop, t, root, (mpfr_rnd_t)SvUV(rnd));
+#endif
     if(!inex1) return inex2;
     mpfr_nextabove(t);
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+    inex3 = mpfr_rootn_ui(u, t, root, (mpfr_rnd_t)SvUV(rnd));
+#else
     inex3 = mpfr_root(u, t, root, (mpfr_rnd_t)SvUV(rnd));
+#endif
   }
   return inex2;
 }
