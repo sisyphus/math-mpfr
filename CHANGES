@@ -5,6 +5,8 @@
  - Improve performance of Rmpfr_set_NV and Rmpfr_cmp_NV for quadmath builds of perl
    where CAN_PASS_FLOAT128 is not defined.
  - Add Rmpfr_rootn_ui (mpfr-4.0.0 and later only).
+ - Add tests to Rmpfr_get_q.t to check that Rmpfr_get_q canonicalizes the rational.
+   (Trizen pointed out that, with 4.0.0-RC1, mpfr_get_q did NOT canonicalize.)
 
 3.36
  - Add Rmpfr_rec_root, provided by Vincent Lefevre:
