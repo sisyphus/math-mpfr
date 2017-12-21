@@ -14,6 +14,7 @@
     use constant  MPFR_RNDU           => 2;
     use constant  MPFR_RNDD           => 3;
     use constant  MPFR_RNDA           => 4;
+    use constant  MPFR_RNDF           => 5;
     use constant  _UOK_T              => 1;
     use constant  _IOK_T              => 2;
     use constant  _NOK_T              => 3;
