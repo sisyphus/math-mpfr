@@ -124,17 +124,17 @@ else {
   Rmpfr_get_q($rop, Math::MPFR->new(1.5));
   Rmpq_numref($num, $rop);
 
-  if($num == 2) {print "ok 9\n"}
+  if($num == 3) {print "ok 9\n"}
   else {
-    warn "\nExpected 2, got $num\n";
+    warn "\nExpected 3, got $num\n";
     print "not ok 9\n";
   }
 
   Rmpq_denref($num, $rop);
 
-  if($num == 3) {print "ok 10\n"}
+  if($num == 2) {print "ok 10\n"}
   else {
-    warn "\nExpected 3, got $num\n";
+    warn "\nExpected 2, got $num\n";
     print "not ok 10\n";
   }
 }
