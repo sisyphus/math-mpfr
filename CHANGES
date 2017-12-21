@@ -1,4 +1,5 @@
 3.37
+ - Add MPFR_RNDF rounding mode
  - Fix bug in Rmpfr_cmp_NV and add the tests (test 8 in t/nan_cmp.t) that would have
    detected it. The bug affected only quadmath builds of perl, and only then if
    CAN_PASS_FLOAT128 was not defined.
