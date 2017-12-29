@@ -1261,6 +1261,27 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     needed (currently 'mpfr_const_log2', 'mpfr_const_pi' and
     'mpfr_const_euler').
 
+   Rmpfr_free_cache2($ui);        # mpfr-4.0.0 and later only
+    Free various caches and pools used by MPFR internally, as
+    specified by $ui, which is a set of flags:
+     a) those local to the current thread if flag
+        MPFR_FREE_LOCAL_CACHE is set;
+     b) those shared by all threads if flag
+        MPFR_FREE_GLOBAL_CACHE is set.
+
+    The other bits of $ui are currently ignored and are reserved for
+    future use; they should be zero.
+    Note:
+    Rmpfr_free_cache2(MPFR_FREE_LOCAL_CACHE|MPFR_FREE_GLOBAL_CACHE)
+    is currently equivalent to mpfr_free_cache().
+
+   Rmpfr_free_pool()             # mpfr-4.0.0 and later only
+    Free the pools used by mpfr internally.
+    Note:
+    This function is automatically called after the thread-local
+    caches are freed (with mpfr_free_cache or mpfr_free_cache2).
+
+
    $si = Rmpfr_beta($rop, $op1, $op2, $rnd); # mpfr-4.0.0 &
                                              # later only
     Set $rop to the beta function at $op1, $op2, rounded
