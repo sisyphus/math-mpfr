@@ -5,40 +5,43 @@
     use Math::MPFR::Prec;
     use Math::MPFR::Random;
 
-    use constant  GMP_RNDN            => 0;
-    use constant  GMP_RNDZ            => 1;
-    use constant  GMP_RNDU            => 2;
-    use constant  GMP_RNDD            => 3;
-    use constant  MPFR_RNDN           => 0;
-    use constant  MPFR_RNDZ           => 1;
-    use constant  MPFR_RNDU           => 2;
-    use constant  MPFR_RNDD           => 3;
-    use constant  MPFR_RNDA           => 4;
-    use constant  MPFR_RNDF           => 5;
-    use constant  _UOK_T              => 1;
-    use constant  _IOK_T              => 2;
-    use constant  _NOK_T              => 3;
-    use constant  _POK_T              => 4;
-    use constant  _MATH_MPFR_T        => 5;
-    use constant  _MATH_GMPf_T        => 6;
-    use constant  _MATH_GMPq_T        => 7;
-    use constant  _MATH_GMPz_T        => 8;
-    use constant  _MATH_GMP_T         => 9;
-    use constant  _MATH_MPC_T         => 10;
-    use constant MPFR_FLAGS_UNDERFLOW => 1;
-    use constant MPFR_FLAGS_OVERFLOW  => 2;
-    use constant MPFR_FLAGS_NAN       => 4;
-    use constant MPFR_FLAGS_INEXACT   => 8;
-    use constant MPFR_FLAGS_ERANGE    => 16;
-    use constant MPFR_FLAGS_DIVBY0    => 32;
-    use constant MPFR_FLAGS_ALL       => 63;
+    use constant  GMP_RNDN              => 0;
+    use constant  GMP_RNDZ              => 1;
+    use constant  GMP_RNDU              => 2;
+    use constant  GMP_RNDD              => 3;
+    use constant  MPFR_RNDN             => 0;
+    use constant  MPFR_RNDZ             => 1;
+    use constant  MPFR_RNDU             => 2;
+    use constant  MPFR_RNDD             => 3;
+    use constant  MPFR_RNDA             => 4;
+    use constant  MPFR_RNDF             => 5;
+    use constant  _UOK_T                => 1;
+    use constant  _IOK_T                => 2;
+    use constant  _NOK_T                => 3;
+    use constant  _POK_T                => 4;
+    use constant  _MATH_MPFR_T          => 5;
+    use constant  _MATH_GMPf_T          => 6;
+    use constant  _MATH_GMPq_T          => 7;
+    use constant  _MATH_GMPz_T          => 8;
+    use constant  _MATH_GMP_T           => 9;
+    use constant  _MATH_MPC_T           => 10;
+    use constant MPFR_FLAGS_UNDERFLOW   => 1;
+    use constant MPFR_FLAGS_OVERFLOW    => 2;
+    use constant MPFR_FLAGS_NAN         => 4;
+    use constant MPFR_FLAGS_INEXACT     => 8;
+    use constant MPFR_FLAGS_ERANGE      => 16;
+    use constant MPFR_FLAGS_DIVBY0      => 32;
+    use constant MPFR_FLAGS_ALL         => 63;
+    use constant MPFR_FREE_LOCAL_CACHE  => 1;
+    use constant MPFR_FREE_GLOBAL_CACHE => 2;
 
 
     use subs qw(MPFR_VERSION MPFR_VERSION_MAJOR MPFR_VERSION_MINOR
                 MPFR_VERSION_PATCHLEVEL MPFR_VERSION_STRING
                 RMPFR_PREC_MIN RMPFR_PREC_MAX
                 MPFR_DBL_DIG MPFR_LDBL_DIG MPFR_FLT128_DIG
-                GMP_LIMB_BITS GMP_NAIL_BITS);
+                GMP_LIMB_BITS GMP_NAIL_BITS
+                MPFR_FREE_LOCAL_CACHE MPFR_FREE_GLOBAL_CACHE);
 
     use overload
     '++'   => \&overload_inc,
@@ -84,6 +87,7 @@ MPFR_FLAGS_INEXACT MPFR_FLAGS_ERANGE MPFR_FLAGS_ALL
 MPFR_VERSION MPFR_VERSION_MAJOR MPFR_VERSION_MINOR
 MPFR_VERSION_PATCHLEVEL MPFR_VERSION_STRING RMPFR_VERSION_NUM
 RMPFR_PREC_MIN RMPFR_PREC_MAX
+MPFR_FREE_LOCAL_CACHE MPFR_FREE_GLOBAL_CACHE
 Rmpfr_randclear Rmpfr_randinit_mt
 Rmpfr_randinit_default Rmpfr_randinit_lc_2exp
 Rmpfr_randinit_lc_2exp_size Rmpfr_randseed Rmpfr_randseed_ui
@@ -105,7 +109,8 @@ Rmpfr_exp10 Rmpfr_exp2 Rmpfr_expm1 Rmpfr_fac_ui
 Rmpfr_fits_intmax_p Rmpfr_fits_sint_p Rmpfr_fits_slong_p
 Rmpfr_fits_sshort_p Rmpfr_fits_uint_p Rmpfr_fits_uintmax_p
 Rmpfr_fits_ulong_p Rmpfr_fits_IV_p Rmpfr_fits_UV_p
-Rmpfr_fits_ushort_p Rmpfr_floor Rmpfr_fma Rmpfr_frac Rmpfr_free_cache Rmpfr_gamma
+Rmpfr_fits_ushort_p Rmpfr_floor Rmpfr_fma Rmpfr_frac Rmpfr_gamma
+Rmpfr_free_cache Rmpfr_free_cache2 Rmpfr_free_pool
 Rmpfr_get_d Rmpfr_get_IV Rmpfr_get_UV Rmpfr_get_NV
 Rmpfr_get_d_2exp Rmpfr_get_d1 Rmpfr_get_default_prec Rmpfr_get_default_rounding_mode
 Rmpfr_get_emax Rmpfr_get_emax_max Rmpfr_get_emax_min Rmpfr_get_emin
@@ -186,6 +191,7 @@ MPFR_FLAGS_INEXACT MPFR_FLAGS_ERANGE MPFR_FLAGS_ALL
 MPFR_VERSION MPFR_VERSION_MAJOR MPFR_VERSION_MINOR
 MPFR_VERSION_PATCHLEVEL MPFR_VERSION_STRING RMPFR_VERSION_NUM
 RMPFR_PREC_MIN RMPFR_PREC_MAX
+MPFR_FREE_LOCAL_CACHE MPFR_FREE_GLOBAL_CACHE
 Rmpfr_randclear Rmpfr_randinit_mt
 Rmpfr_randinit_default Rmpfr_randinit_lc_2exp
 Rmpfr_randinit_lc_2exp_size Rmpfr_randseed Rmpfr_randseed_ui
@@ -207,7 +213,8 @@ Rmpfr_exp10 Rmpfr_exp2 Rmpfr_expm1 Rmpfr_fac_ui
 Rmpfr_fits_intmax_p Rmpfr_fits_sint_p Rmpfr_fits_slong_p
 Rmpfr_fits_sshort_p Rmpfr_fits_uint_p Rmpfr_fits_uintmax_p
 Rmpfr_fits_ulong_p Rmpfr_fits_IV_p Rmpfr_fits_UV_p
-Rmpfr_fits_ushort_p Rmpfr_floor Rmpfr_fma Rmpfr_frac Rmpfr_free_cache Rmpfr_gamma
+Rmpfr_fits_ushort_p Rmpfr_floor Rmpfr_fma Rmpfr_frac Rmpfr_gamma
+Rmpfr_free_cache Rmpfr_free_cache2 Rmpfr_free_pool
 Rmpfr_get_d Rmpfr_get_IV Rmpfr_get_UV Rmpfr_get_NV
 Rmpfr_get_d_2exp Rmpfr_get_d1 Rmpfr_get_default_prec Rmpfr_get_default_rounding_mode
 Rmpfr_get_emax Rmpfr_get_emax_max Rmpfr_get_emax_min Rmpfr_get_emin
