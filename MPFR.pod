@@ -2308,8 +2308,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
 =head1 TODO
 
-    Look at wrapping mpfr_free_cache2, mpfr_free_pool,
-    mpfr_mp_memory_cleanup, mp_set_memory_functions
+    Look at wrapping mpfr_mp_memory_cleanup, mp_set_memory_functions
 
 =head1 BUGS
 
