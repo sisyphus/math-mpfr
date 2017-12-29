@@ -2013,6 +2013,22 @@ void Rmpfr_free_cache(void) {
      mpfr_free_cache();
 }
 
+void Rmpfr_free_cache2(unsigned int way) {
+#if MPFR_VERSION_MAJOR >= 4
+     mpfr_free_cache2((mpfr_free_cache_t) way);
+#else
+     croak("Rmpfr_free_cache2 not implmented with this mpfr version (%s) - need 4.0.0 or later", MPFR_VERSION_STRING);
+#endif
+}
+
+void Rmpfr_free_pool(void) {
+#if MPFR_VERSION_MAJOR >= 4
+     mpfr_free_pool();
+#else
+     croak("Rmpfr_free_pool not implmented with this mpfr version (%s) - need 4.0.0 or later", MPFR_VERSION_STRING);
+#endif
+}
+
 SV * Rmpfr_get_version(pTHX) {
      return newSVpv(mpfr_get_version(), 0);
 }
@@ -9684,6 +9700,38 @@ Rmpfr_free_cache ()
         PPCODE:
         temp = PL_markstack_ptr++;
         Rmpfr_free_cache();
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+void
+Rmpfr_free_cache2 (way)
+	unsigned int	way
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpfr_free_cache2(way);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+void
+Rmpfr_free_pool ()
+
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpfr_free_pool();
         if (PL_markstack_ptr != temp) {
           /* truly void, because dXSARGS not invoked */
           PL_markstack_ptr = temp;
