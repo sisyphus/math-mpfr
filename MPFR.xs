@@ -789,7 +789,7 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
        return newSViv(0);
      }
 
-     ld = frexpq(ld, &exp); /* 0.5 <= returned value < 1.0
+     ld = frexpq(ld, &exp); /* 0.5 <= returned value < 1.0 */
 
      /* Convert ld to an integer by right shifting it 113 bits */
      ld *= 1.0384593717069655257060992658440192e34Q;      /* ld *= powq(2.0Q, 113); */
