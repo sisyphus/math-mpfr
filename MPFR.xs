@@ -7307,7 +7307,7 @@ SV * _lsb(pTHX_ mpfr_t * a) {
   return newSVuv((UV)p);
 }
 
-int Rmpfr_rec_root(pTHX_ mpfr_t * rop, mpfr_t * op, unsigned long root, SV * rnd) {
+int Rmpfr_rec_root(pTHX_ mpfr_t * rop, mpfr_t * op, unsigned long root, SV * round) {
   /*
     Originally supplied by Vincent Lefevre to mpfr mailing list.
     See https://sympa.inria.fr/sympa/arc/mpfr/2016-12/msg00032.html
@@ -7362,16 +7362,16 @@ int Rmpfr_rec_root(pTHX_ mpfr_t * rop, mpfr_t * op, unsigned long root, SV * rnd
     mpfr_set_prec(t, mpfr_get_prec(t) + 8);
     inex1 = mpfr_ui_div(t, 1, *op, GMP_RNDZ);
 #if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
-    inex2 = mpfr_rootn_ui(*rop, t, root, (mpfr_rnd_t)SvUV(rnd));
+    inex2 = mpfr_rootn_ui(*rop, t, root, (mpfr_rnd_t)SvUV(round));
 #else
-    inex2 = mpfr_root(*rop, t, root, (mpfr_rnd_t)SvUV(rnd));
+    inex2 = mpfr_root(*rop, t, root, (mpfr_rnd_t)SvUV(round));
 #endif
     if(!inex1) return inex2;
     mpfr_nextabove(t);
 #if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
-    inex3 = mpfr_rootn_ui(u, t, root, (mpfr_rnd_t)SvUV(rnd));
+    inex3 = mpfr_rootn_ui(u, t, root, (mpfr_rnd_t)SvUV(round));
 #else
-    inex3 = mpfr_root(u, t, root, (mpfr_rnd_t)SvUV(rnd));
+    inex3 = mpfr_root(u, t, root, (mpfr_rnd_t)SvUV(round));
 #endif
   }
   return inex2;
@@ -11701,13 +11701,13 @@ CODE:
 OUTPUT:  RETVAL
 
 int
-Rmpfr_rec_root (rop, op, root, rnd)
+Rmpfr_rec_root (rop, op, root, round)
 	mpfr_t *	rop
 	mpfr_t *	op
 	unsigned long	root
-	SV *	rnd
+	SV *	round
 CODE:
-  RETVAL = Rmpfr_rec_root (aTHX_ rop, op, root, rnd);
+  RETVAL = Rmpfr_rec_root (aTHX_ rop, op, root, round);
 OUTPUT:  RETVAL
 
 int
