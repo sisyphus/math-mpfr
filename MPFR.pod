@@ -113,17 +113,37 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     MPFR_RNDU (numeric value = 2): Round towards +infinity.
     MPFR_RNDD (numeric value = 3): Round towards -infinity.
 
-   You can use either rendition with Math-MPFR-3.0 or later.
+   You can use either the "GMP_*" or the "MPFR_*" renditions.
 
-   The mpfr-3.0.0 library also provides:
-    MPFR_RNDA (numeric value = 4): Round away from zero.
+   Also available are:
+    mpfr-3.0.0 and later:
+      MPFR_RNDA (numeric value = 4): Round away from zero.
+    mpfr-4.0.0 and later:
+      MPFR_RNDF (numeric value = 5): Faithful rounding.
 
-   It, too, can be used with Math-MPFR-3.0 or later, but
-   will cause a fatal error iff the mpfr library against
-   which Math::MPFR is built is earlier than version 3.0.0.
+    These last two rounding modes will cause a fatal error
+    if the mpfr library against which Math::MPFR has been
+    built is not sufficiently recent.
 
-    The 'round to nearest' mode works as in the IEEE
-    P754 standard: in case the number to be rounded
+    MPFR_RNDF is experimental - the computed value is either
+    that corresponding to MPFR_RNDD or that corresponding to
+    MPFR_RNDU. In particular when those values are identical,
+    i.e., when the result of the corresponding operation is
+    exactly representable, that exact result is returned.
+    Thus, the computed result can take at most two possible
+    values, and in absence of underflow/overflow, the
+    corresponding error is strictly less than one ulp (unit in
+    the last place) of that result and of the exact result.
+    For MPFR_RNDF, the returned value and the inexact flag are
+    unspecified, the divide-by-zero flag is as with other
+    roundings, and the underflow and overflow flags match what
+    would be obtained in the case the computed value is the
+    same as with MPFR_RNDD or MPFR_RNDU. The results may not
+    be reproducible, and it may not work with all functions.
+    Please report bugs.
+
+    MPFR_RNDN (the 'round to nearest' mode) works as in the
+    IEEE P754 standard: in case the number to be rounded
     lies exactly in the middle of two representable
     numbers, it is rounded to the one with the least
     significant bit set to zero.  For example, the
