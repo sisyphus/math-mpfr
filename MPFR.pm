@@ -41,7 +41,7 @@
                 RMPFR_PREC_MIN RMPFR_PREC_MAX
                 MPFR_DBL_DIG MPFR_LDBL_DIG MPFR_FLT128_DIG
                 GMP_LIMB_BITS GMP_NAIL_BITS
-                MPFR_FREE_LOCAL_CACHE MPFR_FREE_GLOBAL_CACHE);
+                );
 
     use overload
     '++'   => \&overload_inc,
