@@ -6372,6 +6372,13 @@ SV * Rmpfr_set_DECIMAL64(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
 
 #else
 
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,1,0)
+    if( mpfr_buildopt_decimal_p() ) {
+      warn("To make Rmpfr_set_DECIMAL64 available, rebuild Math::MPFR and pass \"D64=1\" as an arg to the Makefile.PL\n");
+      croak("See \"PASSING _Decimal64 VALUES\" in the Math::MPFR documentation");
+    }
+#endif
+
     croak("MPFR_WANT_DECIMAL_FLOATS needs to have been defined when building Math::MPFR - see \"PASSING _Decimal64 VALUES\" in the Math::MPFR documentation");
 
 #endif
@@ -6414,6 +6421,13 @@ void Rmpfr_get_DECIMAL64(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
     else croak("1st arg (which needs to be a Math::Decimal64 object) supplied to Rmpfr_get_DECIMAL64 is not an object");
 
 #else
+
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,1,0)
+    if( mpfr_buildopt_decimal_p() ) {
+      warn("To make Rmpfr_get_DECIMAL64 available, rebuild Math::MPFR and pass \"D64=1\" as an arg to the Makefile.PL\n");
+      croak("See \"PASSING _Decimal64 VALUES\" in the Math::MPFR documentation");
+    }
+#endif
 
     croak("MPFR_WANT_DECIMAL_FLOATS needs to have been defined when building Math::MPFR - see \"PASSING _Decimal64 VALUES\" in the Math::MPFR documentation");
 
@@ -6534,6 +6548,12 @@ SV * Rmpfr_get_float128(pTHX_ mpfr_t * op, SV * rnd) {
 #ifdef CAN_PASS_FLOAT128
      return newSVnv(mpfr_get_float128(*op, (mp_rnd_t)SvUV(rnd)));
 #else
+#if MPFR_VERSION_MAJOR >= 4
+     if(mpfr_buildopt_float128_p()) {
+       warn("To make Rmpfr_get_float128 available, rebuild Math::MPFR and pass \"F128=1\" as an arg to the Makefile.PL\n");
+       croak("See \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
+     }
+#endif
      croak("Cannot use Rmpfr_get_float128 to return an NV - see \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
 #endif
 }
@@ -6562,7 +6582,12 @@ void Rmpfr_get_FLOAT128(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
     else croak("1st arg (which needs to be a Math::Float128 object) supplied to Rmpfr_get_FLOAT128 is not an object");
 
 #else
-
+#if MPFR_VERSION_MAJOR >= 4
+     if(mpfr_buildopt_float128_p()) {
+       warn("To make Rmpfr_get_FLOAT128 available, rebuild Math::MPFR and pass \"F128=1\" as an arg to the Makefile.PL\n");
+       croak("See \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
+     }
+#endif
     croak("MPFR_WANT_FLOAT128 needs to have been defined when building Math::MPFR - - see \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
 
 #endif
@@ -6591,7 +6616,12 @@ SV * Rmpfr_set_FLOAT128(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
     else croak("2nd arg (which needs to be a Math::Float128 object) supplied to Rmpfr_set_FLOAT128 is not an object");
 
 #else
-
+#if MPFR_VERSION_MAJOR >= 4
+     if(mpfr_buildopt_float128_p()) {
+       warn("To make Rmpfr_set_FLOAT128 available, rebuild Math::MPFR and pass \"F128=1\" as an arg to the Makefile.PL\n");
+       croak("See \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
+     }
+#endif
     croak("MPFR_WANT_FLOAT128 needs to have been defined when building Math::MPFR - see \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
 
 #endif
@@ -6602,6 +6632,12 @@ SV * Rmpfr_set_float128(pTHX_ mpfr_t * rop, SV * q, SV * rnd) {
 #ifdef CAN_PASS_FLOAT128
      return newSViv(mpfr_set_float128(*rop, (float128)SvNV(q), (mp_rnd_t)SvUV(rnd)));
 #else
+#if MPFR_VERSION_MAJOR >= 4
+     if(mpfr_buildopt_float128_p()) {
+       warn("To make Rmpfr_set_float128 available, rebuild Math::MPFR and pass \"F128=1\" as an arg to the Makefile.PL\n");
+       croak("See \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
+     }
+#endif
      croak("Cannot use Rmpfr_set_float128 to set an NV - see \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
 #endif
 
