@@ -270,7 +270,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 =head1 PASSING _Decimal64 VALUES
 
    Install Math::Decimal64 and build the mpfr library (version
-   3.1.1 or later) with the --enable-decimal-float option, and
+   3.1.0 or later) with the --enable-decimal-float option, and
    build Math::MPFR by providing the "D64=1" arg to the
    Makefile.PL (which will define MPFR_WANT_DECIMAL_FLOATS):
 
@@ -529,7 +529,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
                                                # --enable-float128 &&
                                                # F128=1 cmd line arg
                                                # given to Makefile.PL
-   $si = Rmpfr_set_DECIMAL64($rop, $D64, $rnd) # mpfr-3.1.1 or later &&
+   $si = Rmpfr_set_DECIMAL64($rop, $D64, $rnd) # mpfr-3.1.0 or later &&
                                                # mpfr lib built with
                                                # --enable-decimal-float
                                                # && D64=1 arg given to
@@ -824,7 +824,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $nv     = Rmpfr_get_NV($op, $rnd);    # double/long double/__float128
    $float  = Rmpfr_get_flt($op, $rnd);   # mpfr-3.0.0 and later
    Rmpfr_get_LD($LD, $op, $rnd); # $LD is a Math::LongDouble object.
-   Rmpfr_get_DECIMAL64($d64, $op, $rnd); # mpfr-3.1.1 or later &&
+   Rmpfr_get_DECIMAL64($d64, $op, $rnd); # mpfr-3.1.0 or later &&
                                          # mpfr lib built with
                                          # --enable-decimal-float
                                          # && D64=1 arg given to
