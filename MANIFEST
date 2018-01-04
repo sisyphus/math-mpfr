@@ -12,6 +12,7 @@ Prec/Makefile.PL
 Random/Random.xs
 Random/Random.pm
 Random/Makefile.PL
+demos/decimal.p
 demos/doubledouble.p
 V/V.xs
 V/V.pm
