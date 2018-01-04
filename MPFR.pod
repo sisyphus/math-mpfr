@@ -6,8 +6,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
 =head1 DEPENDENCIES
 
-   This module needs the MPFR and GMP C libraries. (Install GMP
-   first as it is a pre-requisite for MPFR.)
+   This module needs the MPFR and GMP C libraries. (Install the
+   GMP library first as it is a pre-requisite for MPFR.)
 
    The GMP library is available from http://gmplib.org
    The MPFR library is available from http://www.mpfr.org/
