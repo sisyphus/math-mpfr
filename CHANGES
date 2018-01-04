@@ -1,4 +1,5 @@
 4.01
+ - Add demos/decimal.p
 
 4.0
  - Add Rmpfr_free_cache2 and Rmpfr_free_pool.
