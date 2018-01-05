@@ -26,16 +26,8 @@ Rmpfr_set_default_prec(55);
 # First, create our variables.
 ##########################################
 
-my($one, $two, $three) = (Math::MPFR->new(), Math::MPFR->new(), Math::MPFR->new());
+my($one, $two, $three) = (Math::MPFR->new('0.1'), Math::MPFR->new('0.2'), Math::MPFR->new('0.3'));
 my $d64 = Math::Decimal64->new();
-
-##########################################
-# Assign the values to the variables
-##########################################
-
-Rmpfr_set_DECIMAL64($one, Math::Decimal64->new('0.1'), MPFR_RNDN);
-Rmpfr_set_DECIMAL64($two, Math::Decimal64->new('0.2'), MPFR_RNDN);
-Rmpfr_set_DECIMAL64($three, Math::Decimal64->new('0.3'), MPFR_RNDN);
 
 ##########################################
 # Do 0.3 - 0.2 and convert the result to a
