@@ -1,4 +1,5 @@
 4.01
+ - Add '-lquadmath' to LIBS in Makefile.PL
 
 4.0
  - Add Rmpfr_free_cache2 and Rmpfr_free_pool.
