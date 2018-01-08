@@ -110,6 +110,11 @@ if($^O =~ /MSWin32/i && $] < 5.022) {
   $defines .= " -D_WIN32_BIZARRE_INFNAN";
 }
 
+# NOTE: The '-lquadmath' link we provide below
+#       to 'LIBS' is generally not needed.
+#       It is, however, currently needed on at
+#       least some quadmath Cygwin builds.
+#             Jan 8 2018.
 
 my %options = (
   NAME => 'Math::MPFR',
@@ -117,7 +122,7 @@ my %options = (
   ABSTRACT => 'Perl interface to the MPFR (floating point) library',
   DEFINE   => $defines,
   LIBS => [
-    '-lmpfr -lgmp'
+    '-lmpfr -lgmp -lquadmath'
   ],
   LICENSE  => 'perl',
   VERSION_FROM => 'MPFR.pm',
