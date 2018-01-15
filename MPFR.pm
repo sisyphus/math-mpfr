@@ -396,7 +396,7 @@ sub new {
       if(!@_) {return Rmpfr_init()}
       }
 
-    # @_ can now contain a maximum of 2 args - the value, and iff the value is
+    # @_ can now contain a maximum of 2 args - the value, and if the value is
     # a string, (optionally) the base of the numeric string.
     if(@_ > 2) {die "Too many arguments supplied to new() - expected no more than two"}
 
