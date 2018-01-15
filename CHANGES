@@ -22,7 +22,7 @@
  - Add Rmpfr_q_div and Rmpfr_z_div and use them in overload_div to replace the existing
    code (that was rounding twice).
  - Add overloading of comparisons with mpq_t and mpz_t
- - use mpfr library of version of mpfr_get_q (in preference to homegrown rendition) iff
+ - use mpfr library of version of mpfr_get_q (in preference to homegrown rendition) if
    MPFR_VERSION_MAJOR >= 4.
  - Workaround mpfr_get_float128() failure to round subnormals reliably. (Workaround was removed
    soon after - when the mpfr_get_float128 problem was fixed in mpfr source.)
