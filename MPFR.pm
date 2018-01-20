@@ -553,16 +553,16 @@ sub Rmpfr_inits2_nobless {
     return @ret;
 }
 
-sub MPFR_VERSION {return _MPFR_VERSION()}
-sub MPFR_VERSION_MAJOR {return _MPFR_VERSION_MAJOR()}
-sub MPFR_VERSION_MINOR {return _MPFR_VERSION_MINOR()}
-sub MPFR_VERSION_PATCHLEVEL {return _MPFR_VERSION_PATCHLEVEL()}
-sub MPFR_VERSION_STRING {return _MPFR_VERSION_STRING()}
-sub MPFR_DBL_DIG {return _DBL_DIG()}
-sub MPFR_LDBL_DIG {return _LDBL_DIG()}
-sub MPFR_FLT128_DIG {return _FLT128_DIG()}
-sub GMP_LIMB_BITS {return _GMP_LIMB_BITS()}
-sub GMP_NAIL_BITS {return _GMP_NAIL_BITS()}
+sub MPFR_VERSION            () {return _MPFR_VERSION()}
+sub MPFR_VERSION_MAJOR      () {return _MPFR_VERSION_MAJOR()}
+sub MPFR_VERSION_MINOR      () {return _MPFR_VERSION_MINOR()}
+sub MPFR_VERSION_PATCHLEVEL () {return _MPFR_VERSION_PATCHLEVEL()}
+sub MPFR_VERSION_STRING     () {return _MPFR_VERSION_STRING()}
+sub MPFR_DBL_DIG            () {return _DBL_DIG()}
+sub MPFR_LDBL_DIG           () {return _LDBL_DIG()}
+sub MPFR_FLT128_DIG         () {return _FLT128_DIG()}
+sub GMP_LIMB_BITS           () {return _GMP_LIMB_BITS()}
+sub GMP_NAIL_BITS           () {return _GMP_NAIL_BITS()}
 
 sub mpfr_min_inter_prec {
     die "Wrong number of args to minimum_intermediate_prec()" if @_ != 3;
