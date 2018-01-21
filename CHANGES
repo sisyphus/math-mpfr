@@ -1,6 +1,9 @@
 4.01
  - Add '-lquadmath' to LIBS in Makefile.PL
  - Prototype those subs specified in 'use subs'.
+ - Alter Prec.xs, Random.xs and V.xs to accommodate perl.h's defining (as of 5.28.7)
+   INTMAX_C and UINTMAX_C.
+   (Replaced '#include <mpfr.h>' with '#include "../math_mpfr_include.h"
 
 4.0
  - Add Rmpfr_free_cache2 and Rmpfr_free_pool.
