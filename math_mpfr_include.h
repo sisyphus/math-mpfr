@@ -128,7 +128,7 @@ _WIN32_BIZARRE_INFNAN    : Defined (on Windows only) when the perl version
 
 #include <stdio.h>
 
-#if defined MATH_MPFR_NEED_LONG_LONG_INT
+#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
 #ifndef _MSC_VER
 #include <inttypes.h>
 #endif
