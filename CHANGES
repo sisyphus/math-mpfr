@@ -1,7 +1,13 @@
 4.01
- - Add '-lquadmath' to LIBS in Makefile.PL
+ - Automatically build Math::MPFR with __float128 support if mpfr_buildopt_float128_p() returns
+   true && 'F128=0' has not been provided as an argument to Makefile.PL.
+ - Automatically build Math::MPFR with _Decimal64 support if mpfr_buildopt_decimal_p() returns
+   true && 'D64=0' has not been provided as an argument to Makefile.PL.
+ - Make sure that _Float128 is a known type when MPFR_WANT_FLOAT128 is defined
+   (because it appears in mpfr.h in mpfr-4.1.0).
+ - Add '-lquadmath' to LIBS in Makefile.PL (as some Cygwin builds apparently want it).
  - Prototype those subs specified in 'use subs'.
- - Alter Prec.xs, Random.xs and V.xs to accommodate perl.h's defining (as of 5.28.7)
+ - Alter Prec.xs, Random.xs and V.xs to accommodate perl.h's defining (as of 5.28.7) of
    INTMAX_C and UINTMAX_C.
    (Replaced '#include <mpfr.h>' with '#include "../math_mpfr_include.h"
 
