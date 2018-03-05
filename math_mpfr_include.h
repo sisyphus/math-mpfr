@@ -134,6 +134,14 @@ _WIN32_BIZARRE_INFNAN    : Defined (on Windows only) when the perl version
 #endif
 #endif
 
+/*
+ * In mpfr-4.1.0, the _Float128 type is exposed in mpfr.h if MPFR_WANT_FLOAT128 is defined.
+ * We fall back to defining it to __float128 if the _Float128 type is unknown.
+*/
+
+#if defined(MPFR_WANT_FLOAT128) && defined(__GNUC__) && !defined(__FLT128_MAX__) && !defined(_BITS_FLOATN_H)
+#define _Float128 __float128
+#endif
 
 #include <gmp.h>
 #include <mpfr.h>
