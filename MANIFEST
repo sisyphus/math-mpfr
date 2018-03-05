@@ -6,6 +6,10 @@ math_mpfr_include.h
 MPFR.xs
 README
 CHANGES
+have_d64.in
+have_f128.in
+try_dec64.in
+try_flt128.in
 Prec/Prec.xs
 Prec/Prec.pm
 Prec/Makefile.PL
@@ -80,4 +84,5 @@ t/trig.t
 t/TRmpfr_out_str.t
 t/use64bitint.t
 t/uselongdouble.t
+t/view_config.t
 typemap
