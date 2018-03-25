@@ -6709,9 +6709,10 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
   dXSARGS;
   mpfr_t temp;
   double ld;
-  int i, n = 8;
+  int i, n = 8, inex;
   char buff[4];
   void * p = &ld;
+  mp_prec_t emin, emax;
 
   if(bits != 53)
     croak("2nd arg to Math::MPFR::_d_bytes must be 53");
@@ -6724,11 +6725,22 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
 
   mpfr_init2(temp, 53);
 
-  mpfr_set_str(temp, SvPV_nolen(str), 0, GMP_RNDN);
+  inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+
+  emin = mpfr_get_emin();
+  emax = mpfr_get_emax();
+
+  mpfr_set_emin(-1073);
+  mpfr_set_emax(1024);
+
+  mpfr_subnormalize(temp, inex, GMP_RNDN);
 
   ld = mpfr_get_d(temp, GMP_RNDN);
 
   mpfr_clear(temp);
+
+  mpfr_set_emin(emin);
+  mpfr_set_emax(emax);
 
   sp = mark;
 
@@ -6748,7 +6760,11 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
 
 void _d_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
- /* Assumes 64-bit double (53-bit precision mantissa) */
+ /* Assumes 64-bit double (53-bit precision mantissa)   */
+ /* This function does not call mpfr_subnormalize(). If */
+ /* the mpfr_t holds a subnormal value, it should       */
+ /* probably be subnormalised before being passed to    */
+ /* this function.                                      */
 
   dXSARGS;
   double ld;
@@ -6840,6 +6856,7 @@ void _dd_bytes(pTHX_ SV * str, unsigned int bits) {
 void _dd_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
  /* Assumes 128-bit long double (106-bit precision mantissa) */
+ /* Should handle subnormal values correctly                 */
 
   dXSARGS;
   mpfr_t temp;
@@ -6899,9 +6916,10 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
   dXSARGS;
   mpfr_t temp;
   long double ld;
-  int i, n;
+  int i, n, inex;
   char buff[4];
   void * p = &ld;
+  mp_prec_t emin, emax;
 
   if(bits != 64 && bits != 113) {
     if(bits == 106) warn("\nYou probably want to call Math::MPFR::_dd_bytes\n");
@@ -6916,11 +6934,22 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
 
   mpfr_init2(temp, bits);
 
-  mpfr_set_str(temp, SvPV_nolen(str), 0, GMP_RNDN);
+  inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+
+  emin = mpfr_get_emin();
+  emax = mpfr_get_emax();
+
+  mpfr_set_emin(bits == 64 ? -16444 : -16493);
+  mpfr_set_emax(16384);
+
+  mpfr_subnormalize(temp, inex, GMP_RNDN);
 
   ld = mpfr_get_ld(temp, GMP_RNDN);
 
   mpfr_clear(temp);
+
+  mpfr_set_emin(emin);
+  mpfr_set_emax(emax);
 
   sp = mark;
 
@@ -6942,8 +6971,11 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
 
 void _ld_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
- /* For Math::NV - added in version 3.26 */
- /* Assumes 80-bit long double (64-bit precision mantissa) */
+ /* For Math::NV - added in version 3.26                    */
+ /* Assumes 80-bit long double (64-bit precision mantissa)  */
+ /* This function does not call mpfr_subnormalize(). If     */
+ /* the mpfr_t holds a subnormal value, it should probably  */
+ /* be subnormalised before being passed to this function.  */
 
   dXSARGS;
   long double ld;
@@ -6996,9 +7028,10 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
   dXSARGS;
   mpfr_t temp;
   float128 ld;
-  int i, n = 16;
+  int i, n = 16, inex;
   char buff[4];
   void * p = &ld;
+  mp_prec_t emin, emax;
 
   if(bits != 113)
     croak("2nd arg to Math::MPFR::_f128_bytes must be 113");
@@ -7011,11 +7044,22 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
 
   mpfr_init2(temp, 113);
 
-  mpfr_set_str(temp, SvPV_nolen(str), 0, GMP_RNDN);
+  inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+
+  emin = mpfr_get_emin();
+  emax = mpfr_get_emax();
+
+  mpfr_set_emin(-16493);
+  mpfr_set_emax(16384);
+
+  mpfr_subnormalize(temp, inex, GMP_RNDN);
 
   ld = mpfr_get_float128(temp, GMP_RNDN);
 
   mpfr_clear(temp);
+
+  mpfr_set_emin(emin);
+  mpfr_set_emax(emax);
 
   sp = mark;
 
@@ -7037,7 +7081,10 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
 
 void _f128_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
- /* Assumes 128-bit float128 (113-bit precision mantissa) */
+ /* Assumes 128-bit float128 (113-bit precision mantissa)   */
+ /* This function does not call mpfr_subnormalize(). If     */
+ /* the mpfr_t holds a subnormal value, it should probably  */
+ /* be subnormalised before being passed to this function.  */
 
 #ifndef MPFR_WANT_FLOAT128
 
