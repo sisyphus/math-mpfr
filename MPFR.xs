@@ -6727,32 +6727,49 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
   mpfr_init2(temp, 53);
 
   inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+
+#if defined(MPFR_VERSION) && MPFR_VERSION > 196869 /* use mpfr_subnormalize */
+  emin = mpfr_get_emin();
+  emax = mpfr_get_emax();
+
+  mpfr_set_emin(-1073);
+  mpfr_set_emax(1024);
+
+  mpfr_subnormalize(temp, inex, GMP_RNDN);
+
+  mpfr_set_emin(emin);
+  mpfr_set_emax(emax);
+
+  ld = mpfr_get_d(temp, GMP_RNDN);
+
+#else     /* mpfr_strtofr can return incorrect inex in 3.1.5 and  *
+           * earlier - which renders mpfr_subnormalize unreliable */
+
   emin = mpfr_get_exp(temp) + 1074;
   signbit = mpfr_signbit(temp) ? -1 : 1;
 
-  if(emin <= 0) {
-    ld = 0.0;
-    ld *= signbit;
-  }
-  else {
-    if(emin < 53) {
-    /* mpfr_strtofr can return incorrect inex in 3.1.5 and  *
-     * earlier - which renders mpfr_subnormalize unreliable */
+  if(emin <= 1) {
+    if(emin < 0) {
+      ld = 0.0 *signbit;
+    }
+    else {
+      if(emin == 0) {
+        mpfr_init2(temp2, 2);
+        mpfr_set_ui(temp2, 2, GMP_RNDN);
+        mpfr_div_2ui(temp2, temp2, 1076, GMP_RNDN);
+        mpfr_abs(temp, temp, GMP_RNDN);
+        if(mpfr_cmp(temp, temp2) > 0) {
+          mpfr_mul_2ui(temp2, temp2, 1, GMP_RNDN);
+          ld = mpfr_get_d(temp2, GMP_RNDN);
+          mpfr_clear(temp2);
+        }
+        else {
+          ld = 0.0;
+        }
+        ld *= signbit;
+      }
+      else {  /* emin == 1 *//* Can't set precision to 1 with older versions of mpfr */
 
-#if defined(MPFR_VERSION) && MPFR_VERSION > 196869 /* use mpfr_subnormalize */
-      emin = mpfr_get_emin();
-      emax = mpfr_get_emax();
-
-      mpfr_set_emin(-1073);
-      mpfr_set_emax(1024);
-
-      mpfr_subnormalize(temp, inex, GMP_RNDN);
-
-      mpfr_set_emin(emin);
-      mpfr_set_emax(emax);
-
-#else
-      if(emin == 1) { /* Can't set precision to 1 with older versions of mpfr */
         mpfr_abs(temp, temp, GMP_RNDN);
         mpfr_init2(temp2, 2);
         mpfr_init2(DENORM_MIN, 2);
@@ -6765,18 +6782,18 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
         else mpfr_mul_si(temp, temp, signbit, GMP_RNDN);
         mpfr_clear(temp2);
         mpfr_clear(DENORM_MIN);
+        ld = mpfr_get_d(temp, GMP_RNDN);
       }
-      else {
-        mpfr_set_prec(temp, emin);
-        mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-      }
-
-#endif
-    } /* close "if(emin < 53)" */
-
+    }
+  }  /* close "if(emin <= 1)" */
+  else {
+    if(emin < 53) {
+      mpfr_set_prec(temp, emin);
+      mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    }
     ld = mpfr_get_d(temp, GMP_RNDN);
-
-  }   /* close "else"          */
+  }   /* close "else" */
+#endif
 
   mpfr_clear(temp);
 
@@ -6974,33 +6991,52 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
 
   inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
 
+
+
+#if defined(MPFR_VERSION) && MPFR_VERSION > 196869 /* use mpfr_subnormalize */
+  emin = mpfr_get_emin();
+  emax = mpfr_get_emax();
+
+  mpfr_set_emin(-16444);
+  mpfr_set_emax(16384);
+
+  mpfr_subnormalize(temp, inex, GMP_RNDN);
+
+  mpfr_set_emin(emin);
+  mpfr_set_emax(emax);
+
+  ld = mpfr_get_ld(temp, GMP_RNDN);
+
+#else /* mpfr_strtofr can return incorrect inex in 3.1.5 and  *
+       * earlier - which renders mpfr_subnormalize unreliable */
+
   emax = bits == 64 ? 16445 : 16494;
   emin = mpfr_get_exp(temp) + emax;
   signbit = mpfr_signbit(temp) ? -1 : 1;
 
-  if(emin <= 0) {
-    ld = 0.0L;
-    ld *= signbit;
+  if(emin <= 1) {
+    if(emin < 0) {
+      ld = 0.0L;
+      ld *= signbit;
+    }
   }
   else {
-    if(emin < bits) {
-    /* mpfr_strtofr can return incorrect inex in 3.1.5 and  *
-     * earlier - which renders mpfr_subnormalize unreliable */
-
-#if defined(MPFR_VERSION) && MPFR_VERSION > 196869 /* use mpfr_subnormalize */
-      emin = mpfr_get_emin();
-      emax = mpfr_get_emax();
-
-      mpfr_set_emin(-16444);
-      mpfr_set_emax(16384);
-
-      mpfr_subnormalize(temp, inex, GMP_RNDN);
-
-      mpfr_set_emin(emin);
-      mpfr_set_emax(emax);
-
-#else
-      if(emin == 1) { /* Can't set precision to 1 with older versions of mpfr */
+      if(emin == 0) {
+        mpfr_init2(temp2, 2);
+        mpfr_set_ui(temp2, 2, GMP_RNDN);
+        mpfr_div_2ui(temp2, temp2, emax + 2, GMP_RNDN);
+        mpfr_abs(temp, temp, GMP_RNDN);
+        if(mpfr_cmp(temp, temp2) > 0) {
+          mpfr_mul_2ui(temp2, temp2, 1, GMP_RNDN);
+          ld = mpfr_get_ld(temp2, GMP_RNDN);
+          mpfr_clear(temp2);
+        }
+        else {
+          ld = 0.0L;
+        }
+        ld *= signbit;
+      }
+      else {  /* emin == 1 *//* Can't set precision to 1 with older versions of mpfr */
 
         mpfr_abs(temp, temp, GMP_RNDN);
         mpfr_init2(temp2, 2);
@@ -7014,18 +7050,19 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
         else mpfr_mul_si(temp, temp, signbit, GMP_RNDN);
         mpfr_clear(temp2);
         mpfr_clear(DENORM_MIN);
+        ld = mpfr_get_ld(temp, GMP_RNDN);
       }
-      else {
-        mpfr_set_prec(temp, emin);
-        mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-      }
+    }
+  }  /* close "if(emin <= 1)" */
+  else {
+    if(emin < 53) {
+      mpfr_set_prec(temp, emin);
+      mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    }
+    ld = mpfr_get_ld(temp, GMP_RNDN);
+  }   /* close "else" */
 
 #endif
-    } /* close "if(emin < bits)" */
-
-    ld = mpfr_get_ld(temp, GMP_RNDN);
-
-  }   /* close "else"            */
 
   mpfr_clear(temp);
 
@@ -7125,32 +7162,48 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
 
   inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
 
+#if defined(MPFR_VERSION) && MPFR_VERSION > 196869 /* use mpfr_subnormalize */
+  emin = mpfr_get_emin();
+  emax = mpfr_get_emax();
+
+  mpfr_set_emin(-16493);
+  mpfr_set_emax(16384);
+
+  mpfr_subnormalize(temp, inex, GMP_RNDN);
+
+  mpfr_set_emin(emin);
+  mpfr_set_emax(emax);
+
+  ld = mpfr_get_float128(temp, GMP_RNDN);
+
+#else   /* mpfr_strtofr can return incorrect inex in 3.1.5 and  *
+         * earlier - which renders mpfr_subnormalize unreliable */
+
   emin = mpfr_get_exp(temp) + 16494;
   signbit = mpfr_signbit(temp) ? -1 : 1;
 
-  if(emin <= 0) {
-    ld = 0.0Q;
-    ld *= signbit;
-  }
-  else {
-    if(emin < 113) {
-    /* mpfr_strtofr can return incorrect inex in 3.1.5 and  *
-     * earlier - which renders mpfr_subnormalize unreliable */
-
-#if defined(MPFR_VERSION) && MPFR_VERSION > 196869 /* use mpfr_subnormalize */
-      emin = mpfr_get_emin();
-      emax = mpfr_get_emax();
-
-      mpfr_set_emin(-16493);
-      mpfr_set_emax(16384);
-
-      mpfr_subnormalize(temp, inex, GMP_RNDN);
-
-      mpfr_set_emin(emin);
-      mpfr_set_emax(emax);
-
-#else
-      if(emin == 1) { /* Can't set precision to 1 with older versions of mpfr */
+  if(emin < 1) {
+    if(emin < 0) {
+      ld = 0.0Q;
+      ld *= signbit;
+    }
+    else {
+      if(emin == 0) {
+        mpfr_init2(temp2, 2);
+        mpfr_set_ui(temp2, 2, GMP_RNDN);
+        mpfr_div_2ui(temp2, temp2, 16496, GMP_RNDN);
+        mpfr_abs(temp, temp, GMP_RNDN);
+        if(mpfr_cmp(temp, temp2) > 0) {
+          mpfr_mul_2ui(temp2, temp2, 1, GMP_RNDN);
+          ld = mpfr_get_float128(temp2, GMP_RNDN);
+          mpfr_clear(temp2);
+        }
+        else {
+          ld = 0.0Q;
+        }
+        ld *= signbit;
+      }
+      else {  /* emin == 1 *//* Can't set precision to 1 with older versions of mpfr */
         mpfr_abs(temp, temp, GMP_RNDN);
         mpfr_init2(temp2, 2);
         mpfr_init2(DENORM_MIN, 2);
@@ -7163,18 +7216,19 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
         else mpfr_mul_si(temp, temp, signbit, GMP_RNDN);
         mpfr_clear(temp2);
         mpfr_clear(DENORM_MIN);
+        ld = mpfr_get_float128(temp, GMP_RNDN);
       }
-      else {
-        mpfr_set_prec(temp, emin);
-        mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-      }
+    }
+  }  /* close "if(emin <= 1)" */
+  else {
+    if(emin < 113) {
+      mpfr_set_prec(temp, emin);
+      mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    }
+    ld = mpfr_get_float128(temp, GMP_RNDN);
+  }   /* close "else" */
 
 #endif
-    } /* close "if(emin < 53)" */
-
-    ld = mpfr_get_float128(temp, GMP_RNDN);
-
-  }   /* close "else"          */
 
   mpfr_clear(temp);
 
