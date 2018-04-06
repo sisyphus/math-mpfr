@@ -7065,13 +7065,13 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
       }
     }
   }  /* close "if(emin <= 1)" */
-
-  if(emin < 53) {
-    mpfr_set_prec(temp, emin);
-    mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-  }
-
+  else {
+    if(emin < 53) {
+      mpfr_set_prec(temp, emin);
+      mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    }
   ld = mpfr_get_ld(temp, GMP_RNDN);
+  }
 
 #endif
 
