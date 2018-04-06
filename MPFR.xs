@@ -6877,8 +6877,13 @@ void _dd_bytes(pTHX_ SV * str, unsigned int bits) {
   mpfr_set_str(temp, SvPV_nolen(str), 0, GMP_RNDN);
 
   msd = mpfr_get_d(temp, GMP_RNDN);
-  mpfr_sub_d(temp, temp, msd, GMP_RNDN);
-  lsd = mpfr_get_d(temp, GMP_RNDN);
+  if(msd == 0 || msd != msd || msd / msd != 1) { /* zero, nan or inf */
+    lsd = 0.0;
+  }
+  else {
+    mpfr_sub_d(temp, temp, msd, GMP_RNDN);
+    lsd = mpfr_get_d(temp, GMP_RNDN);
+  }
 
   mpfr_clear(temp);
 
