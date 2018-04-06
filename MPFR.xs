@@ -6713,7 +6713,7 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
   int i, n = 8, inex, signbit;
   char buff[4];
   void * p = &ld;
-  mp_prec_t emin, emax;
+  mp_prec_t emin, emax, prec;
 
   if(bits != 53)
     croak("2nd arg to Math::MPFR::_d_bytes must be 53");
@@ -6726,8 +6726,6 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
 
   mpfr_init2(temp, 53);
 
-  inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-
 #if defined(MPFR_VERSION) && MPFR_VERSION > 196869 /* use mpfr_subnormalize */
   emin = mpfr_get_emin();
   emax = mpfr_get_emax();
@@ -6735,6 +6733,7 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
   mpfr_set_emin(-1073);
   mpfr_set_emax(1024);
 
+  inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
   mpfr_subnormalize(temp, inex, GMP_RNDN);
 
   mpfr_set_emin(emin);
@@ -6744,6 +6743,8 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
 
 #else     /* mpfr_strtofr can return incorrect inex in 3.1.5 and  *
            * earlier - which renders mpfr_subnormalize unreliable */
+
+  inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
 
   emin = mpfr_get_exp(temp) + 1074;
   signbit = mpfr_signbit(temp) ? -1 : 1;
@@ -6937,8 +6938,13 @@ void _dd_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
   mpfr_set(temp, *str, GMP_RNDN); /* Avoid altering the value held by *str */
 
   msd = mpfr_get_d(temp, GMP_RNDN);
-  mpfr_sub_d(temp, temp, msd, GMP_RNDN);
-  lsd = mpfr_get_d(temp, GMP_RNDN);
+  if(msd == 0 || msd != msd || msd / msd != 1) { /* zero, nan or inf */
+    lsd = 0.0;
+  }
+  else {
+    mpfr_sub_d(temp, temp, msd, GMP_RNDN);
+    lsd = mpfr_get_d(temp, GMP_RNDN);
+  }
 
   mpfr_clear(temp);
 
@@ -6994,17 +7000,16 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
 
   mpfr_init2(temp, bits);
 
-  inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-
-
 
 #if defined(MPFR_VERSION) && MPFR_VERSION > 196869 /* use mpfr_subnormalize */
+
   emin = mpfr_get_emin();
   emax = mpfr_get_emax();
 
   mpfr_set_emin(-16444);
   mpfr_set_emax(16384);
 
+  inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
   mpfr_subnormalize(temp, inex, GMP_RNDN);
 
   mpfr_set_emin(emin);
@@ -7014,6 +7019,8 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
 
 #else /* mpfr_strtofr can return incorrect inex in 3.1.5 and  *
        * earlier - which renders mpfr_subnormalize unreliable */
+
+  inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
 
   emax = bits == 64 ? 16445 : 16494;
   emin = mpfr_get_exp(temp) + emax;
@@ -7165,8 +7172,6 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
 
   mpfr_init2(temp, 113);
 
-  inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-
 #if defined(MPFR_VERSION) && MPFR_VERSION > 196869 /* use mpfr_subnormalize */
   emin = mpfr_get_emin();
   emax = mpfr_get_emax();
@@ -7174,6 +7179,7 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
   mpfr_set_emin(-16493);
   mpfr_set_emax(16384);
 
+  inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
   mpfr_subnormalize(temp, inex, GMP_RNDN);
 
   mpfr_set_emin(emin);
@@ -7183,6 +7189,8 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
 
 #else   /* mpfr_strtofr can return incorrect inex in 3.1.5 and  *
          * earlier - which renders mpfr_subnormalize unreliable */
+
+  inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
 
   emin = mpfr_get_exp(temp) + 16494;
   signbit = mpfr_signbit(temp) ? -1 : 1;
