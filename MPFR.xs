@@ -7031,8 +7031,7 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
       ld = 0.0L;
       ld *= signbit;
     }
-  }
-  else {
+    else {
       if(emin == 0) {
         mpfr_init2(temp2, 2);
         mpfr_set_ui(temp2, 2, GMP_RNDN);
@@ -7066,13 +7065,13 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
       }
     }
   }  /* close "if(emin <= 1)" */
-  else {
-    if(emin < 53) {
-      mpfr_set_prec(temp, emin);
-      mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-    }
-    ld = mpfr_get_ld(temp, GMP_RNDN);
-  }   /* close "else" */
+
+  if(emin < 53) {
+    mpfr_set_prec(temp, emin);
+    mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+  }
+
+  ld = mpfr_get_ld(temp, GMP_RNDN);
 
 #endif
 
