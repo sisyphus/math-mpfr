@@ -1049,7 +1049,19 @@ SV * Rmpfr_get_ld(pTHX_ mpfr_t * p, SV * round){
 #endif
 #endif
 #ifndef _MSC_VER
+#if defined MPFR_VERSION && MPFR_VERSION > 196868            /* mpfr_get_ld handles subnormals correctly */
      return newSVnv(mpfr_get_ld(*p, (mp_rnd_t)SvUV(round)));
+#else                                                        /* mpfr_get_ld handling of subnormals is buggy */
+
+     if(strtold("2e-4956", NULL) == 0.0L) { /* extended precision (80-bit) long double */
+       if(mpfr_regular_p(*p) && mpfr_get_exp(*p) < -16381 && mpfr_get_exp(*p) >= -16445) {
+         warn("\n mpfr_get_ld is buggy (subnormal values only)\n for this version (%s) of the MPFR library\n", MPFR_VERSION_STRING);
+         croak(" Version 3.1.5 or later is required");
+       }
+     }
+     return newSVnv(mpfr_get_ld(*p, (mp_rnd_t)SvUV(round)));
+
+#endif
 #else
      croak("Rmpfr_get_ld not implemented on this build of perl");
 #endif
@@ -2261,8 +2273,18 @@ SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
      return newSVnv(ret * sign);
 
 #elif defined(NV_IS_LONG_DOUBLE)
+#if defined(LD_SUBNORMAL_BUG)
+
+     if(mpfr_get_exp(*x) < -16381 && mpfr_regular_p(*x) && mpfr_get_exp(*x) >= -16445 ) {
+       warn("\n mpfr_get_ld is buggy (subnormal values only)\n for this version (%s) of the MPFR library\n", MPFR_VERSION_STRING);
+       croak(" Version 3.1.5 or later is required");
+     }
 
      return newSVnv(mpfr_get_ld(*x, (mp_rnd_t)SvUV(round)));
+
+#else
+     return newSVnv(mpfr_get_ld(*x, (mp_rnd_t)SvUV(round)));
+#endif
 #else
      return newSVnv(mpfr_get_d(*x, (mp_rnd_t)SvUV(round)));
 #endif
@@ -7017,13 +7039,28 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
 
   ld = mpfr_get_ld(temp, GMP_RNDN);
 
-#else /* mpfr_strtofr can return incorrect inex in 3.1.5 and  *
-       * earlier - which renders mpfr_subnormalize unreliable */
+#else /* mpfr_strtofr can return incorrect inex in 3.1.5 and   *
+       * earlier - which renders mpfr_subnormalize unreliable  */
+
 
   inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-
   emax = bits == 64 ? 16445 : 16494;
   emin = mpfr_get_exp(temp) + emax;
+
+      /* mpfr_get_ld is buggy for extended precision subnormal *
+       * values with 3.1.4 and earlier. Hence, croak when this *
+       * condition exists.                                      */
+
+#ifdef LD_SUBNORMAL_BUG
+
+       if(mpfr_regular_p(temp) && emin >= 0 && emin < bits) {
+         warn("\n mpfr_get_ld is buggy (subnormal values only)\n for this version (%s) of the MPFR library\n", MPFR_VERSION_STRING);
+         croak(" Version 3.1.5 or later is required");
+       }
+
+#endif
+
+
   signbit = mpfr_signbit(temp) ? -1 : 1;
 
   if(emin <= 1) {
@@ -7066,7 +7103,7 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
     }
   }  /* close "if(emin <= 1)" */
   else {
-    if(emin < 53) {
+    if(emin < bits) {
       mpfr_set_prec(temp, emin);
       mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
     }
@@ -7658,6 +7695,16 @@ int Rmpfr_rootn_ui (mpfr_t * rop, mpfr_t * op, unsigned long k, int round) {
     croak("Rmpfr_rootn_ui not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
+
+int _ld_subnormal_bug(void) {
+
+#if defined(LD_SUBNORMAL_BUG)
+   return 1;
+#else
+   return 0;
+#endif
+}
+
 
 
 
@@ -11995,4 +12042,8 @@ Rmpfr_rootn_ui (rop, op, k, round)
 	mpfr_t *	op
 	unsigned long	k
 	int	round
+
+int
+_ld_subnormal_bug ()
+
 
