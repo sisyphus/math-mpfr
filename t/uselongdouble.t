@@ -307,42 +307,51 @@ else {
 my $nv;
 
 # mpfr_get_ld is buggy for 64-bit subnormals on mpfr 3.1.4 (19868) and earlier
+# Since we don't have 64-bit floats on double-double architectures, we can skip
+# this test if LDBL_DIG == 31.
 
-eval{$nv = Rmpfr_get_ld(Math::MPFR->new("2e-4950"), MPFR_RNDN);};
-
-if($@ =~ /^Rmpfr_get_ld not implemented/) {
-  warn "Skipping test 10 - no long double support\n";
+if(Math::MPFR::_LDBL_DIG() == 31) {
+  warn "\n Skipping test 10 for double-double nvtype\n";
   print "ok 10\n";
 }
 else {
 
-  if(MPFR_VERSION() <= 196868) {
-    if(2e-4956 == 0) {
+  eval{$nv = Rmpfr_get_ld(Math::MPFR->new("2e-4950"), MPFR_RNDN);};
 
-      # bug exists for extended precision (64-bit) subnormal long double
-
-      if($@ =~ /^\sVersion 3\.1\.5/) {print "ok 10\n"}
-      else {
-        warn "\n\$\@: $@\n";
-        print "not ok 10\n";
-      }
-    }
-    else {
-
-      # no bug for quad (113-bit) subnormal long double
-
-      if(!$@ && $nv != 0) {print "ok 10\n"}
-      else {
-        warn "\n\$\@: $@\n\$nv: $nv\n";
-        print "not ok 10";
-      }
-    }
+  if($@ =~ /^Rmpfr_get_ld not implemented/) {
+    warn "Skipping test 10 - no long double support\n";
+    print "ok 10\n";
   }
   else {
-    if($nv > 0) {print "ok 10\n"}
+
+    if(MPFR_VERSION() <= 196868) {
+      if(2e-4956 == 0) {
+
+        # bug exists for extended precision (64-bit) subnormal long double
+
+        if($@ =~ /^\sVersion 3\.1\.5/) {print "ok 10\n"}
+        else {
+          warn "\n\$\@: $@\n";
+          print "not ok 10\n";
+        }
+      }
+      else {
+
+        # no bug for quad (113-bit) subnormal long double
+
+        if(!$@ && $nv != 0) {print "ok 10\n"}
+        else {
+          warn "\n\$\@: $@\n\$nv: $nv\n";
+          print "not ok 10";
+        }
+      }
+    }
     else {
-      warn "$nv !> 0\n";
-      print "not ok 10\n";
+      if($nv > 0) {print "ok 10\n"}
+      else {
+        warn "$nv !> 0\n";
+        print "not ok 10\n";
+      }
     }
   }
 }
