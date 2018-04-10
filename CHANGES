@@ -3,6 +3,7 @@
    denormalized to DENORM_MIN when greater than DENORM_MIN/2.
  - Attend to various other issues involving handling of subnormals.
  - Remove Math::Float128 and Math::Decimal64 from PREREQ_PM.
+ - Add atonv().
 
 4.02
  - mpfr_subnormalize() in _d_bytes(), _ld_bytes() and _f128_bytes(). (These 3 functions are
