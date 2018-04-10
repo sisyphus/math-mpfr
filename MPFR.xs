@@ -7699,16 +7699,123 @@ int Rmpfr_rootn_ui (mpfr_t * rop, mpfr_t * op, unsigned long k, int round) {
 int _ld_subnormal_bug(void) {
 
 #if defined(LD_SUBNORMAL_BUG)
-   return 1;
+    return 1;
 #else
-   return 0;
+    return 0;
 #endif
 }
 
+#if defined(MPFR_VERSION) & MPFR_VERSION > 196869
 
+SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
 
+#if defined(NV_IS_DOUBLE) || LDBL_MANT_DIG == 53        /* D */
+    mp_prec_t emin, emax;
+    int inex;
 
+    emin = mpfr_get_emin();
+    emax = mpfr_get_emax();
 
+    mpfr_set_emin(-1073);
+    mpfr_set_emax(1024);
+
+    inex = mpfr_strtofr(*workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    mpfr_subnormalize(*workspace, inex, GMP_RNDN);
+
+    mpfr_set_emin(emin);
+    mpfr_set_emax(emax);
+
+    return newSVnv(mpfr_get_d(*workspace, GMP_RNDN));
+
+#endif                                                  /* close D */
+
+#if defined(NV_IS_LONG_DOUBLE) && LDBL_MANT_DIG != 53   /* LD */
+#if REQUIRED_LDBL_MANT_DIG == 64
+
+    mp_prec_t emin, emax;
+    int inex;
+
+    emin = mpfr_get_emin();
+    emax = mpfr_get_emax();
+
+    mpfr_set_emin(-16444);
+    mpfr_set_emax(16384);
+
+    inex = mpfr_strtofr(*workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    mpfr_subnormalize(*workspace, inex, GMP_RNDN);
+
+    mpfr_set_emin(emin);
+    mpfr_set_emax(emax);
+
+    return newSVnv(mpfr_get_ld(*workspace, GMP_RNDN));
+
+#endif
+
+#if REQUIRED_LDBL_MANT_DIG == 113
+
+    mp_prec_t emin, emax;
+    int inex;
+
+    emin = mpfr_get_emin();
+    emax = mpfr_get_emax();
+
+    mpfr_set_emin(-16493);
+    mpfr_set_emax(16384);
+
+    inex = mpfr_strtofr(*workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    mpfr_subnormalize(*workspace, inex, GMP_RNDN);
+
+    mpfr_set_emin(emin);
+    mpfr_set_emax(emax);
+
+    return newSVnv(mpfr_get_ld(*workspace, GMP_RNDN));
+
+#endif
+
+#if REQUIRED_LDBL_MANT_DIG == 2098
+
+    mpfr_strtofr(*workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    return newSVnv(mpfr_get_ld(*workspace, GMP_RNDN));
+
+#endif
+#endif                                                  /* close LD */
+
+#if defined(NV_IS_FLOAT128)                             /* F128 */
+#if defined(MPFR_WANT_FLOAT128)
+
+    mp_prec_t emin, emax;
+    int inex;
+
+    emin = mpfr_get_emin();
+    emax = mpfr_get_emax();
+
+    mpfr_set_emin(-16493);
+    mpfr_set_emax(16384);
+
+    inex = mpfr_strtofr(*workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    mpfr_subnormalize(*workspace, inex, GMP_RNDN);
+
+    mpfr_set_emin(emin);
+    mpfr_set_emax(emax);
+
+    return newSVnv(mpfr_get_float128(*workspace, GMP_RNDN));
+
+#else
+    croak("The atonv function is unavailable for this __float128 build of perl\n");
+#endif
+#endif                                                  /* close F128 */
+
+    croak("The atonv function has encountered an unrecognized nvtype");
+
+} /* close atonv */
+
+#else
+
+SV * atonv(aTHX_ mpfr_t workspace, SV * str) {
+    croak("The atonv function requires mpfr-3.1.6 or later");
+}
+
+#endif
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
 
 PROTOTYPES: DISABLE
@@ -12046,4 +12153,12 @@ Rmpfr_rootn_ui (rop, op, k, round)
 int
 _ld_subnormal_bug ()
 
+
+SV *
+atonv (workspace, str)
+	mpfr_t *	workspace
+	SV *	str
+CODE:
+  RETVAL = atonv (aTHX_ workspace, str);
+OUTPUT:  RETVAL
 
