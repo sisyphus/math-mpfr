@@ -7705,9 +7705,10 @@ int _ld_subnormal_bug(void) {
 #endif
 }
 
-#if defined(MPFR_VERSION) & MPFR_VERSION > 196869
-
 SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
+
+
+#if defined(MPFR_VERSION) & MPFR_VERSION > 196869
 
 #if defined(NV_IS_DOUBLE) || LDBL_MANT_DIG == 53        /* D */
     mp_prec_t emin, emax;
@@ -7807,15 +7808,17 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
 
     croak("The atonv function has encountered an unrecognized nvtype");
 
-} /* close atonv */
-
 #else
 
-SV * atonv(aTHX_ mpfr_t workspace, SV * str) {
     croak("The atonv function requires mpfr-3.1.6 or later");
-}
 
 #endif
+
+} /* close atonv */
+
+
+
+
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
 
 PROTOTYPES: DISABLE
