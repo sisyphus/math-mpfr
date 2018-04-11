@@ -1652,8 +1652,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    MISCELLANEOUS
 
-   $nv = atonv($workspace, $str); # $workspace is a
-                                  # Math::MPFR object.
+   $nv = atonv($ws, $str); # $ws is a Math::MPFR object.
+                           # Needs mpfr-3.1.6 or later
     Sets the NV $nv to the value represented by the string $str.
     $workspace needs to be initialized (once only) with a precision of
     $Math::MPFR::BITS - after which atonv() can be called repeatedly
