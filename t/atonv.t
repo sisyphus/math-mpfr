@@ -16,7 +16,9 @@ if($have_atonv) {
 
   my $ws = Rmpfr_init2($Math::MPFR::BITS);
 
-  if($Config::Config{nvtype} eq 'double' || ($Config::Config{nvtype} eq 'long double' && $Config::Config{nvsize} == 8)) {
+  if($Config::Config{nvtype} eq 'double' ||
+      ($Config::Config{nvtype} eq 'long double' && ($Config::Config{nvsize} == 8 ||
+                                                    Math::MPFR::_required_ldbl_mant_dig() == 2098))) {
     $nv1 = atonv($ws, '0b0.100001e-1074');
     $nv2 = atonv($ws, '4.96e-324');
     if($nv1 == $nv2 && $nv1 > 0) {print "ok 1\n"}
