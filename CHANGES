@@ -1,5 +1,6 @@
 4.04
  - Support only mpfr-3.0.0 and later
+ - Check that first arg given to atonv() is of correct precision.
 
 4.03
  - Values less than DENORM_MIN were automatically denormalized to 0 ... but should have been
