@@ -7656,6 +7656,9 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
     mpfr_prec_t emin, emax;
     int inex;
 
+    if(mpfr_get_prec(*workspace) != 53)
+      croak ("Precision of first arg to atonv function is %d, but needs to be 53", mpfr_get_prec(*workspace));
+
     emin = mpfr_get_emin();
     emax = mpfr_get_emax();
 
@@ -7678,6 +7681,9 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
     mpfr_prec_t emin, emax;
     int inex;
 
+    if(mpfr_get_prec(*workspace) != 64)
+      croak ("Precision of first arg to atonv function is %d, but needs to be 64", mpfr_get_prec(*workspace));
+
     emin = mpfr_get_emin();
     emax = mpfr_get_emax();
 
@@ -7699,6 +7705,9 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
     mpfr_prec_t emin, emax;
     int inex;
 
+    if(mpfr_get_prec(*workspace) != 113)
+      croak ("Precision of first arg to atonv function is %d, but needs to be 113", mpfr_get_prec(*workspace));
+
     emin = mpfr_get_emin();
     emax = mpfr_get_emax();
 
@@ -7717,6 +7726,9 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
 
 #if REQUIRED_LDBL_MANT_DIG == 2098
 
+    if(mpfr_get_prec(*workspace) != 2098)
+      croak ("Precision of first arg to atonv function is %d, but needs to be 2098", mpfr_get_prec(*workspace));
+
     mpfr_strtofr(*workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
     return newSVnv(mpfr_get_ld(*workspace, GMP_RNDN));
 
@@ -7728,6 +7740,9 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
 
     mpfr_prec_t emin, emax;
     int inex;
+
+    if(mpfr_get_prec(*workspace) != 113)
+      croak ("Precision of first arg to atonv function is %d, but needs to be 113", mpfr_get_prec(*workspace));
 
     emin = mpfr_get_emin();
     emax = mpfr_get_emax();
