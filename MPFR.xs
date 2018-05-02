@@ -1688,7 +1688,7 @@ SV * _Rmpfr_out_str(pTHX_ mpfr_t * p, SV * base, SV * dig, SV * round) {
      if(SvIV(base) < 2 || SvIV(base) > MAXIMUM_ALLOWABLE_BASE)
         croak("2nd argument supplied to Rmpfr_out_str is out of allowable range (must be between 2 and %d inclusive)",
         MAXIMUM_ALLOWABLE_BASE);
-     ret = mpfr_out_str(NULL, (int)SvIV(base), (size_t)SvUV(dig), *p, (mpfr_rnd_t)SvUV(round));
+     ret = mpfr_out_str(stdout, (int)SvIV(base), (size_t)SvUV(dig), *p, (mpfr_rnd_t)SvUV(round));
      fflush(stdout);
      return newSVuv(ret);
 }
@@ -1740,7 +1740,7 @@ SV * _Rmpfr_out_strS(pTHX_ mpfr_t * p, SV * base, SV * dig, SV * round, SV * suf
      if(SvIV(base) < 2 || SvIV(base) > MAXIMUM_ALLOWABLE_BASE)
        croak("2nd argument supplied to Rmpfr_out_str is out of allowable range (must be between 2 and %d inclusive)",
        MAXIMUM_ALLOWABLE_BASE);
-     ret = mpfr_out_str(NULL, (int)SvIV(base), (size_t)SvUV(dig), *p, (mpfr_rnd_t)SvUV(round));
+     ret = mpfr_out_str(stdout, (int)SvIV(base), (size_t)SvUV(dig), *p, (mpfr_rnd_t)SvUV(round));
      printf("%s", SvPV_nolen(suff));
      fflush(stdout);
      return newSVuv(ret);
@@ -1753,7 +1753,7 @@ SV * _Rmpfr_out_strP(pTHX_ SV * pre, mpfr_t * p, SV * base, SV * dig, SV * round
         croak("3rd argument supplied to Rmpfr_out_str is out of allowable range (must be between 2 and %d inclusive)",
         MAXIMUM_ALLOWABLE_BASE);
      printf("%s", SvPV_nolen(pre));
-     ret = mpfr_out_str(NULL, (int)SvIV(base), (size_t)SvUV(dig), *p, (mpfr_rnd_t)SvUV(round));
+     ret = mpfr_out_str(stdout, (int)SvIV(base), (size_t)SvUV(dig), *p, (mpfr_rnd_t)SvUV(round));
      fflush(stdout);
      return newSVuv(ret);
 }
@@ -1765,7 +1765,7 @@ SV * _Rmpfr_out_strPS(pTHX_ SV * pre, mpfr_t * p, SV * base, SV * dig, SV * roun
        croak("3rd argument supplied to Rmpfr_out_str is out of allowable range (must be between 2 and %d inclusive)",
        MAXIMUM_ALLOWABLE_BASE);
      printf("%s", SvPV_nolen(pre));
-     ret = mpfr_out_str(NULL, (int)SvIV(base), (size_t)SvUV(dig), *p, (mpfr_rnd_t)SvUV(round));
+     ret = mpfr_out_str(stdout, (int)SvIV(base), (size_t)SvUV(dig), *p, (mpfr_rnd_t)SvUV(round));
      printf("%s", SvPV_nolen(suff));
      fflush(stdout);
      return newSVuv(ret);
@@ -1793,7 +1793,7 @@ SV * Rmpfr_inp_str(pTHX_ mpfr_t * p, SV * base, SV * round) {
      if(SvIV(base) < 2 || SvIV(base) > MAXIMUM_ALLOWABLE_BASE)
         croak("2nd argument supplied to Rmpfr_inp_str is out of allowable range (must be between 2 and %d inclusive)",
         MAXIMUM_ALLOWABLE_BASE);
-     ret = mpfr_inp_str(*p, NULL, (int)SvIV(base), (mpfr_rnd_t)SvUV(round));
+     ret = mpfr_inp_str(*p, stdin, (int)SvIV(base), (mpfr_rnd_t)SvUV(round));
      if(!ret) {
        nnum++;
        if(SvIV(get_sv("Math::MPFR::NNW", 0)))
@@ -2757,7 +2757,7 @@ SV * Rmpfr_sum(pTHX_ mpfr_t * rop, SV * avref, SV * len, SV * round) {
      int ret, i;
      unsigned long s = (unsigned long)SvUV(len);
 
-     if(s > av_len((AV*)SvRV(avref)) + 1)croak("2nd last arg (%d) needs to be between 0 and %d (inclusive)", s, av_len((AV*)SvRV(avref)) + 1);
+     if(s > av_len((AV*)SvRV(avref)) + 1)croak("2nd last arg to Rmpfr_sum is greater than the size of the array");
 
      CHECK_ROUNDING_VALUE
 
@@ -5051,10 +5051,10 @@ SV * Rmpfr_randinit_lc_2exp_size_nobless(pTHX_ SV * size) {
      gmp_randstate_t * state;
      SV * obj_ref, * obj;
 
-     if(SvUV(size) > 128) croak("The argument supplied to Rmpfr_randinit_lc_2exp_size function (%u) needs to be in the range [1..128]", SvUV(size));
+     if(SvUV(size) > 128) croak("The argument supplied to Rmpfr_randinit_lc_2exp_size_nobless function is too large - ie greater than 128");
 
      Newx(state, 1, gmp_randstate_t);
-     if(state == NULL) croak("Failed to allocate memory in Rmpfr_randinit_lc_2exp_size function");
+     if(state == NULL) croak("Failed to allocate memory in Rmpfr_randinit_lc_2exp_size_nobless function");
      obj_ref = newSV(0);
      obj = newSVrv(obj_ref, NULL);
 
@@ -5064,7 +5064,7 @@ SV * Rmpfr_randinit_lc_2exp_size_nobless(pTHX_ SV * size) {
        return obj_ref;
        }
 
-     croak("Rmpfr_randinit_lc_2exp_size function failed");
+     croak("Rmpfr_randinit_lc_2exp_size_nobless function failed");
 }
 
 void Rmpfr_randclear(pTHX_ SV * p) {
@@ -6788,7 +6788,7 @@ void _d_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
     croak("2nd arg to Math::MPFR::_d_bytes_fr must be 53");
 
   if(mpfr_get_prec(*str) != 53)
-    croak("Precision of 1st arg supplied to _d_bytes_fr must be 53, not %u", mpfr_get_prec(*str));
+    croak("Precision of 1st arg supplied to _d_bytes_fr must be 53");
 
   if((size_t)bits != DBL_MANT_DIG)
     croak("2nd arg (%u) supplied to Math::MPFR::_d_bytes_fr does not match DBL_MANT_DIG (%u)", bits, DBL_MANT_DIG);
@@ -6887,7 +6887,7 @@ void _dd_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
     croak("2nd arg to Math::MPFR::_dd_bytes must be 106");
 
   if(mpfr_get_prec(*str) != 2098)
-    croak("Precision of 1st arg supplied to _dd_bytes_fr must be 2098, not %u", mpfr_get_prec(*str));
+    croak("Precision of 1st arg supplied to _dd_bytes_fr must be 2098");
 
   mpfr_init2(temp, 2098);
 
@@ -7086,7 +7086,7 @@ void _ld_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
   }
 
   if(mpfr_get_prec(*str) != bits)
-    croak("Precision of 1st arg (%u) supplied to _ld_bytes_fr must match 2nd arg (%d)", mpfr_get_prec(*str), bits);
+    croak("Precision of 1st arg supplied to _ld_bytes_fr must match 2nd arg (%d)", bits);
 
   if((size_t)bits != LDBL_MANT_DIG)
     croak("2nd arg (%u) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG (%u)", bits, LDBL_MANT_DIG);
@@ -7256,7 +7256,7 @@ void _f128_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
     croak("2nd arg to Math::MPFR::_f128_bytes_fr must be 113");
 
   if(mpfr_get_prec(*str) != 113)
-    croak("Precision of 1st arg supplied to _f128_bytes_fr must be 113, not %u", mpfr_get_prec(*str));
+    croak("Precision of 1st arg supplied to _f128_bytes_fr must be 113");
 
   if((size_t)bits != FLT128_MANT_DIG)
     croak("2nd arg (%u) supplied to Math::MPFR::_f128_bytes_fr does not match FLT128_MANT_DIG (%u)", bits, FLT128_MANT_DIG);
@@ -7657,7 +7657,7 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
     int inex;
 
     if(mpfr_get_prec(*workspace) != 53)
-      croak ("Precision of first arg to atonv function is %d, but needs to be 53", mpfr_get_prec(*workspace));
+      croak ("Precision of first arg to atonv function must be 53");
 
     emin = mpfr_get_emin();
     emax = mpfr_get_emax();
@@ -7682,7 +7682,7 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
     int inex;
 
     if(mpfr_get_prec(*workspace) != 64)
-      croak ("Precision of first arg to atonv function is %d, but needs to be 64", mpfr_get_prec(*workspace));
+      croak ("Precision of first arg to atonv function must be 64");
 
     emin = mpfr_get_emin();
     emax = mpfr_get_emax();
@@ -7706,7 +7706,7 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
     int inex;
 
     if(mpfr_get_prec(*workspace) != 113)
-      croak ("Precision of first arg to atonv function is %d, but needs to be 113", mpfr_get_prec(*workspace));
+      croak ("Precision of first arg to atonv function must be 113");
 
     emin = mpfr_get_emin();
     emax = mpfr_get_emax();
@@ -7727,7 +7727,7 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
 #if REQUIRED_LDBL_MANT_DIG == 2098
 
     if(mpfr_get_prec(*workspace) != 2098)
-      croak ("Precision of first arg to atonv function is %d, but needs to be 2098", mpfr_get_prec(*workspace));
+      croak ("Precision of first arg to atonv function must be 2098");
 
     mpfr_strtofr(*workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
     return newSVnv(mpfr_get_ld(*workspace, GMP_RNDN));
@@ -7742,7 +7742,7 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
     int inex;
 
     if(mpfr_get_prec(*workspace) != 113)
-      croak ("Precision of first arg to atonv function is %d, but needs to be 113", mpfr_get_prec(*workspace));
+      croak ("Precision of first arg to atonv function must be 113");
 
     emin = mpfr_get_emin();
     emax = mpfr_get_emax();
