@@ -1,3 +1,5 @@
+4.05
+
 4.04
  - Support only mpfr-3.0.0 and later
  - Check that first arg given to atonv() is of correct precision.
