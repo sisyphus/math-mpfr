@@ -180,7 +180,7 @@ Rmpfr_round_nearest_away rndna
 atonv
 );
 
-    our $VERSION = '4.04';
+    our $VERSION = '4.05';
     #$VERSION = eval $VERSION;
 
     DynaLoader::bootstrap Math::MPFR $VERSION;
