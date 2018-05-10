@@ -890,6 +890,14 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     is set to the same value and the value of $exp is meaningless (and
     should be ignored).
 
+   $ui1 = Rmpfr_get_str_ndigits($ui2, $ui3); # mpfr-4.1.0 and later only
+     Return the minimal integer $ui1 such that any number of precision
+     $ui3 bits, when output with $ui1 digits in radix $ui2 with rounding
+     to nearest, can be recovered exactly when read again, still with
+     rounding to nearest.
+     More precisely, we have $ui1 = 1 + ceil($ui3*log(2)/log($ui2)), with $ui3
+     replaced by $ui3-1 if $ui2 is a power of 2.
+
    ##########
 
    ARITHMETIC
@@ -1437,6 +1445,14 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Set $rop to real part of the dilogarithm of $op, rounded in the
     direction $rnd. The dilogarithm function is defined here as
     the integral of -log(1-t)/t from 0 to x.
+
+   $si = Rmpfr_dot ($rop, \@op1, \@op2, $ui, $rnd); # mpfr-4.1.0 &
+                                                    # later only
+    Set $rop to the dot product of elements of @op1 by those of
+    @op2, whose common size is $ui (== scalar @op1), correctly
+    rounded in the direction $rnd.
+    This function is experimental, and does not yet handle
+    intermediate overflows and underflows
 
    #############
 
