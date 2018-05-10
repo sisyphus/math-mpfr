@@ -2772,7 +2772,7 @@ SV * Rmpfr_sum(pTHX_ mpfr_t * rop, SV * avref, SV * len, SV * round) {
      ret = mpfr_sum(*rop, p, s, (mpfr_rnd_t)SvUV(round));
 
      Safefree(p);
-     return newSVuv(ret);
+     return newSViv(ret);
 }
 
 void _fr_to_q(mpq_t * q, mpfr_t * fr) {
@@ -7773,7 +7773,51 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
 
 } /* close atonv */
 
+/* new in 4.1.0 (262400) */
 
+SV * Rmpfr_get_str_ndigits(pTHX_ int base, SV * prec) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= 262400 /* version 4.1.0 */
+    return newSVuv(mpfr_get_str_ndigits(base, (mpfr_prec_t)SvUV(prec)));
+#else
+    croak("The Rmpfr_get_str_ndigits function requires mpfr-4.1.0 or later");
+#endif
+}
+
+SV * Rmpfr_dot(pTHX_ mpfr_t * rop, SV * avref_A, SV * avref_B, SV * len, SV * round) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= 262400 /* version 4.1.0 */
+     mpfr_ptr *p_A, *p_B;
+     SV ** elem;
+     int ret, i;
+     unsigned long s = (unsigned long)SvUV(len);
+
+     if(s != av_len((AV*)SvRV(avref_A)) + 1 || s != av_len((AV*)SvRV(avref_B)) + 1)
+       croak("2nd last arg to Rmpfr_dot doesn't match the size of both arrays");
+
+     Newx(p_A, s, mpfr_ptr);
+     if(p_A == NULL) croak("Unable to allocate memory for first array in Rmpfr_dot");
+
+     Newx(p_B, s, mpfr_ptr);
+     if(p_B == NULL) croak("Unable to allocate memory for second array in Rmpfr_dot");
+
+     for(i = 0; i < s; ++i) {
+        elem = av_fetch((AV*)SvRV(avref_A), i, 0);
+        p_A[i] = (INT2PTR(mpfr_t *, SvIVX(SvRV(*elem))))[0];
+     }
+
+     for(i = 0; i < s; ++i) {
+        elem = av_fetch((AV*)SvRV(avref_B), i, 0);
+        p_B[i] = (INT2PTR(mpfr_t *, SvIVX(SvRV(*elem))))[0];
+     }
+
+     ret = mpfr_dot(*rop, p_A, p_B, s, (mpfr_rnd_t)SvUV(round));
+
+     Safefree(p_A);
+     Safefree(p_B);
+     return newSViv(ret);
+#else
+    croak("The Rmpfr_dot function requires mpfr-4.1.0 or later");
+#endif
+}
 
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
@@ -12120,5 +12164,24 @@ atonv (workspace, str)
 	SV *	str
 CODE:
   RETVAL = atonv (aTHX_ workspace, str);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_get_str_ndigits (base, prec)
+	int	base
+	SV *	prec
+CODE:
+  RETVAL = Rmpfr_get_str_ndigits (aTHX_ base, prec);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_dot (rop, avref_A, avref_B, len, round)
+	mpfr_t *	rop
+	SV *	avref_A
+	SV *	avref_B
+	SV *	len
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_dot (aTHX_ rop, avref_A, avref_B, len, round);
 OUTPUT:  RETVAL
 
