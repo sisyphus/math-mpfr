@@ -2766,7 +2766,7 @@ SV * Rmpfr_sum(pTHX_ mpfr_t * rop, SV * avref, SV * len, SV * round) {
 
      for(i = 0; i < s; ++i) {
         elem = av_fetch((AV*)SvRV(avref), i, 0);
-        p[i] = (INT2PTR(mpfr_t *, SvIVX(SvRV(*elem))))[0];
+        p[i] = *(INT2PTR(mpfr_t *, SvIVX(SvRV(*elem))));
      }
 
      ret = mpfr_sum(*rop, p, s, (mpfr_rnd_t)SvUV(round));
@@ -7790,8 +7790,8 @@ SV * Rmpfr_dot(pTHX_ mpfr_t * rop, SV * avref_A, SV * avref_B, SV * len, SV * ro
      int ret, i;
      unsigned long s = (unsigned long)SvUV(len);
 
-     if(s != av_len((AV*)SvRV(avref_A)) + 1 || s != av_len((AV*)SvRV(avref_B)) + 1)
-       croak("2nd last arg to Rmpfr_dot doesn't match the size of both arrays");
+     if(s > av_len((AV*)SvRV(avref_A)) + 1 || s > av_len((AV*)SvRV(avref_B)) + 1)
+       croak("2nd last arg to Rmpfr_dot is too large");
 
      Newx(p_A, s, mpfr_ptr);
      if(p_A == NULL) croak("Unable to allocate memory for first array in Rmpfr_dot");
@@ -7801,12 +7801,12 @@ SV * Rmpfr_dot(pTHX_ mpfr_t * rop, SV * avref_A, SV * avref_B, SV * len, SV * ro
 
      for(i = 0; i < s; ++i) {
         elem = av_fetch((AV*)SvRV(avref_A), i, 0);
-        p_A[i] = (INT2PTR(mpfr_t *, SvIVX(SvRV(*elem))))[0];
+        p_A[i] = *(INT2PTR(mpfr_t *, SvIVX(SvRV(*elem))));
      }
 
      for(i = 0; i < s; ++i) {
         elem = av_fetch((AV*)SvRV(avref_B), i, 0);
-        p_B[i] = (INT2PTR(mpfr_t *, SvIVX(SvRV(*elem))))[0];
+        p_B[i] = *(INT2PTR(mpfr_t *, SvIVX(SvRV(*elem))));
      }
 
      ret = mpfr_dot(*rop, p_A, p_B, s, (mpfr_rnd_t)SvUV(round));
