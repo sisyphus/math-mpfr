@@ -33,9 +33,9 @@ if($have_new) {
 
   push(@op1, 1);
 
-  eval{$inex = Rmpfr_dot($rop, \@op1, \@op2, scalar(@op2), MPFR_RNDN);};
+  eval{$inex = Rmpfr_dot($rop, \@op1, \@op2, scalar(@op2) + 1, MPFR_RNDN);};
 
-  if($@ =~ /^2nd last arg to Rmpfr_dot doesn't match the size/) {print "ok 3\n"}
+  if($@ =~ /^2nd last arg to Rmpfr_dot is too large/) {print "ok 3\n"}
   else {
     warn "\n \$\@:\n$@\n";
     print "not ok 3\n";
