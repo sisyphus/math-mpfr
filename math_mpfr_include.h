@@ -56,6 +56,11 @@ MPFR_WANT_DECIMAL_FLOATS : The symbol needs to be defined (before mpfr.h is
                            Math::Decimal64-Math::MPFR interface. Otherwise
                            there's no point (apparent to me) in defining it.
 
+MPFR_WANT_DECIMAL128     : Defined by the Makefile.PL only if 'D128=1' is
+                           provided as a command line argument to the Makefile.PL.
+                           We define the symbol solely to make use of the
+                           Math::Decimal128-Math::MPFR interface.
+
 HAVE_IEEE_754_LONG_DOUBLE :Used only by the test suite.
                            Defined by Makefile.PL if
                            ($Config{longdblkind} == 1 ||
@@ -159,6 +164,7 @@ LD_SUBNORMAL_BUG         : Defined for mpfr-3.1.4 and earlier if and only if
 typedef __float128 float128 __attribute__ ((aligned(32)));
 #elif defined(__MINGW64__) || (defined(DEBUGGING) && defined(NV_IS_DOUBLE))
 typedef __float128 float128 __attribute__ ((aligned(8)));
+typedef _Decimal128 D128 __attribute__ ((aligned(8)));
 #else
 typedef __float128 float128;
 #endif
