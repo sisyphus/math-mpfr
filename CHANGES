@@ -1,6 +1,7 @@
 4.05
  - Add Rmpfr_dot() and Rmpfr_get_str_ndigits. (New in 4.1.0.)
  - Correct Rmpfr_sum to return signed int, not unsigned value.
+ - Add Rmpfr_set_DECIMAL128
 
 4.04
  - Support only mpfr-3.0.0 and later
