@@ -535,6 +535,12 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
                                                # && D64=1 arg given to
                                                # Makefile.PL. $D64 is a
                                                # Math::Decimal64 object
+   $si = Rmpfr_set_DECIMAL128($rop, $D128, $rnd) # mpfr-3.1.0 or later &&
+                                               # mpfr lib built with
+                                               # --enable-decimal-float
+                                               # && D128=1 arg given to
+                                               # Makefile.PL. $D128 is a
+                                               # Math::Decimal128 object
    $si = Rmpfr_set_FLOAT128($rop, $F128, $rnd);# mpfr-4.0.0 and later
                                                # && mpfr lib built with
                                                # --enable-float128 &&
