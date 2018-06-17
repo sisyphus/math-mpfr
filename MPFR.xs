@@ -6348,6 +6348,53 @@ SV * Rmpfr_set_DECIMAL64(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
 #endif
 }
 
+/**********************************************
+ **********************************************/
+
+
+SV * Rmpfr_set_DECIMAL128(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
+#if (!defined(MPFR_VERSION) || (MPFR_VERSION<MPFR_VERSION_NUM(4,1,0)))
+     croak("Perl interface to Rmpfr_set_DECIMAL128 not available for this version (%s) of the mpfr library. We need at least version 4.1.0",
+            MPFR_VERSION_STRING);
+#endif
+
+/*
+ MPFR_WANT_DECIMAL_FLOATS needs to have been defined prior to inclusion of mpfr.h - this is done by
+ defining it at the 'Makefile.PL' step - see the Makefile.PL
+ MPFR_WANT_DECIMAL128 also needs to be defined - this is done by passing the argument D128=1 to the
+ Makefile.PL
+*/
+
+#if defined(MPFR_WANT_DECIMAL_FLOATS) && defined(MPFR_WANT_DECIMAL128)
+    if(sv_isobject(op)) {
+      const char* h = HvNAME(SvSTASH(SvRV(op)));
+
+      if(strEQ(h, "Math::Decimal128"))
+        return newSViv(mpfr_set_decimal128(*rop, *(INT2PTR(D128 *, SvIVX(SvRV(op)))), (mpfr_rnd_t)SvUV(rnd)));
+       croak("2nd arg (a %s object) supplied to Rmpfr_set_DECIMAL128 needs to be a Math::Decimal128 object",
+               HvNAME(SvSTASH(SvRV(op))));
+    }
+    else croak("2nd arg (which needs to be a Math::Decimal128 object) supplied to Rmpfr_set_DECIMAL128 is not an object");
+
+#else
+
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,1,0)
+    if( mpfr_buildopt_decimal_p() ) {
+      warn("To make Rmpfr_set_DECIMAL128 available, rebuild Math::MPFR and pass both \"D64=1\" & \"D128=1\"  as separate args to the Makefile.PL\n");
+      croak("See \"PASSING _Decimal64 VALUES\" in the Math::MPFR documentation");
+    }
+#endif
+
+    croak("Both MPFR_WANT_DECIMAL_FLOATS and MPFR_WANT_DECIMAL128 need to have been defined when building Math::MPFR");
+
+#endif
+}
+
+
+
+/**********************************************
+ **********************************************/
+
 void Rmpfr_get_LD(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
      if(sv_isobject(rop)) {
        const char* h = HvNAME(SvSTASH(SvRV(rop)));
@@ -6400,6 +6447,14 @@ void Rmpfr_get_DECIMAL64(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
 
 int _MPFR_WANT_DECIMAL_FLOATS(void) {
 #ifdef MPFR_WANT_DECIMAL_FLOATS
+ return 1;
+#else
+ return 0;
+#endif
+}
+
+int _MPFR_WANT_DECIMAL128(void) {
+#ifdef MPFR_WANT_DECIMAL128
  return 1;
 #else
  return 0;
@@ -11486,6 +11541,15 @@ CODE:
   RETVAL = Rmpfr_set_DECIMAL64 (aTHX_ rop, op, rnd);
 OUTPUT:  RETVAL
 
+SV *
+Rmpfr_set_DECIMAL128 (rop, op, rnd)
+	mpfr_t *	rop
+	SV *	op
+	SV *	rnd
+CODE:
+  RETVAL = Rmpfr_set_DECIMAL128 (aTHX_ rop, op, rnd);
+OUTPUT:  RETVAL
+
 void
 Rmpfr_get_LD (rop, op, rnd)
 	SV *	rop
@@ -11524,6 +11588,10 @@ Rmpfr_get_DECIMAL64 (rop, op, rnd)
 
 int
 _MPFR_WANT_DECIMAL_FLOATS ()
+
+
+int
+_MPFR_WANT_DECIMAL128 ()
 
 
 int
