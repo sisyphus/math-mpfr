@@ -10,6 +10,7 @@ $use_64_bit_int  = 0;     # Let perl decide whether to include 64-bit 'long long
 $use_long_double = 0;     # Let perl decide whether to include 'long double' support
 $have_decimal64  = undef; # Default value
 $have_float128   = undef; # Default value
+$want_float128   = undef; # Default value
 
 #$use_64_bit_int  = -1; # Uncomment to Force exclusion of 64-bit 'long long' support
 #$use_long_double = -1; # Uncomment to Force exclusion of 'long double' support
@@ -173,6 +174,14 @@ else {
     $defines .= " -DNV_IS_FLOAT128" if $Config{nvtype} eq '__float128';
     $defines .= " -DNV_IS_LONG_DOUBLE" if $Config{nvtype} eq 'long double';
   }
+}
+
+############################################
+# Whether to allow _Decimal128 support     #
+############################################
+
+for(@ARGV) {
+  $defines .= " -DMPFR_WANT_DECIMAL128" if $_ eq 'D128=1';
 }
 
 $defines .= " -DMPFR_WANT_DECIMAL_FLOATS" if $have_decimal64;
