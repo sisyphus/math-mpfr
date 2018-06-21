@@ -164,11 +164,19 @@ LD_SUBNORMAL_BUG         : Defined for mpfr-3.1.4 and earlier if and only if
 typedef __float128 float128 __attribute__ ((aligned(32)));
 #elif defined(__MINGW64__) || (defined(DEBUGGING) && defined(NV_IS_DOUBLE))
 typedef __float128 float128 __attribute__ ((aligned(8)));
-typedef _Decimal128 D128 __attribute__ ((aligned(8)));
 #else
 typedef __float128 float128;
 #endif
 #endif
+
+#if defined(MPFR_WANT_DECIMAL128)
+#if defined(__MINGW64__) || (defined(DEBUGGING) && defined(NV_IS_DOUBLE))
+typedef _Decimal128 D128 __attribute__ ((aligned(8)));
+#else
+typedef _Decimal128 D128;
+#endif
+#endif
+
 
 #if (!defined(MPFR_VERSION) || MPFR_VERSION <= 196868) && LDBL_MANT_DIG == 64
 #define LD_SUBNORMAL_BUG 1
