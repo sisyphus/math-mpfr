@@ -267,24 +267,36 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
       Rmpfr_set_str() and Rmpfr_get_str()
 
-=head1 PASSING _Decimal64 VALUES
+=head1 PASSING _Decimal64 & _Decimal128 VALUES
 
-   Install Math::Decimal64 and build the mpfr library (version
-   3.1.0 or later) with the --enable-decimal-float option, and
-   build Math::MPFR by providing the "D64=1" arg to the
-   Makefile.PL (which will define MPFR_WANT_DECIMAL_FLOATS):
+   Install Math::Decimal64 and/or Math::Decimal128 and build the mpfr
+   library (version 3.1.0 or later for _Decimal64, version 4.1.0 or
+   later for _Decimal128) with the --enable-decimal-float option. The
+   Math::MPFR build process should detect the _Decimal64/_Decimal128
+   availability and include or exclude the support accordingly.
 
-     perl Makefile.PL D64=1
+   If the auto-detection fails to detect the availability, you can
+   override it by providing the "D64=1" and/or "D128=1" arg to the
+   the Makefile.PL (either of which will define
+   MPFR_WANT_DECIMAL_FLOATS):
 
-   You can then pass _Decimal64 values between Math::MPFR and
-   Math::Decimal64 using:
+     perl Makefile.PL D64=1 D128=1
+
+   You can then pass _Decimal64/_Decimal128 values between Math::MPFR
+   and Math::Decimal64/Math::Decimal128 using:
 
       Rmpfr_set_DECIMAL64() and Rmpfr_get_DECIMAL64()
+      Rmpfr_set_DECIMAL128() and Rmpfr_get_DECIMAL128()
 
-   NOTE: It is allowable to pass both "D64=1" and "F128=1" args
-     to the Makefile.PL:
+   NOTE: It is allowable to pass any or all of "D64=1", "D128=1" and
+        "F128=1" args to the Makefile.PL.
 
-       perl Makefile.PL D64=1 F128=1
+  To force the removal of _Decimal64/Decimal128 support in
+  Math::MPFR, simply provide "D64=0" and/or "D128=0" as arguments to
+  the Makefile.PL:
+
+      perl Makefile.PL D64=0 D128=0
+
 
 =head1 FUNCTIONS
 
