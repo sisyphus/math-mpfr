@@ -44,21 +44,42 @@ CAN_PASS_FLOAT128        : Defined only when both MPFR_WANT_FLOAT128 and
                            configured with --enable-float128.
 
 MPFR_WANT_DECIMAL_FLOATS : The symbol needs to be defined (before mpfr.h is
-                           included) in order to enable _Decimal64 support.
+                           included) in order to enable _Decimal64 and/or
+                           _Decimal128 support.
                            Hence we define it in the Makefile.PL by setting
-                           $have_decimal64 to a true value. $have_decimal64
-                           can also be set to a true value by specifying
-                           D64=1 in the Makefile.PL's @ARGV.
+                           $have_decimal64 or setting $have_decimal128 to a true
+                           value.
+                           $have_decimal64 can be forcibly set to a true value by
+                           specifying D64=1 in the Makefile.PL's @ARGV.
+                           And $have_decimal128 can likewise be set to a true value
+                           by specifying D128=1 in the Makefile.PL's @ARGV.
                            $have_decimal64 must not be set to a true value
                            if the mpfr library has not been built with
                            _Decimal64 support.
-                           We define the symbol solely to make use of the
-                           Math::Decimal64-Math::MPFR interface. Otherwise
-                           there's no point (apparent to me) in defining it.
+                           And $have_decimal128 must not be set to a true value
+                           if the mpfr library has not been built with
+                           _Decimal128 support.
+                           We define the symbol solely to enable a Math::MPFR
+                           interface with Math::Decimal64 and/or Math::Decimal128.
+                           Otherwise there's no point (apparent to me) in defining
+                           it.
 
-MPFR_WANT_DECIMAL128     : Defined by the Makefile.PL only if 'D128=1' is
-                           provided as a command line argument to the Makefile.PL.
-                           We define the symbol solely to make use of the
+MPFR_WANT_DECIMAL64      : Defined by the Makefile.PL only if support for the
+                            _Decimal64 type in the mpfr library is detected.
+                           Can be forcibly defined by specifying D64=1 in the
+                           Makefile.PL's @ARGV.
+                           Can be forcibly not defined by specifying D64=0
+                           in the Makefile.PL's @ARGV.
+                           We define the symbol solely to enable a
+                           Math::Decimal64-Math::MPFR interface.
+
+MPFR_WANT_DECIMAL128     : Defined by the Makefile.PL only if support for the
+                           _Decimal128 type in the mpfr library is detected.
+                           Can be forcibly defined by specifying D128=1 in the
+                           Makefile.PL's @ARGV.
+                           Can be forcibly not defined by specifying D128=0
+                           in the Makefile.PL's @ARGV.
+                           We define the symbol solely to enable a
                            Math::Decimal128-Math::MPFR interface.
 
 HAVE_IEEE_754_LONG_DOUBLE :Used only by the test suite.
