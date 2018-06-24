@@ -7,8 +7,10 @@ MPFR.xs
 README
 CHANGES
 have_d64.in
+have_d128.in
 have_f128.in
 try_dec64.in
+try_dec128.in
 try_flt128.in
 Prec/Prec.xs
 Prec/Prec.pm
@@ -32,6 +34,7 @@ t/bytes.t
 t/constants.t
 t/D64_LD.t
 t/decimal64_conv.t
+t/decimal128_conv.t
 t/div_by_zero.t
 t/DoubleDouble.t
 t/DoubleDouble2.t
