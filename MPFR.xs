@@ -6319,11 +6319,12 @@ SV * Rmpfr_set_DECIMAL64(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
 #endif
 
 /*
- MPFR_WANT_DECIMAL_FLOATS needs to have been defined prior to inclusion of mpfr.h - this is done by
- defining it at the 'Makefile.PL' step - see the Makefile.PL
+ MPFR_WANT_DECIMAL_FLOATS needs to have been defined prior to inclusion of mpfr.h.
+ MPFR_WANT_DECIMAL164 also needs to be defined.
+ See the Makefile.PL
 */
 
-#ifdef MPFR_WANT_DECIMAL_FLOATS
+#if defined(MPFR_WANT_DECIMAL_FLOATS) && defined(MPFR_WANT_DECIMAL64)
     if(sv_isobject(op)) {
       const char* h = HvNAME(SvSTASH(SvRV(op)));
 
@@ -6339,11 +6340,11 @@ SV * Rmpfr_set_DECIMAL64(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
 #if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,1,0)
     if( mpfr_buildopt_decimal_p() ) {
       warn("To make Rmpfr_set_DECIMAL64 available, rebuild Math::MPFR and pass \"D64=1\" as an arg to the Makefile.PL\n");
-      croak("See \"PASSING _Decimal64 VALUES\" in the Math::MPFR documentation");
+      croak("See \"PASSING _Decimal64 & _Decimal128 VALUES\" in the Math::MPFR documentation");
     }
 #endif
 
-    croak("MPFR_WANT_DECIMAL_FLOATS needs to have been defined when building Math::MPFR - see \"PASSING _Decimal64 VALUES\" in the Math::MPFR documentation");
+    croak("Both MPFR_WANT_DECIMAL_FLOATS and MPFR_WANT_DECIMAL64 need to have been defined when building Math::MPFR - see \"PASSING _Decimal64 & _Decimal128 VALUES\" in the Math::MPFR documentation");
 
 #endif
 }
@@ -6359,10 +6360,9 @@ SV * Rmpfr_set_DECIMAL128(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
 #endif
 
 /*
- MPFR_WANT_DECIMAL_FLOATS needs to have been defined prior to inclusion of mpfr.h - this is done by
- defining it at the 'Makefile.PL' step - see the Makefile.PL
- MPFR_WANT_DECIMAL128 also needs to be defined - this is done by passing the argument D128=1 to the
- Makefile.PL
+ MPFR_WANT_DECIMAL_FLOATS needs to have been defined prior to inclusion of mpfr.h.
+ MPFR_WANT_DECIMAL1128 also needs to be defined.
+ See the Makefile.PL
 */
 
 #if defined(MPFR_WANT_DECIMAL_FLOATS) && defined(MPFR_WANT_DECIMAL128)
@@ -6380,8 +6380,8 @@ SV * Rmpfr_set_DECIMAL128(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
 
 #if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,1,0)
     if( mpfr_buildopt_decimal_p() ) {
-      warn("To make Rmpfr_set_DECIMAL128 available, rebuild Math::MPFR and pass both \"D64=1\" & \"D128=1\"  as separate args to the Makefile.PL\n");
-      croak("See \"PASSING _Decimal64 VALUES\" in the Math::MPFR documentation");
+      warn("To make Rmpfr_set_DECIMAL128 available, rebuild Math::MPFR and pass \"D128=1\"  as separate args to the Makefile.PL\n");
+      croak("See \"PASSING _Decimal64 & _Decimal128 VALUES\" in the Math::MPFR documentation");
     }
 #endif
 
@@ -6408,6 +6408,9 @@ void Rmpfr_get_LD(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
      else croak("1st arg (which needs to be a Math::LongDouble object) supplied to Rmpfr_get_LD is not an object");
 }
 
+/**********************************************
+ **********************************************/
+
 void Rmpfr_get_DECIMAL64(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
 #if (!defined(MPFR_VERSION) || (MPFR_VERSION<MPFR_VERSION_NUM(3,1,0)))
      croak("Perl interface to Rmpfr_get_DECIMAL64 not available for this version (%s) of the mpfr library. We need at least version 3.1.0",
@@ -6415,16 +6418,17 @@ void Rmpfr_get_DECIMAL64(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
 #endif
 
 /*
- MPFR_WANT_DECIMAL_FLOATS needs to have been defined prior to inclusion of mpfr.h - this is done by
- defining it at the 'Makefile.PL' step - see the Makefile.PL
+ MPFR_WANT_DECIMAL_FLOATS needs to have been defined prior to inclusion of mpfr.h.
+ MPFR_WANT_DECIMAL164 also needs to be defined.
+ See the Makefile.PL
 */
 
-#ifdef MPFR_WANT_DECIMAL_FLOATS
+#if defined(MPFR_WANT_DECIMAL_FLOATS) && defined(MPFR_WANT_DECIMAL64)
     if(sv_isobject(rop)) {
       const char* h = HvNAME(SvSTASH(SvRV(rop)));
 
       if(strEQ(h, "Math::Decimal64"))
-        *(INT2PTR(_Decimal64 *, SvIVX(SvRV(rop)))) = mpfr_get_decimal64(*op, (mpfr_rnd_t)SvUV(rnd));
+        *(INT2PTR(_Decimal64 *, SvIVX(SvRV(rop)))) = mpfr_get_decimal64(*op, (mp_rnd_t)SvUV(rnd));
 
        else croak("1st arg (a %s object) supplied to Rmpfr_get_DECIMAL64 needs to be a Math::Decimal64 object",
                       HvNAME(SvSTASH(SvRV(rop))));
@@ -6436,17 +6440,70 @@ void Rmpfr_get_DECIMAL64(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
 #if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,1,0)
     if( mpfr_buildopt_decimal_p() ) {
       warn("To make Rmpfr_get_DECIMAL64 available, rebuild Math::MPFR and pass \"D64=1\" as an arg to the Makefile.PL\n");
-      croak("See \"PASSING _Decimal64 VALUES\" in the Math::MPFR documentation");
+      croak("See \"PASSING _Decimal64 & _Decimal128 VALUES\" in the Math::MPFR documentation");
     }
 #endif
 
-    croak("MPFR_WANT_DECIMAL_FLOATS needs to have been defined when building Math::MPFR - see \"PASSING _Decimal64 VALUES\" in the Math::MPFR documentation");
+    croak("Both MPFR_WANT_DECIMAL_FLOATS and MPFR_WANT_DECIMAL64 need to have been defined when building Math::MPFR");
 
 #endif
 }
 
+/**********************************************
+ **********************************************/
+
+void Rmpfr_get_DECIMAL128(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
+#if (!defined(MPFR_VERSION) || (MPFR_VERSION<MPFR_VERSION_NUM(4,1,0)))
+     croak("Perl interface to Rmpfr_get_DECIMAL128 not available for this version (%s) of the mpfr library. We need at least version 4.1.0",
+              MPFR_VERSION_STRING);
+#endif
+
+/*
+ MPFR_WANT_DECIMAL_FLOATS needs to have been defined prior to inclusion of mpfr.h.
+ MPFR_WANT_DECIMAL1128 also needs to be defined.
+ See the Makefile.PL
+*/
+
+#if defined(MPFR_WANT_DECIMAL_FLOATS) && defined(MPFR_WANT_DECIMAL128)
+    if(sv_isobject(rop)) {
+      const char* h = HvNAME(SvSTASH(SvRV(rop)));
+
+      if(strEQ(h, "Math::Decimal128"))
+        *(INT2PTR(D128 *, SvIVX(SvRV(rop)))) = mpfr_get_decimal128(*op, (mp_rnd_t)SvUV(rnd));
+
+       else croak("1st arg (a %s object) supplied to Rmpfr_get_DECIMAL128 needs to be a Math::Decimal128 object",
+                      HvNAME(SvSTASH(SvRV(rop))));
+    }
+    else croak("1st arg (which needs to be a Math::Decimal128 object) supplied to Rmpfr_get_DECIMAL128 is not an object");
+
+#else
+
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,1,0)
+    if( mpfr_buildopt_decimal_p() ) {
+      warn("To make Rmpfr_get_DECIMAL128 available, rebuild Math::MPFR and pass \"D128=1\" as an arg to the Makefile.PL\n");
+      croak("See \"PASSING _Decimal64 & _Decimal128 VALUES\" in the Math::MPFR documentation");
+    }
+#endif
+
+    croak("Both MPFR_WANT_DECIMAL_FLOATS and MPFR_WANT_DECIMAL128 need to have been defined when building Math::MPFR");
+
+#endif
+}
+
+
+/**********************************************
+ **********************************************/
+
 int _MPFR_WANT_DECIMAL_FLOATS(void) {
 #ifdef MPFR_WANT_DECIMAL_FLOATS
+ return 1;
+#else
+ return 0;
+#endif
+}
+
+int _MPFR_WANT_DECIMAL64(void) {
+#ifdef MPFR_WANT_DECIMAL64
  return 1;
 #else
  return 0;
@@ -11586,8 +11643,30 @@ Rmpfr_get_DECIMAL64 (rop, op, rnd)
         /* must have used dXSARGS; list context implied */
         return; /* assume stack size is correct */
 
+void
+Rmpfr_get_DECIMAL128 (rop, op, rnd)
+	SV *	rop
+	mpfr_t *	op
+	SV *	rnd
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpfr_get_DECIMAL128(aTHX_ rop, op, rnd);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
 int
 _MPFR_WANT_DECIMAL_FLOATS ()
+
+
+int
+_MPFR_WANT_DECIMAL64 ()
 
 
 int
