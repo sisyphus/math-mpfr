@@ -87,6 +87,7 @@ t/tls.t
 t/tls_flags.t
 t/trig.t
 t/TRmpfr_out_str.t
+t/underflow.t
 t/use64bitint.t
 t/uselongdouble.t
 t/view_config.t
