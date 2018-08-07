@@ -78,6 +78,7 @@ t/set_NV.t
 t/set_str.t
 t/sign.t
 t/sizes.t
+t/subnormal_doubles.t
 t/sum.t
 t/test1.t
 t/test2.t
