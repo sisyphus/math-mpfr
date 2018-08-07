@@ -7759,6 +7759,51 @@ int _ld_subnormal_bug(void) {
 #endif
 }
 
+/*
+*  The atodouble function was written as a means to check that the atonv
+*  function  handles subnormal double-doubles correctly.
+*  But it is readily available for any other purpose, too.
+*  On a perl whose nvtype is double it should return the same value as atonv,
+*  though atodouble is not as efficient as atonv.
+*/
+
+double atodouble(char * str) {
+
+
+#if defined(MPFR_VERSION) & MPFR_VERSION > 196869
+
+    mpfr_t workspace;
+    mpfr_prec_t emin, emax;
+    int inex;
+    double d;
+
+    mpfr_init2(workspace, 53);
+
+    emin = mpfr_get_emin();
+    emax = mpfr_get_emax();
+
+    mpfr_set_emin(-1073);
+    mpfr_set_emax(1024);
+
+    inex = mpfr_strtofr(workspace, str, NULL, 0, GMP_RNDN);
+    mpfr_subnormalize(workspace, inex, GMP_RNDN);
+
+    mpfr_set_emin(emin);
+    mpfr_set_emax(emax);
+
+    d = mpfr_get_d(workspace, GMP_RNDN);
+
+    mpfr_clear(workspace);
+
+    return d;
+
+#else
+
+    croak("The atodouble function requires mpfr-3.1.6 or later");
+
+#endif
+}
+
 SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
 
 
@@ -7838,10 +7883,37 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
 
 #if REQUIRED_LDBL_MANT_DIG == 2098
 
+    mpfr_t msd;             /* most siginificant double */
+    mpfr_prec_t emin, emax;
+    int inex;
+    long double ret;
+
     if(mpfr_get_prec(*workspace) != 2098)
       croak ("Precision of first arg to atonv function must be 2098");
 
+    mpfr_init2(msd, 53);
+
+    emin = mpfr_get_emin();
+    emax = mpfr_get_emax();
+
+    mpfr_set_emin(-1073);
+    mpfr_set_emax(1024);
+
+    inex = mpfr_strtofr(msd, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    mpfr_subnormalize(msd, inex, GMP_RNDN);
+
+    mpfr_set_emin(emin);
+    mpfr_set_emax(emax);
+
+    if(!mpfr_regular_p(msd)) {
+      ret = (long double)mpfr_get_d(msd, GMP_RNDN);
+      mpfr_clear(msd);
+      return newSVnv(ret);
+    }
+
     mpfr_strtofr(*workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    mpfr_sub(*workspace, *workspace, msd, GMP_RNDN);
+    mpfr_clear(msd);
     return newSVnv(mpfr_get_ld(*workspace, GMP_RNDN));
 
 #endif
@@ -7930,6 +8002,8 @@ SV * Rmpfr_dot(pTHX_ mpfr_t * rop, SV * avref_A, SV * avref_B, SV * len, SV * ro
     croak("The Rmpfr_dot function requires mpfr-4.1.0 or later");
 #endif
 }
+
+
 
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
@@ -12304,6 +12378,10 @@ Rmpfr_rootn_ui (rop, op, k, round)
 int
 _ld_subnormal_bug ()
 
+
+double
+atodouble (str)
+	char *	str
 
 SV *
 atonv (workspace, str)
