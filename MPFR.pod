@@ -1686,9 +1686,15 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    MISCELLANEOUS
 
+   $nv = atodouble($str); # Needs mpfr-3.1.6 or later
+    Sets the $nv to the value of the double that's represented by
+    the string $str.
+    If $Config{nvtype} is double, it therefore returns the same
+    value as atonv - though it is less efficient than atonv().
+
    $nv = atonv($ws, $str); # $ws is a Math::MPFR object.
                            # Needs mpfr-3.1.6 or later
-    Sets the NV $nv to the value represented by the string $str.
+    Sets $nv to the NV value represented by the string $str.
     $ws needs to be initialized (once only) with a precision of
     $Math::MPFR::BITS - after which atonv() can be called repeatedly
     without incurring the overhead of having to repeatedly create the
