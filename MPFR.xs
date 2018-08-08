@@ -7883,7 +7883,8 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
 
 #if REQUIRED_LDBL_MANT_DIG == 2098
 
-    mpfr_t msd;             /* most siginificant double */
+    mpfr_t dspace;
+    double msd, lsd;        /* 'most' and 'least' significant doubles */
     mpfr_prec_t emin, emax;
     int inex;
     long double ret;
@@ -7891,7 +7892,7 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
     if(mpfr_get_prec(*workspace) != 2098)
       croak ("Precision of first arg to atonv function must be 2098");
 
-    mpfr_init2(msd, 53);
+    mpfr_init2(dspace, 53);
 
     emin = mpfr_get_emin();
     emax = mpfr_get_emax();
@@ -7899,22 +7900,28 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
     mpfr_set_emin(-1073);
     mpfr_set_emax(1024);
 
-    inex = mpfr_strtofr(msd, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-    mpfr_subnormalize(msd, inex, GMP_RNDN);
+    inex = mpfr_strtofr(dspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    mpfr_subnormalize(dspace, inex, GMP_RNDN);
 
-    mpfr_set_emin(emin);
-    mpfr_set_emax(emax);
+    msd = mpfr_get_d(dspace, GMP_RNDN);
 
-    if(!mpfr_regular_p(msd)) {
-      ret = (long double)mpfr_get_d(msd, GMP_RNDN);
-      mpfr_clear(msd);
-      return newSVnv(ret);
+    if(!mpfr_regular_p(dspace)) {
+      mpfr_clear(dspace);
+      mpfr_set_emin(emin); /* restore to original value */
+      mpfr_set_emax(emax); /* restore to original value */
+      return newSVnv(msd);
     }
 
     mpfr_strtofr(*workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-    mpfr_sub(*workspace, *workspace, msd, GMP_RNDN);
-    mpfr_clear(msd);
-    return newSVnv(mpfr_get_ld(*workspace, GMP_RNDN));
+    inex = mpfr_sub(*workspace, *workspace, dspace, GMP_RNDN);
+    mpfr_clear(dspace);
+    mpfr_subnormalize(*workspace, inex, GMP_RNDN);
+    lsd = mpfr_get_d(*workspace, GMP_RNDN);
+
+    mpfr_set_emin(emin); /* restore to original value */
+    mpfr_set_emax(emax); /* restore to original value */
+
+    return newSVnv((long double)msd + (long double)lsd);
 
 #endif
 #endif                                                  /* close LD */
