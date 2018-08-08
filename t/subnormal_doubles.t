@@ -1,6 +1,6 @@
 # Run some checks on subnormal double-doubles and doubles.
 # This script also checks some values that are Inf (or close to Inf).
-# For subnormal double values we check that atodouble() and atonv() return the same value.
+# For subnormal double values and Inf we check that atodouble() and atonv() return the same value.
 # We do the same for normal values - but not if the NV type is double-double.
 
 use strict;
@@ -20,7 +20,7 @@ if($Config::Config{nvtype} eq 'double' ||
 
     print "1..1\n";
 
-    my ($ok, $dmin) = (1, 2 ** - 1022);
+    my ($ok, $dmin, $inf) = (1, 2 ** - 1022, 99 ** (99 ** 99));
     my($exp, $sig, $val, $d, $nv);
     my $ws = Rmpfr_init2($Math::MPFR::BITS);
 
@@ -32,6 +32,11 @@ if($Config::Config{nvtype} eq 'double' ||
       $val = "${sig}e${exp}";
       $d = atodouble($val);
       $nv = atonv($ws, $val);
+
+      if(($d == $inf || $nv == $inf) && $d != $nv) {
+        warn "\n $d != $nv\n";
+        $ok = 0;
+      }
 
       if($Math::MPFR::BITS != 2098) { # Check that $d == $nv for all values
         if($d != $nv) {
