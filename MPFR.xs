@@ -7913,10 +7913,11 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
     }
 
     mpfr_strtofr(*workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-    inex = mpfr_sub(*workspace, *workspace, dspace, GMP_RNDN);
+    inex = mpfr_sub(dspace, *workspace, dspace, GMP_RNDN);
+    mpfr_subnormalize(dspace, inex, GMP_RNDN);
+    lsd = mpfr_get_d(dspace, GMP_RNDN);
+
     mpfr_clear(dspace);
-    mpfr_subnormalize(*workspace, inex, GMP_RNDN);
-    lsd = mpfr_get_d(*workspace, GMP_RNDN);
 
     mpfr_set_emin(emin); /* restore to original value */
     mpfr_set_emax(emax); /* restore to original value */
