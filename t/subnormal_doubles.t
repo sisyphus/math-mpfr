@@ -24,7 +24,7 @@ if($Config::Config{nvtype} eq 'double' ||
     my($exp, $sig, $val, $d, $nv);
     my $ws = Rmpfr_init2($Math::MPFR::BITS);
 
-    for my $it(1 .. 500) {
+    for my $it(1 .. 1500) {
       $exp = 300 + int(rand(30));
       $exp *= -1 if($it % 3);
       $sig = (1 + int(rand(9))) . '.' . int(rand(10)) . int(rand(10)) . int(rand(10)) . (1 + int(rand(9)));
@@ -47,6 +47,24 @@ if($Config::Config{nvtype} eq 'double' ||
       elsif($d <= $dmin) {            # Check that $d == $nv for subnormal values only
         if($d != $nv) {
           warn "\n $d != $nv\n";
+          $ok = 0;
+        }
+      }
+
+      # Additional tests for double-double builds when (and only when)
+      # the exponent <= -300.
+      # Specifically, the least significant double in 10 + $val should
+      # be identical to $d.
+
+      if(Math::MPFR::_required_ldbl_mant_dig() == 2098 && $exp <= -300) {
+        my $prefix = "1" . ("0" x ($exp * -1));
+        my $nv = atonv($ws, $prefix . $val);
+
+        my $hex_dd = scalar reverse unpack "h*", pack "D<", $nv;
+        my $hex_d  = scalar reverse unpack "h*", pack "d<", $d;
+
+        if($hex_dd !~ /$hex_d$/) {
+          warn "\n $hex_dd !~ /$hex_d\$/\n";
           $ok = 0;
         }
       }
