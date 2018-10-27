@@ -78,7 +78,7 @@ if($Config::Config{nvtype} eq 'double' ||
     print "1..1\n";
     eval{atodouble('1234.5');};
 
-    if($@ =~ /^The atodoublefunction requires mpfr-3.1.6 or later/) {print "ok 1\n"}
+    if($@ =~ /^The atodouble function requires mpfr-3.1.6 or later/) {print "ok 1\n"}
     else {
       warn "\n \$\@: $@\n";
       print "not ok 1\n";
