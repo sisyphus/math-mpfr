@@ -258,13 +258,13 @@ print " gmp-4.2.0 (or later)\n mpfr-3.0.0 (or later)\n\n";
 $defines =~ /\-DMATH_MPFR_NEED_LONG_LONG_INT/ ? print "Building with 'long long' support\n" :
                                  print "Building without 'long long' support\n";
 
-print "If this is wrong, see the \"64-bit support\" section in the README\n\n";
+print "If this is wrong, see the \"64-bit-int and long double support\" section in the README\n\n";
 
 ($defines =~ /\-DNV_IS_LONG_DOUBLE/ || $defines =~ /\-DNV_IS_FLOAT128/)
                                     ? print "Building with 'long double' support\n"
                                     : print "Building without 'long double' support\n";
 
-print "If this is wrong, see the \"64-bit support\" section in the README\n\n";
+print "If this is wrong, see the \"64-bit-int and long double support\" section in the README\n\n";
 
 ($defines =~ /\-DNV_IS_FLOAT128/) ? print "Building with support for a __float128 NV\n"
                                   : print "Building without support for a __float128 NV\n";
