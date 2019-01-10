@@ -89,7 +89,7 @@ if(
 }
 else { # Not a double or double-double build
   print "1..1\n";
-  warn "\n Skipping tests: NV type ($Config::Config{nvtype} is neither\n  'double' nor double-double'\n";
+  warn "\n Skipping tests: NV type ( $Config::Config{nvtype} ) is neither\n  'double' nor double-double'\n";
   print "ok 1\n";
 }
 
