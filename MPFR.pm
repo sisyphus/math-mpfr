@@ -180,7 +180,7 @@ Rmpfr_round_nearest_away rndna
 atonv atodouble Rmpfr_dot Rmpfr_get_str_ndigits
 );
 
-    our $VERSION = '4.06';
+    our $VERSION = '4.07';
     #$VERSION = eval $VERSION;
 
     DynaLoader::bootstrap Math::MPFR $VERSION;
