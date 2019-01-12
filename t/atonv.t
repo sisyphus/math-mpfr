@@ -6,7 +6,11 @@ my $t = 4;
 
 print "1..$t\n";
 
-my $have_atonv;
+my($have_atonv, $mpfr_has_float128);
+
+eval{$mpfr_has_float128 = Rmpfr_buildopt_float128_p()};
+
+$mpfr_has_float128 = 0 if $@; # else it's whatever Rmpfr_buildopt_float128_p() returned
 
 $have_atonv = MPFR_VERSION <= 196869 ? 0 : 1;
 
@@ -52,18 +56,44 @@ if($have_atonv) {
   }
 
   elsif($Config::Config{nvtype} eq '__float128') {
-    $nv1 = atonv($ws, '0b0.100001e-16494');
-    $nv2 = atonv($ws, '6.5e-4966');
-    if($nv1 == $nv2 && $nv1 > 0) {print "ok 1\n"}
-    else {
-      warn "\n \$nv1: $nv1\n \$nv2: $nv2\n";
-      print "not ok 1\n";
+
+    if($mpfr_has_float128) {                # Don't assume mpfr supports libquadmath types
+      $nv1 = atonv($ws, '0b0.100001e-16494');
+      $nv2 = atonv($ws, '6.5e-4966');
+      if($nv1 == $nv2 && $nv1 > 0) {print "ok 1\n"}
+      else {
+        warn "\n \$nv1: $nv1\n \$nv2: $nv2\n";
+        print "not ok 1\n";
+      }
+
+      if(Rmpfr_get_prec($ws) == $Math::MPFR::BITS) {print "ok 2\n"}
+      else {
+        warn "\n Precision has changed from $Math::MPFR::BITS to ", Rmpfr_get_prec($ws), "\n";
+        print "not ok 2\n";
+      }
     }
 
-    if(Rmpfr_get_prec($ws) == $Math::MPFR::BITS) {print "ok 2\n"}
     else {
-      warn "\n Precision has changed from $Math::MPFR::BITS to ", Rmpfr_get_prec($ws), "\n";
-      print "not ok 2\n";
+      eval { $nv1 = atonv($ws, '0b0.100001e-16494') };
+      if($@ =~ /^The atonv function is unavailable for this __float128 build/) {
+        print "ok 1\n";
+      }
+      else {
+        warn "\$\@: $@\n";
+        print "not ok 1\n";
+      }
+
+      if(Math::MPFR::_MPFR_WANT_FLOAT128()) {
+
+        # MPFR_WANT_FLOAT128 should be not defined if mpfr
+        # library does not support libquadmath types
+
+        warn "Serious inconsistency regarding mpfr library's quadmath support\n";
+        print "not ok 2\n";
+      }
+      else {
+        print "ok2\n";
+      }
     }
   }
 
