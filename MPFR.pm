@@ -783,9 +783,8 @@ sub nvtoa {
    my $significand_sign = '';
    if($nv <= 0) {
      if($nv == 0) {
-       if("$nv" =~ /^\-/) {
+       if($] >= 5.010 && scalar(reverse(unpack('h*', pack('F<', $nv)))) =~ /8/   ) {
          $significand_sign = '-';
-         $nv *= -1;
        }
      }
      else {
