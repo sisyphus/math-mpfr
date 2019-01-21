@@ -177,7 +177,7 @@ Rmpfr_fmodquo Rmpfr_fpif_export Rmpfr_fpif_import Rmpfr_flags_clear Rmpfr_flags_
 Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr_roundeven
 Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc Rmpfr_beta
 Rmpfr_round_nearest_away rndna
-atonv atodouble Rmpfr_dot Rmpfr_get_str_ndigits
+atonv nvtoa atodouble Rmpfr_dot Rmpfr_get_str_ndigits
 );
 
     our $VERSION = '4.07';
@@ -282,7 +282,7 @@ Rmpfr_fmodquo Rmpfr_fpif_export Rmpfr_fpif_import Rmpfr_flags_clear Rmpfr_flags_
 Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr_roundeven
 Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc Rmpfr_beta
 Rmpfr_round_nearest_away rndna
-atonv atodouble Rmpfr_dot Rmpfr_get_str_ndigits
+atonv nvtoa atodouble Rmpfr_dot Rmpfr_get_str_ndigits
 )]);
 
 
@@ -291,6 +291,8 @@ $Math::MPFR::NNW = 0; # Set to 1 to allow "non-numeric" warnings for operations 
 
 $Math::MPFR::NOK_POK = 0; # Set to 1 to allow warnings in new() and overloaded operations when
                           # a scalar that has set both NOK (NV) and POK (PV) flags is encountered
+
+%Math::MPFR::NV_properties = _get_NV_properties();
 
 sub dl_load_flags {0} # Prevent DynaLoader from complaining and croaking
 
@@ -734,6 +736,121 @@ sub Rmpfr_round_nearest_away {
   $ret = Rmpfr_prec_round($rop, $big_prec - 1, MPFR_RNDA);
   Rmpfr_set_emin($emin);
   return $ret;
+}
+
+sub _get_NV_properties {
+
+  my($bits, $PREC, $max_dig, $min_pow, $normal_min, $NV_MAX, $nvtype);
+
+  if   ($Config{nvtype} eq 'double')     { $bits = 53;  $PREC = 64;  $max_dig = 17; $min_pow = -1074;
+                                         $normal_min = 2 ** -1022; $NV_MAX = 1.7976931348623157e+308; $nvtype = 1 }
+  elsif($Config{nvtype} eq '__float128') { $bits = 113; $PREC = 128; $max_dig = 36; $min_pow = -16494; $nvtype = 3;
+                                         $normal_min = 2 ** -16382; $NV_MAX = 1.18973149535723176508575932662800702e+4932 }
+
+  elsif($Config{nvtype} eq 'long double') {
+
+    $nvtype = 2;
+
+    die "\$Config{longdblkind} not defined - need at least perl-5.22.0"
+      unless defined $Config{longdblkind};
+
+    if   ($Config{longdblkind} < 0)      { die "Unknown kind of long double" }
+    elsif($Config{longdblkind} < 1)      { $bits = 53;  $PREC = 64;  $max_dig = 17; $min_pow = -1074;
+                                         $normal_min = 2 ** -1022; $NV_MAX = 1.7976931348623157e+308 }
+    elsif($Config{longdblkind} < 3)      { $bits = 113; $PREC = 128; $max_dig = 36; $min_pow = -16494;
+                                         $normal_min = 2 ** -16382; $NV_MAX = 1.18973149535723176508575932662800702e+4932 }
+    elsif($Config{longdblkind} < 5)      { $bits = 64;  $PREC = 80;  $max_dig = 21; $min_pow = -16445;
+                                         $normal_min = 2 ** -16382; $NV_MAX = 1.18973149535723176502e+4932 }
+    else                                 { die "Double-Doubles not currently handled"}
+  }
+  else {die "'$Config{nvtype}' is an unrecognized nvtype"}
+
+  my %properties = (
+    'bits'       => $bits,
+    'PREC'       => $PREC,
+    'max_dig'    => $max_dig,
+    'min_pow'    => $min_pow,
+    'normal_min' => $normal_min,
+    'NV_MAX'     => $NV_MAX,
+                   );
+
+  return %properties;
+}
+
+
+sub nvtoa {
+   my $nv = shift;
+   my $significand_sign = '';
+   if($nv <= 0) {
+     if($nv == 0) {
+       if("$nv" =~ /^\-/) {
+         $significand_sign = '-';
+         $nv *= -1;
+       }
+     }
+     else {
+       $significand_sign = '-';
+       $nv *= -1;
+     }
+   }
+
+   my @s = _FPP2($nv, $Math::MPFR::NV_properties{'NV_MAX'}, $Math::MPFR::NV_properties{'normal_min'},
+                $Math::MPFR::NV_properties{'min_pow'},$Math::MPFR::NV_properties{'bits'},
+                $Math::MPFR::NV_properties{'max_dig'});
+
+   return "$significand_sign$s[0]" if @s == 1;
+
+
+   my $leading_zero_count = 0;
+   my $exp_sign = '';
+   my $output = $s[0];
+   my $k = $s[1];
+
+   for(0 .. length($output)) {
+     if(substr($output, $_, 1) eq '0') {
+       $leading_zero_count++;
+       $k--;
+     }
+     else { last }
+   }
+
+   return $significand_sign . _std($output, $k);
+}
+
+# standardize the string returned by the _FPP2() XSub.
+sub _std {
+  my $output = shift;
+  my $k = shift;
+
+  my $len  = length($output);
+
+  my $critical = $k + $len;
+
+  if($critical < -3) {
+
+    $critical--;
+    $critical = sprintf "%03d", $critical;
+    if($len > 1) { substr($output, 1, 0, '.') }
+    return "${output}e${critical}";
+  }
+
+  if($critical <= 0 && $critical >= -3) { return $output = "0." . ('0' x -$critical) . $output }
+  if($critical > 0 && $critical < $Math::MPFR::NV_properties{'max_dig'}) {
+
+    if($k >= 0) {
+      $output .= '0' x $k;
+      return $output . ".0";
+    }
+
+    substr($output, $k, 0, '.');
+    return $output;
+  }
+
+    # $critical >= $max_dig
+
+    $critical--;
+    if($len > 1) { substr($output, 1, 0, '.') }
+    return "${output}e+${critical}";
 }
 
 *Rmpfr_get_z_exp             = \&Rmpfr_get_z_2exp;
