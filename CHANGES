@@ -1,5 +1,6 @@
 4.07
  - Fix bug in t/atonv.t. (Thanks Dana Jacobsen)
+ - Add nvtoa()
 
 4.06
  - Fix bug (https://bugs.debian.org/918673) in t/subnormal_doubles.t
