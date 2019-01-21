@@ -1706,7 +1706,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
         ... # Do stuff
      }
 
-   $str = atonv($nv);
+   $str = nvtoa($nv);
     Sets $str to the value of $nv.
     $str will appear in standard decimal format, containing the
     *minimum* number of digits such that the condition ($str == $nv)
