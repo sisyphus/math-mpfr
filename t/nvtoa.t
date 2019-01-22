@@ -231,6 +231,7 @@ else {
 
 __END__
 
+# Populate @py3
 
 for(@in) {
    my $for_python = sprintf("%.${p}e", $_);
@@ -240,21 +241,4 @@ for(@in) {
 }
 
 print join "', ", @py3;
-
-__END__
-
-__________
-  for(my $i = 0; $i < @in; $i++) {
-    if($in[$i] ne $py3[$i]) {
-      $ok = 0;
-      warn "$in[$i] ne $py3[$i]\n";
-    }
-  }
-
-  if($ok) { print "ok 9\n" }
-  else { print "not ok 9\n" }
-
-  $ok = 1;
-__________
-
 
