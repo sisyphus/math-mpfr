@@ -8013,6 +8013,9 @@ SV * Rmpfr_dot(pTHX_ mpfr_t * rop, SV * avref_A, SV * avref_B, SV * len, SV * ro
 
 void _FPP2(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int max_dig) {
 
+#if MPFR_VERSION_MAJOR < 4
+  croak("nvtoa() requires version 4.0 or later of the mpfr library - this is only %s", MPFR_VERSION_STRING);
+#else
   dXSARGS;
   int subnormal_prec_adjustment, exp_init;
   int k, k_start, len;
@@ -8249,7 +8252,7 @@ void _FPP2(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int max
   Safefree(out);
   ST(1) = sv_2mortal(newSViv(k));
   XSRETURN(2);
-
+#endif
 }
 
 
