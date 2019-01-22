@@ -1707,7 +1707,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
      }
 
    $str = nvtoa($nv);
-    Sets $str to the value of $nv.
+    Sets $str to the value of $nv. Double-Double NVs are unsupported.
     $str will appear in standard decimal format, containing the
     *minimum* number of digits such that the condition ($str == $nv)
     is true.
