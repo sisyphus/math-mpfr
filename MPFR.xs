@@ -8011,6 +8011,9 @@ SV * Rmpfr_dot(pTHX_ mpfr_t * rop, SV * avref_A, SV * avref_B, SV * len, SV * ro
 #endif
 }
 
+/* _FPP2 is adapted from p120 of  "How to Print Floating-Point Numbers Accurately" */
+/* by Guy L. Steele Jr and Jon L. White                                            */
+
 void _FPP2(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int max_dig) {
 
 #if MPFR_VERSION_MAJOR < 4
