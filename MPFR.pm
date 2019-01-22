@@ -764,11 +764,20 @@ sub _get_NV_properties {
       $normal_min = 2 ** -16382; $NV_MAX = 1.18973149535723176502e+4932;
     }
 
-    elsif(_required_ldbl_mant_dig() == 2098) { die "Double-Doubles not currently handled"}
+    elsif(_required_ldbl_mant_dig() == 2098) {
+      my %properties = ('type' => 'double-double type, not supported by nvtoa()');
+      return %properties;
+    }
 
-    else                                     { die "Unknown kind of long double" }
+    else {
+      my %properties = ('type' => 'unknown long double type, not supported by nvtoa()');
+      return %properties;
+    }
   }
-  else {die "'$Config{nvtype}' is an unrecognized nvtype"}
+  else {
+      my %properties = ('type' => 'unknown nv type, not supported by nvtoa()');
+      return %properties;
+  }
 
   my %properties = (
     'bits'       => $bits,
@@ -784,6 +793,8 @@ sub _get_NV_properties {
 
 
 sub nvtoa {
+
+   if(defined $Math::MPFR::NV_properties{'type'}) { die "$Math::MPFR::NV_properties{'type'}" }
    my $nv = shift;
    my $significand_sign = '';
    if($nv <= 0) {
