@@ -8029,6 +8029,10 @@ void _FPP2(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int max
   mpfr_t ws;
   mpz_t R, S, M_minus, M_plus, LHS, TMP;
   mpq_t Q, QT;
+#if REQUIRED_LDBL_MANT_DIG == 2098
+  void *nvptr = &nv; /* The NV, not the SV */
+  unsigned long msd_exp, lsd_exp;
+#endif
 
   char *f, *out;
 
@@ -8065,6 +8069,9 @@ void _FPP2(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int max
 
   if(nv < normal_min) {
     is_subnormal = 1;
+#if REQUIRED_LDBL_MANT_DIG == 2098
+    bits = 53;
+#endif
     mpfr_set_prec(ws, bits);
     Rmpfr_set_NV(aTHX_ &ws, pnv, GMP_RNDN);
 
@@ -8077,6 +8084,60 @@ void _FPP2(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int max
     subnormal_prec_adjustment = bits - (exp_init - min_pow);
     bits -= subnormal_prec_adjustment;
   }
+
+#if REQUIRED_LDBL_MANT_DIG == 2098
+#ifdef MPFR_HAVE_BENDIAN                   /* Big Endian architecture */
+
+    if(!is_subnormal) {
+      msd_exp = ((unsigned char *)nvptr)[0];
+      msd_exp <<= 4;
+      bits = ((unsigned char *)nvptr)[1];
+      bits >>= 4;
+      msd_exp += bits;
+      if(msd_exp > 2047) msd_exp -= 2048;
+      if(msd_exp == 0) msd_exp = -1022;
+      else msd_exp -= 1023;
+
+      lsd_exp = ((unsigned char *)nvptr)[8];
+      lsd_exp <<= 4;
+      bits = ((unsigned char *)nvptr)[9];
+      bits >>= 4;
+      lsd_exp += bits;
+      if(lsd_exp > 2047) lsd_exp -= 2048;
+      if(lsd_exp == 0) lsd_exp = -1022;
+      else lsd_exp -= 1023;
+
+      bits = 53 + msd_exp - lsd_exp;
+      if(bits < 53) croak ("Bad calculation of bitsize");
+    }
+
+#else                                     /* Little Endian architecture */
+
+    if(!is_subnormal) {
+      msd_exp = ((unsigned char *)nvptr)[15];
+      msd_exp <<= 4;
+      bits = ((unsigned char *)nvptr)[14];
+      bits >>= 4;
+      msd_exp += bits;
+      if(msd_exp > 2047) msd_exp -= 2048;
+      if(msd_exp == 0) msd_exp = -1022;
+      else msd_exp -= 1023;
+
+      lsd_exp = ((unsigned char *)nvptr)[7];
+      lsd_exp <<= 4;
+      bits = ((unsigned char *)nvptr)[6];
+      bits >>= 4;
+      lsd_exp += bits;
+      if(lsd_exp > 2047) lsd_exp -= 2048;
+      if(lsd_exp == 0) lsd_exp = -1022;
+      else lsd_exp -= 1023;
+
+      bits = 53 + msd_exp - lsd_exp;
+      if(bits < 53) croak ("Bad calculation of bitsize");
+    }
+
+#endif
+#endif
 
   mpfr_set_prec(ws, bits);
   Rmpfr_set_NV(aTHX_ &ws, pnv, GMP_RNDN);
