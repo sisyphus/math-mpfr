@@ -1708,11 +1708,18 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $str = nvtoa($nv);
     Requires at least version 4.0 of the mpfr library.
-    Double-Double NVs are currently unsupported.
     Sets $str to the value of $nv.
     $str will appear in standard decimal format, containing the
     *minimum* number of digits such that the condition ($str == $nv)
     is true.
+    NOTE 1: For perls whose NV is the double-double, $str may contain
+            more digits than is necessary. (Work in progress.)
+    NOTE 2: Perl versions prior to 5.29.4, or subsequent versions that
+            don't define $Config{d_strtod} (or, respectively,
+            $Config{d_strtold} for-Duselongdouble builds) are buggy in
+            their assignment of values to the NV. The nvtoa() function
+            looks only at the value that was passed to it - which, with
+            such buggy perls, may differ from the intended value.
 
    $MPFR_version = Rmpfr_get_version();
     Returns the version of the MPFR library (eg 2.1.0) being used by
