@@ -742,31 +742,36 @@ sub _get_NV_properties {
 
   my($bits, $PREC, $max_dig, $min_pow, $normal_min, $NV_MAX, $nvtype);
 
-  if   ($Config{nvtype} eq 'double')     { $bits = 53;  $PREC = 64;  $max_dig = 17; $min_pow = -1074;
-                                         $normal_min = 2 ** -1022; $NV_MAX = 1.7976931348623157e+308; }
-  elsif($Config{nvtype} eq '__float128') { $bits = 113; $PREC = 128; $max_dig = 36; $min_pow = -16494;
-                                         $normal_min = 2 ** -16382; $NV_MAX = 1.18973149535723176508575932662800702e+4932 }
+  if   ($Config{nvtype} eq 'double')     {
+    $bits = 53;  $PREC = 64;  $max_dig = 17; $min_pow = -1074;
+    $normal_min = 2 ** -1022; $NV_MAX = POSIX::DBL_MAX;
+  }
+
+  elsif($Config{nvtype} eq '__float128') {
+    $bits = 113; $PREC = 128; $max_dig = 36; $min_pow = -16494;
+    $normal_min = 2 ** -16382; $NV_MAX = 1.18973149535723176508575932662800702e+4932;
+  }
 
   elsif($Config{nvtype} eq 'long double') {
 
     if(_required_ldbl_mant_dig() == 53)      {
       $bits = 53;  $PREC = 64;  $max_dig = 17; $min_pow = -1074;
-      $normal_min = 2 ** -1022; $NV_MAX = 1.7976931348623157e+308;
+      $normal_min = 2 ** -1022; $NV_MAX = POSIX::DBL_MAX;
     }
 
     elsif(_required_ldbl_mant_dig() == 113)  {
       $bits = 113; $PREC = 128; $max_dig = 36; $min_pow = -16494;
-      $normal_min = 2 ** -16382; $NV_MAX = 1.18973149535723176508575932662800702e+4932;
+      $normal_min = 2 ** -16382; $NV_MAX = POSIX::LDBL_MAX;
     }
 
     elsif(_required_ldbl_mant_dig() == 64)   {
       $bits = 64;  $PREC = 80;  $max_dig = 21; $min_pow = -16445;
-      $normal_min = 2 ** -16382; $NV_MAX = 1.18973149535723176502e+4932;
+      $normal_min = 2 ** -16382; $NV_MAX = POSIX::LDBL_MAX;
     }
 
     elsif(_required_ldbl_mant_dig() == 2098) {
-      my %properties = ('type' => 'double-double type, not supported by nvtoa()');
-      return %properties;
+      $bits = 2098;  $PREC = 2104;  $max_dig = 633; $min_pow = -1074;
+      $normal_min = 2 ** -1022; $NV_MAX = POSIX::LDBL_MAX;
     }
 
     else {
