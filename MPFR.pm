@@ -740,38 +740,38 @@ sub Rmpfr_round_nearest_away {
 
 sub _get_NV_properties {
 
-  my($bits, $PREC, $max_dig, $min_pow, $normal_min, $NV_MAX, $nvtype);
+  my($bits, $PREC, $max_dig, $min_pow, $normal_min, $NV_MAX, $nvtype, $emax, $emin);
 
   if   ($Config{nvtype} eq 'double')     {
     $bits = 53;  $PREC = 64;  $max_dig = 17; $min_pow = -1074;
-    $normal_min = 2 ** -1022; $NV_MAX = POSIX::DBL_MAX;
+    $normal_min = 2 ** -1022; $NV_MAX = POSIX::DBL_MAX; $emin = -1073; $emax = 1024;
   }
 
   elsif($Config{nvtype} eq '__float128') {
-    $bits = 113; $PREC = 128; $max_dig = 36; $min_pow = -16494;
-    $normal_min = 2 ** -16382; $NV_MAX = 1.18973149535723176508575932662800702e+4932;
+    $bits = 113; $PREC = 128; $max_dig = 36; $min_pow = -16494; $normal_min = 2 ** -16382;
+    $NV_MAX = 1.18973149535723176508575932662800702e+4932; $emin = -16493; $emax = 16384;
   }
 
   elsif($Config{nvtype} eq 'long double') {
 
     if(_required_ldbl_mant_dig() == 53)      {
       $bits = 53;  $PREC = 64;  $max_dig = 17; $min_pow = -1074;
-      $normal_min = 2 ** -1022; $NV_MAX = POSIX::DBL_MAX;
+      $normal_min = 2 ** -1022; $NV_MAX = POSIX::DBL_MAX; $emin = -1073; $emax = 1024;
     }
 
     elsif(_required_ldbl_mant_dig() == 113)  {
       $bits = 113; $PREC = 128; $max_dig = 36; $min_pow = -16494;
-      $normal_min = 2 ** -16382; $NV_MAX = POSIX::LDBL_MAX;
+      $normal_min = 2 ** -16382; $NV_MAX = POSIX::LDBL_MAX; $emin = -16493; $emax = 16384;
     }
 
     elsif(_required_ldbl_mant_dig() == 64)   {
       $bits = 64;  $PREC = 80;  $max_dig = 21; $min_pow = -16445;
-      $normal_min = 2 ** -16382; $NV_MAX = POSIX::LDBL_MAX;
+      $normal_min = 2 ** -16382; $NV_MAX = POSIX::LDBL_MAX; $emin = -16444; $emax = 16384;
     }
 
     elsif(_required_ldbl_mant_dig() == 2098) {
       $bits = 2098;  $PREC = 2104;  $max_dig = 633; $min_pow = -1074;
-      $normal_min = 2 ** -1022; $NV_MAX = POSIX::LDBL_MAX;
+      $normal_min = 2 ** -1022; $NV_MAX = POSIX::LDBL_MAX; $emin = -1073; $emax = 1024;
     }
 
     else {
@@ -791,6 +791,8 @@ sub _get_NV_properties {
     'min_pow'    => $min_pow,
     'normal_min' => $normal_min,
     'NV_MAX'     => $NV_MAX,
+    'emin'       => $emin,
+    'emax'       => $emax,
                    );
 
   return %properties;
@@ -799,7 +801,7 @@ sub _get_NV_properties {
 
 sub nvtoa {
 
-   if(defined $Math::MPFR::NV_properties{'type'}) { die "$Math::MPFR::NV_properties{'type'}" }
+   if(defined $Math::MPFR::NV_properties{type}) { die "$Math::MPFR::NV_properties{type}" }
    my $nv = shift;
    my $significand_sign = '';
    if($nv <= 0) {
@@ -814,9 +816,9 @@ sub nvtoa {
      }
    }
 
-   my @s = _FPP2($nv, $Math::MPFR::NV_properties{'NV_MAX'}, $Math::MPFR::NV_properties{'normal_min'},
-                $Math::MPFR::NV_properties{'min_pow'},$Math::MPFR::NV_properties{'bits'},
-                $Math::MPFR::NV_properties{'max_dig'});
+   my @s = _FPP2($nv, $Math::MPFR::NV_properties{NV_MAX}, $Math::MPFR::NV_properties{normal_min},
+                $Math::MPFR::NV_properties{min_pow},$Math::MPFR::NV_properties{bits},
+                $Math::MPFR::NV_properties{max_dig});
 
    return "$significand_sign$s[0]" if @s == 1;
 
@@ -855,7 +857,7 @@ sub _std {
   }
 
   if($critical <= 0 && $critical >= -3) { return $output = "0." . ('0' x -$critical) . $output }
-  if($critical > 0 && $critical < $Math::MPFR::NV_properties{'max_dig'}) {
+  if($critical > 0 && $critical < $Math::MPFR::NV_properties{max_dig}) {
 
     if($k >= 0) {
       $output .= '0' x $k;
