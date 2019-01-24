@@ -8108,6 +8108,7 @@ void _FPP2(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int max
       else lsd_exp -= 1023;
 
       bits = 53 + msd_exp - lsd_exp;
+      if(lsd_exp < -1022) bits += (lsd_exp + 1022); /* reduce "bits" because lsd is subnormal */
       if(bits < 53) croak ("Bad calculation of bitsize");
     }
 
@@ -8133,6 +8134,7 @@ void _FPP2(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int max
       else lsd_exp -= 1023;
 
       bits = 53 + msd_exp - lsd_exp;
+      if(lsd_exp < -1022) bits += (lsd_exp + 1022); /* reduce "bits" because lsd is subnormal */
       if(bits < 53) croak ("Bad calculation of bitsize");
     }
 
