@@ -45,14 +45,16 @@ else {
 
   my $ws = Rmpfr_init2($Math::MPFR::BITS);
 
-  my @in = (atonv($ws, '6284685476686e5'), atonv($ws, '4501259036604e6'), atonv($ws, '1411252895572e-5'),
+  my @in = ( 0.1 / 10, 1.4 / 10,
+            atonv($ws, '6284685476686e5'), atonv($ws, '4501259036604e6'), atonv($ws, '1411252895572e-5'),
             atonv($ws, '9.047014579199e-57'), atonv($ws, '91630634264070293e0'),
             atonv($ws, '25922126328248069e0'), 2 ** $min_pow, 2 ** 0.5, (2 ** $min_pow) + (2 ** ($min_pow + 1)), sqrt 3.0,
             atonv($ws, '2385059e-341'), atonv($ws, '-2385059e-341'), atonv($ws, '1e-9'),
             atonv($ws, '-7373243991138e5'));
 
   # @py3 is 'doubles' - can't be used to check 'long double' and '__float128' builds of perl.
-  my @py3 = ('6.284685476686e+17', '4.501259036604e+18', '14112528.95572', '9.047014579199e-57',
+  my @py3 = ('0.01', '0.13999999999999999', '6.284685476686e+17', '4.501259036604e+18', '14112528.95572',
+             '9.047014579199e-57',
              '9.163063426407029e+16', '2.5922126328248068e+16', '5e-324', '1.4142135623730951',
              '1.5e-323', '1.7320508075688772', '0.0', '-0.0', '1e-09', '-7.373243991138e+17');
 
@@ -106,7 +108,7 @@ else {
     my $orig_emax = Rmpfr_get_emax();
 
     for(@in) {
-      if($_ >= $Math::MPFR::NV_properties{normal_min}) {
+      if(abs($_) >= $Math::MPFR::NV_properties{normal_min}) {
         Rmpfr_strtofr($t1, nvtoa($_), 10, MPFR_RNDN);
         Rmpfr_set_NV($t2, $_, MPFR_RNDN);
         if($t1 != $t2) {
@@ -204,8 +206,13 @@ else {
     my $orig_emin = Rmpfr_get_emin();
     my $orig_emax = Rmpfr_get_emax();
 
+    push @in, 2 ** $Math::MPFR::NV_properties{min_pow},
+              2 ** ($Math::MPFR::NV_properties{min_pow} + 3)  +
+              2 ** ($Math::MPFR::NV_properties{min_pow} + 13) +
+              2 ** ($Math::MPFR::NV_properties{min_pow} + 33);
+
     for(@in) {
-      if($_ >= $Math::MPFR::NV_properties{normal_min}) {
+      if(abs($_) >= $Math::MPFR::NV_properties{normal_min}) {
         Rmpfr_strtofr($t1, nvtoa($_), 10, MPFR_RNDN);
         Rmpfr_set_NV($t2, $_, MPFR_RNDN);
         if($t1 != $t2) {
@@ -236,6 +243,8 @@ else {
 
     if($ok) { print "ok 7\n" }
     else { print "not ok 7\n" }
+
+    #print nvtoa($in[-1]), "\n", nvtoa($in[-2]), "\n";
 
     $ok = 1;
   }
@@ -289,8 +298,13 @@ else {
     my $orig_emin = Rmpfr_get_emin();
     my $orig_emax = Rmpfr_get_emax();
 
+    push @in, 2 ** $Math::MPFR::NV_properties{min_pow},
+              2 ** ($Math::MPFR::NV_properties{min_pow} + 3)  +
+              2 ** ($Math::MPFR::NV_properties{min_pow} + 13) +
+              2 ** ($Math::MPFR::NV_properties{min_pow} + 33);
+
     for(@in) {
-      if($_ >= $Math::MPFR::NV_properties{normal_min}) {
+      if(abs($_) >= $Math::MPFR::NV_properties{normal_min}) {
         Rmpfr_strtofr($t1, nvtoa($_), 10, MPFR_RNDN);
         Rmpfr_set_NV($t2, $_, MPFR_RNDN);
         if($t1 != $t2) {
@@ -354,7 +368,7 @@ else {
     if(nvtoa($inf) eq 'Inf') { print "ok 4\n" }
     else {
       warn nvtoa($inf), " ne 'Inf'\n";
-      print "not ok 4\n";
+     print "not ok 4\n";
     }
 
     if(nvtoa($ninf) eq '-Inf') { print "ok 5\n" }
@@ -369,16 +383,66 @@ else {
       print "not ok 6\n";
     }
 
-    if(nvtoa(-7373243991138e5) == -7373243991138e5) { print "ok 7\n" }
-    else {
-      warn nvtoa(-7373243991138e5), " != -7373243991138e5\n";
-      print "not ok 7\n";
-    }
+    my $t1 = Rmpfr_init2($Math::MPFR::NV_properties{bits});
+    my $t2 = Rmpfr_init2($Math::MPFR::NV_properties{bits});
+    my $orig_emin = Rmpfr_get_emin();
+    my $orig_emax = Rmpfr_get_emax();
+
+    push @in, 2 ** $Math::MPFR::NV_properties{min_pow},
+              2 ** ($Math::MPFR::NV_properties{min_pow} + 3)  +
+              2 ** ($Math::MPFR::NV_properties{min_pow} + 13) +
+              2 ** ($Math::MPFR::NV_properties{min_pow} + 33);
 
     for(@in) {
-      if(nvtoa($_) != $_) {
+      if(abs($_) >= $Math::MPFR::NV_properties{normal_min}) {
+        Rmpfr_strtofr($t1, nvtoa($_), 10, MPFR_RNDN);
+        Rmpfr_set_NV($t2, $_, MPFR_RNDN);
+        my $ld1 = Rmpfr_get_NV($t1, MPFR_RNDN);
+        my $ld2 = Rmpfr_get_NV($t2, MPFR_RNDN);
+        if($ld1 != $ld2) {
+          $ok = 0;
+          warn "$_\n", scalar(reverse(unpack "h*", (pack "F<", $ld1))), " ne ",
+                       scalar(reverse(unpack "h*", (pack "F<", $ld2))), "\n\n";
+        }
+      }
+      else {
+        # We need to subnormalize the mpfr objects.
+        my $s = nvtoa($_);
+        Rmpfr_set_emin($Math::MPFR::NV_properties{emin}); #(-16493);
+        Rmpfr_set_emax($Math::MPFR::NV_properties{emin}); #(16384);
+        my $inex = Rmpfr_strtofr($t1, $s, 10, MPFR_RNDN);
+        Rmpfr_subnormalize($t1, $inex, MPFR_RNDN);
+        $inex = Rmpfr_set_NV($t2, $_, MPFR_RNDN);
+        Rmpfr_subnormalize($t2, $inex, MPFR_RNDN);
+
+        if($t1 != $t2) {
+          $ok = 0;
+          warn "$t1 != $t2\n";
+        }
+
+        Rmpfr_set_emin($orig_emin);
+        Rmpfr_set_emax($orig_emax);
+      }
+
+    }
+
+    if($ok) { print "ok 7\n" }
+    else { print "not ok 7\n" }
+
+    $ok = 1;
+
+    my @correct = ('0.00999999999999999999999999999999996', '0.14', '628468547668600000.0',
+                   '4501259036604000000.0', '14112528.95572', '9.047014579199e-57',
+                   '91630634264070293.0', '25922126328248069.0', '5e-324', '1.4142135623730950488016887242097',
+                   '1.5e-323', '1.73205080756887729352744634150586', '0.0', '-0.0', '1e-09',
+                   '-737324399113800000.0', '5e-324', '4.2439956333e-314');
+
+
+    for(my $i = 0; $i < @in; $i++) {
+      my $t = nvtoa($in[$i]);
+      if($t ne $correct[$i]) {
         $ok = 0;
-        warn nvtoa($_), " != ", sprintf("%.${p}e", $_), "\n";
+        warn "$t ne $correct[$i]\n";
       }
     }
 
@@ -386,6 +450,7 @@ else {
     else { print "not ok 8\n" }
 
     $ok = 1;
+
   }
 
   else {
@@ -396,8 +461,7 @@ else {
 }
 
 __END__
-# 1e-09
-# Populate @py3
+
 
 for(@in) {
    my $for_python = sprintf("%.${p}e", $_);
