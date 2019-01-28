@@ -1,4 +1,5 @@
 4.07
+ - Alter the way that atonv() is called.
  - Fix bug in t/atonv.t. (Thanks Dana Jacobsen)
  - Add nvtoa()
 
