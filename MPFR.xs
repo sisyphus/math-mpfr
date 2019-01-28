@@ -8027,7 +8027,7 @@ SV * Rmpfr_dot(pTHX_ mpfr_t * rop, SV * avref_A, SV * avref_B, SV * len, SV * ro
 void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int max_dig) {
 
 #if MPFR_VERSION_MAJOR < 4
-  croak("nvtoa() requires version 4.0 or later of the mpfr library - this is only %s", MPFR_VERSION_STRING);
+  croak("nvtoa function requires version 4.0 or later of the mpfr library - this is only %s", MPFR_VERSION_STRING);
 #else
   dXSARGS;
   int subnormal_prec_adjustment, exp_init;
@@ -8049,7 +8049,7 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
   nv = SvNV(pnv);
 
   if(nv <= 0) {
-    if(nv < 0) croak("Passing of negative values to FPP2() is not allowed");
+    if(nv < 0) croak("Passing of negative values to _nvtoa XSub is not allowed");
     ST(0) = sv_2mortal(newSVpv("0.0", 0));
     XSRETURN(1);
   }
@@ -8075,7 +8075,7 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
   mpq_init(QT);
 
   Newxz(f, bits + 8, char);
-  if(f == NULL) croak("Failed to allocate memory near start of nvtoa()");
+  if(f == NULL) croak("Failed to allocate memory near start of _nvtoa XSub");
 
   if(nv < normal_min) {
     is_subnormal = 1;
@@ -8153,7 +8153,7 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
   mpz_set_str(R, f, 2);
   mpz_set(TMP, R);
 
-  if(mpz_cmp_ui(R, 0) < 1) croak("Negative value is not allowed");
+  if(mpz_cmp_ui(R, 0) < 1) croak("Negative value in _nvtoa XSub is not allowed");
   mpz_set_ui(S, 1);
 
   shift1 = e - bits > 0 ? e - bits : 0;
@@ -8228,7 +8228,7 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
   k_start = k;
 
   Newxz(out, max_dig + 8, char);
-  if(out == NULL) croak("Failed to allocate memory for output string in nvtoa()");
+  if(out == NULL) croak("Failed to allocate memory for output string in _nvtoa XSub");
 
   while(1) {
 
