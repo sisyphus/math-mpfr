@@ -7804,17 +7804,17 @@ double atodouble(char * str) {
 #endif
 }
 
-SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
+SV * atonv(pTHX_ SV * str) {
 
 
 #if defined(MPFR_VERSION) & MPFR_VERSION > 196869
-
+    mpfr_t workspace;
 #if defined(NV_IS_DOUBLE) || LDBL_MANT_DIG == 53        /* D */
     mpfr_prec_t emin, emax;
     int inex;
+    double ret;
 
-    if(mpfr_get_prec(*workspace) != 53)
-      croak ("Precision of first arg to atonv function must be 53");
+    mpfr_init2(workspace, 53);
 
     emin = mpfr_get_emin();
     emax = mpfr_get_emax();
@@ -7822,13 +7822,16 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
     mpfr_set_emin(-1073);
     mpfr_set_emax(1024);
 
-    inex = mpfr_strtofr(*workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-    mpfr_subnormalize(*workspace, inex, GMP_RNDN);
+    inex = mpfr_strtofr(workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    mpfr_subnormalize(workspace, inex, GMP_RNDN);
 
     mpfr_set_emin(emin);
     mpfr_set_emax(emax);
 
-    return newSVnv(mpfr_get_d(*workspace, GMP_RNDN));
+    ret = mpfr_get_d(workspace, GMP_RNDN);
+    mpfr_clear(workspace);
+
+    return newSVnv(ret);
 
 #endif                                                  /* close D */
 
@@ -7837,9 +7840,9 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
 
     mpfr_prec_t emin, emax;
     int inex;
+    long double ret;
 
-    if(mpfr_get_prec(*workspace) != 64)
-      croak ("Precision of first arg to atonv function must be 64");
+    mpfr_init2(workspace, 64);
 
     emin = mpfr_get_emin();
     emax = mpfr_get_emax();
@@ -7847,13 +7850,16 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
     mpfr_set_emin(-16444);
     mpfr_set_emax(16384);
 
-    inex = mpfr_strtofr(*workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-    mpfr_subnormalize(*workspace, inex, GMP_RNDN);
+    inex = mpfr_strtofr(workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    mpfr_subnormalize(workspace, inex, GMP_RNDN);
 
     mpfr_set_emin(emin);
     mpfr_set_emax(emax);
 
-    return newSVnv(mpfr_get_ld(*workspace, GMP_RNDN));
+    ret = mpfr_get_ld(workspace, GMP_RNDN);
+    mpfr_clear(workspace);
+
+    return newSVnv(ret);
 
 #endif
 
@@ -7861,9 +7867,9 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
 
     mpfr_prec_t emin, emax;
     int inex;
+    long double ret;
 
-    if(mpfr_get_prec(*workspace) != 113)
-      croak ("Precision of first arg to atonv function must be 113");
+    mpfr_init2(workspace, 113);
 
     emin = mpfr_get_emin();
     emax = mpfr_get_emax();
@@ -7871,13 +7877,16 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
     mpfr_set_emin(-16493);
     mpfr_set_emax(16384);
 
-    inex = mpfr_strtofr(*workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-    mpfr_subnormalize(*workspace, inex, GMP_RNDN);
+    inex = mpfr_strtofr(workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    mpfr_subnormalize(workspace, inex, GMP_RNDN);
 
     mpfr_set_emin(emin);
     mpfr_set_emax(emax);
 
-    return newSVnv(mpfr_get_ld(*workspace, GMP_RNDN));
+    ret = mpfr_get_ld(workspace, GMP_RNDN);
+    mpfr_clear(workspace);
+
+    return newSVnv(ret);
 
 #endif
 
@@ -7889,9 +7898,7 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
     int inex;
     long double ret;
 
-    if(mpfr_get_prec(*workspace) != 2098)
-      croak ("Precision of first arg to atonv function must be 2098");
-
+    mpfr_init2(workspace, 2098);
     mpfr_init2(dspace, 53);
 
     emin = mpfr_get_emin();
@@ -7912,12 +7919,13 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
       return newSVnv(msd);
     }
 
-    mpfr_strtofr(*workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-    inex = mpfr_sub(dspace, *workspace, dspace, GMP_RNDN);
+    mpfr_strtofr(workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    inex = mpfr_sub(dspace, workspace, dspace, GMP_RNDN);
     mpfr_subnormalize(dspace, inex, GMP_RNDN);
     lsd = mpfr_get_d(dspace, GMP_RNDN);
 
     mpfr_clear(dspace);
+    mpfr_clear(workspace);
 
     mpfr_set_emin(emin); /* restore to original value */
     mpfr_set_emax(emax); /* restore to original value */
@@ -7932,9 +7940,9 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
 
     mpfr_prec_t emin, emax;
     int inex;
+    __float128 ret;
 
-    if(mpfr_get_prec(*workspace) != 113)
-      croak ("Precision of first arg to atonv function must be 113");
+    mpfr_init2(workspace, 113);
 
     emin = mpfr_get_emin();
     emax = mpfr_get_emax();
@@ -7942,13 +7950,15 @@ SV * atonv(pTHX_ mpfr_t * workspace, SV * str) {
     mpfr_set_emin(-16493);
     mpfr_set_emax(16384);
 
-    inex = mpfr_strtofr(*workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-    mpfr_subnormalize(*workspace, inex, GMP_RNDN);
+    inex = mpfr_strtofr(workspace, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    mpfr_subnormalize(workspace, inex, GMP_RNDN);
 
     mpfr_set_emin(emin);
     mpfr_set_emax(emax);
 
-    return newSVnv(mpfr_get_float128(*workspace, GMP_RNDN));
+    ret = mpfr_get_float128(workspace, GMP_RNDN);
+    mpfr_clear(workspace);
+    return newSVnv(ret);
 
 #else
     croak("The atonv function is unavailable for this __float128 build of perl\n");
@@ -8011,10 +8021,10 @@ SV * Rmpfr_dot(pTHX_ mpfr_t * rop, SV * avref_A, SV * avref_B, SV * len, SV * ro
 #endif
 }
 
-/* _FPP2 is adapted from p120 of  "How to Print Floating-Point Numbers Accurately" */
-/* by Guy L. Steele Jr and Jon L. White                                            */
+/* _nvtoa function is adapted from p120 of  "How to Print Floating-Point Numbers Accurately" */
+/* by Guy L. Steele Jr and Jon L. White                                               */
 
-void _FPP2(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int max_dig) {
+void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int max_dig) {
 
 #if MPFR_VERSION_MAJOR < 4
   croak("nvtoa() requires version 4.0 or later of the mpfr library - this is only %s", MPFR_VERSION_STRING);
@@ -8075,11 +8085,6 @@ void _FPP2(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int max
     mpfr_set_prec(ws, bits);
     Rmpfr_set_NV(aTHX_ &ws, pnv, GMP_RNDN);
 
-/***  Used Rmpfr_set_NV instead ****
-    if(nvtype == 1) mpfr_set_d(ws, nv, GMP_RNDN);
-    if(nvtype == 2) mpfr_set_ld(ws, nv, GMP_RNDN);
-    if(nvtype == 3) mpfr_set_float128(ws, nv, GMP_RNDN);
-*/
     exp_init = mpfr_get_exp(ws);
     subnormal_prec_adjustment = bits - (exp_init - min_pow);
     bits -= subnormal_prec_adjustment;
@@ -8144,11 +8149,6 @@ void _FPP2(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int max
   mpfr_set_prec(ws, bits);
   Rmpfr_set_NV(aTHX_ &ws, pnv, GMP_RNDN);
 
-/***  Used Rmpfr_set_NV instead ****
-  if(nvtype == 1) mpfr_set_d(ws, nv, GMP_RNDN);
-  if(nvtype == 2) mpfr_set_ld(ws, nv, GMP_RNDN);
-  if(nvtype == 3) mpfr_set_float128(ws, nv, GMP_RNDN);
-*/
   mpfr_get_str(f, &e, 2, bits, ws, GMP_RNDN);
   mpz_set_str(R, f, 2);
   mpz_set(TMP, R);
@@ -12703,11 +12703,10 @@ atodouble (str)
 	char *	str
 
 SV *
-atonv (workspace, str)
-	mpfr_t *	workspace
+atonv (str)
 	SV *	str
 CODE:
-  RETVAL = atonv (aTHX_ workspace, str);
+  RETVAL = atonv (aTHX_ str);
 OUTPUT:  RETVAL
 
 SV *
@@ -12730,7 +12729,7 @@ CODE:
 OUTPUT:  RETVAL
 
 void
-_FPP2 (pnv, nv_max, normal_min, min_pow, b, max_dig)
+_nvtoa (pnv, nv_max, normal_min, min_pow, b, max_dig)
 	SV *	pnv
 	NV	nv_max
 	NV	normal_min
@@ -12741,7 +12740,7 @@ _FPP2 (pnv, nv_max, normal_min, min_pow, b, max_dig)
         I32* temp;
         PPCODE:
         temp = PL_markstack_ptr++;
-        _FPP2(aTHX_ pnv, nv_max, normal_min, min_pow, b, max_dig);
+        _nvtoa(aTHX_ pnv, nv_max, normal_min, min_pow, b, max_dig);
         if (PL_markstack_ptr != temp) {
           /* truly void, because dXSARGS not invoked */
           PL_markstack_ptr = temp;
