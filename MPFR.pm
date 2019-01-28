@@ -296,10 +296,6 @@ $Math::MPFR::NOK_POK = 0; # Set to 1 to allow warnings in new() and overloaded o
 
 sub dl_load_flags {0} # Prevent DynaLoader from complaining and croaking
 
-if($Config{nvtype} eq 'double')        {$Math::MPFR::BITS = 53}
-elsif($Config{nvtype} eq '__float128') {$Math::MPFR::BITS = 113}
-else                                   {$Math::MPFR::BITS = _required_ldbl_mant_dig()}
-
 sub Rmpfr_out_str {
     if(@_ == 4) {
        die "Inappropriate 1st arg supplied to Rmpfr_out_str" if _itsa($_[0]) != _MATH_MPFR_T;
@@ -775,12 +771,12 @@ sub _get_NV_properties {
     }
 
     else {
-      my %properties = ('type' => 'unknown long double type, not supported by nvtoa()');
+      my %properties = ('type' => 'unknown long double type');
       return %properties;
     }
   }
   else {
-      my %properties = ('type' => 'unknown nv type, not supported by nvtoa()');
+      my %properties = ('type' => 'unknown nv type');
       return %properties;
   }
 
@@ -816,7 +812,7 @@ sub nvtoa {
      }
    }
 
-   my @s = _FPP2($nv, $Math::MPFR::NV_properties{NV_MAX}, $Math::MPFR::NV_properties{normal_min},
+   my @s = _nvtoa($nv, $Math::MPFR::NV_properties{NV_MAX}, $Math::MPFR::NV_properties{normal_min},
                 $Math::MPFR::NV_properties{min_pow},$Math::MPFR::NV_properties{bits},
                 $Math::MPFR::NV_properties{max_dig});
 
