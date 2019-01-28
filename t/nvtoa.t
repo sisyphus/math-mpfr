@@ -121,12 +121,18 @@ else {
         Rmpfr_set_emax($Math::MPFR::NV_properties{emin}); #(1024);
         my $inex = Rmpfr_strtofr($t1, $s, 10, MPFR_RNDN);
         Rmpfr_subnormalize($t1, $inex, MPFR_RNDN);
-        $inex = Rmpfr_set_NV($t2, $_, MPFR_RNDN);
+
+        # Rmpfr_set_NV will croak if 2nd arg does not have the NV flag set
+        # and some older perls might not set that flag - in which case
+        # we can fall back to Rmpfr_strtofr.
+
+        eval {$inex = Rmpfr_set_NV($t2, $_, MPFR_RNDN);};
+        if($@) { $inex = Rmpfr_strtofr($t2, $_, 10, MPFR_RNDN) }
         Rmpfr_subnormalize($t2, $inex, MPFR_RNDN);
 
         if($t1 != $t2) {
           $ok = 0;
-          warn "$t1 != $t2\n";
+          warn "$t1 != $t2\n\n";
         }
 
         Rmpfr_set_emin($orig_emin);
@@ -140,17 +146,23 @@ else {
 
     $ok = 1;
 
-    for(my $i = 0; $i < @in; $i++) {
-      my $t = nvtoa($in[$i]);
-      if($t =~ /e\-0\d\d$/i) {$t =~ s/e\-0/e-/i}
-      if($t ne $py3[$i]) {
-        $ok = 0;
-        warn "$t ne $py3[$i]\n";
-      }
+    if(2 ** -1074 == 0) {
+      warn "\nSkipping test 8 - perl is too broken (says 2**- 1074 == 0)\n";
+      print "ok 8\n";
     }
+    else {
+      for(my $i = 0; $i < @in; $i++) {
+        my $t = nvtoa($in[$i]);
+        if($t =~ /e\-0\d\d$/i) {$t =~ s/e\-0/e-/i}
+        if($t ne $py3[$i]) {
+          $ok = 0;
+          warn "$t ne $py3[$i]\n";
+        }
+      }
 
-    if($ok) { print "ok 8\n" }
-    else { print "not ok 8\n" }
+      if($ok) { print "ok 8\n" }
+      else { print "not ok 8\n" }
+    }
 
     $ok = 1;
   }
