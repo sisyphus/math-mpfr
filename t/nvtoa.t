@@ -6,7 +6,7 @@ if(4 > MPFR_VERSION_MAJOR) {
   print "1..1\n";
   eval{ nvtoa(0.5) };
 
-  if($@ =~ /^nvtoa\(\) requires version 4\.0/) {
+  if($@ =~ /^nvtoa function requires version 4\.0/) {
     warn "nvtoa() not supported because the mpfr library is too old\n";
     print "ok 1\n";
   }
@@ -15,21 +15,6 @@ if(4 > MPFR_VERSION_MAJOR) {
     print "not ok 1\n";
   }
 }
-
-#elsif(Math::MPFR::_required_ldbl_mant_dig() == 2098) {
-#  print "1..1\n";
-#
-#  eval{ nvtoa(0.5) };
-#
-#  if($@ =~ /^double\-double type,/) {
-#    warn "nvtoa() does not support the double-double type\n";
-#    print "ok 1\n";
-#  }
-#  else {
-#    warn "\$\@: $@\n";
-#    print "not ok 1\n";
-#  }
-#}
 
 else {
 
