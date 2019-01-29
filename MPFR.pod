@@ -1694,6 +1694,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $nv = atonv($str); # Needs mpfr-3.1.6 or later
     Sets $nv to the NV value represented by the string $str.
+    NOTE: ORIGINALLY TOOK 2 ARGUMENTS - NOW TAKES ONLY 1.
 
    $str = nvtoa($nv);
     Requires at least version 4.0 of the mpfr library.
