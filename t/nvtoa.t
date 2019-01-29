@@ -43,10 +43,25 @@ else {
   my $ninf = $inf * -1;
   my $nan = Rmpfr_get_NV(Math::MPFR->new(), MPFR_RNDN);
 
+  my $temp1 = Rmpfr_init2($Math::MPFR::NV_properties{bits});
+  my $temp2 = Rmpfr_init2($Math::MPFR::NV_properties{bits});
+
+  Rmpfr_set_ui($temp1, 1, MPFR_RNDN);
+  Rmpfr_set_ui($temp2, 1, MPFR_RNDN);
+
+  my $div2exp = -$Math::MPFR::NV_properties{min_pow}; # min_pow is -ve.
+
+  Rmpfr_div_2exp($temp1, $temp1, $div2exp, MPFR_RNDN);
+  Rmpfr_div_2exp($temp2, $temp2, $div2exp - 1, MPFR_RNDN);
+  Rmpfr_add($temp2, $temp2, $temp1, MPFR_RNDN);
+
+  my $denorm1 = Rmpfr_get_NV($temp1, MPFR_RNDN);
+  my $denorm2 = Rmpfr_get_NV($temp2, MPFR_RNDN);
+
   my @in = ( 0.1 / 10, 1.4 / 10, 2 ** ($Math::MPFR::NV_properties{bits} - 1),
             atonv('6284685476686e5'), atonv('4501259036604e6'), atonv('1411252895572e-5'),
             atonv('9.047014579199e-57'), atonv('91630634264070293e0'),
-            atonv('25922126328248069e0'), 2 ** $min_pow, 2 ** 0.5, (2 ** $min_pow) + (2 ** ($min_pow + 1)), sqrt 3.0,
+            atonv('25922126328248069e0'), $denorm1, 2 ** 0.5, $denorm2, sqrt 3.0,
             atonv('2385059e-341'), atonv('-2385059e-341'), atonv('1e-9'),
             atonv('-7373243991138e5'));
 
@@ -146,23 +161,18 @@ else {
 
     $ok = 1;
 
-    if(2 ** -1074 == 0) {
-      warn "\nSkipping test 8 - perl is too broken (says 2**- 1074 == 0)\n";
-      print "ok 8\n";
-    }
-    else {
-      for(my $i = 0; $i < @in; $i++) {
-        my $t = nvtoa($in[$i]);
-        if($t =~ /e\-0\d\d$/i) {$t =~ s/e\-0/e-/i}
-        if($t ne $py3[$i]) {
-          $ok = 0;
-          warn "$t ne $py3[$i]\n";
-        }
-      }
 
-      if($ok) { print "ok 8\n" }
-      else { print "not ok 8\n" }
+    for(my $i = 0; $i < @in; $i++) {
+      my $t = nvtoa($in[$i]);
+      if($t =~ /e\-0\d\d$/i) {$t =~ s/e\-0/e-/i}
+      if($t ne $py3[$i]) {
+        $ok = 0;
+        warn "$t ne $py3[$i]\n";
+      }
     }
+
+    if($ok) { print "ok 8\n" }
+    else { print "not ok 8\n" }
 
     $ok = 1;
   }
