@@ -766,7 +766,7 @@ sub _get_NV_properties {
     }
 
     elsif(_required_ldbl_mant_dig() == 2098) {
-      $bits = 2098;  $PREC = 2104;  $max_dig = 633; $min_pow = -1074;
+      $bits = 2098;  $PREC = 2104;  $max_dig = 33; $min_pow = -1074;
       $normal_min = 2 ** -1022; $NV_MAX = POSIX::LDBL_MAX; $emin = -1073; $emax = 1024;
     }
 
