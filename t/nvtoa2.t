@@ -266,5 +266,6 @@ while(1) {
 
 }
 
-is($ok, 1, '');
+if($ok == 1) { print "ok 1\n" }
+else         { print "not ok 1\n" }
 
