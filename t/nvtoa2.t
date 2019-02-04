@@ -5,6 +5,8 @@ use warnings;
 use Math::MPFR qw(:mpfr);
 use Config;
 
+print "1..1\n";
+
 # We'll check a list of 10000 randomly derived NV values.
 # The mantissa of each NV will be between 1 and $MAX_DIG decimal digits.
 # Neither the first nor last mantissa digit will be zero
@@ -42,9 +44,8 @@ use Config;
 # Else perl is deemed unreliable, and $reliable is false.
 
 
-
 if(4 > MPFR_VERSION_MAJOR) {
-  print "1..1\n";
+
   eval{ nvtoa(0.5) };
 
   if($@ =~ /^nvtoa function requires version 4\.0/) {
@@ -62,8 +63,6 @@ if(4 > MPFR_VERSION_MAJOR) {
 my $MAX_DIG;
 my $MAX_POW;
 my $ok = 1;
-
-print "1..1\n";
 
 if   ($Math::MPFR::NV_properties{bits} == 53)  { $MAX_DIG = 17;
                                                  $MAX_POW = 350;
@@ -267,6 +266,5 @@ while(1) {
 
 }
 
-if($ok == 1) { print "ok 1\n" }
-else        {print "not ok 1\n"}
+is($ok, 1, '');
 
