@@ -34,14 +34,18 @@ print "1..1\n";
 # In this script we test the correctness of nvtoa() differently, depending upon
 # whether perl is prone to mis-assignment, or not.
 #
-# To qualify for the latter (in which case we set $reliable to true), perls whose nvtype
-# is NOT __float128, need to be at version 5.29.4 (or later) &&
+# For perls whose NV is the "Double-Double" long double, perl is prone to mis-assignment
+# and $reliable is set to false, irrespective of the value of $].
+#
+# Else, in order for perl to be deemed reliable (in which case we set $reliable to true),
+# perls whose nvtype is NOT __float128, need to be at version 5.29.4 (or later) &&
 #    if perl's nvtype is "double", then $Config{d_strtod} needs to be defined
 #    or if perl's nvtype is "long double", then $Config{d_strtold} needs to be defined.
 # All perl's whose nvtype is __float128 assign correctly and $reliable is set to true for
 # them, irrespective of the value of $].
 #
-# Else perl is deemed unreliable, and $reliable is false.
+# All perls that don't fit any of the above categories are deemed unreliable, and
+# $reliable is set to false false.
 
 
 if(4 > MPFR_VERSION_MAJOR) {
@@ -73,7 +77,7 @@ elsif($Math::MPFR::NV_properties{bits} == 64)  { $MAX_DIG = 21;
 elsif($Math::MPFR::NV_properties{bits} == 113) { $MAX_DIG = 36;
                                                  $MAX_POW = 5000;
                                                }
-else                                           { $MAX_DIG = 34;
+else                                           { $MAX_DIG = 34;   # NV is Double-Double
                                                  $MAX_POW = 350;
                                                }
 
@@ -84,7 +88,7 @@ if(
    ||
    ($] > 5.029005 && $Config{nvtype} eq 'double' && defined($Config{d_strtod}))
    ||
-   ($] > 5.029005 && $Config{nvtype} eq 'long double' && defined($Config{d_strtold}))
+   ($] > 5.029005 && $Config{nvtype} eq 'long double' && defined($Config{d_strtold}) && $MAX_DIG != 34)
   ) {
 
   warn "Using perl for string to NV assignment. (Perl deemed reliable)\n";
