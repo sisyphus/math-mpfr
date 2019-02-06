@@ -8045,7 +8045,7 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
   mpfr_t ws;
   mpz_t R, S, M_minus, M_plus, LHS, TMP;
   mpq_t Q, QT;
-#if REQUIRED_LDBL_MANT_DIG == 2098
+#if REQUIRED_LDBL_MANT_DIG == 2098 && defined(NV_IS_LONG_DOUBLE)
   void *nvptr = &nv; /* The NV, not the SV */
   int msd_exp, lsd_exp;
 #endif
