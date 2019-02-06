@@ -835,7 +835,7 @@ sub nvtoa {
    return $significand_sign . _std($output, $k);
 }
 
-# standardize the string returned by the _FPP2() XSub.
+# standardize the string returned by the _nvtoa() XSub.
 sub _std {
   my $output = shift;
   my $k = shift;
