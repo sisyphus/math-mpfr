@@ -42,7 +42,34 @@ if($have_atonv) {
       print "not ok 1\n";
     }
 
-    print "ok 2\n"; # Original test removed
+
+    # Let's now check to see whether failures reported at:
+    # http://www.cpantesters.org/cpan/report/d6a27d3c-2a0d-11e9-bf31-80c71e9d5857 and
+    # http://www.cpantesters.org/cpan/report/f8c159e0-2a0f-11e9-bf31-80c71e9d5857
+    # might represent a bug in atonv().
+
+    if(Math::MPFR::_required_ldbl_mant_dig() == 64) {
+
+      my $ok = 1;
+
+      my $nv = atonv('97646e-4945');
+      unless(sprintf("%a", $nv) eq '0x6.3ca9b8fep-16410') {
+        warn "97646e-4945: Expected 0x6.3ca9b8fep-16410 got ", sprintf("%a", $nv), "\n";
+        $ok = 0;
+      }
+
+      $nv = atonv('7286408931649326e-4956');
+      unless(sprintf("%a", $nv) eq '0x4.a770c127p-16410') {
+        warn "7286408931649326e-4956: Expected 0x4.a770c127p-16410 got ", sprintf("%a", $nv), "\n";
+        $ok = 0;
+      }
+
+      if($ok) { print "ok 2\n"; }
+      else    { print "not ok 2\n"; }
+    }
+    else {
+      print "ok 2\n"; # Original test removed
+    }
   }
 
   elsif($Config::Config{nvtype} eq '__float128') {
