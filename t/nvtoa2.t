@@ -118,10 +118,6 @@ while(1) {
   while(length($mantissa) < $len) { $mantissa .= int(rand(10)) }
   $mantissa .= 1 +int(rand(9)) if $len;
 
-  #$mantissa_sign = '-';
-  #$mantissa = '71306352878608394';
-  #$exponent = -7;
-
   my $str = $mantissa_sign . $mantissa . 'e' . $exponent;
 
   my $nv;
@@ -159,21 +155,17 @@ while(1) {
   my $significand = (split /e/, $nvtoa)[0];
   while($significand =~ /0$/) {
     chop $significand;
-   # if($exponent < 0) { $exponent-- }
-   # else { $exponent++ }
   }
   substr($significand, 0, 1, '') while $significand =~ /^0/;
 
   if(length $significand > length $mantissa) {
-    warn "$significand longer than $mantissa\n";
+    warn "$str: $significand longer than $mantissa\n";
+    warn sprintf("%a vs %a\n", atonv($str), atonv($nvtoa)), "\n";
     $ok = 0;
+    last;
   }
 
-  #print "SIG: $significand MAN: $mantissa\n";
-
   my $new_exponent = $exponent + length($mantissa) - length($significand);
-
-  #print "EXP: $exponent NEW: $new_exponent\n";
 
   if(length $significand > 1) {
     chop $significand;
@@ -187,8 +179,6 @@ while(1) {
   # eg 1234e-11 becomes 123e-10 - which should be less than the original $nv.
 
   my $new_str = $mantissa_sign . $significand . 'e' . $new_exponent;
-
-  #print "$str\n$new_str\n";
 
   if($reliable) {
     my $new_str_num = $new_str; # Avoid numifying $new_str
