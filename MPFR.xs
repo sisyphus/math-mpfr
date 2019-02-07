@@ -8038,8 +8038,8 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
   dXSARGS;
   int subnormal_prec_adjustment, exp_init;
   int k, k_start, len;
-  int bits = b, is_subnormal = 0, shift1, shift2, inex, further_adjustment, low, high, cmp;
-  unsigned long u;
+  int bits = b, is_subnormal = 0, shift1, shift2, inex, low, high, cmp;
+  unsigned long further_adjustment, u;
   mpfr_prec_t e;
   NV nv;
   mpfr_t ws;
@@ -8221,7 +8221,7 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
       mpfr_ceil(ws, ws);
     }
 
-    mpfr_add_ui(ws, ws, 1, GMP_RNDN);
+    mpfr_add_ui(ws, ws, further_adjustment, GMP_RNDN);
 
     if(mpfr_cmp_z(ws, R) <= 0) break;
 
