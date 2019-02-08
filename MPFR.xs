@@ -8037,9 +8037,9 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
 #else
   dXSARGS;
   int subnormal_prec_adjustment, exp_init;
-  int k, k_start, len;
+  int k, k_start, len, skip = 0;
   int bits = b, is_subnormal = 0, shift1, shift2, inex, low, high, cmp;
-  unsigned long further_adjustment, u;
+  unsigned long u;
   mpfr_prec_t e;
   NV nv;
   mpfr_t ws;
@@ -8204,43 +8204,89 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
 
   k = 0;
 
-  while(1) {
+/* <new> *******************************/
 
-    mpq_set_z(Q, S);
-    mpq_set_ui(QT, 10, 1);
-    mpq_div(Q, Q, QT);
+  mpq_set_z(Q, S);
+  mpq_set_ui(QT, 10, 1);
+  mpq_div(Q, Q, QT);
 
-    inex = mpfr_set_q(ws, Q, GMP_RNDN);
+  inex = mpfr_set_q(ws, Q, GMP_RNDN);
+  if(inex < 0 && mpfr_integer_p(ws)) mpfr_add_ui(ws, ws, 1, GMP_RNDN);
+  else mpfr_ceil(ws, ws);
 
-    further_adjustment = 0;
+  if(mpfr_cmp_z(ws, R) > 0) {
+    mpfr_div_z(ws, ws, R, GMP_RNDZ);
+    mpfr_log10(ws, ws, GMP_RNDZ);
+    mpfr_floor(ws, ws);
+    k = mpfr_get_si(ws, GMP_RNDN);
+    mpz_ui_pow_ui(TMP, 10, k);
+    k *= -1;
+    mpz_mul(R, R, TMP);
+    mpz_mul(M_minus, M_minus, TMP);
+    mpz_mul(M_plus, M_plus, TMP);
+  }
+  else {
+    skip = 1; /* No need to enter the following while() loop */
+  }
 
-    if(inex < 0 && mpfr_integer_p(ws)) {
-      further_adjustment++;
-    }
-    else {
-      mpfr_ceil(ws, ws);
-    }
+/* </new> *******************************/
 
-    mpfr_add_ui(ws, ws, further_adjustment, GMP_RNDN);
+  if(!skip) {
+    while(1) {
 
-    if(mpfr_cmp_z(ws, R) <= 0) break;
+      mpq_set_z(Q, S);
+      mpq_set_ui(QT, 10, 1);
+      mpq_div(Q, Q, QT);
 
-    k--;
-    mpz_mul_ui(R, R, 10);
-    mpz_mul_ui(M_minus, M_minus, 10);
-    mpz_mul_ui(M_plus, M_plus, 10);
-  }                                   /* close first while loop */
+      inex = mpfr_set_q(ws, Q, GMP_RNDN);
+      if(inex < 0 && mpfr_integer_p(ws)) mpfr_add_ui(ws, ws, 1, GMP_RNDN);
+      else mpfr_ceil(ws, ws);
 
-  while(1) {
-    mpz_mul_2exp(LHS, R, 1);
-    mpz_add(LHS, LHS, M_plus);
-    mpz_mul_2exp(TMP, S, 1);
+      if(mpfr_cmp_z(ws, R) <= 0) break;
 
-    if(mpz_cmp(LHS, TMP) < 0) break;
+      k--;
+      mpz_mul_ui(R, R, 10);
+      mpz_mul_ui(M_minus, M_minus, 10);
+      mpz_mul_ui(M_plus, M_plus, 10);
+    }                                   /* close first while loop */
+  }
 
-    mpz_mul_ui(S, S, 10);
-    k++;
-  }                                 /* close second while loop */
+/* <new> *******************************/
+
+  mpz_mul_2exp(LHS, R, 1);
+  mpz_add(LHS, LHS, M_plus);
+  mpz_mul_2exp(TMP, S, 1);
+
+  if(mpz_cmp(LHS, TMP) >= 0) {
+    skip = 0;
+    mpz_div(LHS, LHS, TMP);
+    mpfr_set_z(ws, LHS, GMP_RNDN);
+    mpfr_log10(ws, ws, GMP_RNDZ);
+    mpfr_floor(ws, ws);
+    u = mpfr_get_ui(ws, GMP_RNDN);
+    mpz_ui_pow_ui(TMP, 10, u);
+    k += u;
+    mpz_mul(S, S, TMP);
+  }
+  else {
+    skip = 1; /* No need to enter the following while() loop */
+  }
+
+/* </new> *******************************/
+
+  if(!skip) {
+    while(1) {
+
+      mpz_mul_2exp(LHS, R, 1);
+      mpz_add(LHS, LHS, M_plus);
+      mpz_mul_2exp(TMP, S, 1);
+
+      if(mpz_cmp(LHS, TMP) < 0) break;
+
+      mpz_mul_ui(S, S, 10);
+      k++;
+    }                                 /* close second while loop */
+  }
 
   /*********************************************/
 
@@ -8259,18 +8305,19 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
 
     inex = mpfr_set_q(ws, Q, GMP_RNDN);
 
-    further_adjustment = 0;
-
-
     if(inex > 0 && mpfr_integer_p(ws)) {
-      further_adjustment++;
+      /*
+       # We can't just subtract 1 from ws because, when precision is only 1 bit, (eg) 4-1 == 4.
+       # So we instead subtract 1 from the unsigned long returned by mpfr_get_ui(ws, GMP_RNDN)
+      */
+
+      u = mpfr_get_ui(ws, GMP_RNDN);
+      u -= 1;
     }
     else {
       mpfr_floor(ws, ws);
+      u = mpfr_get_ui(ws, GMP_RNDN);
     }
-
-    u = mpfr_get_ui(ws, GMP_RNDN);
-    u -= further_adjustment;
 
     mpz_mul_ui(TMP, R, 10);
     mpz_mod(R, TMP, S);
