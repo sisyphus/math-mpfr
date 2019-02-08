@@ -1,4 +1,5 @@
 4.11
+ - Optimizations to nvtoa()
 
 4.09
  - Hopefully fix bugs in t/nvtoa.t reported by (eg):
