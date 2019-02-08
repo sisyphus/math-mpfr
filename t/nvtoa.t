@@ -229,7 +229,8 @@ else {
     push @in, 2 ** $Math::MPFR::NV_properties{min_pow},
               2 ** ($Math::MPFR::NV_properties{min_pow} + 3)  +
               2 ** ($Math::MPFR::NV_properties{min_pow} + 13) +
-              2 ** ($Math::MPFR::NV_properties{min_pow} + 33);
+              2 ** ($Math::MPFR::NV_properties{min_pow} + 33),
+              sqrt(2.0);
 
     for(@in) {
       if(abs($_) >= $Math::MPFR::NV_properties{normal_min}) {
@@ -270,7 +271,7 @@ else {
     my @correct = qw(0.01 0.14 9223372036854775808.0 628468547668600000.0 4501259036604000000.0 14112528.95572
                      9.047014579199e-57 91630634264070293.0 25922126328248069.0 4e-4951 1.4142135623730950488
                      1e-4950 1.7320508075688772936 2.385059e-335 -2.385059e-335 1e-09 -737324399113800000.0
-                     4e-4951 3.1312055444e-4941);
+                     4e-4951 3.1312055444e-4941 1.4142135623730950488);
 
     for(my $i = 0; $i < @in; $i++) {
       my $t = nvtoa($in[$i]);
@@ -528,6 +529,9 @@ else {
     print "not ok 1\n";
   }
 }
+
+###############################################
+############## NONE OF THE ABOVE ##############
 
 __END__
 
