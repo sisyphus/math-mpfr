@@ -8210,6 +8210,7 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
   mpq_set_ui(QT, 10, 1);
   mpq_div(Q, Q, QT);
 
+  mpfr_set_prec(ws, b);
   inex = mpfr_set_q(ws, Q, GMP_RNDN);
   if(inex < 0 && mpfr_integer_p(ws)) mpfr_add_ui(ws, ws, 1, GMP_RNDN);
   else mpfr_ceil(ws, ws);
@@ -8228,6 +8229,8 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
   else {
     skip = 1; /* No need to enter the following while() loop */
   }
+
+  mpfr_set_prec(ws, bits);
 
 /* </new> *******************************/
 
