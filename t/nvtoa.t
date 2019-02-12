@@ -17,7 +17,7 @@ if(4 > MPFR_VERSION_MAJOR) {
 }
 
 else {
-
+  warn "Poorly configured system\n" unless sqrt(2.0) == 2 ** 0.5;
   my $ok = 1;
   my $p = $Math::MPFR::NV_properties{max_dig} - 1;
   my $min_pow = $Math::MPFR::NV_properties{min_pow};
@@ -27,6 +27,13 @@ else {
   my $inf = 1e4950;
   my $ninf = $inf * -1;
   my $nan = Rmpfr_get_NV(Math::MPFR->new(), MPFR_RNDN);
+
+  my $mpfr_root2 = Rmpfr_init2($Math::MPFR::NV_properties{bits});
+
+  Rmpfr_set_ui($mpfr_root2, 2, MPFR_RNDN);
+  Rmpfr_sqrt($mpfr_root2, $mpfr_root2, MPFR_RNDN);
+
+  my $root2 = Rmpfr_get_NV($mpfr_root2, MPFR_RNDN);
 
   my $temp1 = Rmpfr_init2($Math::MPFR::NV_properties{bits});
   my $temp2 = Rmpfr_init2($Math::MPFR::NV_properties{bits});
@@ -46,7 +53,7 @@ else {
   my @in = ( 0.1 / 10, 1.4 / 10, 2 ** ($Math::MPFR::NV_properties{bits} - 1),
             atonv('6284685476686e5'), atonv('4501259036604e6'), atonv('1411252895572e-5'),
             atonv('9.047014579199e-57'), atonv('91630634264070293e0'),
-            atonv('25922126328248069e0'), $denorm1, 2 ** 0.5, $denorm2, sqrt 3.0,
+            atonv('25922126328248069e0'), $denorm1, $root2, $denorm2, sqrt 3.0,
             atonv('2385059e-341'), atonv('-2385059e-341'), atonv('1e-9'),
             atonv('-7373243991138e5'));
 
@@ -226,11 +233,30 @@ else {
     my $orig_emin = Rmpfr_get_emin();
     my $orig_emax = Rmpfr_get_emax();
 
-    push @in, 2 ** $Math::MPFR::NV_properties{min_pow},
-              2 ** ($Math::MPFR::NV_properties{min_pow} + 3)  +
-              2 ** ($Math::MPFR::NV_properties{min_pow} + 13) +
-              2 ** ($Math::MPFR::NV_properties{min_pow} + 33),
-              sqrt(2.0);
+    my $pad = Rmpfr_init2(64);
+
+    Rmpfr_set_si($pad, 2, MPFR_RNDN);
+    Rmpfr_pow_si($pad, $pad, $Math::MPFR::NV_properties{min_pow}, MPFR_RNDN);
+
+    my $denorm_min = Rmpfr_get_NV($pad, MPFR_RNDN);
+
+    my $cumulative = Rmpfr_init2(64);
+
+    Rmpfr_set_si($pad, 2, MPFR_RNDN);
+    Rmpfr_pow_si($pad, $pad, $Math::MPFR::NV_properties{min_pow} + 3, MPFR_RNDN);
+    Rmpfr_set($cumulative, $pad, MPFR_RNDN);
+
+    Rmpfr_set_si($pad, 2, MPFR_RNDN);
+    Rmpfr_pow_si($pad, $pad, $Math::MPFR::NV_properties{min_pow} + 13, MPFR_RNDN);
+    Rmpfr_add($cumulative, $cumulative, $pad, MPFR_RNDN);
+
+    Rmpfr_set_si($pad, 2, MPFR_RNDN);
+    Rmpfr_pow_si($pad, $pad, $Math::MPFR::NV_properties{min_pow} + 33, MPFR_RNDN);
+    Rmpfr_add($cumulative, $cumulative, $pad, MPFR_RNDN);
+
+    my $denormalized = Rmpfr_get_NV($cumulative, MPFR_RNDN);
+
+    push @in, $denorm_min, $denormalized, sqrt(2.0), atonv('97646e-4945'), atonv('7286408931649326e-4956');
 
     for(@in) {
       if(abs($_) >= $Math::MPFR::NV_properties{normal_min}) {
@@ -251,7 +277,6 @@ else {
         Rmpfr_subnormalize($t1, $inex, MPFR_RNDN);
         $inex = Rmpfr_set_NV($t2, $_, MPFR_RNDN);
         Rmpfr_subnormalize($t2, $inex, MPFR_RNDN);
-
         if($t1 != $t2) {
           $ok = 0;
           warn "$t1 != $t2\n";
@@ -271,7 +296,7 @@ else {
     my @correct = qw(0.01 0.14 9223372036854775808.0 628468547668600000.0 4501259036604000000.0 14112528.95572
                      9.047014579199e-57 91630634264070293.0 25922126328248069.0 4e-4951 1.4142135623730950488
                      1e-4950 1.7320508075688772936 2.385059e-335 -2.385059e-335 1e-09 -737324399113800000.0
-                     4e-4951 3.1312055444e-4941 1.4142135623730950488);
+                     4e-4951 3.1312055444e-4941 1.4142135623730950488 9.7646e-4941 7.2864089318e-4941);
 
     for(my $i = 0; $i < @in; $i++) {
       my $t = nvtoa($in[$i]);
