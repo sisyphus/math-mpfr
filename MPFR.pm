@@ -813,8 +813,8 @@ sub nvtoa {
    }
 
    my @s = _nvtoa($nv, $Math::MPFR::NV_properties{NV_MAX}, $Math::MPFR::NV_properties{normal_min},
-                $Math::MPFR::NV_properties{min_pow},$Math::MPFR::NV_properties{bits},
-                $Math::MPFR::NV_properties{max_dig});
+                  $Math::MPFR::NV_properties{min_pow},$Math::MPFR::NV_properties{bits}
+                 );
 
    return "$significand_sign$s[0]" if @s == 1;
 
