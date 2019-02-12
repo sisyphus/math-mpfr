@@ -29,10 +29,8 @@ else {
   my $nan = Rmpfr_get_NV(Math::MPFR->new(), MPFR_RNDN);
 
   my $mpfr_root2 = Rmpfr_init2($Math::MPFR::NV_properties{bits});
-
   Rmpfr_set_ui($mpfr_root2, 2, MPFR_RNDN);
   Rmpfr_sqrt($mpfr_root2, $mpfr_root2, MPFR_RNDN);
-
   my $root2 = Rmpfr_get_NV($mpfr_root2, MPFR_RNDN);
 
   my $temp1 = Rmpfr_init2($Math::MPFR::NV_properties{bits});
@@ -407,9 +405,15 @@ else {
 
     $ok = 1;
 
+    # __float128 builds of perl will evaluate sqrt(2.0) to be 1.4142135623730950488016887242096982,
+    # which is wrong by 1 ULP. Here we use the correct value of 1.414213562373095048801688724209698,
+    # as determined by mpfr.
+    # Such miscalculations seem to be quite common with gcc's __float128 arithmetic, though
+    # strings are always assigned accurately (afaik).
+
     my @correct = qw(0.01 0.13999999999999999999999999999999999 5192296858534827628530496329220096.0
                      628468547668600000.0 4501259036604000000.0 14112528.95572 9.047014579199e-57
-                     91630634264070293.0 25922126328248069.0 7e-4966 1.4142135623730950488016887242096982
+                     91630634264070293.0 25922126328248069.0 7e-4966 1.414213562373095048801688724209698
                      2e-4965 1.7320508075688772935274463415058723 2.385059e-335 -2.385059e-335 1e-09
                     -737324399113800000.0 7e-4966 5.5621383844e-4956);
 
