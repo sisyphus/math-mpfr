@@ -8030,7 +8030,7 @@ SV * Rmpfr_dot(pTHX_ mpfr_t * rop, SV * avref_A, SV * avref_B, SV * len, SV * ro
 /* _nvtoa function is adapted from p120 of  "How to Print Floating-Point Numbers Accurately" */
 /* by Guy L. Steele Jr and Jon L. White                                               */
 
-void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int max_dig) {
+void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b) {
 
 #if MPFR_VERSION_MAJOR < 4
   croak("nvtoa function requires version 4.0 or later of the mpfr library - this is only %s", MPFR_VERSION_STRING);
@@ -8210,8 +8210,6 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
 
   k = 0;
 
-/* <new> *******************************/
-
   mpq_set_z(Q, S);
   mpq_set_ui(QT, 10, 1);
   mpq_div(Q, Q, QT);
@@ -8238,8 +8236,6 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
 
   mpfr_set_prec(ws, bits);
 
-/* </new> *******************************/
-
   if(!skip) {
     while(1) {
 
@@ -8260,8 +8256,6 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
     }                                   /* close first while loop */
   }
 
-/* <new> *******************************/
-
   mpz_mul_2exp(LHS, R, 1);
   mpz_add(LHS, LHS, M_plus);
   mpz_mul_2exp(TMP, S, 1);
@@ -8281,8 +8275,6 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
     skip = 1; /* No need to enter the following while() loop */
   }
 
-/* </new> *******************************/
-
   if(!skip) {
     while(1) {
 
@@ -8301,7 +8293,7 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
 
   k_start = k;
 
-  Newxz(out, max_dig + 8, char);
+  Newxz(out, (int)(4 + ceil(0.30103 * bits)), char); /* 1 + ceil(log(2) / log(10) * bits), but allow a few extra */
   if(out == NULL) croak("Failed to allocate memory for output string in _nvtoa XSub");
 
   while(1) {
@@ -12805,18 +12797,17 @@ CODE:
 OUTPUT:  RETVAL
 
 void
-_nvtoa (pnv, nv_max, normal_min, min_pow, b, max_dig)
+_nvtoa (pnv, nv_max, normal_min, min_pow, b)
 	SV *	pnv
 	NV	nv_max
 	NV	normal_min
 	int	min_pow
 	int	b
-	int	max_dig
         PREINIT:
         I32* temp;
         PPCODE:
         temp = PL_markstack_ptr++;
-        _nvtoa(aTHX_ pnv, nv_max, normal_min, min_pow, b, max_dig);
+        _nvtoa(aTHX_ pnv, nv_max, normal_min, min_pow, b);
         if (PL_markstack_ptr != temp) {
           /* truly void, because dXSARGS not invoked */
           PL_markstack_ptr = temp;
