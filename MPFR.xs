@@ -8096,6 +8096,12 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
     bits -= subnormal_prec_adjustment;
   }
 
+/*****************************************************************************
+ * Next we calculate 'bits' for double-double whose most siginificant double *
+ * is normal and non-zero. (For subnormal double-doubles, 'bits' has already *
+ * been set to the appropriate value, above.                                 *
+ *****************************************************************************/
+
 #if REQUIRED_LDBL_MANT_DIG == 2098 && defined(NV_IS_LONG_DOUBLE)
 #ifdef MPFR_HAVE_BENDIAN                   /* Big Endian architecture */
 
@@ -8310,12 +8316,11 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
 
     if(inex > 0 && mpfr_integer_p(ws)) {
       /*
-       # We can't just subtract 1 from ws because, when precision is only 1 bit, (eg) 4-1 == 4.
+       # We can't just subtract 1 from ws because, when precision ("bits") is only 1 bit, (eg) 4-1 == 4.
        # So we instead subtract 1 from the unsigned long returned by mpfr_get_ui(ws, GMP_RNDN)
       */
 
-      u = mpfr_get_ui(ws, GMP_RNDN);
-      u -= 1;
+      u = mpfr_get_ui(ws, GMP_RNDN) - 1;
     }
     else {
       mpfr_floor(ws, ws);
@@ -8359,6 +8364,8 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b, int ma
   }                                   /* close while loop */
 
   Safefree(f);
+
+  /* Next we set the final digit, rounding up where appropriate */
 
   if(low && !high) out[k_start - k - 1] = 48 + u;
   if(!low && high) out[k_start - k - 1] = 49 + u;
