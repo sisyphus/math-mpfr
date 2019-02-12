@@ -45,7 +45,7 @@ print "1..1\n";
 # them, irrespective of the value of $].
 #
 # All perls that don't fit any of the above categories are deemed unreliable, and
-# $reliable is set to false false.
+# $reliable is set to false.
 
 
 if(4 > MPFR_VERSION_MAJOR) {
@@ -131,7 +131,9 @@ while(1) {
 
   my $nvtoa = nvtoa($nv);
 
-  if($reliable) {
+  # Now check that $nvtoa == $nv
+
+  if($reliable) { # perl can assign the string directly
     my $nvtoa_num = $nvtoa; # Avoid numifying $nvtoa
 
     if($nvtoa_num != $nv) {
@@ -140,7 +142,7 @@ while(1) {
       last;
     }
   }
-  else {
+  else {         # perl is unreliable so we assign the string using atonv()
     if(atonv($nvtoa) != $nv) {
       warn "$str: ", atonv($nvtoa), " != $nv\n";
       $ok = 0;
