@@ -16,7 +16,7 @@ $have_atonv = MPFR_VERSION <= 196869 ? 0 : 1;
 
 if($have_atonv) {
 
-  my($nv1, $nv2, $double);
+  my($nv1, $nv2, $nv3, $double);
 
   if($Config::Config{nvtype} eq 'double' ||
       ($Config::Config{nvtype} eq 'long double' && ($Config::Config{nvsize} == 8 ||
@@ -24,9 +24,10 @@ if($have_atonv) {
     $double = atodouble('0b0.100001e-1074');
     $nv1 = atonv('0b0.100001e-1074');
     $nv2 = atonv('4.96e-324');
-    if($nv1 == $nv2 && $double == $nv2 && $nv1 > 0) {print "ok 1\n"}
+    $nv3 = atonv('0x0.84p-1074');
+    if($nv1 == $nv2 && $double == $nv2 && $nv2 == $nv3 && $nv1 > 0) {print "ok 1\n"}
     else {
-      warn "\n \$double: $double\n \$nv1: $nv1\n \$nv2: $nv2\n";
+      warn "\n \$double: $double\n \$nv1: $nv1\n \$nv2: $nv2\n \$nv3: $nv3\n";
       print "not ok 1\n";
     }
 
@@ -35,10 +36,11 @@ if($have_atonv) {
 
   elsif($Config::Config{nvtype} eq 'long double') {
     $nv1 = atonv('0b0.100001e-16445');
-    $nv2 = atonv('3.7e-4951');
-    if($nv1 == $nv2 && $nv1 > 0) {print "ok 1\n"}
+    $nv2 = atonv('3.6452e-4951');
+    $nv3 = atonv('0x0.84p-16445');
+    if($nv1 == $nv2 && $nv2 == $nv3 && $nv1 > 0) {print "ok 1\n"}
     else {
-      warn "\n \$nv1: $nv1\n \$nv2: $nv2\n";
+      warn "\n \$nv1: $nv1\n \$nv2: $nv2\n \$nv3: $nv3\n";
       print "not ok 1\n";
     }
 
@@ -53,14 +55,14 @@ if($have_atonv) {
       my $ok = 1;
 
       my $nv = atonv('97646e-4945');
-      unless(sprintf("%a", $nv) eq '0x6.3ca9b8fep-16410') {
-        warn "97646e-4945: Expected 0x6.3ca9b8fep-16410 got ", sprintf("%a", $nv), "\n";
+      unless(sprintf("%.19e", $nv) eq '9.7645999998519452098e-4941') {
+        warn "97646e-4945: Expected 9.7645999998519452098e-4941 Got ", sprintf("%.19e", $nv), "\n";
         $ok = 0;
       }
 
       $nv = atonv('7286408931649326e-4956');
-      unless(sprintf("%a", $nv) eq '0x4.a770c127p-16410') {
-        warn "7286408931649326e-4956: Expected 0x4.a770c127p-16410 got ", sprintf("%a", $nv), "\n";
+      unless(sprintf("%.19e", $nv) eq '7.2864089317595630535e-4941') {
+        warn "7286408931649326e-4956: Expected 7.2864089317595630535e-4941 Got ", sprintf("%.19e", $nv), "\n";
         $ok = 0;
       }
 
@@ -77,7 +79,8 @@ if($have_atonv) {
     if($mpfr_has_float128) {                # Don't assume mpfr supports libquadmath types
       $nv1 = atonv('0b0.100001e-16494');
       $nv2 = atonv('6.5e-4966');
-      if($nv1 == $nv2 && $nv1 > 0) {print "ok 1\n"}
+      $nv3 = atonv('0x0.84p-16494');
+      if($nv1 == $nv2 && $nv2 == $nv3 && $nv1 > 0) {print "ok 1\n"}
       else {
         warn "\n \$nv1: $nv1\n \$nv2: $nv2\n";
         print "not ok 1\n";
