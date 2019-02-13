@@ -110,7 +110,7 @@ while(1) {
   # Skew the exponent towards the more usual values that are typically used.
   # nvtoa() calculations are quite expensive on long double and __float128
   # builds for NVs whose exponents are a long way from zero.
-  $exponent = int(rand(10)) if ($exponent > 50 && $exponent < $MAX_POW / 1.2);
+  $exponent = int(rand(10)) if ($exponent > 50 && $exponent < $MAX_POW / 1.5);
   $exponent = '-' . $exponent if ($count & 1);
 
   my $len = int(rand($MAX_DIG));
