@@ -8048,6 +8048,11 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b) {
 #if REQUIRED_LDBL_MANT_DIG == 2098 && defined(NV_IS_LONG_DOUBLE)
   void *nvptr = &nv; /* The NV, not the SV */
   int msd_exp, lsd_exp;
+#ifdef MPFR_HAVE_BENDIAN                   /* Big Endian architecture */
+  int i0 = 0, i1 = 1, i2 = 8, i3 = 9;
+#else                                      /* Little Endian architecture */
+  int i0 = 15, i1 = 14, i2 = 7, i3 = 6;
+#endif
 #endif
 
   char *f, *out;
@@ -8101,21 +8106,20 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b) {
  *****************************************************************************/
 
 #if REQUIRED_LDBL_MANT_DIG == 2098 && defined(NV_IS_LONG_DOUBLE)
-#ifdef MPFR_HAVE_BENDIAN                   /* Big Endian architecture */
 
     if(!is_subnormal) {
-      msd_exp = ((unsigned char *)nvptr)[0];
+      msd_exp = ((unsigned char *)nvptr)[i0];
       msd_exp <<= 4;
-      bits = ((unsigned char *)nvptr)[1];
+      bits = ((unsigned char *)nvptr)[i1];
       bits >>= 4;
       msd_exp += bits;
       if(msd_exp > 2047) msd_exp -= 2048;
       if(msd_exp == 0) msd_exp = -1022;
       else msd_exp -= 1023;
 
-      lsd_exp = ((unsigned char *)nvptr)[8];
+      lsd_exp = ((unsigned char *)nvptr)[i2];
       lsd_exp <<= 4;
-      bits = ((unsigned char *)nvptr)[9];
+      bits = ((unsigned char *)nvptr)[i3];
       bits >>= 4;
       lsd_exp += bits;
       if(lsd_exp > 2047) lsd_exp -= 2048;
@@ -8127,33 +8131,6 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b) {
       if(bits < 53) croak ("Bad calculation of bitsize");
     }
 
-#else                                     /* Little Endian architecture */
-
-    if(!is_subnormal) {
-      msd_exp = ((unsigned char *)nvptr)[15];
-      msd_exp <<= 4;
-      bits = ((unsigned char *)nvptr)[14];
-      bits >>= 4;
-      msd_exp += bits;
-      if(msd_exp > 2047) msd_exp -= 2048;
-      if(msd_exp == 0) msd_exp = -1022;
-      else msd_exp -= 1023;
-
-      lsd_exp = ((unsigned char *)nvptr)[7];
-      lsd_exp <<= 4;
-      bits = ((unsigned char *)nvptr)[6];
-      bits >>= 4;
-      lsd_exp += bits;
-      if(lsd_exp > 2047) lsd_exp -= 2048;
-      if(lsd_exp == 0) lsd_exp = -1022;
-      else lsd_exp -= 1023;
-
-      bits = 53 + msd_exp - lsd_exp;
-      if(lsd_exp < -1022) bits += (lsd_exp + 1022); /* reduce "bits" because lsd is subnormal */
-      if(bits < 53) croak ("Bad calculation of bitsize");
-    }
-
-#endif
 #endif
 
   mpfr_set_prec(ws, bits);
