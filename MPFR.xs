@@ -8044,7 +8044,7 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b) {
   NV nv;
   mpfr_t ws;
   mpz_t R, S, M_minus, M_plus, LHS, TMP;
-  mpq_t Q, QT;
+
 #if REQUIRED_LDBL_MANT_DIG == 2098 && defined(NV_IS_LONG_DOUBLE)
   void *nvptr = &nv; /* The NV, not the SV */
   int msd_exp, lsd_exp;
@@ -8077,8 +8077,6 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b) {
   mpz_init(M_minus);
   mpz_init(LHS);
   mpz_init(TMP);
-  mpq_init(Q);
-  mpq_init(QT);
 
   Newxz(f, bits + 8, char);
   if(f == NULL) croak("Failed to allocate memory near start of _nvtoa XSub");
@@ -8186,12 +8184,6 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b) {
 
   mpz_mul_2exp(R, R, shift1);
   mpz_mul_2exp(S, S, shift2);
-
-  mpq_set_z(Q, R);
-  mpq_div_2exp(Q, Q, shift2);
-
-  mpfr_set_q(ws, Q, GMP_RNDN);
-
   mpz_set_ui(M_minus, 1);
   mpz_mul_2exp(M_minus, M_minus, shift1);
   mpz_set(M_plus, M_minus);
@@ -8210,45 +8202,27 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b) {
 
   k = 0;
 
-  mpq_set_z(Q, S);
-  mpq_set_ui(QT, 10, 1);
-  mpq_div(Q, Q, QT);
+  mpz_cdiv_q_ui(LHS, S, 10);
 
-  mpfr_set_prec(ws, b);
-  inex = mpfr_set_q(ws, Q, GMP_RNDN);
-  if(inex < 0 && mpfr_integer_p(ws)) mpfr_add_ui(ws, ws, 1, GMP_RNDN);
-  else mpfr_ceil(ws, ws);
-
-  if(mpfr_cmp_z(ws, R) > 0) {
-    mpfr_div_z(ws, ws, R, GMP_RNDZ);
-    mpfr_log10(ws, ws, GMP_RNDZ);
-    mpfr_floor(ws, ws);
-    k = mpfr_get_si(ws, GMP_RNDN);
+  if(mpz_cmp(LHS, R) > 0) {
+    mpfr_set_prec(ws, b);
+    mpfr_set_z(ws, LHS, GMP_RNDD);  /* Round down */
+    mpfr_log10(ws, ws, GMP_RNDD);   /* Round down */
+    k = mpfr_get_si(ws, GMP_RNDD);  /* Round down */
     mpz_ui_pow_ui(TMP, 10, k);
     k *= -1;
     mpz_mul(R, R, TMP);
     mpz_mul(M_minus, M_minus, TMP);
     mpz_mul(M_plus, M_plus, TMP);
+    mpfr_set_prec(ws, bits);        /* Restore precision of ws to its previous value */
   }
   else {
     skip = 1; /* No need to enter the following while() loop */
   }
 
-  mpfr_set_prec(ws, bits);
-
   if(!skip) {
     while(1) {
-
-      mpq_set_z(Q, S);
-      mpq_set_ui(QT, 10, 1);
-      mpq_div(Q, Q, QT);
-
-      inex = mpfr_set_q(ws, Q, GMP_RNDN);
-      if(inex < 0 && mpfr_integer_p(ws)) mpfr_add_ui(ws, ws, 1, GMP_RNDN);
-      else mpfr_ceil(ws, ws);
-
-      if(mpfr_cmp_z(ws, R) <= 0) break;
-
+      if(mpz_cmp(LHS, R) <= 0) break;
       k--;
       mpz_mul_ui(R, R, 10);
       mpz_mul_ui(M_minus, M_minus, 10);
@@ -8262,11 +8236,10 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b) {
 
   if(mpz_cmp(LHS, TMP) >= 0) {
     skip = 0;
-    mpz_div(LHS, LHS, TMP);
-    mpfr_set_z(ws, LHS, GMP_RNDN);
-    mpfr_log10(ws, ws, GMP_RNDZ);
-    mpfr_floor(ws, ws);
-    u = mpfr_get_ui(ws, GMP_RNDN);
+    mpz_div(TMP, LHS, TMP);
+    mpfr_set_z(ws, TMP, GMP_RNDD);  /* Round down */
+    mpfr_log10(ws, ws, GMP_RNDD);   /* Round down */
+    u = mpfr_get_ui(ws, GMP_RNDD);  /* Round down */
     mpz_ui_pow_ui(TMP, 10, u);
     k += u;
     mpz_mul(S, S, TMP);
@@ -8277,9 +8250,6 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b) {
 
   if(!skip) {
     while(1) {
-
-      mpz_mul_2exp(LHS, R, 1);
-      mpz_add(LHS, LHS, M_plus);
       mpz_mul_2exp(TMP, S, 1);
 
       if(mpz_cmp(LHS, TMP) < 0) break;
@@ -8299,28 +8269,11 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b) {
   while(1) {
 
     k--;
-    mpz_mul_ui(TMP, R, 10);
-    mpq_set_z(Q, TMP);
-    mpq_set_z(QT, S);
-    mpq_div(Q, Q, QT);
-
-    inex = mpfr_set_q(ws, Q, GMP_RNDN);
-
-    if(inex > 0 && mpfr_integer_p(ws)) {
-      /*
-       # We can't just subtract 1 from ws because, when precision ("bits") is only 1 bit, (eg) 4-1 == 4.
-       # So we instead subtract 1 from the unsigned long returned by mpfr_get_ui(ws, GMP_RNDN)
-      */
-
-      u = mpfr_get_ui(ws, GMP_RNDN) - 1;
-    }
-    else {
-      mpfr_floor(ws, ws);
-      u = mpfr_get_ui(ws, GMP_RNDN);
-    }
 
     mpz_mul_ui(TMP, R, 10);
-    mpz_mod(R, TMP, S);
+    mpz_fdiv_qr(LHS, R, TMP, S);
+    u = mpz_get_ui(LHS);
+
     mpz_mul_ui(M_minus, M_minus, 10);
     mpz_mul_ui(M_plus, M_plus, 10);
 
@@ -8379,8 +8332,6 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b) {
   mpz_clear(M_minus);
   mpz_clear(LHS);
   mpz_clear(TMP);
-  mpq_clear(Q);
-  mpq_clear(QT);
 
   ST(0) = sv_2mortal(newSVpv(out, 0));
   Safefree(out);
