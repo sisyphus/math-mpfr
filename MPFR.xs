@@ -8182,16 +8182,13 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b) {
   mpz_cdiv_q_ui(LHS, S, 10);
 
   if(mpz_cmp(LHS, R) > 0) {
-    mpfr_set_prec(ws, b);
-    mpfr_set_z(ws, LHS, GMP_RNDD);  /* Round down */
-    mpfr_log10(ws, ws, GMP_RNDD);   /* Round down */
-    k = mpfr_get_si(ws, GMP_RNDD);  /* Round down */
+    k = (int)floor(mpz_sizeinbase(LHS, 2) * 0.30102999566398119); /* 0.30102999566398119 < log(2)/log(10) */
+    if(k) k--;    /* k should not become -ve here */
     mpz_ui_pow_ui(TMP, 10, k);
     k *= -1;
     mpz_mul(R, R, TMP);
     mpz_mul(M_minus, M_minus, TMP);
     mpz_mul(M_plus, M_plus, TMP);
-    mpfr_set_prec(ws, bits);        /* Restore precision of ws to its previous value */
   }
   else {
     skip = 1; /* No need to enter the following while() loop */
@@ -8214,9 +8211,8 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b) {
   if(mpz_cmp(LHS, TMP) >= 0) {
     skip = 0;
     mpz_div(TMP, LHS, TMP);
-    mpfr_set_z(ws, TMP, GMP_RNDD);  /* Round down */
-    mpfr_log10(ws, ws, GMP_RNDD);   /* Round down */
-    u = mpfr_get_ui(ws, GMP_RNDD);  /* Round down */
+    u = (int)floor(mpz_sizeinbase(TMP, 2) * 0.30102999566398119); /* 0.30102999566398119 < log(2)/log(10) */
+    if(u) u--;     /* Do not decrement if u is zero */
     mpz_ui_pow_ui(TMP, 10, u);
     k += u;
     mpz_mul(S, S, TMP);
