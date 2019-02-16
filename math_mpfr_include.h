@@ -238,6 +238,52 @@ typedef _Decimal128 D128;
          if(SvIV(get_sv("Math::MPFR::NNW", 0))) \
            warn("string used in %s contains non-numeric characters"
 
+#define BITSEARCH_4 \
+          if(tmp & 8) {				\
+            subnormal_prec_adjustment += 1;	\
+            break;				\
+          }					\
+          if(tmp & 4) {				\
+            subnormal_prec_adjustment += 2;	\
+            break;				\
+          }					\
+          if(tmp & 2) {				\
+            subnormal_prec_adjustment += 3;	\
+            break;				\
+          }					\
+          subnormal_prec_adjustment += 4;
+
+
+#define BITSEARCH_8 \
+          if(tmp & 128) {			\
+            subnormal_prec_adjustment += 1;	\
+            break;				\
+          }					\
+          if(tmp & 64) {			\
+            subnormal_prec_adjustment += 2;	\
+            break;				\
+          }					\
+          if(tmp & 32) {			\
+            subnormal_prec_adjustment += 3;	\
+            break;				\
+          }					\
+          if(tmp & 16) {			\
+            subnormal_prec_adjustment += 4;	\
+            break;				\
+          }					\
+          if(tmp & 8) {				\
+            subnormal_prec_adjustment += 5;	\
+            break;				\
+          }					\
+          if(tmp & 4) {				\
+            subnormal_prec_adjustment += 6;	\
+            break;				\
+          }					\
+          if(tmp & 2) {				\
+            subnormal_prec_adjustment += 7;	\
+            break;				\
+          }					\
+          subnormal_prec_adjustment += 8;
 
 
 #define NEG_ZERO_BUG 196866 /* A bug affecting mpfr_fits_u*_p functions         */
