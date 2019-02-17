@@ -8027,6 +8027,295 @@ SV * Rmpfr_dot(pTHX_ mpfr_t * rop, SV * avref_A, SV * avref_B, SV * len, SV * ro
 #endif
 }
 
+/********************************************************
+ * Return exponent and precision for _nvtoa to utilize. *
+ *******************************************************/
+
+void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
+
+  int subnormal_prec_adjustment = 0, tmp;
+  NV nv = nv_in;
+  void *nvptr = &nv;
+
+#if defined(NV_IS_FLOAT128) || (defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 113)	/* 113 bit prec */
+
+#if defined(MPFR_HAVE_BENDIAN)
+
+  int i = 2;
+
+  *exp = ((unsigned char *)nvptr)[0];
+  *exp <<= 8;
+  tmp = ((unsigned char *)nvptr)[1];
+  *exp += tmp - 16382;
+
+  if(*exp == -16382) {
+    while(i <= 15) {
+      tmp = ((unsigned char *)nvptr)[i];
+      if(tmp) {
+        BITSEARCH_8		/* defined in math_mpfr_include.h */
+        break;
+      }
+
+      subnormal_prec_adjustment += 8;
+      i++;
+    }			/* close while loop */
+  }
+
+#else
+
+  int i = 13;
+
+  *exp = ((unsigned char *)nvptr)[15];
+  *exp <<= 8;
+  tmp = ((unsigned char *)nvptr)[14];
+  *exp += tmp - 16382;
+
+  if(*exp == -16382) {
+    while(i >= 0) {
+      tmp = ((unsigned char *)nvptr)[i];
+      if(tmp) {
+        BITSEARCH_8		/* defined in math_mpfr_include.h */
+        break;
+      }
+
+      subnormal_prec_adjustment += 8;
+      i--;
+    }			/* close while loop */
+  }
+
+#endif
+
+  /* for both endians (113-bit) */
+  *exp  -= subnormal_prec_adjustment - 1;
+  *bits =  113 - subnormal_prec_adjustment;
+
+  if(!subnormal_prec_adjustment) (*exp)--;
+
+#elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098	/* double-double */
+  int msd_exp, lsd_exp;
+
+#if defined(MPFR_HAVE_BENDIAN)
+  int i0 = 0, i1 = 1, i2 = 8, i3 = 9;
+  int i = 1;
+
+  if(*bits == 53) { 			/* subnormal - same as for double */
+    *exp = ((unsigned char *)nvptr)[0];
+    *exp <<= 4;
+    tmp = ((unsigned char *)nvptr)[i];
+    *exp += (tmp >> 4) - 1022;
+
+    if(*exp == -1022) {
+      while(i <= 7) {
+        tmp = ((unsigned char *)nvptr)[i];
+        if(tmp) {
+          if(i == 1) {
+            BITSEARCH_4		/* defined in math_mpfr_include.h */
+            break;
+          }
+          else {
+            BITSEARCH_8		/* defined in math_mpfr_include.h */
+            break;
+          }
+        }
+
+        if(i == 1) subnormal_prec_adjustment += 4;
+        else subnormal_prec_adjustment += 8;
+        i++;
+      }
+    }
+
+    *exp  -= subnormal_prec_adjustment - 1;
+    *bits =  53 - subnormal_prec_adjustment;
+
+  }
+
+#else
+  int i0 = 15, i1 = 14, i2 = 7, i3 = 6;
+  int i = 6;
+
+  if(*bits == 53) { 			/* subnormal - same as for double */
+    *exp = ((unsigned char *)nvptr)[7];
+    *exp <<= 4;
+    tmp = ((unsigned char *)nvptr)[i];
+    *exp += (tmp >> 4) - 1022;
+
+    if(*exp == -1022) {
+      while(i >= 0) {
+        tmp = ((unsigned char *)nvptr)[i];
+        if(tmp) {
+          if(i == 6) {
+            BITSEARCH_4		/* defined in math_mpfr_include.h */
+            break;
+          }
+          else {
+            BITSEARCH_8		/* defined in math_mpfr_include.h */
+            break;
+          }
+        }
+
+        if(i == 6) subnormal_prec_adjustment += 4;
+        else subnormal_prec_adjustment += 8;
+        i--;
+      }			/* close while loop */
+    }
+
+    *exp  -= subnormal_prec_adjustment - 1;
+    *bits =  53 - subnormal_prec_adjustment;
+
+  }
+
+#endif
+
+  else {
+      msd_exp = ((unsigned char *)nvptr)[i0];
+      msd_exp <<= 4;
+      *bits = ((unsigned char *)nvptr)[i1];
+      *bits >>= 4;
+      msd_exp += *bits;
+      if(msd_exp > 2047) msd_exp -= 2048;
+      if(msd_exp == 0) msd_exp = -1022;
+      else msd_exp -= 1023;
+
+      lsd_exp = ((unsigned char *)nvptr)[i2];
+      lsd_exp <<= 4;
+      *bits = ((unsigned char *)nvptr)[i3];
+      *bits >>= 4;
+      lsd_exp += *bits;
+      if(lsd_exp > 2047) lsd_exp -= 2048;
+      if(lsd_exp == 0) lsd_exp = -1022;
+      else lsd_exp -= 1023;
+
+      *bits = 53 + msd_exp - lsd_exp;
+      if(lsd_exp < -1022) *bits += (lsd_exp + 1022);
+      *exp = msd_exp;
+  }
+
+#elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64	/* 64 bit prec */
+#if defined(MPFR_HAVE_BENDIAN)
+  int i = 2;
+
+  *exp = ((unsigned char *)nvptr)[0];
+  *exp <<= 8;
+  tmp = ((unsigned char *)nvptr)[1];
+  *exp += tmp - 16382;
+
+  if(*exp == -16382) {
+    while(i <= 9) {
+      tmp = ((unsigned char *)nvptr)[i];
+      if(tmp) {
+        BITSEARCH_8		/* defined in math_mpfr_include.h */
+        break;
+      }
+
+      subnormal_prec_adjustment += 8;
+      i++;
+    }			/* close while loop */
+  }
+
+#else
+
+  int i = 7;
+
+  *exp = ((unsigned char *)nvptr)[9];
+  *exp <<= 8;
+  tmp = ((unsigned char *)nvptr)[8];
+  *exp += tmp - 16382;
+
+  if(*exp == -16382) {
+    while(i >= 0) {
+      tmp = ((unsigned char *)nvptr)[i];
+      if(tmp) {
+        BITSEARCH_8		/* defined in math_mpfr_include.h */
+        break;
+      }
+
+      subnormal_prec_adjustment += 8;
+      i--;
+    }			/* close while loop */
+  }
+
+#endif
+
+  /* for both endians (64 bit) */
+  if(subnormal_prec_adjustment) subnormal_prec_adjustment--;
+
+  *exp  -= subnormal_prec_adjustment;
+  *bits =  64 - subnormal_prec_adjustment;
+
+   if(subnormal_prec_adjustment) (*exp)++;
+
+#else									/* 53 bit prec */
+
+#if defined(MPFR_HAVE_BENDIAN)
+  int i = 1;
+
+  *exp = ((unsigned char *)nvptr)[0];
+  *exp <<= 4;
+  tmp = ((unsigned char *)nvptr)[i];
+  *exp += (tmp >> 4) - 1022;
+
+  if(*exp == -1022) {
+    while(i <= 7) {
+      tmp = ((unsigned char *)nvptr)[i];
+      if(tmp) {
+        if(i == 1) {
+          BITSEARCH_4		/* defined in math_mpfr_include.h */
+          break;
+        }
+        else {
+          BITSEARCH_8		/* defined in math_mpfr_include.h */
+          break;
+        }
+      }
+
+      if(i == 1) subnormal_prec_adjustment += 4;
+      else subnormal_prec_adjustment += 8;
+      i++;
+    }
+  }
+
+#else
+  int i = 6;
+
+  *exp = ((unsigned char *)nvptr)[7];
+  *exp <<= 4;
+  tmp = ((unsigned char *)nvptr)[i];
+  *exp += (tmp >> 4) - 1022;
+
+  if(*exp == -1022) {
+    while(i >= 0) {
+      tmp = ((unsigned char *)nvptr)[i];
+      if(tmp) {
+        if(i == 6) {
+          BITSEARCH_4		/* defined in math_mpfr_include.h */
+          break;
+        }
+        else {
+          BITSEARCH_8		/* defined in math_mpfr_include.h */
+          break;
+        }
+      }
+
+      if(i == 6) subnormal_prec_adjustment += 4;
+      else subnormal_prec_adjustment += 8;
+      i--;
+    }			/* close while loop */
+  }
+
+#endif
+
+  /* for both endians (53 bit) */
+  *exp  -= subnormal_prec_adjustment - 1;
+  *bits =  53 - subnormal_prec_adjustment;
+
+  if(!subnormal_prec_adjustment) (*exp)--;
+
+#endif
+
+}
+
+
+
 /* _nvtoa function is adapted from p120 of  "How to Print Floating-Point Numbers Accurately" */
 /* by Guy L. Steele Jr and Jon L. White                                               */
 
@@ -8040,20 +8329,10 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b) {
   int k, k_start, len, skip = 0;
   int bits = b, is_subnormal = 0, shift1, shift2, inex, low, high, cmp;
   unsigned long u;
-  mpfr_prec_t e;
+  mpfr_exp_t e, e_fake;
   NV nv;
   mpfr_t ws;
   mpz_t R, S, M_minus, M_plus, LHS, TMP;
-
-#if REQUIRED_LDBL_MANT_DIG == 2098 && defined(NV_IS_LONG_DOUBLE)
-  void *nvptr = &nv; /* The NV, not the SV */
-  int msd_exp, lsd_exp;
-#ifdef MPFR_HAVE_BENDIAN                   /* Big Endian architecture */
-  int i0 = 0, i1 = 1, i2 = 8, i3 = 9;
-#else                                      /* Little Endian architecture */
-  int i0 = 15, i1 = 14, i2 = 7, i3 = 6;
-#endif
-#endif
 
   char *f, *out;
 
@@ -8091,64 +8370,26 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b) {
 #if REQUIRED_LDBL_MANT_DIG == 2098 && defined(NV_IS_LONG_DOUBLE)
     bits = 53;
 #endif
-    mpfr_set_prec(ws, bits);
-    Rmpfr_set_NV(aTHX_ &ws, pnv, GMP_RNDN);
-
-    exp_init = mpfr_get_exp(ws);
-    subnormal_prec_adjustment = bits - (exp_init - min_pow);
-    bits -= subnormal_prec_adjustment;
   }
 
-/*****************************************************************************
- * Next we calculate 'bits' for double-double whose most siginificant double *
- * is normal and non-zero. (For subnormal double-doubles, 'bits' has already *
- * been set to the appropriate value, above.                                 *
- *****************************************************************************/
-
-#if REQUIRED_LDBL_MANT_DIG == 2098 && defined(NV_IS_LONG_DOUBLE)
-
-    if(!is_subnormal) {
-      msd_exp = ((unsigned char *)nvptr)[i0];
-      msd_exp <<= 4;
-      bits = ((unsigned char *)nvptr)[i1];
-      bits >>= 4;
-      msd_exp += bits;
-      if(msd_exp > 2047) msd_exp -= 2048;
-      if(msd_exp == 0) msd_exp = -1022;
-      else msd_exp -= 1023;
-
-      lsd_exp = ((unsigned char *)nvptr)[i2];
-      lsd_exp <<= 4;
-      bits = ((unsigned char *)nvptr)[i3];
-      bits >>= 4;
-      lsd_exp += bits;
-      if(lsd_exp > 2047) lsd_exp -= 2048;
-      if(lsd_exp == 0) lsd_exp = -1022;
-      else lsd_exp -= 1023;
-
-      bits = 53 + msd_exp - lsd_exp;
-      if(lsd_exp < -1022) bits += (lsd_exp + 1022); /* reduce "bits" because lsd is subnormal */
-      if(bits < 53) croak ("Bad calculation of bitsize");
-    }
-
-#endif
-
-  mpfr_set_prec(ws, bits);
-  Rmpfr_set_NV(aTHX_ &ws, pnv, GMP_RNDN);
-
-#if MPFR_VERSION < MPFR_VERSION_NUM(4,0,2) /* work around mpfr_get_str bug */
+  _get_exp_and_bits( &e, &bits, nv);
 
   if(bits == 1) {
-    sprintf(f, "%s", "1"); /* Would have already returned if "0" */
-    e = mpfr_get_exp(ws);
+    sprintf(f, "%s", "1");
   }
-  else  mpfr_get_str(f, &e, 2, bits, ws, GMP_RNDN);
+  else {
 
+    /*********************************************
+     * TODO: Remove the mpfr dependency entirely *
+     ********************************************/
+    mpfr_set_prec(ws, bits);
+    Rmpfr_set_NV(aTHX_ &ws, pnv, GMP_RNDN);
+#if defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098
+    mpfr_get_str(f, &e, 2, bits, ws, GMP_RNDN);		/* using mpfr to set both f and e */
 #else
-
-  mpfr_get_str(f, &e, 2, bits, ws, GMP_RNDN);
-
+    mpfr_get_str(f, &e_fake, 2, bits, ws, GMP_RNDN);	/* using mpfr to set only f */
 #endif
+  }
 
   mpz_set_str(R, f, 2);
   mpz_set(TMP, R);
@@ -8312,8 +8553,6 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int min_pow, int b) {
   XSRETURN(2);
 #endif
 }
-
-
 
 
 
