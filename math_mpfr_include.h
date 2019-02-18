@@ -39,13 +39,9 @@ CAN_PASS_FLOAT128        : Defined only when both MPFR_WANT_FLOAT128 and
                            4.0.0.)
                            DANGER: The assumption is that if MPFR_WANT_FLOAT128
                            is defined then the mpfr library has been built
-                           with __float128 support, which won't be the case if
-                           the mpfr library wasn't configured with
-                           '--enable-float128'.
-                           I haven't yet found a way of managing this - it's
-                           instead left up to the person building Math::MPFR to
-                           NOT define MATH_MPFR_WANT_FLOAT128 unless mpfr WAS
-                           configured with --enable-float128.
+                           with __float128 support, which may not be the case.
+                           Hopefully the configure probing done by the
+                           Makefile.PL will get it right.
 
 MPFR_WANT_DECIMAL_FLOATS : The symbol needs to be defined (before mpfr.h is
                            included) in order to enable _Decimal64 and/or
