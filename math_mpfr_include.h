@@ -9,6 +9,10 @@ NV_IS_FLOAT128           : Automatically defined by Makefile.PL if
                            If NV_IS_FLOAT128 is defined we include the
                            quadmath.h header.
 
+NV_IS_53_BIT             : Defined only when $Config{nvtype} is 'double' or
+                           when $Config{nvtype} is a 'long double' that's
+                           identical to the double.
+
 MPFR_WANT_FLOAT128       : Defined by Makefile.PL if $have_float128 is
                            set to a true value. $have_float128 can be set
                            to a true value by either editing the Makefile.PL
@@ -207,6 +211,10 @@ typedef _Decimal128 D128;
 #define REQUIRED_LDBL_MANT_DIG 2098
 #else
 #define REQUIRED_LDBL_MANT_DIG LDBL_MANT_DIG
+#endif
+
+#if (!defined(NV_IS_FLOAT128) && !defined(NV_IS_LONG_DOUBLE)) || (defined(NV_IS_LONG_DOUBLE && REQUIRED_LDBL_MANT_DIG == 53)
+#define NV_IS_53_BIT 1
 #endif
 
 #define MAXIMUM_ALLOWABLE_BASE 62
