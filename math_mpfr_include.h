@@ -209,7 +209,7 @@ typedef _Decimal128 D128;
 #define REQUIRED_LDBL_MANT_DIG LDBL_MANT_DIG
 #endif
 
-#if (!defined(NV_IS_FLOAT128) && !defined(NV_IS_LONG_DOUBLE)) || (defined(NV_IS_LONG_DOUBLE && REQUIRED_LDBL_MANT_DIG == 53)
+#if (!defined(NV_IS_FLOAT128) && !defined(NV_IS_LONG_DOUBLE)) || (defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 53)
 #define NV_IS_53_BIT 1
 #endif
 
