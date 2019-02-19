@@ -5,8 +5,6 @@ use warnings;
 use Math::MPFR qw(:mpfr);
 use Config;
 
-print "1..1\n";
-
 # We'll check a list of 10000 randomly derived NV values.
 # The mantissa of each NV will be between 1 and $MAX_DIG decimal digits.
 # Neither the first nor last mantissa digit will be zero
@@ -72,6 +70,8 @@ elsif(MPFR_VERSION_MAJOR < 3 || (MPFR_VERSION_MAJOR() == 3  && MPFR_VERSION_PATC
   exit 0;
 
 }
+
+print "1..1\n";
 
 my $MAX_DIG;
 my $MAX_POW;
