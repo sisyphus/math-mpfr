@@ -8321,7 +8321,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
 void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int b) {
 
-#if MPFR_VERSION_MAJOR < 4
+#if defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098 && 4 > MPFR_VERSION_MAJOR
   croak("nvtoa function requires version 4.0 or later of the mpfr library - this is only %s", MPFR_VERSION_STRING);
 #else
   dXSARGS;
