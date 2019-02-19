@@ -1,8 +1,9 @@
 use strict;
 use warnings;
 use Math::MPFR qw(:mpfr);
+use Config;
 
-if(4 > MPFR_VERSION_MAJOR) {
+if($Config{nvtype} eq 'long double' && Math::MPFR::_required_ldbl_mant_dig() == 2098 && 4 > MPFR_VERSION_MAJOR) {
   print "1..1\n";
   eval{ nvtoa(0.5) };
 
@@ -14,6 +15,13 @@ if(4 > MPFR_VERSION_MAJOR) {
     warn "\$\@: $@\n";
     print "not ok 1\n";
   }
+}
+
+elsif(MPFR_VERSION_MAJOR < 3 || (MPFR_VERSION_MAJOR() == 3  && MPFR_VERSION_PATCHLEVEL < 6)) {
+  print "1..1\n";
+  warn "\nSkipping - nvtoa.t utilizes Math::MPFR functionality that requires mpfr-3.1.6\n";
+  print "ok 1\n";
+
 }
 
 else {
