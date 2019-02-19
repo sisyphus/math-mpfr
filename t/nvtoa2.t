@@ -48,7 +48,7 @@ print "1..1\n";
 # $reliable is set to false.
 
 
-if(4 > MPFR_VERSION_MAJOR) {
+if($Config{nvtype} eq 'long double' && Math::MPFR::_required_ldbl_mant_dig() == 2098 && 4 > MPFR_VERSION_MAJOR) {
 
   eval{ nvtoa(0.5) };
 
@@ -62,6 +62,15 @@ if(4 > MPFR_VERSION_MAJOR) {
   }
 
   exit 0;
+}
+
+elsif(MPFR_VERSION_MAJOR < 3 || (MPFR_VERSION_MAJOR() == 3  && MPFR_VERSION_PATCHLEVEL < 6)) {
+  print "1..1\n";
+  warn "\nSkipping - nvtoa2.t utilizes Math::MPFR functionality that requires mpfr-3.1.6\n";
+  print "ok 1\n";
+
+  exit 0;
+
 }
 
 my $MAX_DIG;
@@ -265,3 +274,6 @@ while(1) {
 if($ok == 1) { print "ok 1\n" }
 else         { print "not ok 1\n" }
 
+__END__
+       $nv                    $new_str   $str
+Trunc: 6.32404026676796e-322: 63e-323 !< 63433232978e-332
