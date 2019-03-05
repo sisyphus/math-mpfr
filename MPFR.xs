@@ -8356,8 +8356,14 @@ void nvtoa(pTHX_ SV * pnv) {
   nv = SvNV(pnv);
 
 #if defined(MPFR_HAVE_BENDIAN)
+
   if(((unsigned char *)nvptr)[0] >= 128) {
+#if defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098
+    nv *= -1.0;
+#else
     ((unsigned char *)nvptr)[0] &= 127;
+#endif
+
 #elif defined(NV_IS_53_BIT)
   if(((unsigned char *)nvptr)[7] >= 128) {
     ((unsigned char *)nvptr)[7] &= 127;
@@ -8366,12 +8372,11 @@ void nvtoa(pTHX_ SV * pnv) {
     ((unsigned char *)nvptr)[9] &= 127;
 #elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098
   if(((unsigned char *)nvptr)[15] >= 128) {
-    ((unsigned char *)nvptr)[15] &= 127;
+    nv *= -1.0;
 #else
   if(((unsigned char *)nvptr)[15] >= 128) {
     ((unsigned char *)nvptr)[15] &= 127;
 #endif
-    /* nv = -nv; */
     sign = 1;
   }
 
@@ -8420,6 +8425,10 @@ void nvtoa(pTHX_ SV * pnv) {
  ***************/
 
   if(bits == 1) {
+#if defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098			/* doubledouble */
+    Newxz(f, 4, char);
+    if(f == NULL) croak("Failed to allocate memory for string buffer in nvtoa XSub");
+#endif
     f[0] = c[1];
   }
   else {
@@ -8447,10 +8456,10 @@ void nvtoa(pTHX_ SV * pnv) {
      ********************************************/
 
     mpfr_set_prec(ws, bits);
-    Rmpfr_set_NV(aTHX_ &ws, pnv, GMP_RNDN);
+    mpfr_set_ld(ws, nv, GMP_RNDN);
 
     Newxz(f, bits + 8, char);
-    if(f == NULL) croak("Failed to allocate memory for string buffer in _nvtoa XSub");
+    if(f == NULL) croak("Failed to allocate memory for string buffer in nvtoa XSub");
 
     mpfr_get_str(f, &e, 2, bits, ws, GMP_RNDN);		/* using mpfr to set both f and e */
 
@@ -8507,7 +8516,7 @@ void nvtoa(pTHX_ SV * pnv) {
   lsb = mpz_tstbit(R, 0);
   mpz_set(TMP, R);
 
-  if(mpz_cmp_ui(R, 0) < 1) croak("Negative value in _nvtoa XSub is not allowed");
+  if(mpz_cmp_ui(R, 0) < 1) croak("Negative value in nvtoa XSub is not allowed");
   mpz_set_ui(S, 1);
 
   shift1 = e - bits > 0 ? e - bits : 0;
