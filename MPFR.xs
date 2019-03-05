@@ -8028,7 +8028,7 @@ SV * Rmpfr_dot(pTHX_ mpfr_t * rop, SV * avref_A, SV * avref_B, SV * len, SV * ro
 }
 
 /********************************************************
- * Return exponent and precision for _nvtoa to utilize. *
+ * Set exponent and precision for nvtoa to utilize. *
  *******************************************************/
 
 void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
@@ -8316,34 +8316,67 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
 
 
-/* _nvtoa function is adapted from p120 of  "How to Print Floating-Point Numbers Accurately" */
+/* nvtoa function is adapted from p120 of  "How to Print Floating-Point Numbers Accurately" */
 /* by Guy L. Steele Jr and Jon L. White                                               */
 
-void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int b) {
+void nvtoa(pTHX_ SV * pnv) {
 
 #if defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098 && 4 > MPFR_VERSION_MAJOR
   croak("nvtoa function requires version 4.0 or later of the mpfr library - this is only %s", MPFR_VERSION_STRING);
 #else
   dXSARGS;
   int subnormal_prec_adjustment, exp_init;
-  int k = 0, k_start, lsb, skip = 0;
-  int bits = b, is_subnormal = 0, shift1, shift2, inex, low, high, cmp;
+  int k = 0, k_start, lsb, skip = 0, sign = 0, len, critical;
+  int bits = MATH_MPFR_BITS, is_subnormal = 0, shift1, shift2, inex, low, high, cmp;
   unsigned long u;
   mpfr_exp_t e;
   NV nv;
   void *nvptr = &nv;
-#if REQUIRED_LDBL_MANT_DIG == 2098 && defined(NV_IS_LONG_DOUBLE)
+#if defined(NV_IS_53_BIT)
+  char f[] = {'\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0'};
+
+#elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64
+  char f[] = {'\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0',
+              '\0','\0','\0','\0'};
+
+#elif REQUIRED_LDBL_MANT_DIG == 2098 && defined(NV_IS_LONG_DOUBLE)
+  char *f;
   mpfr_t ws;
+
+#else
+  char f[] = {'\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0',
+              '\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0'};
+
 #endif
   mpz_t R, S, M_minus, M_plus, LHS, TMP;
+  char str[] = {'\0','\0','\0','\0','\0','\0','\0','\0'};
   char * c = "0123456789abcdef";
-  char *f, *out;
+  char *out, *bstr;
 
   nv = SvNV(pnv);
 
-  if(nv <= 0) {
-    if(nv < 0) croak("Passing of negative values to _nvtoa XSub is not allowed");
-    ST(0) = sv_2mortal(newSVpv("0.0", 0));
+#if defined(MPFR_HAVE_BENDIAN)
+  if(((unsigned char *)nvptr)[0] >= 128) {
+    ((unsigned char *)nvptr)[0] &= 127;
+#elif defined(NV_IS_53_BIT)
+  if(((unsigned char *)nvptr)[7] >= 128) {
+    ((unsigned char *)nvptr)[7] &= 127;
+#elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64
+  if(((unsigned char *)nvptr)[9] >= 128) {
+    ((unsigned char *)nvptr)[9] &= 127;
+#elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098
+  if(((unsigned char *)nvptr)[15] >= 128) {
+    ((unsigned char *)nvptr)[15] &= 127;
+#else
+  if(((unsigned char *)nvptr)[15] >= 128) {
+    ((unsigned char *)nvptr)[15] &= 127;
+#endif
+    /* nv = -nv; */
+    sign = 1;
+  }
+
+  if(nv == 0) {
+    ST(0) = sign ? sv_2mortal(newSVpv("-0.0", 0)) : sv_2mortal(newSVpv("0.0", 0));
     XSRETURN(1);
   }
 
@@ -8352,8 +8385,8 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int b) {
     XSRETURN(1);
   }
 
-  if(nv > nv_max) {
-    ST(0) = sv_2mortal(newSVpv("Inf", 0));
+  if(nv > MATH_MPFR_NV_MAX) {
+    ST(0) = sign ? sv_2mortal(newSVpv("-Inf", 0)) : sv_2mortal(newSVpv("Inf", 0));
     XSRETURN(1);
   }
 
@@ -8367,35 +8400,31 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int b) {
   mpz_init(LHS);
   mpz_init(TMP);
 
-  if(nv < normal_min) {
-    is_subnormal = 1;
 #if REQUIRED_LDBL_MANT_DIG == 2098 && defined(NV_IS_LONG_DOUBLE)
+  if(nv < MATH_MPFR_NORMAL_MIN) {
+    is_subnormal = 1;
     bits = 53;
-#endif
   }
 
   _get_exp_and_bits( &e, &bits, nv);
+
+#else
+
+  _get_exp_and_bits( &e, &bits, nv);
+  if(bits < MATH_MPFR_BITS) is_subnormal = 1;
+
+#endif
 
 /***************
  * Assign to f *
  ***************/
 
   if(bits == 1) {
-    Newxz(f, 2, char);
-    if(f == NULL) croak("Failed to allocate memory for string buffer in _nvtoa XSub");
-
     f[0] = c[1];
   }
   else {
 
-    /*********************************************
-     * TODO: Remove the mpfr dependency entirely *
-     ********************************************/
-
 #if defined(NV_IS_FLOAT128) || (defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 113)	/* 113 bit prec */
-
-    Newxz(f, 32, char);
-    if(f == NULL) croak("Failed to allocate memory for string buffer in _nvtoa XSub");
 
     f[0] = is_subnormal ? c[0] : c[1];
     k++;
@@ -8413,6 +8442,10 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int b) {
 
 #elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098			/* doubledouble */
 
+    /*********************************************
+     * TODO: Remove the mpfr dependency entirely *
+     ********************************************/
+
     mpfr_set_prec(ws, bits);
     Rmpfr_set_NV(aTHX_ &ws, pnv, GMP_RNDN);
 
@@ -8422,9 +8455,6 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int b) {
     mpfr_get_str(f, &e, 2, bits, ws, GMP_RNDN);		/* using mpfr to set both f and e */
 
 #elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64	/* 64 bit prec */
-
-    Newxz(f, 20, char);
-    if(f == NULL) croak("Failed to allocate memory for string buffer in _nvtoa XSub");
 
 #if defined(MPFR_HAVE_BENDIAN)
     for(skip = 2; skip <= 9; skip++) {
@@ -8438,9 +8468,6 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int b) {
     }
 
 #else									/* 53 bit prec */
-
-    Newxz(f, 16, char);
-    if(f == NULL) croak("Failed to allocate memory for string buffer in _nvtoa XSub");
 
 #if defined(MPFR_HAVE_BENDIAN)
     for(skip = 1; skip <= 7; skip++) {
@@ -8469,6 +8496,7 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int b) {
 #if defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098			/* doubledouble */
 
   mpz_set_str(R, f, 2);
+  Safefree(f);
 
 #else
 
@@ -8476,7 +8504,6 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int b) {
 
 #endif
 
-  Safefree(f);
   lsb = mpz_tstbit(R, 0);
   mpz_set(TMP, R);
 
@@ -8564,8 +8591,9 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int b) {
 
   k_start = k;
 
-  Newxz(out, (int)(4 + ceil(0.30103 * bits)), char); /* 1 + ceil(log(2) / log(10) * bits), but allow a few extra */
-  if(out == NULL) croak("Failed to allocate memory for output string in _nvtoa XSub");
+  Newxz(out, (int)(12 + ceil(0.30103 * bits)), char); /* 1 + ceil(log(2) / log(10) * bits), but allow a few extra for
+                                                       exponent and sign */
+  if(out == NULL) croak("Failed to allocate memory for output string in nvtoa XSub");
 
   while(1) {
 
@@ -8632,10 +8660,102 @@ void _nvtoa(pTHX_ SV * pnv, NV nv_max, NV normal_min, int b) {
   mpz_clear(LHS);
   mpz_clear(TMP);
 
+  len = strlen(out);
+  critical = k + len;
+
+  /* printf("sign: %d critical: %d len %d k %d\n", sign, critical, len, k); */
+
+  if(critical < -3) {
+
+    sprintf(str, "e%03d", critical - 1);
+    if(sign || len > 1) {
+      /* insert decimal point */
+      for(skip = len + sign; skip > 1 + sign; skip--) {
+        out[skip] = out[skip - 1 - sign];
+      }
+
+      out[1 + sign] = '.';
+      out[len + 1 + sign] = 0;
+
+      if(sign) {
+        out[1] = out[0];
+        out[0] = '-';
+      }
+    }
+    strcat(out, str);
+    ST(0) = sv_2mortal(newSVpv(out, 0));
+    Safefree(out);
+    XSRETURN(1);
+  }
+
+  if(critical <= 0 ) {
+    /* bstr = concatenate "0." . ("0" x -critical) . out; */
+    Newxz(bstr, (int)(16 + ceil(0.30103 * bits)), char); /* 1 + ceil(log(2) / log(10) * bits),
+                                                        but allow a few extra for exponent and sign */
+    if(bstr == NULL) croak("Failed to allocate memory for 2nd output string in nvtoa XSub");
+
+    if(sign) bstr[0] = '-';
+
+    bstr[0 + sign] = '0';
+    bstr[1 + sign] = '.';
+
+    for(skip = critical; skip < 0; skip++) strcat(bstr, "0");
+
+    strcat(bstr, out);
+
+    ST(0) = sv_2mortal(newSVpv(bstr, 0));
+    Safefree(out);
+    Safefree(bstr);
+    XSRETURN(1);
+  }
+
+  if(critical < MATH_MPFR_MAX_DIG) {
+    if(sign) {
+      for(skip = len; skip > 0; skip--) out[skip] = out[skip - 1];
+      out[0] = '-';
+      out[len + 1] = 0;
+    }
+
+   if(k >= 0) {
+      /* out = concatenate out . ('0' x k); */
+      for(skip = 0; skip < k; skip++) strcat(out, "0");
+      strcat(out, ".0");
+      ST(0) = sv_2mortal(newSVpv(out, 0));
+      Safefree(out);
+      XSRETURN(1);
+    }
+
+    /* insert decimal point; */
+    for(skip = len + sign; skip > len + k + sign; skip--) out[skip] = out[skip - 1];
+    out[len + k + sign] = '.';
+    out[len + sign + 1] = 0;
+    ST(0) = sv_2mortal(newSVpv(out, 0));
+    Safefree(out);
+    XSRETURN(1);
+  }
+
+  if( len > 1) {
+    /* insert decimal point */
+    for(skip = len + sign; skip > 1 + sign; skip--) {
+      out[skip] = out[skip - 1 - sign];
+    }
+
+    out[1 + sign] = '.';
+    out[len + 1 + sign] = 0;
+  }
+
+  if(sign) {
+    out[1] = out[0];
+    out[0] = '-';
+  }
+
+  sprintf(str, "e+%d", critical - 1);
+  strcat(out, str);
+
   ST(0) = sv_2mortal(newSVpv(out, 0));
   Safefree(out);
-  ST(1) = sv_2mortal(newSViv(k));
-  XSRETURN(2);
+  XSRETURN(1);
+
 #endif
 }
 
@@ -13045,16 +13165,13 @@ CODE:
 OUTPUT:  RETVAL
 
 void
-_nvtoa (pnv, nv_max, normal_min, b)
+nvtoa (pnv)
 	SV *	pnv
-	NV	nv_max
-	NV	normal_min
-	int	b
         PREINIT:
         I32* temp;
         PPCODE:
         temp = PL_markstack_ptr++;
-        _nvtoa(aTHX_ pnv, nv_max, normal_min, b);
+        nvtoa(aTHX_ pnv);
         if (PL_markstack_ptr != temp) {
           /* truly void, because dXSARGS not invoked */
           PL_markstack_ptr = temp;
