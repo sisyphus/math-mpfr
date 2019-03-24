@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Math::MPFR qw(:mpfr);
 use Config;
+use Test::More;
 
 # We'll check a list of 10000 randomly derived NV values.
 # The mantissa of each NV will be between 1 and $MAX_DIG decimal digits.
@@ -45,33 +46,19 @@ use Config;
 # All perls that don't fit any of the above categories are deemed unreliable, and
 # $reliable is set to false.
 
-
-if($Config{nvtype} eq 'long double' && Math::MPFR::_required_ldbl_mant_dig() == 2098 && 4 > MPFR_VERSION_MAJOR) {
-
-  eval{ nvtoa(0.5) };
-
-  if($@ =~ /^nvtoa function requires version 4\.0/) {
-    warn "nvtoa() not supported because the mpfr library is too old\n";
-    print "ok 1\n";
-  }
-  else {
-    warn "\$\@: $@\n";
-    print "not ok 1\n";
-  }
-
+if(MPFR_VERSION_MAJOR < 3 || (MPFR_VERSION_MAJOR() == 3  && MPFR_VERSION_PATCHLEVEL < 6)) {
+  plan skip_all => "nvtoa.t utilizes Math::MPFR functionality that requires mpfr-3.1.6\n";
   exit 0;
 }
 
-elsif(MPFR_VERSION_MAJOR < 3 || (MPFR_VERSION_MAJOR() == 3  && MPFR_VERSION_PATCHLEVEL < 6)) {
-  print "1..1\n";
-  warn "\nSkipping - nvtoa2.t utilizes Math::MPFR functionality that requires mpfr-3.1.6\n";
-  print "ok 1\n";
+plan tests => 1;
+my $todo = 0;
 
-  exit 0;
-
+# Some systems provide sqrtl() but not powl() for their -Duselongdouble builds
+unless(sqrt(2.0) == 2 ** 0.5) {
+  warn "\nPoorly configured system\n";
+  $todo = 1;
 }
-
-print "1..1\n";
 
 my $MAX_DIG;
 my $MAX_POW;
@@ -271,9 +258,16 @@ while(1) {
 
 }
 
-if($ok == 1) { print "ok 1\n" }
-else         { print "not ok 1\n" }
+    if($todo) {
+      TODO: {
+        local $TODO = "Tests don't yet accommodate this inferior -Duselongdouble implementation";
+        ok($ok == 1, 'test 1');
+      };
+    }
+    else {
+      ok($ok == 1, 'test 1');
+    }
+
 
 __END__
-       $nv                    $new_str   $str
-Trunc: 6.32404026676796e-322: 63e-323 !< 63433232978e-332
+
