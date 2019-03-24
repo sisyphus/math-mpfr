@@ -2,30 +2,23 @@ use strict;
 use warnings;
 use Math::MPFR qw(:mpfr);
 use Config;
+use Test::More;
 
-if($Config{nvtype} eq 'long double' && Math::MPFR::_required_ldbl_mant_dig() == 2098 && 4 > MPFR_VERSION_MAJOR) {
-  print "1..1\n";
-  eval{ nvtoa(0.5) };
-
-  if($@ =~ /^nvtoa function requires version 4\.0/) {
-    warn "nvtoa() not supported because the mpfr library is too old\n";
-    print "ok 1\n";
-  }
-  else {
-    warn "\$\@: $@\n";
-    print "not ok 1\n";
-  }
-}
-
-elsif(MPFR_VERSION_MAJOR < 3 || (MPFR_VERSION_MAJOR() == 3  && MPFR_VERSION_PATCHLEVEL < 6)) {
-  print "1..1\n";
-  warn "\nSkipping - nvtoa.t utilizes Math::MPFR functionality that requires mpfr-3.1.6\n";
-  print "ok 1\n";
-
+if(MPFR_VERSION_MAJOR < 3 || (MPFR_VERSION_MAJOR() == 3  && MPFR_VERSION_PATCHLEVEL < 6)) {
+  plan skip_all => "nvtoa.t utilizes Math::MPFR functionality that requires mpfr-3.1.6\n";
 }
 
 else {
-  warn "Poorly configured system\n" unless sqrt(2.0) == 2 ** 0.5;
+
+  plan tests => 8;
+  my $todo = 0;
+
+  # Some systems provide sqrtl() but not powl() for their -Duselongdouble builds
+  unless(sqrt(2.0) == 2 ** 0.5) {
+    warn "\nPoorly configured system\n";
+    $todo = 1;
+  }
+
   my $ok = 1;
   my $p = $Math::MPFR::NV_properties{max_dig} - 1;
   my $min_pow = $Math::MPFR::NV_properties{min_pow};
@@ -73,50 +66,21 @@ else {
 ################## 53 BIT #####################
 
   if($Math::MPFR::NV_properties{bits} == 53) {
-    print "1..8\n";
 
-    if(nvtoa(sqrt(2.0)) == sqrt(2.0)) { print "ok 1\n" }
-    else {
-      warn nvtoa(sqrt(2.0)), " != sqrt(2.0)\n";
-      print "not ok 1\n";
-    }
+    cmp_ok( nvtoa(sqrt(2.0)), '==', sqrt(2.0), 'nvtoa(sqrt 2) == sqrt 2' );
+    cmp_ok( nvtoa($zero),     'eq', '0.0',    'nvtoa(0) eq 0.0' );
 
-    if(nvtoa($zero) eq '0.0') { print "ok 2\n" }
-    else {
-      warn nvtoa($zero), " ne '0.0'\n";
-      print "not ok 2\n";
-    }
+    SKIP: {
+      skip "Ignoring that this perl doesn't accommodate signed zero", 1 if (nvtoa($nzero) ne '-0.0' &&
+                                                                            $nzero == 0 &&
+                                                                            $] < 5.01);
+      cmp_ok( nvtoa($nzero),  'eq', '-0.0',    'nvtoa(-0) eq -0.0' );
+    };
 
+    cmp_ok( nvtoa($inf),      'eq', 'Inf',     'nvtoa(Inf) eq Inf');
+    cmp_ok( nvtoa($ninf),     'eq', '-Inf',    'nvtoa(-Inf) eq -Inf');
+    cmp_ok( nvtoa($nan),      'eq', 'NaN',     'nvtoa(NaN) eq NaN');
 
-    if(nvtoa($nzero) eq '-0.0') { print "ok 3\n" }
-    else {
-      unless($nzero == 0 && $] < 5.01) {
-        warn nvtoa($nzero), " ne '-0.0'\n";
-        print "not ok 3\n";
-      }
-      else {
-        warn "Ignoring that this perl doesn't accommodate signed zero\n";
-        print "ok 3\n";
-      }
-    }
-
-    if(nvtoa($inf) eq 'Inf') { print "ok 4\n" }
-    else {
-      warn nvtoa($inf), " ne 'Inf'\n";
-     print "not ok 4\n";
-    }
-
-    if(nvtoa($ninf) eq '-Inf') { print "ok 5\n" }
-    else {
-      warn nvtoa($ninf), " ne '-Inf'\n";
-      print "not ok 5\n";
-    }
-
-    if(nvtoa($nan) eq 'NaN') { print "ok 6\n" }
-    else {
-      warn nvtoa($nan), " ne 'NaN'\n";
-      print "not ok 6\n";
-    }
 
     my $t1 = Rmpfr_init2($Math::MPFR::NV_properties{bits});
     my $t2 = Rmpfr_init2($Math::MPFR::NV_properties{bits});
@@ -160,8 +124,7 @@ else {
 
     }
 
-    if($ok) { print "ok 7\n" }
-    else { print "not ok 7\n" }
+    ok($ok == 1, 'test 7');
 
     $ok = 1;
 
@@ -180,8 +143,7 @@ else {
       }
     }
 
-    if($ok) { print "ok 8\n" }
-    else { print "not ok 8\n" }
+    ok($ok == 1, 'test 8');
 
     $ok = 1;
   }
@@ -190,49 +152,20 @@ else {
 ################## 64 BIT #####################
 
   elsif($Math::MPFR::NV_properties{bits} == 64) {
-    print "1..8\n";
 
-    if(nvtoa(sqrt(2.0)) == sqrt(2.0)) { print "ok 1\n" }
-    else {
-      warn nvtoa(sqrt(2.0)), " != sqrt(2.0)\n";
-      print "not ok 1\n";
-    }
+    cmp_ok( nvtoa(sqrt(2.0)), '==', sqrt(2.0), 'nvtoa(sqrt 2) == sqrt 2' );
+    cmp_ok( nvtoa($zero),     'eq', '0.0',    'nvtoa(0) eq 0.0' );
 
-    if(nvtoa($zero) eq '0.0') { print "ok 2\n" }
-    else {
-      warn nvtoa($zero), " ne '0.0'\n";
-      print "not ok 2\n";
-    }
+    SKIP: {
+      skip "Ignoring that this perl doesn't accommodate signed zero", 1 if (nvtoa($nzero) ne '-0.0' &&
+                                                                            $nzero == 0 &&
+                                                                            $] < 5.01);
+      cmp_ok( nvtoa($nzero),  'eq', '-0.0',    'nvtoa(-0) eq -0.0' );
+    };
 
-    if(nvtoa($nzero) eq '-0.0') { print "ok 3\n" }
-    else {
-      unless($nzero == 0 && $] < 5.01) {
-        warn nvtoa($nzero), " ne '-0.0'\n";
-        print "not ok 3\n";
-      }
-      else {
-        warn "Ignoring that this perl doesn't accommodate signed zero\n";
-        print "ok 3\n";
-      }
-    }
-
-    if(nvtoa($inf) eq 'Inf') { print "ok 4\n" }
-    else {
-      warn nvtoa($inf), " ne 'Inf'\n";
-     print "not ok 4\n";
-    }
-
-    if(nvtoa($ninf) eq '-Inf') { print "ok 5\n" }
-    else {
-      warn nvtoa($ninf), " ne '-Inf'\n";
-      print "not ok 5\n";
-    }
-
-    if(nvtoa($nan) eq 'NaN') { print "ok 6\n" }
-    else {
-      warn nvtoa($nan), " ne 'NaN'\n";
-      print "not ok 6\n";
-    }
+    cmp_ok( nvtoa($inf),      'eq', 'Inf',     'nvtoa(Inf) eq Inf');
+    cmp_ok( nvtoa($ninf),     'eq', '-Inf',    'nvtoa(-Inf) eq -Inf');
+    cmp_ok( nvtoa($nan),      'eq', 'NaN',     'nvtoa(NaN) eq NaN');
 
     my $t1 = Rmpfr_init2($Math::MPFR::NV_properties{bits});
     my $t2 = Rmpfr_init2($Math::MPFR::NV_properties{bits});
@@ -294,8 +227,15 @@ else {
 
     }
 
-    if($ok) { print "ok 7\n" }
-    else { print "not ok 7\n" }
+    if($todo) {
+      TODO: {
+        local $TODO = "Tests don't yet accommodate this inferior -Duselongdouble implementation";
+        ok($ok == 1, 'test 7');
+      };
+    }
+    else {
+      ok($ok == 1, 'test 7');
+    }
 
     $ok = 1;
 
@@ -318,8 +258,15 @@ else {
       }
     }
 
-    if($ok) { print "ok 8\n" }
-    else { print "not ok 8\n" }
+    if($todo) {
+      TODO: {
+        local $TODO = "Tests don't yet accommodate this inferior -Duselongdouble implementation";
+        ok($ok == 1, 'test 8');
+      };
+    }
+    else {
+      ok($ok == 1, 'test 8');
+    }
 
     $ok = 1;
 
@@ -329,45 +276,13 @@ else {
 ################## 113 BIT ####################
 
   elsif($Math::MPFR::NV_properties{bits} == 113) {
-    print "1..8\n";
 
-    if(nvtoa(sqrt(2.0)) == sqrt(2.0)) { print "ok 1\n" }
-    else {
-      warn nvtoa(sqrt(2.0)), " != sqrt(2.0)\n";
-      print "not ok 1\n";
-    }
-
-    if(nvtoa($zero) eq '0.0') { print "ok 2\n" }
-    else {
-      warn nvtoa($zero), " ne '0.0'\n";
-      print "not ok 2\n";
-    }
-
-
-    if(nvtoa($nzero) eq '-0.0') { print "ok 3\n" }
-    else {
-      warn nvtoa($nzero), " ne '-0.0'\n";
-      print "not ok 3\n";
-    }
-
-
-    if(nvtoa($inf) eq 'Inf') { print "ok 4\n" }
-    else {
-      warn nvtoa($inf), " ne 'Inf'\n";
-     print "not ok 4\n";
-    }
-
-    if(nvtoa($ninf) eq '-Inf') { print "ok 5\n" }
-    else {
-      warn nvtoa($ninf), " ne '-Inf'\n";
-      print "not ok 5\n";
-    }
-
-    if(nvtoa($nan) eq 'NaN') { print "ok 6\n" }
-    else {
-      warn nvtoa($nan), " ne 'NaN'\n";
-      print "not ok 6\n";
-    }
+    cmp_ok( nvtoa(sqrt(2.0)), '==', sqrt(2.0), 'nvtoa(sqrt 2) == sqrt 2' );
+    cmp_ok( nvtoa($zero),     'eq', '0.0',    'nvtoa(0) eq 0.0' );
+    cmp_ok( nvtoa($nzero),    'eq', '-0.0',    'nvtoa(-0) eq -0.0' );
+    cmp_ok( nvtoa($inf),      'eq', 'Inf',     'nvtoa(Inf) eq Inf');
+    cmp_ok( nvtoa($ninf),     'eq', '-Inf',    'nvtoa(-Inf) eq -Inf');
+    cmp_ok( nvtoa($nan),      'eq', 'NaN',     'nvtoa(NaN) eq NaN');
 
     my $t1 = Rmpfr_init2($Math::MPFR::NV_properties{bits});
     my $t2 = Rmpfr_init2($Math::MPFR::NV_properties{bits});
@@ -409,8 +324,7 @@ else {
 
     }
 
-    if($ok) { print "ok 7\n" }
-    else { print "not ok 7\n" }
+    ok($ok == 1, 'test 7');
 
     $ok = 1;
 
@@ -434,8 +348,7 @@ else {
       }
     }
 
-    if($ok) { print "ok 8\n" }
-    else { print "not ok 8\n" }
+    ok($ok == 1, 'test 8');
 
     $ok = 1;
   }
@@ -444,49 +357,20 @@ else {
 ################## 2098 BIT ###################
 
   elsif($Math::MPFR::NV_properties{bits} == 2098) {
-    print "1..8\n";
 
-    if(nvtoa(sqrt(2.0)) == sqrt(2.0)) { print "ok 1\n" }
-    else {
-      warn nvtoa(sqrt(2.0)), " != sqrt(2.0)\n";
-      print "not ok 1\n";
-    }
+    cmp_ok( nvtoa(sqrt(2.0)), '==', sqrt(2.0), 'nvtoa(sqrt 2) == sqrt 2' );
+    cmp_ok( nvtoa($zero),     'eq', '0.0',    'nvtoa(0) eq 0.0' );
 
-    if(nvtoa($zero) eq '0.0') { print "ok 2\n" }
-    else {
-      warn nvtoa($zero), " ne '0.0'\n";
-      print "not ok 2\n";
-    }
+    SKIP: {
+      skip "Ignoring that this perl doesn't accommodate signed zero", 1 if (nvtoa($nzero) ne '-0.0' &&
+                                                                            $nzero == 0 &&
+                                                                            $] < 5.01);
+      cmp_ok( nvtoa($nzero),  'eq', '-0.0',    'nvtoa(-0) eq -0.0' );
+    };
 
-    if(nvtoa($nzero) eq '-0.0') { print "ok 3\n" }
-    else {
-      unless($nzero == 0 && $] < 5.01) {
-        warn nvtoa($nzero), " ne '-0.0'\n";
-        print "not ok 3\n";
-      }
-      else {
-        warn "Ignoring that this perl doesn't accommodate -0\n";
-        print "ok 3\n";
-      }
-    }
-
-    if(nvtoa($inf) eq 'Inf') { print "ok 4\n" }
-    else {
-      warn nvtoa($inf), " ne 'Inf'\n";
-     print "not ok 4\n";
-    }
-
-    if(nvtoa($ninf) eq '-Inf') { print "ok 5\n" }
-    else {
-      warn nvtoa($ninf), " ne '-Inf'\n";
-      print "not ok 5\n";
-    }
-
-    if(nvtoa($nan) eq 'NaN') { print "ok 6\n" }
-    else {
-      warn nvtoa($nan), " ne 'NaN'\n";
-      print "not ok 6\n";
-    }
+    cmp_ok( nvtoa($inf),      'eq', 'Inf',     'nvtoa(Inf) eq Inf');
+    cmp_ok( nvtoa($ninf),     'eq', '-Inf',    'nvtoa(-Inf) eq -Inf');
+    cmp_ok( nvtoa($nan),      'eq', 'NaN',     'nvtoa(NaN) eq NaN');
 
     my $t1 = Rmpfr_init2($Math::MPFR::NV_properties{bits});
     my $t2 = Rmpfr_init2($Math::MPFR::NV_properties{bits});
@@ -533,8 +417,7 @@ else {
 
     }
 
-    if($ok) { print "ok 7\n" }
-    else { print "not ok 7\n" }
+    ok($ok == 1, 'test 7');
 
     $ok = 1;
 
@@ -554,17 +437,14 @@ else {
       }
     }
 
-    if($ok) { print "ok 8\n" }
-    else { print "not ok 8\n" }
+    ok($ok == 1, 'test 8');
 
     $ok = 1;
 
   }
 
   else {
-    print "1..1\n";
-    warn "Error: Unrecognized nvtype\n";
-    print "not ok 1\n";
+    plan skip_all => 'Unknown nvtype';
   }
 }
 
