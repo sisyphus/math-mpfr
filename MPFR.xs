@@ -121,14 +121,10 @@ SV * Rmpfr_init(pTHX) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      return obj_ref;
 }
 
@@ -136,14 +132,10 @@ SV * Rmpfr_init2(pTHX_ SV * prec) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init2 function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init2) /* defined in math_mpfr_include.h */
      mpfr_init2 (*mpfr_t_obj, (mpfr_prec_t)SvIV(prec));
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      return obj_ref;
 }
 
@@ -151,14 +143,10 @@ SV * Rmpfr_init_nobless(pTHX) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_nobless function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, NULL);
+     NEW_MATH_MPFR_OBJECT(NULL,Rmpfr_init_nobless) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      return obj_ref;
 }
 
@@ -166,14 +154,10 @@ SV * Rmpfr_init2_nobless(pTHX_ SV * prec) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init2_nobless function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, NULL);
+     NEW_MATH_MPFR_OBJECT(NULL,Rmpfr_init2_nobless) /* defined in math_mpfr_include.h */
      mpfr_init2 (*mpfr_t_obj, (mpfr_prec_t)SvIV(prec));
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      return obj_ref;
 }
 
@@ -185,19 +169,12 @@ void Rmpfr_init_set(pTHX_ mpfr_t * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     /* sp = mark; *//* not needed */
-
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init_set) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set(*mpfr_t_obj, *q, (mpfr_rnd_t)SvUV(round));
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
-     /* PUTBACK; *//* not needed */
      XSRETURN(2);
 }
 
@@ -209,19 +186,12 @@ void Rmpfr_init_set_ui(pTHX_ SV * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     /* sp = mark; *//* not needed */
-
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set_ui function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init_set_ui) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set_ui(*mpfr_t_obj, (unsigned long)SvUV(q), (mpfr_rnd_t)SvUV(round));
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
-     /* PUTBACK; *//* not needed */
      XSRETURN(2);
 }
 
@@ -233,19 +203,12 @@ void Rmpfr_init_set_si(pTHX_ SV * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     /* sp = mark; *//* not needed */
-
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set_si function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init_set_si) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set_si(*mpfr_t_obj, (long)SvIV(q), (mpfr_rnd_t)SvUV(round));
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
-     /* PUTBACK; *//* not needed */
      XSRETURN(2);
 }
 
@@ -257,19 +220,12 @@ void Rmpfr_init_set_d(pTHX_ SV * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     /* sp =  mark; *//* not needed */
-
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set_d function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init_set_d) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set_d(*mpfr_t_obj, (double)SvNV(q), (mpfr_rnd_t)SvUV(round));
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
-     /* PUTBACK; *//* not needed */
      XSRETURN(2);
 }
 
@@ -283,18 +239,11 @@ void Rmpfr_init_set_ld(pTHX_ SV * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     /* sp = mark; *//* not needed */
-
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set_d function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init_set_ld) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set_ld(*mpfr_t_obj, (long double)SvNV(q), (mpfr_rnd_t)SvUV(round));
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
-     /* PUTBACK; *//* not needed */
      XSRETURN(2);
 #else
      croak("Rmpfr_init_set_ld not implemented on this build of perl - use Rmpfr_init_set_d instead");
@@ -312,19 +261,12 @@ void Rmpfr_init_set_f(pTHX_ mpf_t * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     /* sp = mark; *//* not needed */
-
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set_f function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init_set_f) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set_f(*mpfr_t_obj, *q, (mpfr_rnd_t)SvUV(round));
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
-     /* PUTBACK; *//* not needed */
      XSRETURN(2);
 }
 
@@ -336,19 +278,12 @@ void Rmpfr_init_set_z(pTHX_ mpz_t * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     /* sp = mark; *//* not needed */
-
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set_z function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init_set_z) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set_z(*mpfr_t_obj, *q, (mpfr_rnd_t)SvUV(round));
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
-     /* PUTBACK; *//* not needed */
      XSRETURN(2);
 }
 
@@ -360,19 +295,12 @@ void Rmpfr_init_set_q(pTHX_ mpq_t * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     /* sp = mark; *//* not needed */
-
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set_q function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init_set_q) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set_q(*mpfr_t_obj, *q, (mpfr_rnd_t)SvUV(round));
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
-     /* PUTBACK; *//* not needed */
      XSRETURN(2);
 }
 
@@ -389,17 +317,11 @@ void Rmpfr_init_set_str(pTHX_ SV * q, SV * base, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     /* sp = mark; *//* not needed */
-
      if(ret < 0 || ret > MAXIMUM_ALLOWABLE_BASE || ret == 1)
         croak("2nd argument supplied to Rmpfr_init_set str is out of allowable range");
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set_str function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init_set_str) /* defined in math_mpfr_include.h */
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
 
 #ifdef _WIN32_BIZARRE_INFNAN
        inf_or_nan = _win32_infnanstring(SvPV_nolen(q));
@@ -431,19 +353,12 @@ void Rmpfr_init_set_nobless(pTHX_ mpfr_t * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     /* sp = mark; *//* not needed */
-
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set_nobless function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, NULL);
+     NEW_MATH_MPFR_OBJECT(NULL,Rmpfr_init_set_nobless) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set(*mpfr_t_obj, *q, (mpfr_rnd_t)SvUV(round));
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
-     /* PUTBACK; *//* not needed */
      XSRETURN(2);
 }
 
@@ -455,19 +370,12 @@ void Rmpfr_init_set_ui_nobless(pTHX_ SV * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     /* sp  = mark; *//* not needed */
-
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set_ui_nobless function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, NULL);
+     NEW_MATH_MPFR_OBJECT(NULL,Rmpfr_init_set_ui_nobless) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set_ui(*mpfr_t_obj, (unsigned long)SvUV(q), (mpfr_rnd_t)SvUV(round));
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
-     /* PUTBACK; *//* not needed */
      XSRETURN(2);
 }
 
@@ -479,19 +387,12 @@ void Rmpfr_init_set_si_nobless(pTHX_ SV * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     /* sp = mark; *//* not needed */
-
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set_si_nobless function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, NULL);
+     NEW_MATH_MPFR_OBJECT(NULL,Rmpfr_init_set_si_nobless) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set_si(*mpfr_t_obj, (long)SvIV(q), (mpfr_rnd_t)SvUV(round));
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
-     /* PUTBACK; *//* not needed */
      XSRETURN(2);
 }
 
@@ -503,19 +404,12 @@ void Rmpfr_init_set_d_nobless(pTHX_ SV * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     /* sp = mark; *//* not needed */
-
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set_d_nobless function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, NULL);
+     NEW_MATH_MPFR_OBJECT(NULL,Rmpfr_init_set_d_nobless) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set_d(*mpfr_t_obj, (double)SvNV(q), (mpfr_rnd_t)SvUV(round));
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
-     /* PUTBACK; *//* not needed */
      XSRETURN(2);
 }
 
@@ -529,18 +423,11 @@ void Rmpfr_init_set_ld_nobless(pTHX_ SV * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     /* sp = mark; *//* not needed */
-
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set_d_nobless function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, NULL);
+     NEW_MATH_MPFR_OBJECT(NULL,Rmpfr_init_set_ld_nobless) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set_ld(*mpfr_t_obj, (long double)SvNV(q), (mpfr_rnd_t)SvUV(round));
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
-     /* PUTBACK; *//* not needed */
      XSRETURN(2);
 #else
      croak("Rmpfr_init_set_ld_nobless not implemented on this build of perl - use Rmpfr_init_set_d_nobless instead");
@@ -558,19 +445,12 @@ void Rmpfr_init_set_f_nobless(pTHX_ mpf_t * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     /* sp = mark; *//* not needed */
-
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set_f_nobless function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, NULL);
+     NEW_MATH_MPFR_OBJECT(NULL,Rmpfr_init_set_f_nobless) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set_f(*mpfr_t_obj, *q, (mpfr_rnd_t)SvUV(round));
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      ST(0) = sv_2mortal(obj_ref);
      ST(1)  = sv_2mortal(newSViv(ret));
-     /* PUTBACK; *//* not needed */
      XSRETURN(2);
 }
 
@@ -582,19 +462,12 @@ void Rmpfr_init_set_z_nobless(pTHX_ mpz_t * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     /* sp  = mark; *//* not needed */
-
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set_z_nobless function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, NULL);
+     NEW_MATH_MPFR_OBJECT(NULL,Rmpfr_init_set_z_nobless) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set_z(*mpfr_t_obj, *q, (mpfr_rnd_t)SvUV(round));
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
-     /* PUTBACK; *//* not needed */
      XSRETURN(2);
 }
 
@@ -606,19 +479,12 @@ void Rmpfr_init_set_q_nobless(pTHX_ mpq_t * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     /* sp = mark; *//* not needed */
-
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set_q_nobless function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, NULL);
+     NEW_MATH_MPFR_OBJECT(NULL,Rmpfr_init_set_q_nobless) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set_q(*mpfr_t_obj, *q, (mpfr_rnd_t)SvUV(round));
 
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
-     /* PUTBACK; *//* not needed */
      XSRETURN(2);
 }
 
@@ -633,21 +499,14 @@ void Rmpfr_init_set_str_nobless(pTHX_ SV * q, SV * base, SV * round) {
      if(ret < 0 || ret > MAXIMUM_ALLOWABLE_BASE || ret == 1)
         croak("2nd argument supplied to Rmpfr_init_set_str_nobless is out of allowable range");
 
-     /* sp = mark; *//* not needed */
-
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in Rmpfr_init_set_str_nobless function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, NULL);
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     NEW_MATH_MPFR_OBJECT(NULL,Rmpfr_init_set_str_nobless) /* defined in math_mpfr_include.h */
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      ret = mpfr_init_set_str(*mpfr_t_obj, SvPV_nolen(q), ret, (mpfr_rnd_t)SvUV(round));
 
      NON_NUMERIC_CHAR_CHECK, "Rmpfr_init_set_str_nobless");}
 
      ST(0) = sv_2mortal(obj_ref);
      ST(1) = sv_2mortal(newSViv(ret));
-     /* PUTBACK; *//* not needed */
      XSRETURN(2);
 }
 
@@ -2855,13 +2714,9 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
      int inf_or_nan;
 #endif
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_mul function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_mul) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
 
 #ifdef MATH_MPFR_NEED_LONG_LONG_INT
 #ifndef _MSC_VER
@@ -2999,13 +2854,9 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
      int inf_or_nan;
 #endif
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_add function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_add) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
 
 #ifdef MATH_MPFR_NEED_LONG_LONG_INT
 #ifndef _MSC_VER
@@ -3144,13 +2995,9 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
      int inf_or_nan;
 #endif
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_sub function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_sub) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
 
 #ifdef MATH_MPFR_NEED_LONG_LONG_INT
 #ifndef _MSC_VER
@@ -3301,13 +3148,9 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
      int inf_or_nan;
 #endif
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_div function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_div) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
 
 #ifdef MATH_MPFR_NEED_LONG_LONG_INT
 #ifndef _MSC_VER
@@ -3469,15 +3312,11 @@ SV * overload_copy(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_copy function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_copy) /* defined in math_mpfr_include.h */
 
      mpfr_init2(*mpfr_t_obj, mpfr_get_prec(*p));
      mpfr_set(*mpfr_t_obj, *p, __gmpfr_default_rounding_mode);
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      return obj_ref;
 }
 
@@ -3485,15 +3324,11 @@ SV * overload_abs(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_abs function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_abs) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
 
      mpfr_abs(*mpfr_t_obj, *p, __gmpfr_default_rounding_mode);
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      return obj_ref;
 }
 
@@ -4565,18 +4400,14 @@ SV * overload_sqrt(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_sqrt function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_sqrt) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
 
      /* No - this was wrong. If a negative value is supplied, a NaN should be returned instad */
      /* if(mpfr_cmp_ui(*p, 0) < 0) croak("Negative value supplied as argument to overload_sqrt"); */
 
      mpfr_sqrt(*mpfr_t_obj, *p, __gmpfr_default_rounding_mode);
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      return obj_ref;
 }
 
@@ -4588,13 +4419,9 @@ SV * overload_pow(pTHX_ SV * p, SV * b, SV * third) {
      int inf_or_nan;
 #endif
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_pow function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_pow) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
 
 #ifdef MATH_MPFR_NEED_LONG_LONG_INT
 #ifndef _MSC_VER
@@ -4744,15 +4571,11 @@ SV * overload_log(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_log function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_log) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
 
      mpfr_log(*mpfr_t_obj, *p, __gmpfr_default_rounding_mode);
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      return obj_ref;
 }
 
@@ -4760,15 +4583,11 @@ SV * overload_exp(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_exp function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_exp) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
 
      mpfr_exp(*mpfr_t_obj, *p, __gmpfr_default_rounding_mode);
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */;
      return obj_ref;
 }
 
@@ -4776,15 +4595,11 @@ SV * overload_sin(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_sin function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_sin) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
 
      mpfr_sin(*mpfr_t_obj, *p, __gmpfr_default_rounding_mode);
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      return obj_ref;
 }
 
@@ -4792,15 +4607,11 @@ SV * overload_cos(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_cos function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_cos) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
 
      mpfr_cos(*mpfr_t_obj, *p, __gmpfr_default_rounding_mode);
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      return obj_ref;
 }
 
@@ -4808,15 +4619,11 @@ SV * overload_int(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_int function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_int) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
 
      mpfr_trunc(*mpfr_t_obj, *p);
-     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-     SvREADONLY_on(obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      return obj_ref;
 }
 
@@ -4829,10 +4636,7 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
      int ret;
 #endif
 
-     Newx(mpfr_t_obj, 1, mpfr_t);
-     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in overload_atan2 function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::MPFR");
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_atan2) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
 
 #ifdef MATH_MPFR_NEED_LONG_LONG_INT
@@ -4862,8 +4666,7 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
          mpfr_atan2(*mpfr_t_obj, *a, t, __gmpfr_default_rounding_mode);
        }
        mpfr_clear(t);
-       sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-       SvREADONLY_on(obj);
+       OBJ_READONLY_ON /*defined in math_mpfr_include.h */
        return obj_ref;
      }
 #else
@@ -4878,8 +4681,7 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
        else {
          mpfr_atan2(*mpfr_t_obj, *a, *mpfr_t_obj, __gmpfr_default_rounding_mode);
        }
-       sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-       SvREADONLY_on(obj);
+       OBJ_READONLY_ON /*defined in math_mpfr_include.h */
        return obj_ref;
      }
 #endif
@@ -4894,8 +4696,7 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
          mpfr_atan2(*mpfr_t_obj, *a, t, __gmpfr_default_rounding_mode);
        }
        mpfr_clear(t);
-       sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-       SvREADONLY_on(obj);
+       OBJ_READONLY_ON /*defined in math_mpfr_include.h */
        return obj_ref;
      }
 
@@ -4909,8 +4710,7 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
          mpfr_atan2(*mpfr_t_obj, *a, t, __gmpfr_default_rounding_mode);
        }
        mpfr_clear(t);
-       sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-       SvREADONLY_on(obj);
+       OBJ_READONLY_ON /*defined in math_mpfr_include.h */
        return obj_ref;
      }
 #endif
@@ -4935,8 +4735,7 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
          mpfr_atan2(*mpfr_t_obj, *a, t, __gmpfr_default_rounding_mode);
        }
        mpfr_clear(t);
-       sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-       SvREADONLY_on(obj);
+       OBJ_READONLY_ON /*defined in math_mpfr_include.h */
        return obj_ref;
      }
 
@@ -4967,8 +4766,7 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
        else {
          mpfr_atan2(*mpfr_t_obj, *a, *mpfr_t_obj, __gmpfr_default_rounding_mode);
          }
-       sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-       SvREADONLY_on(obj);
+       OBJ_READONLY_ON /*defined in math_mpfr_include.h */
        return obj_ref;
      }
 
@@ -4977,8 +4775,7 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
 
        if(strEQ(h, "Math::MPFR")) {
          mpfr_atan2(*mpfr_t_obj, *a, *(INT2PTR(mpfr_t *, SvIVX(SvRV(b)))), __gmpfr_default_rounding_mode);
-         sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-         SvREADONLY_on(obj);
+         OBJ_READONLY_ON /*defined in math_mpfr_include.h */
          return obj_ref;
        }
      }
