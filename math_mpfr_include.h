@@ -381,5 +381,20 @@ typedef _Decimal128 D128;
 #define MATH_MPFR_NORMAL_MIN 3.3621031431120935062626778173217526e-4932Q
 #endif
 
+/* End of defines for nvtoa() */
 
+#define NEW_MATH_MPFR_OBJECT(PACNAME,FUNCNAME) \
+     Newx(mpfr_t_obj, 1, mpfr_t);							\
+     if(mpfr_t_obj == NULL) croak("Failed to allocate memory in FUNCNAME function");	\
+     obj_ref = newSV(0);								\
+     obj = newSVrv(obj_ref, PACNAME);
+
+#define OBJ_READONLY_ON \
+     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));	\
+     SvREADONLY_on(obj);
+
+#define RETURN_STACK_2 \
+     ST(0) = sv_2mortal(obj_ref);	\
+     ST(1) = sv_2mortal(newSViv(ret));	\
+     XSRETURN(2);
 
