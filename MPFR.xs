@@ -8950,8 +8950,9 @@ SV * doubletoa(pTHX_ double v) {
   int d_exp, len, success, decimals, i, ret;
   uint64_t u64 = CAST_U64(v);
 
-  /* 26 bytes is insufficent on 32-bit Windows - might as well assign 32 bytes */
-  char dst [32] = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+  /* 26 bytes is insufficent on 32-bit Windows (mingw-w64). Assigning 32 bytes to be safe */
+  char dst [] = {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
+                 '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'};
 
   char *s2 = dst;
   int need_decimal_point = 1; /* make sure we append ".0" to any integer value *
