@@ -8950,14 +8950,11 @@ SV * doubletoa(pTHX_ double v) {
   int d_exp, len, success, decimals, i, ret;
   uint64_t u64 = CAST_U64(v);
 
-  /* 26 bytes is insufficent on 32-bit Windows (mingw-w64). Assigning 32 bytes to be safe */
-  char dst [] = {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
-                 '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'};
+  char dst [] = {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
+                 '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'};
 
   char *s2 = dst;
-  int need_decimal_point = 1; /* make sure we append ".0" to any integer value *
-                               * that's NOT  in scientific notation. Otherwise *
-                               * perl might assign that string to an IV/UV.    */
+
 #if defined(FALLBACK_TO_NVTOA)
   int sign = 1;
 #endif
@@ -9031,9 +9028,8 @@ SV * doubletoa(pTHX_ double v) {
     for(i = len - 1; i >= 0; i--) s2[i - (len + d_exp) + 2] = s2[i];
     s2[0] = '0';
     s2[1] = '.';
-    need_decimal_point = 0;
     for(i = 2; i < 2 - (len + d_exp); ++i) s2[i] = '0';
-    len += -d_exp;
+    len += 2 - (len + d_exp); /* len + d_exp is less than or equal to 0 */
   }
 
   /* Add decimal point? */
@@ -9041,7 +9037,6 @@ SV * doubletoa(pTHX_ double v) {
 
     for(i = 0; i < decimals; ++i) s2[len-i] = s2[len-i-1];
     s2[len++ - decimals] = '.';
-    need_decimal_point = 0;
     d_exp += decimals;
 
     /* Need scientific notation as well? */
@@ -9055,7 +9050,6 @@ SV * doubletoa(pTHX_ double v) {
   else if(d_exp < 0) {
 
     s2[len++] = 'e';
-    need_decimal_point = 0;
     len += i_to_str(d_exp, s2+len);
   }
 
@@ -9065,24 +9059,26 @@ SV * doubletoa(pTHX_ double v) {
 
     if(len + d_exp < 17) {
       while(d_exp-- > 0) s2[len++] = '0';
+      s2[len++] = '.';
+      s2[len++] = '0';
     }
     else {
       for(i = len; i > 1; i--) s2[i] = s2[i - 1];
       s2[1] = '.';
       len++;
       s2[len++] = 'e';
-      need_decimal_point = 0;
       d_exp += len - 3;
       len += i_to_str(d_exp, s2+len);
     }
   }
 
-  if(need_decimal_point) {
-    s2[len++] = '.';
-    s2[len++] = '0';
+  if(len > 24) {
+    warn ("Length of output (%d bytes) for %.16e exceeds possible range.\n", v, len);
+    croak("Please file a bug report about this.");
   }
 
-  s2[len] = '\0'; /* grisu3 doesn't null terminate, so ensure termination. */
+  /* s2[len] = '\0'; *//* Should not be needed as dst is initialized with NULLs */
+
   return newSVpv(dst, 0);
 
 #else
