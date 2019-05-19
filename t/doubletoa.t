@@ -6,7 +6,7 @@ use Config;
 
 if($Config{nvsize} != 8) {
 
-  print "1..3\n";
+  print "1..4\n";
 
   if(Math::MPFR::_fallback_notify()) { print "not ok 1\n"}
   else {print "ok 1\n"}
@@ -16,6 +16,14 @@ if($Config{nvsize} != 8) {
 
   if(Math::MPFR::_fallback_to_sprintf()) { print "not ok 3\n"}
   else {print "ok 3\n"}
+
+  eval {my $x = doubletoa(42.0) };
+
+  if($@ =~ /^The doubletoa function is unavailable/) { print "ok 4\n" }
+  else {
+    warn "\$\@: $@\n";
+    print "not ok 4\n";
+  }
 
 }
 
@@ -80,14 +88,17 @@ else {
   else { print "not ok 2\n" }
 
   if(Math::MPFR::_fallback_notify()) {
-    if($count > 1000) {
-      if($count && $count / $fallback_count > 50) {
+    if($count > 10000) {
+      if($fallback_count > 10 && $count / $fallback_count > 50) {
         print "ok 3\n";
       }
-      else { print "not ok 3\n" }
+      else {
+        warn "\n  Total Count: $count\nFallback count: $fallback_count\n";
+        print "not ok 3\n";
+      }
     }
     else {
-      warn "\n Skipping - didn't test enouh values\n";
+      warn "\n Skipping - didn't test enough values\n";
       print "ok 3\n";
     }
   }
