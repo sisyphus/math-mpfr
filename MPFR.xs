@@ -8943,10 +8943,13 @@ void set_fallback_flag(pTHX) {
  call_pv("Math::MPFR::perl_set_fallback_flag", G_DISCARD|G_NOARGS);
 }
 
-SV * doubletoa(pTHX_ double v) {
+SV * doubletoa(pTHX_ SV * sv, ...) {
 
 #if defined(NV_IS_53_BIT)
 
+  dXSARGS;
+
+  double v = SvNV(sv);
   int d_exp, len, success, decimals, i, ret;
   uint64_t u64 = CAST_U64(v);
 
@@ -8955,10 +8958,7 @@ SV * doubletoa(pTHX_ double v) {
 
   char *s2 = dst;
 
-#if defined(FALLBACK_TO_NVTOA)
-  int sign = 1;
-#endif
-
+  int sign = items > 1 ? 0 : 1; /* */
   assert(dst);
 
   /* Prehandle NaNs */
@@ -8972,9 +8972,7 @@ SV * doubletoa(pTHX_ double v) {
     *s2++ = '-';
     v = -v;
     u64 ^= D64_SIGN;
-#if defined(FALLBACK_TO_NVTOA)
-    sign = -1;
-#endif
+    if(sign) sign = -1; /* If sign is 1, then any fallback will go to nvtoa(aTHX) */
  }
 
   /* Prehandle zero. */
@@ -9006,16 +9004,11 @@ SV * doubletoa(pTHX_ double v) {
     set_fallback_flag(aTHX);
 #endif
 
-#if defined(FALLBACK_TO_NVTOA)
-    return nvtoa(aTHX_ v * sign);
+    if(sign) return nvtoa(aTHX_ v * sign);
 
-#elif defined(FALLBACK_TO_SPRINTF)
     sprintf(s2, "%.16e", v);
     return newSVpv(dst, 0);
-#else
-   croak("Fallback for doubletoa function is not specified"); /* Catch an event that should never occur */
-#endif
-     }
+  }
 
   /* We have an integer string of form "151324135" and a base-10 exponent for that number. */
   /* Now, we just need to format it ...                                                    */
@@ -9098,23 +9091,6 @@ int _fallback_notify(void) {
   return 0;
 #endif
 }
-
-int _fallback_to_sprintf(void) {
-#if defined(FALLBACK_TO_SPRINTF)
-  return 1;
-#else
-  return 0;
-#endif
-}
-
-int _fallback_to_nvtoa(void) {
-#if defined(FALLBACK_TO_NVTOA)
-  return 1;
-#else
-  return 0;
-#endif
-}
-
 
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
@@ -13544,21 +13520,18 @@ set_fallback_flag ()
         return; /* assume stack size is correct */
 
 SV *
-doubletoa (v)
-	double	v
-CODE:
-  RETVAL = doubletoa (aTHX_ v);
-OUTPUT:  RETVAL
+doubletoa (sv, ...)
+	SV *	sv
+        PREINIT:
+        I32* temp;
+        CODE:
+        temp = PL_markstack_ptr++;
+        RETVAL = doubletoa(aTHX_ sv);
+        PL_markstack_ptr = temp;
+        OUTPUT:
+        RETVAL
 
 int
 _fallback_notify ()
-
-
-int
-_fallback_to_sprintf ()
-
-
-int
-_fallback_to_nvtoa ()
 
 
