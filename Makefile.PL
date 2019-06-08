@@ -299,18 +299,10 @@ if($^O =~ /MSWin32/i && $] < 5.022) {
 }
 
 if($Config{nvsize} == 8) {
-  my $doubletoa_fallback = 'nvtoa';
   my $fallback_notify = 1;
   for(@ARGV) {
     $fallback_notify = 0 if $_ eq "FB=0";
-    $doubletoa_fallback = 'sprintf' if $_ eq 'DTOA=S';
   }
-
-  if($doubletoa_fallback eq 'nvtoa') {
-    print "\ndoubletoa() falls back to nvtoa() when grisu3 algorithm fails\n";
-    $defines .= " -DFALLBACK_TO_NVTOA";
-  }
-  else { print "\ndoubletoa() falls back to sprintf() when grisu3 algorithm fails\n" }
 
   if($fallback_notify) {
     $defines .= " -DFALLBACK_NOTIFY";
