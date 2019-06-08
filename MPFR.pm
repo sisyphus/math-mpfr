@@ -293,7 +293,7 @@ $Math::MPFR::NOK_POK = 0; # Set to 1 to allow warnings in new() and overloaded o
                           # a scalar that has set both NOK (NV) and POK (PV) flags is encountered
 
 $Math::MPFR::doubletoa_fallback = 0; # If FALLBACK_NOTIFY is defined, this scalar Will be automatically
-                                     # set to 1 whenever the grisu3 algorithm (used by doubletoa) fails
+                                     # incremented whenever the grisu3 algorithm (used by doubletoa) fails
                                      # to produce correct result, and thus falls back to its designated
                                      # fallback routine. (See the doubletoa documentation for details.)
 
@@ -800,7 +800,7 @@ sub _get_NV_properties {
 }
 
 sub perl_set_fallback_flag {
-  $Math::MPFR::doubletoa_fallback = 1;
+  $Math::MPFR::doubletoa_fallback++;
 }
 
 *Rmpfr_get_z_exp             = \&Rmpfr_get_z_2exp;
