@@ -153,27 +153,10 @@ _WIN32_BIZARRE_INFNAN    : Defined (on Windows only) when the perl version
 LD_SUBNORMAL_BUG         : Defined for mpfr-3.1.4 and earlier if and only if
                            LDBL_MANT_DIG == 64
 
-FALLBACK_NOTIFY          : Not defined if $Config{nvsize} != 8. Otherwise
-                           is defined by default in the Makefile.PL - but this
-                           can be overwritten so that the symbol is not defined,
-                           If defined, $Math::MPFR::doubletoa_fallback will be set
-                           to 1 on those rare occasions where grisu3 fails and
-                           falls back to its designated fallback routine.
-                           For more details, see the doubletoa documentation.
-
-FALLBACK_TO_NVTOA        : Not defined if $Config{nvsize} != 8. Otherwise
-                           is defined by default in the Makefile.PL - but this
-                           can be overwritten so that the symbol is not defined,
-                           in which case FALLBACK_TO_SPRINTF will be defined.
-                           If FALLBACK_TO_NVTOA is defined, then doubletoa() will
-                           use nvtoa() on those rare occasions where grisu3 fails.
-                           For more details, see the doubletoa documentation.
-
-FALLBACK_TO_SPRINTF      : Not defined if $Config{nvsize} != 8. Otherwise is
-                           defined if and only if FALLBACK_TO_NVTOA is not defined.
-                           (See above.) If FALLBACK_TO_SPRINTF is defined, then
-                           doubletoa() will use sprintf() on those rare occasions
-                           where grisu3 fails.
+FALLBACK_NOTIFY          : If defined, $Math::MPFR::doubletoa_fallback
+                           (initially set to 0) will be incremented by 1 on
+                           those rare occasions where grisu3 fails and
+                           falls back to the fallback routine.
                            For more details, see the doubletoa documentation.
 
 *************************************************/
@@ -421,9 +404,3 @@ typedef _Decimal128 D128;
      ST(1) = sv_2mortal(newSViv(ret));	\
      XSRETURN(2);
 
-/* For doubletoa function */
-#ifdef NV_IS_53_BIT
-#ifndef FALLBACK_TO_NVTOA
-#define FALLBACK_TO_SPRINTF 1
-#endif
-#endif
