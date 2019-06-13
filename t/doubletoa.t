@@ -23,7 +23,7 @@ if($Config{nvsize} != 8) {
 
 else {
 
-  print "1..2\n";
+  print "1..7\n";
 
   my $ok = 1;
   my ($count, $mismatch_count) = (0, 0);
@@ -42,8 +42,13 @@ else {
       if($s1 ne $s2) {
         $mismatch_count++;
         my $s1_alt = doubletoa($v);
-        #print "$s1 | $s1_alt | $s2\n";
-        if($s1 eq $s1_alt || $s1 != $s1_alt || $s1 != $s2) {
+        my ($check1, $check2, $check3) = (
+                                           ($s1 eq $s1_alt),
+                                           (atonv($s1) != atonv($s1_alt)),
+                                           (atonv($s1) != atonv($s2))
+                                          );
+
+        if($check1 || $check2 || $check3) {
           $ok = 0;
           warn "\nmismatch for $str: $s1 ($s1_alt) $s2\n";
           last;
@@ -75,5 +80,35 @@ else {
   else {
     if($Math::MPFR::doubletoa_fallback) { print "not ok 2\n" }
     else { print "ok 2\n" }
+  }
+
+  if(doubletoa(8e94) eq '8e+94') { print "ok 3\n" }
+  else {
+    warn "\nexpected: '8e+94'\ngot     : '", doubletoa(8e+94), "'\n";
+    print "not ok 3\n";
+  }
+
+  if(doubletoa(-8e94) eq '-8e+94') { print "ok 4\n" }
+  else {
+    warn "\nexpected: '-8e+94'\ngot     : '", doubletoa(-8e+94), "'\n";
+    print "not ok 4\n";
+  }
+
+  if(doubletoa(80e94) eq '8e+95') { print "ok 5\n" }
+  else {
+    warn "\nexpected: '8e+95'\ngot     : '", doubletoa(80e+94), "'\n";
+    print "not ok 5\n";
+  }
+
+  if(doubletoa(81e94) eq '8.1e+95') { print "ok 6\n" }
+  else {
+    warn "\nexpected: '8.1e+95'\ngot     : '", doubletoa(81e+94), "'\n";
+    print "not ok 6\n";
+  }
+
+  if(doubletoa(8000000e94) eq '8e+100') { print "ok 7\n" }
+  else {
+    warn "\nexpected: '8e+100'\ngot     : '", doubletoa(8000000e+94), "'\n";
+    print "not ok 7\n";
   }
 }
