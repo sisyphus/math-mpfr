@@ -26,32 +26,47 @@ else {
   print "1..7\n";
 
   my $ok = 1;
+  my $fb = Math::MPFR::_fallback_notify();
+  my $fb_tracker = 0;
   my ($count, $mismatch_count) = (0, 0);
 
-  for my $iteration(1..1000) {
-    last unless $ok;
-    for my $exp(-326 .. 325) {
-      $count++;
-      my $str = rand(100);
-      if($str !~ /e/) { $str .= (int(rand(10)) . int(rand(10)) . "e$exp") }
-      $str = '-' . $str unless $iteration % 3;
-      my $v = $str + 0;
-      my $s1 = doubletoa($v, "S");
-      my $s2 = nvtoa($v);
+  if(MPFR_VERSION() <= 196869) {
+    warn "\nSkipping test 1 - needs mpfr-3.1.6 or later\n";
+  }
+  else {
+    for my $iteration(1..1000) {
+      last unless $ok;
+      for my $exp(-326 .. 325) {
+        $count++;
+        my $str = rand(100);
+        if($str !~ /e/) { $str .= (int(rand(10)) . int(rand(10)) . "e$exp") }
+        $str = '-' . $str unless $iteration % 3;
+        if($fb) { $fb_tracker = $Math::MPFR::doubletoa_fallback }
+        my $v = $str + 0;
+        my $s1 = doubletoa($v, "S");
+        my $s2 = nvtoa($v);
 
-      if($s1 ne $s2) {
-        $mismatch_count++;
-        my $s1_alt = doubletoa($v);
-        my ($check1, $check2, $check3) = (
-                                           ($s1 eq $s1_alt),
-                                           (atonv($s1) != atonv($s1_alt)),
-                                           (atonv($s1) != atonv($s2))
-                                          );
+        if($s1 ne $s2) {
+          $mismatch_count++;
+          my $s1_alt = doubletoa($v);
 
-        if($check1 || $check2 || $check3) {
-          $ok = 0;
-          warn "\nmismatch for $str: $s1 ($s1_alt) $s2\n";
-          last;
+          if($fb && $Math::MPFR::doubletoa_fallback - $fb_tracker != 2) {
+            $ok = 0;
+            warn "\nfallback anomaly with $str: $s1 ($s1_alt) $s2\n";
+            last;
+          }
+
+          my ($check1, $check2, $check3) =  (
+                                             ($s1 eq $s1_alt),
+                                             (atonv($s1) != atonv($s1_alt)),
+                                             (atonv($s1) != atonv($s2))
+                                            );
+
+          if($check1 || $check2 || $check3) {
+            $ok = 0;
+            warn "\nmismatch for $str: $s1 ($s1_alt) $s2\n";
+            last;
+          }
         }
       }
     }
@@ -62,7 +77,7 @@ else {
   if($ok) { print "ok 1\n" }
   else { print "not ok 1\n" }
 
-  if(Math::MPFR::_fallback_notify()) {
+  if($fb) {
     if($count > 10000) {
       if($Math::MPFR::doubletoa_fallback > 10 && $count / $Math::MPFR::doubletoa_fallback > 50) {
         print "ok 2\n";
@@ -73,7 +88,7 @@ else {
       }
     }
     else {
-      warn "\n Skipping - didn't test enough values\n";
+      warn "\n Skipping test 2 - didn't test enough values\n";
       print "ok 2\n";
     }
   }
