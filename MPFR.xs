@@ -8972,7 +8972,7 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
     *s2++ = '-';
     v = -v;
     u64 ^= D64_SIGN;
-    if(sign) sign = -1; /* If sign is 1, then any fallback will go to nvtoa(aTHX) */
+    if(sign) sign = -1; /* If sign is true, then any fallback will go to nvtoa(aTHX) */
  }
 
   /* Prehandle zero. */
@@ -9056,11 +9056,18 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
       s2[len++] = '0';
     }
     else {
-      for(i = len; i > 1; i--) s2[i] = s2[i - 1];
-      s2[1] = '.';
-      len++;
-      s2[len++] = 'e';
-      d_exp += len - 3;
+      if(len > 1) {
+        for(i = len; i > 1; i--) s2[i] = s2[i - 1];
+        s2[1] = '.';
+        len++;
+        s2[len++] = 'e';
+        d_exp += len - 3;
+      }
+      else {
+        s2[len++] = 'e';
+        d_exp += len - 2;
+      }
+
       len += i_to_str(d_exp, s2+len);
     }
   }
