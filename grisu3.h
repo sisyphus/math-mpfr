@@ -25,8 +25,8 @@
 #define MASK32           0xFFFFFFFFULL
 
 #define CAST_U64(d) (*(uint64_t*)&d)
-#define MIN(x,y) ((x) <= (y) ? (x) : (y))
-#define MAX(x,y) ((x) >= (y) ? (x) : (y))
+#define GRISU3_MIN(x,y) ((x) <= (y) ? (x) : (y))
+#define GRISU3_MAX(x,y) ((x) >= (y) ? (x) : (y))
 
 #define MIN_CACHED_EXP -348
 #define CACHED_EXP_STEP 8
