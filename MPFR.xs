@@ -8189,7 +8189,7 @@ SV * nvtoa(pTHX_ NV pnv) {
 
 #endif
   mpz_t R, S, M_minus, M_plus, LHS, TMP;
-  char str[] = {'\0','\0','\0','\0','\0','\0','\0','\0'};
+  char str[] = {'\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0'};
   char * c = "0123456789abcdef";
   char *out, *bstr;
   SV * outsv;
@@ -9073,7 +9073,7 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
   }
 
   if(len > 24) {
-    warn ("Length of output (%d bytes) for %.16e exceeds possible range.\n", v, len);
+    warn ("Length of output (%d bytes) for %.16e exceeds possible range.\n", len, v);
     croak("Please file a bug report about this.");
   }
 
