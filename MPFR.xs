@@ -9013,7 +9013,7 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
   /* We have an integer string of form "151324135" and a base-10 exponent for that number. */
   /* Now, we just need to format it ...                                                    */
 
-  decimals = MIN(-d_exp, MAX(1, len-1));
+  decimals = GRISU3_MIN(-d_exp, GRISU3_MAX(1, len-1));
 
   /* Add decimal point for numbers of form 0.000x where appropriate ? */
   if(len + d_exp <= 0 && len + d_exp >= -3) {
