@@ -1,3 +1,5 @@
+4.13
+
 4.12
  - Fix bug in nvtoa() that had values with negative single digit significands &&
    exponents less than -4 appearing as "-x.e-EXP" instead of "-xe-EXP"
