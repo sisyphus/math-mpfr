@@ -1,4 +1,6 @@
 4.13
+ - Fix bug in t/rndna.t and t/rndna2.t (exposed by:
+   http://www.cpantesters.org/cpan/report/90030d18-8f4f-11e9-a14c-c69b77725194 )
 
 4.12
  - Fix bug in nvtoa() that had values with negative single digit significands &&
