@@ -341,7 +341,7 @@ sub TRmpfr_out_str {
 sub Rmpfr_get_str {
     my ($mantissa, $exponent) = Rmpfr_deref2($_[0], $_[1], $_[2], $_[3]);
 
-    if($mantissa =~ /\@Inf\@/i || $mantissa =~ /\@NaN\@/i) {return $mantissa}
+    if($mantissa =~ s/@//g) { return $mantissa }
     if($mantissa =~ /\-/ && $mantissa !~ /[^0,\-]/) {return '-0'}
     if($mantissa !~ /[^0]/ ) {return '0'}
 
@@ -374,7 +374,7 @@ sub overload_string {
 sub Rmpfr_integer_string {
     if($_[1] < 2 || $_[1] > 36) {die("Second argument supplied to Rmpfr_integer_string() is not in acceptable range")}
     my($mantissa, $exponent) = Rmpfr_deref2($_[0], $_[1], 0, $_[2]);
-    if($mantissa =~ /\@Inf\@/i || $mantissa =~ /\@NaN\@/i) {return $mantissa}
+    if($mantissa =~ s/@//g) { return $mantissa }
     if($mantissa =~ /\-/ && $mantissa !~ /[^0,\-]/) {return '-0'}
     return 0 if $exponent < 1;
     my $sign = substr($mantissa, 0, 1) eq '-' ? 1 : 0;
