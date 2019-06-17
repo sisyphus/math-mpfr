@@ -783,6 +783,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     large enough so that re-reading the printed value with the same
     precision, assuming both output and input use rounding to nearest,
     will recover the original value of $op.
+    $str will be set to 'Nan', '-Inf' or 'Inf' whenever $op is
+    (respectively) a NaN, a negative infinity or a positive infinity.
 
    ($str, $si) = Rmpfr_deref2($op, $base, $digits, $rnd);
     Returns the mantissa to $str (as a string of digits, prefixed with
@@ -794,11 +796,17 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     large enough so that re-reading the printed value with the same
     precision, assuming both output and input use rounding to nearest,
     will recover the original value of $op.
+    Unlike Rmpfr_get_str() and Rmpfr_integer_string(), $str will be set
+    to '@NaN@', '-@Inf@' or '@Inf@' whenever $op is (respectively) a
+    NaN, a negative infinity or a positive infinity, as those are the
+    strings that the mpfr library assigns.
 
    $str = Rmpfr_integer_string($op, $base, $rnd);
     Returns the truncated integer value of $op as a string. (No exponent
     is returned). For example, if $op contains the value 2.3145679e2,
     $str will be set to "231".
+    $str will be set to 'Nan', '-Inf' or 'Inf' whenever $op is
+    (respectively) a NaN, a negative infinity or a positive infinity.
     (This function is mainly to provide a simple means of getting 'sj'
     and 'uj' values on a 64-bit perl where the MPFR library does not
     support mpfr_get_uj and mpfr_get_sj functions - which may happen,
