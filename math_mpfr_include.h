@@ -104,14 +104,17 @@ REQUIRED_LDBL_MANT_DIG   : Defined to float.h's LDBL_MANT_DIG unless
                            This is needed to ensure that the mpfr value is
                            an accurate rendition of the double-double value.
 
-MAXIMUM_ALLOWABLE_BASE   : Defined to 62 if mpfr version >= 3.0.0.
-                           Else defined to 32.
-
 CHECK_ROUNDING_VALUE     : Macro that checks (on mpfr-versions 2.x.x only)
                            that the rounding value provided is in the
                            allowable range of 0-3 inclusive.
                            (The range has been extended for versions 3.0.0
                            and later.)
+
+CHECK_INPUT_BASE         : Macro that checks that the base (where specified)
+                           is in the accepted range.
+
+CHECK_OUTPUT_BASE        : Macro that checks that the base (where specified)
+                           is in the accepted range.
 
 DEAL_WITH_NANFLAG_BUG    : Macro that corrects certain failures (in mpfr
                            versions prior to 3.1.4) to set the NaN flag.
@@ -219,7 +222,16 @@ typedef _Decimal128 D128;
 #define NV_IS_53_BIT 1
 #endif
 
-#define MAXIMUM_ALLOWABLE_BASE 62
+#define CHECK_INPUT_BASE \
+     if(SvIV(base) < 0 || SvIV(base) > 62 || SvIV(base) == 1) {
+
+#if MPFR_VERSION >= 262400 /* Allowable range of base has been expanded */
+#define CHECK_OUTPUT_BASE \
+     if(SvIV(base) < -36 || SvIV(base) > 62 || abs(SvIV(base)) < 2 )  {
+#else
+#define CHECK_OUTPUT_BASE \
+     if(SvIV(base) < 2 || SvIV(base) > 62)                    {
+#endif
 
 /* Don't use CHECK_ROUNDING_VALUE macro with Rmpfr_set_NV      *
  * (as this function's "round" arg is "unsigned int", not SV*) */
