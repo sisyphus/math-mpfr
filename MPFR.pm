@@ -467,7 +467,6 @@ sub new {
         }
       }
       $base = shift if @_;
-      if($base < 0 || $base == 1 || $base > 36) {die "Invalid value for base"}
       @ret = Rmpfr_init_set_str($arg1, $base, Rmpfr_get_default_rounding_mode());
       return $ret[0];
     }
