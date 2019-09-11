@@ -359,11 +359,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    the only interest is whether it evaluates as false or true.
 
    "$str" simply means a string of symbols that represent a number,
-   eg '1234567890987654321234567@7' which might be a base 10 number,
-   or 'zsa34760sdfgq123r5@11' which would have to represent at least
-   a base 36 number (because "z" is a valid digit only in bases 36
-   and above). Valid bases for MPFR numbers are 0 and 2 to 36 (2 to 62
-   if Math::MPFR has been built against mpfr-3.0.0 or later).
+   eg '1234567890987654321234567E7' or 'zsa34760sdfgq123r5@11'.
+   Valid bases for MPFR numbers are 2 to 62.
 
    "$rnd" is simply one of the 5 rounding mode values (discussed above).
 
@@ -653,8 +650,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     as follows. If the significand starts with '0b' or '0B', base 2 is
     assumed. If the significand starts with '0x' or '0X', base 16 is
     assumed. Otherwise base 10 is assumed. Other allowable values for
-    $base are 2 to 36 (2 to 62 if Math::MPFR has been built against
-    mpfr-3.0.0 or later).
+    $base are 2 to 62.
 
     Note: The exponent must contain at least a digit. Otherwise the
     possible exponent prefix and sign are not part of the number
@@ -715,11 +711,10 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Math::GMPq, Math::GMPz, orMath::GMP) If $arg is a string, an
     optional additional argument that specifies the base of the
     number can be supplied to new(). Legal values for base are 0
-    and 2 to 36 (2 to 62 if Math::MPFR has been built against
-    mpfr-3.0.0 or later). If $arg is a string and no
-    additional argument is supplied, an attempt is made to deduce
-    base. See 'Rmpfr_set_str' above for an explanation of how
-    that deduction is attempted.
+    and 2 to 62. If $arg is a string and no additional argument is
+    supplied, the base will be deduced.
+    See 'Rmpfr_set_str' above for an explanation of how that
+    deduction is done.
 
     NOTE: If $arg is *both* an NV (floating point value) and PV
     (string), then the value specified by the PV (string) will be
@@ -1487,8 +1482,9 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $ui = Rmpfr_out_str([$prefix,] $op, $base, $digits, $round [, $suffix]);
     BEST TO USE TRmpfr_out_str INSTEAD
     Output $op to STDOUT, as a string of digits in base $base,
-    rounded in direction $round.  The base may vary from 2 to 36
-    (2 to 62 if Math::MPFR has been built against mpfr-3.0.0 or later).
+    rounded in direction $round.  $base may be i the range 2 to 62
+    (or -36..-2, 2 .. 62 if Math::MPFR has been built against
+    mpfr-4.1.0 or later).
     Print $digits significant digits exactly, or if $digits is 0,
     enough digits so that $op can be read back exactly
     (see Rmpfr_get_str). In addition to the significant
@@ -1521,8 +1517,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     exponent written in decimal for the specified base, and in base 16,
     'B' is the binary exponent written in decimal (i.e. it indicates
     the power of 2 by which the mantissa is to be scaled).
-    The argument $base may be in the range 2 to 36 (2 to 62 if Math::MPFR
-    has been built against mpfr-3.0.0 or later).
+    The argument $base may be in the range 2 to 62.
     Special values can be read as follows (the case does not matter):
     '@NaN@', '@Inf@', '+@Inf@' and '-@Inf@', possibly followed by
     other characters; if the base is smaller or equal to 16, the
@@ -1545,11 +1540,6 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
        TRmpfr_inp_str($rop, *stdin, $base, $round);
     To read from an open filehandle (let's call it FH):
        TRmpfr_inp_str($rop, \*FH, $base,  $round);
-
-   Rmpfr_print_binary($op);
-    Removed in Math-MPFR-3.30. Should have been removed long ago.
-    Output $op on stdout in raw binary format (the exponent is in
-    decimal, yet).
 
    Rmpfr_dump($op);
     Output "$op\n" on stdout in base 2.
