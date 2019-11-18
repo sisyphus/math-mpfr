@@ -7824,53 +7824,30 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
 #if defined(NV_IS_FLOAT128) || (defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 113)	/* 113 bit prec */
 
-#  if defined(MPFR_HAVE_BENDIAN)
+  int i = QIND_2;				/* big endian: 2, little endian: 13 */
 
-    int i = 2;
+  *exp = ((unsigned char *)nvptr)[QIND_0];	/* big endian: 0, little endian: 15 */
+  *exp <<= 8;
+  tmp = ((unsigned char *)nvptr)[QIND_1];	/* big endian: 1, little endian: 14 */
+  *exp += tmp - 16382;
 
-    *exp = ((unsigned char *)nvptr)[0];
-    *exp <<= 8;
-    tmp = ((unsigned char *)nvptr)[1];
-    *exp += tmp - 16382;
+  if(*exp == -16382) {
+    while(Q_CONDITION_1) {	/* big endian:    (i <= 15) */
+				/* little endian: (i >= 0 ) */
+      tmp = ((unsigned char *)nvptr)[i];
+      if(tmp) {
+        BITSEARCH_8		/* defined in math_mpfr_include.h */
+        break;
+      }
 
-    if(*exp == -16382) {
-      while(i <= 15) {
-        tmp = ((unsigned char *)nvptr)[i];
-        if(tmp) {
-          BITSEARCH_8		/* defined in math_mpfr_include.h */
-          break;
-        }
+      subnormal_prec_adjustment += 8;
 
-        subnormal_prec_adjustment += 8;
-        i++;
-      }			/* close while loop */
-    }
+      Q_INC_OR_DEC		/* big endian:    i++; */
+				/* little endian: i--; */
 
-#  else
+    }			/* close while loop */
+  }
 
-    int i = 13;
-
-    *exp = ((unsigned char *)nvptr)[15];
-    *exp <<= 8;
-    tmp = ((unsigned char *)nvptr)[14];
-    *exp += tmp - 16382;
-
-    if(*exp == -16382) {
-      while(i >= 0) {
-        tmp = ((unsigned char *)nvptr)[i];
-        if(tmp) {
-          BITSEARCH_8		/* defined in math_mpfr_include.h */
-          break;
-        }
-
-        subnormal_prec_adjustment += 8;
-        i--;
-      }			/* close while loop */
-    }
-
-#  endif
-
-  /* for both endians (113-bit) */
   *exp  -= subnormal_prec_adjustment - 1;
   *bits =  113 - subnormal_prec_adjustment;
 
@@ -8000,50 +7977,31 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
  *******************/
 
 #elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64	/* 64 bit prec */
-#  if defined(MPFR_HAVE_BENDIAN)
-    int i = 2;
 
-    *exp = ((unsigned char *)nvptr)[0];
-    *exp <<= 8;
-    tmp = ((unsigned char *)nvptr)[1];
-    *exp += tmp - 16382;
+  int i = LDIND_2;				/* big endian: 2, little endian: 7 */
 
-    if(*exp == -16382) {
-      while(i <= 9) {
-        tmp = ((unsigned char *)nvptr)[i];
-        if(tmp) {
-          BITSEARCH_8		/* defined in math_mpfr_include.h */
-          break;
-        }
+  *exp = ((unsigned char *)nvptr)[LDIND_0];	/* big endian: 0, little endian: 9 */
+  *exp <<= 8;
+  tmp = ((unsigned char *)nvptr)[LDIND_1];	/* big endian: 1, little endian: 8 */
+  *exp += tmp - 16382;
 
-        subnormal_prec_adjustment += 8;
-        i++;
-      }			/* close while loop */
-    }
+  if(*exp == -16382) {
 
-#  else
+    while(LD_CONDITION_1) {			/* big endian:    (i <= 9) */
+						/* little endian: (i >= 0) */
+      tmp = ((unsigned char *)nvptr)[i];
+      if(tmp) {
+        BITSEARCH_8		/* defined in math_mpfr_include.h */
+        break;
+      }
 
-    int i = 7;
+      subnormal_prec_adjustment += 8;
 
-    *exp = ((unsigned char *)nvptr)[9];
-    *exp <<= 8;
-    tmp = ((unsigned char *)nvptr)[8];
-    *exp += tmp - 16382;
+      LD_INC_OR_DEC		/* big endian: i++; */
+                                /* little endian: i--; */
 
-    if(*exp == -16382) {
-      while(i >= 0) {
-        tmp = ((unsigned char *)nvptr)[i];
-        if(tmp) {
-          BITSEARCH_8		/* defined in math_mpfr_include.h */
-          break;
-        }
-
-        subnormal_prec_adjustment += 8;
-        i--;
-      }			/* close while loop */
-    }
-
-#  endif
+    }			/* close while loop */
+  }
 
   /* for both endians (64 bit) */
   if(subnormal_prec_adjustment) subnormal_prec_adjustment--;
@@ -8051,67 +8009,40 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
   *exp  -= subnormal_prec_adjustment;
   *bits =  64 - subnormal_prec_adjustment;
 
-   if(subnormal_prec_adjustment) (*exp)++;
+  if(subnormal_prec_adjustment) (*exp)++;
 
 #else									/* 53 bit prec */
 
-#  if defined(MPFR_HAVE_BENDIAN)
-    int i = 1;
+  int i = DIND_1;				/* big endian: 1, little endian: 6 */
 
-    *exp = ((unsigned char *)nvptr)[0];
-    *exp <<= 4;
-    tmp = ((unsigned char *)nvptr)[i];
-    *exp += (tmp >> 4) - 1022;
+  *exp = ((unsigned char *)nvptr)[DIND_0];	/* big endian: 0, little endian: 7 */
+  *exp <<= 4;
+  tmp = ((unsigned char *)nvptr)[i];
+  *exp += (tmp >> 4) - 1022;
 
-    if(*exp == -1022) {
-      while(i <= 7) {
-        tmp = ((unsigned char *)nvptr)[i];
-        if(tmp) {
-          if(i == 1) {
-            BITSEARCH_4		/* defined in math_mpfr_include.h */
-            break;
-          }
-          else {
-            BITSEARCH_8		/* defined in math_mpfr_include.h */
-            break;
-          }
+  if(*exp == -1022) {
+
+    while(D_CONDITION_1) {	/* big endian:   (i <= 7) */
+				/* little endan: (i >= 0) */
+      tmp = ((unsigned char *)nvptr)[i];
+      if(tmp) {
+        if(i == 1) {
+          BITSEARCH_4		/* defined in math_mpfr_include.h */
+          break;
         }
-
-        if(i == 1) subnormal_prec_adjustment += 4;
-        else subnormal_prec_adjustment += 8;
-        i++;
+        else {
+          BITSEARCH_8		/* defined in math_mpfr_include.h */
+          break;
+        }
       }
+
+      if(i == 1) subnormal_prec_adjustment += 4;
+      else subnormal_prec_adjustment += 8;
+
+      D_INC_OR_DEC		/* big endian:    i++; */
+				/* little endian: i--; */
     }
-
-#  else
-    int i = 6;
-
-    *exp = ((unsigned char *)nvptr)[7];
-    *exp <<= 4;
-    tmp = ((unsigned char *)nvptr)[i];
-    *exp += (tmp >> 4) - 1022;
-
-    if(*exp == -1022) {
-      while(i >= 0) {
-        tmp = ((unsigned char *)nvptr)[i];
-        if(tmp) {
-          if(i == 6) {
-            BITSEARCH_4		/* defined in math_mpfr_include.h */
-            break;
-          }
-          else {
-            BITSEARCH_8		/* defined in math_mpfr_include.h */
-            break;
-          }
-        }
-
-        if(i == 6) subnormal_prec_adjustment += 4;
-        else subnormal_prec_adjustment += 8;
-        i--;
-      }			/* close while loop */
-    }
-
-#  endif
+  }
 
   /* for both endians (53 bit) */
   *exp  -= subnormal_prec_adjustment - 1;
