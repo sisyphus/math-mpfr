@@ -7883,177 +7883,116 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 #elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098	/* double-double */
   int msd_exp, lsd_exp, t, lsd_is_negative_reduction = 0, lsd_is_zero = 0;
 
-#  if defined(MPFR_HAVE_BENDIAN)
-    int i0 = 0, i1 = 1, i2 = 8, i3 = 9;
-    int i = 1;
-
-    if( (128 == ((unsigned char *)nvptr)[8] || 0 == ((unsigned char *)nvptr)[8])  &&
-        0 == ((unsigned char *)nvptr)[9]  && 0 == ((unsigned char *)nvptr)[10]    &&
-        0 == ((unsigned char *)nvptr)[11] && 0 == ((unsigned char *)nvptr)[12]    &&
-        0 == ((unsigned char *)nvptr)[13] && 0 == ((unsigned char *)nvptr)[14]    &&
-        0 == ((unsigned char *)nvptr)[15]
+  if( (128 == ((unsigned char *)nvptr)[LSD_BYTE_1] || 0 == ((unsigned char *)nvptr)[LSD_BYTE_1])  &&
+        0 == ((unsigned char *)nvptr)[LSD_BYTE_2]  && 0 == ((unsigned char *)nvptr)[LSD_BYTE_3]    &&
+        0 == ((unsigned char *)nvptr)[LSD_BYTE_4] && 0 == ((unsigned char *)nvptr)[LSD_BYTE_5]    &&
+        0 == ((unsigned char *)nvptr)[LSD_BYTE_6] && 0 == ((unsigned char *)nvptr)[LSD_BYTE_7]    &&
+        0 == ((unsigned char *)nvptr)[LSD_BYTE_8]
       ) {
-      lsd_is_zero = 1;
-      *bits = 53;
+    lsd_is_zero = 1;
+    *bits = 53;
+  }
+
+  int i = IND_1;
+
+  if(*bits == 53) {
+    *exp = ((unsigned char *)nvptr)[IND_0];
+    *exp <<= 4;
+    tmp = ((unsigned char *)nvptr)[IND_1];
+    *exp += (tmp >> 4) - 1022;
+
+    if(*exp == -1022) {
+
+      while(DD_CONDITION_1) {			/* big endian:    (i <= 7) */
+						/* little endian: (i >= 0) */
+
+        tmp = ((unsigned char *)nvptr)[i];
+        if(tmp) {
+          if(i == IND_1) {
+            BITSEARCH_4				/* defined in math_mpfr_include.h */
+            break;
+          }
+          else {
+            BITSEARCH_8				/* defined in math_mpfr_include.h */
+            break;
+          }
+        }
+
+        if(i == IND_1) subnormal_prec_adjustment += 4;
+        else subnormal_prec_adjustment += 8;
+
+        DD_INC_OR_DEC				/* big endian:    i++ */
+						/* little endian: i-- */
+      }
     }
 
-    if(*bits == 53) {
-      *exp = ((unsigned char *)nvptr)[0];
-      *exp <<= 4;
-      tmp = ((unsigned char *)nvptr)[i];
-      *exp += (tmp >> 4) - 1022;
+    if(!subnormal_prec_adjustment){
 
-      if(*exp == -1022) {
-        while(i <= 7) {
-          tmp = ((unsigned char *)nvptr)[i];
-          if(tmp) {
-            if(i == 1) {
-              BITSEARCH_4		/* defined in math_mpfr_include.h */
-              break;
-            }
-            else {
-              BITSEARCH_8		/* defined in math_mpfr_include.h */
-              break;
-            }
-          }
+      (*exp)--;
 
-          if(i == 1) subnormal_prec_adjustment += 4;
-          else subnormal_prec_adjustment += 8;
-          i++;
-        }
-      }
-
-      if(!subnormal_prec_adjustment){
-
-        (*exp)--;
-
-        if(*exp > 53 && *exp < 106) {
+      if(*exp > 53 && *exp < 106) {
         *bits = *exp;
-        }
-
-        else {
-         if(*exp < 53)
-           *bits += 1022 + *exp;
-        }
       }
+
       else {
-        *exp  -= subnormal_prec_adjustment - 1;
-        *bits =  53 - subnormal_prec_adjustment;
+        if(*exp < 53)
+        *bits += 1022 + *exp;
       }
-
+    }
+    else {
+      *exp  -= subnormal_prec_adjustment - 1;
+      *bits =  53 - subnormal_prec_adjustment;
     }
 
-#  else
-    int i0 = 15, i1 = 14, i2 = 7, i3 = 6;
-    int i = 6;
-
-    if( (128 == ((unsigned char *)nvptr)[7] || 0 == ((unsigned char *)nvptr)[7])  &&
-        0 == ((unsigned char *)nvptr)[6]  && 0 == ((unsigned char *)nvptr)[5]    &&
-        0 == ((unsigned char *)nvptr)[4] && 0 == ((unsigned char *)nvptr)[3]    &&
-        0 == ((unsigned char *)nvptr)[2] && 0 == ((unsigned char *)nvptr)[1]    &&
-        0 == ((unsigned char *)nvptr)[0]
-      ) {
-      lsd_is_zero = 1;
-      *bits = 53;
-    }
-
-    if(*bits == 53) {
-      *exp = ((unsigned char *)nvptr)[7];
-      *exp <<= 4;
-      tmp = ((unsigned char *)nvptr)[i];
-      *exp += (tmp >> 4) - 1022;
-
-      if(*exp == -1022) {
-        while(i >= 0) {
-          tmp = ((unsigned char *)nvptr)[i];
-          if(tmp) {
-            if(i == 6) {
-              BITSEARCH_4		/* defined in math_mpfr_include.h */
-              break;
-            }
-            else {
-              BITSEARCH_8		/* defined in math_mpfr_include.h */
-              break;
-            }
-          }
-
-          if(i == 6) subnormal_prec_adjustment += 4;
-          else subnormal_prec_adjustment += 8;
-          i--;
-        }
-      }
-
-      if(!subnormal_prec_adjustment){
-
-        (*exp)--;
-
-        if(*exp > 53 && *exp < 106) {
-          *bits = *exp;
-        }
-
-        else {
-          if(*exp < 53)
-           *bits += 1022 + *exp;
-        }
-      }
-      else {
-        *exp  -= subnormal_prec_adjustment - 1;
-        *bits =  53 - subnormal_prec_adjustment;
-      }
-
-    }
-
-#  endif
+  }
 
   else {
-      msd_exp = ((unsigned char *)nvptr)[i0];
-      msd_exp <<= 4;
-      tmp = ((unsigned char *)nvptr)[i1];
-      msd_exp += (tmp >> 4) - 1022;
+    msd_exp = ((unsigned char *)nvptr)[IND_0];
+    msd_exp <<= 4;
+    tmp = ((unsigned char *)nvptr)[IND_1];
+    msd_exp += (tmp >> 4) - 1022;
 
-      lsd_exp = ((unsigned char *)nvptr)[i2];
+    lsd_exp = ((unsigned char *)nvptr)[LSD_BYTE_1];
 
 
-      lsd_exp <<= 4;
-      tmp = ((unsigned char *)nvptr)[i3];
-      lsd_exp += tmp >> 4;
-      if(lsd_exp > 2047) {
-        lsd_exp -= 2048;
-        if(!lsd_is_zero) lsd_is_negative_reduction = 1;
-      }
-      lsd_exp -= 1022;
+    lsd_exp <<= 4;
+    tmp = ((unsigned char *)nvptr)[LSD_BYTE_2];
+    lsd_exp += tmp >> 4;
+    if(lsd_exp > 2047) {
+      lsd_exp -= 2048;
+      if(!lsd_is_zero) lsd_is_negative_reduction = 1;
+    }
+    lsd_exp -= 1022;
 
-      if(lsd_is_zero) *bits = 53;
-      else *bits = 53 + msd_exp - lsd_exp;
+    if(lsd_is_zero) *bits = 53;
+    else *bits = 53 + msd_exp - lsd_exp;
 
-      if(lsd_is_negative_reduction) {                   /* lsd is negative and not zero */
-        if(msd_exp - lsd_exp > 53) {  /* need to check that msd is not a power of 2 */
+    if(lsd_is_negative_reduction) {		/* lsd is negative and not zero */
+      if(msd_exp - lsd_exp > 53) {		/* need to check that msd is not a power of 2 */
 
-#  if defined(MPFR_HAVE_BENDIAN)
-            for(i = 2; i < 8; i++) {
-              t = ((unsigned char *)nvptr)[i];
-              if(t != 0) {   /* msd is not a power of 2 */
-                lsd_is_negative_reduction = 0;
-                break;
-              }
+          for(DD_CONDITION_2) {			/* big endian:    (i=2 ;i<8;i++) */
+						/* little endian: (i=13;i>7;i--) */
+
+            t = ((unsigned char *)nvptr)[i];
+            if(t != 0) {
+              lsd_is_negative_reduction = 0;
+              break;
             }
+          }
 
-            if(lsd_is_negative_reduction) {
-              t = ((unsigned char *)nvptr)[1];
-              if(t & 15) {   /* msd is not a power of 2 */
-                lsd_is_negative_reduction = 0;
-              }
+          if(lsd_is_negative_reduction) {
+            t = ((unsigned char *)nvptr)[IND_1];
+            if(t & 15) {
+              lsd_is_negative_reduction = 0;
             }
-#  else
-
-#  endif
-        }
-        else lsd_is_negative_reduction = 0;
+          }
       }
+      else lsd_is_negative_reduction = 0;
+    }
 
-      if(lsd_exp < -1022) *bits += (lsd_exp + 1022);
-      if(lsd_exp == -1022) *bits -= 1;
-      *exp = msd_exp - lsd_is_negative_reduction;
+    if(lsd_exp < -1022) *bits += (lsd_exp + 1022);
+    if(lsd_exp == -1022) *bits -= 1;
+    *exp = msd_exp - lsd_is_negative_reduction;
   }
 
 /*******************
