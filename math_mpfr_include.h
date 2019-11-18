@@ -379,12 +379,45 @@ typedef _Decimal128 D128;
 #define MATH_MPFR_NV_MAX 1.7976931348623157e+308
 #define MATH_MPFR_NORMAL_MIN 2.2250738585072014e-308
 
+# if defined(MPFR_HAVE_BENDIAN)                /* big endian architecture - defined by Makefile.PL */
+
+# define D_CONDITION_1 i<=7
+# define D_INC_OR_DEC i++;
+# define DIND_0 0
+# define DIND_1 1
+
+# else						/* little endian architecture */
+
+# define D_CONDITION_1 i>=0
+# define D_INC_OR_DEC i--;
+# define DIND_0 7
+# define DIND_1 6
+
+# endif
+
 #elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64
 #define MATH_MPFR_MAX_DIG 21
 #define MATH_MPFR_BITS 64
 #define MATH_MPFR_NV_MAX 1.18973149535723176502e4932L
-
 #define MATH_MPFR_NORMAL_MIN 3.36210314311209350626e-4932L
+
+# if defined(MPFR_HAVE_BENDIAN)                /* big endian architecture - defined by Makefile.PL */
+
+# define LD_CONDITION_1 i<=9
+# define LD_INC_OR_DEC i++;
+# define LDIND_0 0
+# define LDIND_1 1
+# define LDIND_2 2
+
+# else						/* little endian architecture */
+
+# define LD_CONDITION_1 i>=0
+# define LD_INC_OR_DEC i--;
+# define LDIND_0 9
+# define LDIND_1 8
+# define LDIND_2 7
+
+# endif
 
 #elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098
 #define MATH_MPFR_MAX_DIG 33
@@ -430,6 +463,25 @@ typedef _Decimal128 D128;
 #define MATH_MPFR_BITS 113
 #define MATH_MPFR_NV_MAX 1.18973149535723176508575932662800702e+4932Q
 #define MATH_MPFR_NORMAL_MIN 3.3621031431120935062626778173217526e-4932Q
+
+# if defined(MPFR_HAVE_BENDIAN)                /* big endian architecture - defined by Makefile.PL */
+
+# define Q_CONDITION_1 i<=15
+# define Q_INC_OR_DEC i++;
+# define QIND_0 0
+# define QIND_1 1
+# define QIND_2 2
+
+# else						/* little endian architecture */
+
+# define Q_CONDITION_1 i>=0
+# define Q_INC_OR_DEC i--;
+# define QIND_0 15
+# define QIND_1 14
+# define QIND_2 13
+
+# endif
+
 #endif
 
 /* End of defines for nvtoa() */
