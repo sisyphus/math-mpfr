@@ -392,6 +392,39 @@ typedef _Decimal128 D128;
 #define MATH_MPFR_NV_MAX 1.797693134862315807937289714053e+308L
 #define MATH_MPFR_NORMAL_MIN 2.2250738585072014e-308
 
+# if defined(MPFR_HAVE_BENDIAN)                /* big endian architecture - defined by Makefile.PL */
+# define DD_CONDITION_1 i<=7
+# define DD_CONDITION_2 i=2;i<8;i++
+# define DD_INC_OR_DEC i++;
+# define IND_0 0
+# define IND_1 1
+# define LSD_BYTE_1 8
+# define LSD_BYTE_2 9
+# define LSD_BYTE_3 10
+# define LSD_BYTE_4 11
+# define LSD_BYTE_5 12
+# define LSD_BYTE_6 13
+# define LSD_BYTE_7 14
+# define LSD_BYTE_8 15
+
+# else                                        /* little endian architecture */
+
+# define DD_CONDITION_1 i>=0
+# define DD_CONDITION_2 i=13;i>7;i--
+# define DD_INC_OR_DEC i--;
+# define IND_0 15
+# define IND_1 14
+# define LSD_BYTE_1 7
+# define LSD_BYTE_2 6
+# define LSD_BYTE_3 5
+# define LSD_BYTE_4 4
+# define LSD_BYTE_5 3
+# define LSD_BYTE_6 2
+# define LSD_BYTE_7 1
+# define LSD_BYTE_8 0
+
+# endif /* MPFR_HAVE_BENDIAN */
+
 #else
 #define MATH_MPFR_MAX_DIG 36
 #define MATH_MPFR_BITS 113
