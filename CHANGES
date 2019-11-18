@@ -8,6 +8,7 @@
    no longer support versions of MPFR older than 3.0.0.
  - Accommodate extended range of allowable bases for mpfr_out_str with MPFR-4.1.0
    and later.
+ - Cleanup of some code called by nvtoa().
 
 4.12
  - Fix bug in nvtoa() that had values with negative single digit significands &&
