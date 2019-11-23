@@ -9,6 +9,8 @@
  - Accommodate extended range of allowable bases for mpfr_out_str with MPFR-4.1.0
    and later.
  - Cleanup of some code called by nvtoa().
+ - Fix bug in _get_exp_and_bits() for DoubleDoubles. Integer values > 2 ** 105
+   being misrepresented by nvtoa().
 
 4.12
  - Fix bug in nvtoa() that had values with negative single digit significands &&
