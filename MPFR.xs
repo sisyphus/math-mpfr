@@ -7907,7 +7907,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
       (*exp)--;
 
-      if(*exp > 53 && *exp < 106) {
+      if(*exp > 53) {   /* replaces incorrect condition: (*exp > 53 && *exp < 106) *//* 23 Nov 2019 */
         *bits = *exp;
       }
 
