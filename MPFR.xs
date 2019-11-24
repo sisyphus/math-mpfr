@@ -8065,7 +8065,7 @@ SV * nvtoa(pTHX_ NV pnv) {
   */
 
   int subnormal_prec_adjustment, exp_init;
-  int k = 0, k_start, lsb, skip = 0, sign = 0, len, critical;
+  int k = 0, k_index, lsb, skip = 0, sign = 0, len, critical;
   int bits = MATH_MPFR_BITS, is_subnormal = 0, shift1, shift2, inex, low, high, cmp;
   unsigned long u;
   mpfr_exp_t e;    /* Change to 'int' when mpfr dependency for doubledouble is removed */
@@ -8347,7 +8347,7 @@ SV * nvtoa(pTHX_ NV pnv) {
 
   /*********************************************/
 
-  k_start = k - 1;
+  k_index = -1;
 
   Newxz(out, (int)(12 + ceil(0.30103 * bits)), char); /* 1 + ceil(log(2) / log(10) * bits), but allow a few extra for
                                                        exponent and sign */
@@ -8356,7 +8356,7 @@ SV * nvtoa(pTHX_ NV pnv) {
 
   while(1) {
 
-    k--;
+    k_index++;
 
     mpz_mul_ui(TMP, R, 10);
     mpz_fdiv_qr(LHS, R, TMP, S);
@@ -8388,26 +8388,26 @@ SV * nvtoa(pTHX_ NV pnv) {
       high = cmp > 0 ? 1 : 0;
     }
 
-    if(!(!low && !high)) break;
+    if(low | high) break;
 
-    out[k_start - k] = 48 + u;
+    out[k_index] = 48 + u;
 
   }                                   /* close while loop */
 
   /* Next we set the final digit, rounding up where appropriate */
 
-  if(low && !high) out[k_start - k] = 48 + u;
-  if(!low && high) out[k_start - k] = 49 + u;
-  if(low && high) {
+  if(low & high) {                                  /* ( low &&  high) */
     mpz_mul_2exp(LHS, R, 1);
     cmp = mpz_cmp(LHS, S);
-    if(cmp < 0)    out[k_start - k] = 48 + u;
-    if(cmp > 0)    out[k_start - k] = 49 + u;
-    if(cmp == 0) {
-      if(u & 1)    out[k_start - k] = 49 + u;
-      else         out[k_start - k] = 48 + u;
+    if        (cmp >  0) out[k_index] = 49 + u;
+    else if   (cmp <  0) out[k_index] = 48 + u;
+    else { /* (cmp == 0) */
+      if(u & 1)          out[k_index] = 49 + u;
+      else               out[k_index] = 48 + u;
     }
   }
+  else if(high)          out[k_index] = 49 + u; /* (!low &&  high) */
+  else                   out[k_index] = 48 + u; /* ( low && !high) */
 
   mpz_clear(R);
   mpz_clear(S);
@@ -8420,10 +8420,10 @@ SV * nvtoa(pTHX_ NV pnv) {
    * Format the result *
    *********************/
 
-  len = strlen(out);
-  critical = k + len; /* "critical" is critical only wrt the formatting of the output string */
+  len = k_index + 1; /* len == strlen(out) */
 
-  /* printf("sign: %d critical: %d len %d k %d\n", sign, critical, len, k); */
+  critical = k; /* formatting is based around this value */
+  k -= len;
 
   if(critical < -3) {
 
@@ -8450,11 +8450,6 @@ SV * nvtoa(pTHX_ NV pnv) {
     Safefree(out);
     return outsv;
 
-    /*
-    ST(0) = sv_2mortal(newSVpv(out, 0));
-    Safefree(out);
-    XSRETURN(1);
-    */
   }
 
   if(critical <= 0 ) {
@@ -8484,12 +8479,6 @@ SV * nvtoa(pTHX_ NV pnv) {
     Safefree(bstr);
     return outsv;
 
-    /*
-    ST(0) = sv_2mortal(newSVpv(bstr, 0));
-    Safefree(out);
-    Safefree(bstr);
-    XSRETURN(1);
-    */
   }
 
   if(critical < MATH_MPFR_MAX_DIG) {
@@ -8510,11 +8499,6 @@ SV * nvtoa(pTHX_ NV pnv) {
       Safefree(out);
       return outsv;
 
-      /*
-      ST(0) = sv_2mortal(newSVpv(out, 0));
-      Safefree(out);
-      XSRETURN(1);
-      */
     }
 
     /* insert decimal point; */
@@ -8526,11 +8510,6 @@ SV * nvtoa(pTHX_ NV pnv) {
     Safefree(out);
     return outsv;
 
-    /*
-    ST(0) = sv_2mortal(newSVpv(out, 0));
-    Safefree(out);
-    XSRETURN(1);
-    */
   }
 
   if( len > 1) {
@@ -8555,11 +8534,6 @@ SV * nvtoa(pTHX_ NV pnv) {
   Safefree(out);
   return outsv;
 
-  /*
-  ST(0) = sv_2mortal(newSVpv(out, 0));
-  Safefree(out);
-  XSRETURN(1);
-  */
 }
 
 /****************************
