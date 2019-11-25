@@ -8123,27 +8123,15 @@ SV * nvtoa(pTHX_ NV pnv) {
   if(nv == 0) {
     if(sign) return newSVpv("-0.0", 0);
     return newSVpv("0.0", 0);
-  /*
-    ST(0) = sign ? sv_2mortal(newSVpv("-0.0", 0)) : sv_2mortal(newSVpv("0.0", 0));
-    XSRETURN(1);
-  */
   }
 
   if(nv != nv) {
     return newSVpv("NaN", 0);
-  /*
-    ST(0) = sv_2mortal(newSVpv("NaN", 0));
-    XSRETURN(1);
-  */
   }
 
   if(nv > MATH_MPFR_NV_MAX) {
     if(sign) return newSVpv("-Inf", 0);
     return newSVpv("Inf", 0);
-  /*
-    ST(0) = sign ? sv_2mortal(newSVpv("-Inf", 0)) : sv_2mortal(newSVpv("Inf", 0));
-    XSRETURN(1);
-  */
   }
 
   mpz_init(R);
