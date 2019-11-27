@@ -8408,23 +8408,23 @@ SV * nvtoa(pTHX_ NV pnv) {
    * Format the result *
    *********************/
 
-  len = k_index + 1; /* len == strlen(out) */
+  k_index++; /* k_index is now set to strlen(out) */
 
   critical = k; /* formatting is based around this value */
-  k -= len;
+  k -= k_index;
 
   if(critical < -3) {
 
     sprintf(str, "e%03d", critical - 1);
-    if(sign || len > 1) {
+    if(sign || k_index > 1) {
       /* insert decimal point */
-      for(skip = len + sign; skip > 1 + sign; skip--) {
+      for(skip = k_index + sign; skip > 1 + sign; skip--) {
         out[skip] = out[skip - 1 - sign];
       }
 
-      if(len > 1) {
+      if(k_index > 1) {
         out[1 + sign] = '.';
-        out[len + 1 + sign] = 0;
+        out[k_index + 1 + sign] = 0;
       }
 
       if(sign) {
@@ -8471,17 +8471,17 @@ SV * nvtoa(pTHX_ NV pnv) {
 
   if(critical < MATH_MPFR_MAX_DIG) {
     if(sign) {
-      for(skip = len; skip > 0; skip--) out[skip] = out[skip - 1];
+      for(skip = k_index; skip > 0; skip--) out[skip] = out[skip - 1];
       out[0] = '-';
-      out[len + 1] = 0;
+      out[k_index + 1] = 0;
     }
 
    if(k >= 0) {
       /* out = concatenate out . ('0' x k); */
-      for(skip = 0; skip < k; skip++) out[len + skip + sign] = '0';
-      out[len + k + sign] = '.';
-      out[len + k + sign + 1] = '0';
-      out[len + k + sign + 2] = 0;
+      for(skip = 0; skip < k; skip++) out[k_index + skip + sign] = '0';
+      out[k_index + k + sign] = '.';
+      out[k_index + k + sign + 1] = '0';
+      out[k_index + k + sign + 2] = 0;
 
       outsv = newSVpv(out, 0);
       Safefree(out);
@@ -8490,9 +8490,9 @@ SV * nvtoa(pTHX_ NV pnv) {
     }
 
     /* insert decimal point; */
-    for(skip = len + sign; skip > len + k + sign; skip--) out[skip] = out[skip - 1];
-    out[len + k + sign] = '.';
-    out[len + sign + 1] = 0;
+    for(skip = k_index + sign; skip > k_index + k + sign; skip--) out[skip] = out[skip - 1];
+    out[k_index + k + sign] = '.';
+    out[k_index + sign + 1] = 0;
 
     outsv = newSVpv(out, 0);
     Safefree(out);
@@ -8500,14 +8500,14 @@ SV * nvtoa(pTHX_ NV pnv) {
 
   }
 
-  if( len > 1) {
+  if( k_index > 1) {
     /* insert decimal point */
-    for(skip = len + sign; skip > 1 + sign; skip--) {
+    for(skip = k_index + sign; skip > 1 + sign; skip--) {
       out[skip] = out[skip - 1 - sign];
     }
 
     out[1 + sign] = '.';
-    out[len + 1 + sign] = 0;
+    out[k_index + 1 + sign] = 0;
   }
 
   if(sign) {
