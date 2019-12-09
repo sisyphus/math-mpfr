@@ -35,6 +35,8 @@
     use constant MPFR_FLAGS_ALL         => 63;
     use constant MPFR_FREE_LOCAL_CACHE  => 1;
     use constant MPFR_FREE_GLOBAL_CACHE => 2;
+    use constant LITTLE_ENDIAN          => $Config{byteorder} =~ /^1/ ? 1 : 0;
+    use constant MM_HP                  => LITTLE_ENDIAN ? 'h*' : 'H*';
 
 
     use subs qw(MPFR_VERSION MPFR_VERSION_MAJOR MPFR_VERSION_MINOR
@@ -607,38 +609,43 @@ sub mpfr_max_orig_base {
 }
 
 sub bytes {
-  my($val, $type, $ret) = (shift, shift);
+  my($val, $type, $ret) = (shift, lc(shift));
   my $itsa = _itsa($val);
   die "1st arg to Math::MPFR::bytes must be either a string or a Math::MPFR object"
     if($itsa != 4 && $itsa != 5);
 
-  if(lc($type) eq 'double') {
-    $ret = $itsa == 4 ? join '', _d_bytes   ($val, 53)
-                      : join '', _d_bytes_fr($val, 53);
+  if($type eq 'double') {
+    $ret = $itsa == 4 ? unpack MM_HP, pack "a8", _d_bytes   ($val, 53)
+                      : unpack MM_HP, pack "a8", _d_bytes_fr($val, 53);
+    return scalar reverse $ret if LITTLE_ENDIAN;
     return $ret;
   }
 
-  if(lc($type) eq 'long double') {
-    $ret = $itsa == 4 ? join '', _ld_bytes   ($val, 64)
-                      : join '', _ld_bytes_fr($val, 64);
+  elsif($type eq 'long double') {
+    $ret = $itsa == 4 ? unpack MM_HP, pack "a10", _ld_bytes   ($val, 64)
+                      : unpack MM_HP, pack "a10", _ld_bytes_fr($val, 64);
+    return scalar reverse $ret if LITTLE_ENDIAN;
     return $ret;
   }
 
-  if(lc($type) eq 'ieee long double') {
-    $ret = $itsa == 4 ? join '', _ld_bytes   ($val, 113)
-                      : join '', _ld_bytes_fr($val, 113);
+  elsif($type eq 'ieee long double') {
+    $ret = $itsa == 4 ? unpack MM_HP, pack "a16", _ld_bytes   ($val, 113)
+                      : unpack MM_HP, pack "a16", _ld_bytes_fr($val, 113);
+    return scalar reverse $ret if LITTLE_ENDIAN;
     return $ret;
   }
 
-  if(lc($type) eq 'double-double') {
-    $ret = $itsa == 4 ? join '', _dd_bytes   ($val, 106)
-                      : join '', _dd_bytes_fr($val, 106);
+  elsif($type eq 'double-double') {
+    $ret = $itsa == 4 ? unpack MM_HP, pack "a16", _dd_bytes   ($val, 106)
+                      : unpack MM_HP, pack "a16", _dd_bytes_fr($val, 106);
+    return scalar reverse $ret if LITTLE_ENDIAN;
     return $ret;
   }
 
-  if(lc($type) eq '__float128') {
-    $ret = $itsa == 4 ? join '', _f128_bytes   ($val, 113)
-                      : join '', _f128_bytes_fr($val, 113);
+  elsif($type eq '__float128') {
+    $ret = $itsa == 4 ? unpack MM_HP, pack "a16", _f128_bytes   ($val, 113)
+                      : unpack MM_HP, pack "a16", _f128_bytes_fr($val, 113);
+    return scalar reverse $ret if LITTLE_ENDIAN;
     return $ret;
   }
 
