@@ -6562,18 +6562,22 @@ void set_nok_pok(int x) {
   nok_pok = x;
 }
 
-void _d_bytes(pTHX_ SV * str, unsigned int bits) {
+SV * _d_bytes(pTHX_ SV * str, unsigned int bits) {
 
  /* Assumes 64-bit double (53-bit precision mantissa) */
  /* Corrected to handle subnormal values in 4.02 */
 
-  dXSARGS;
-  mpfr_t temp, temp2, DENORM_MIN;
-  double ld;
-  int i, n = 8, inex, signbit;
-  char buff[4];
-  void * p = &ld;
-  mpfr_prec_t emin, emax, prec;
+  mpfr_t temp;
+  double d;
+  mpfr_prec_t emin;
+  SV * sv;
+#if !defined(MPFR_VERSION) || MPFR_VERSION <= 196869 /* avoid mpfr_subnormalize */
+  int signbit;
+  mpfr_t temp2, DENORM_MIN;
+#else
+  int inex;
+  mpfr_prec_t emax;
+#endif
 
   if(bits != 53)
     croak("2nd arg to Math::MPFR::_d_bytes must be 53");
@@ -6599,19 +6603,19 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
   mpfr_set_emin(emin);
   mpfr_set_emax(emax);
 
-  ld = mpfr_get_d(temp, GMP_RNDN);
+  d = mpfr_get_d(temp, GMP_RNDN);
 
 #else     /* mpfr_strtofr can return incorrect inex in 3.1.5 and  *
            * earlier - which renders mpfr_subnormalize unreliable */
 
-  inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+  mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
 
   emin = mpfr_get_exp(temp) + 1074;
   signbit = mpfr_signbit(temp) ? -1 : 1;
 
   if(emin <= 1) {
     if(emin < 0) {
-      ld = 0.0 *signbit;
+      d = 0.0 *signbit;
     }
     else {
       if(emin == 0) {
@@ -6621,13 +6625,13 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
         mpfr_abs(temp, temp, GMP_RNDN);
         if(mpfr_cmp(temp, temp2) > 0) {
           mpfr_mul_2ui(temp2, temp2, 1, GMP_RNDN);
-          ld = mpfr_get_d(temp2, GMP_RNDN);
+          d = mpfr_get_d(temp2, GMP_RNDN);
           mpfr_clear(temp2);
         }
         else {
-          ld = 0.0;
+          d = 0.0;
         }
-        ld *= signbit;
+        d *= signbit;
       }
       else {  /* emin == 1 *//* Can't set precision to 1 with older versions of mpfr */
 
@@ -6643,7 +6647,7 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
         else mpfr_mul_si(temp, temp, signbit, GMP_RNDN);
         mpfr_clear(temp2);
         mpfr_clear(DENORM_MIN);
-        ld = mpfr_get_d(temp, GMP_RNDN);
+        d = mpfr_get_d(temp, GMP_RNDN);
       }
     }
   }  /* close "if(emin <= 1)" */
@@ -6652,41 +6656,24 @@ void _d_bytes(pTHX_ SV * str, unsigned int bits) {
       mpfr_set_prec(temp, emin);
       mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
     }
-    ld = mpfr_get_d(temp, GMP_RNDN);
+    d = mpfr_get_d(temp, GMP_RNDN);
   }   /* close "else" */
 #endif
 
   mpfr_clear(temp);
 
-  sp = mark;
-
-#ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
-  for (i = 0; i < n; i++) {
-#else
-  for (i = n - 1; i >= 0; i--) {
-#endif
-
-    sprintf(buff, "%02x", ((unsigned char*)p)[i]);
-    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
-  }
-  PUTBACK;
-  XSRETURN(n);
-
+  sv = NEWSV(0, 8);
+  sv_setpvn(sv, (char *) &d, 8);
+  return sv;
 }
 
-void _d_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
+SV * _d_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
- /* Assumes 64-bit double (53-bit precision mantissa)   */
- /* This function does not call mpfr_subnormalize(). If */
- /* the mpfr_t holds a subnormal value, it should       */
- /* probably be subnormalised before being passed to    */
- /* this function.                                      */
+ /* Assumes 64-bit double (53-bit precision mantissa) */
+ /* Calls to mpfr_subnormalize() are unnecessary      */
 
-  dXSARGS;
-  double ld;
-  int i, n = 8;
-  char buff[4];
-  void * p = &ld;
+  double d;
+  SV * sv;
 
   if(bits != 53)
     croak("2nd arg to Math::MPFR::_d_bytes_fr must be 53");
@@ -6697,35 +6684,21 @@ void _d_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
   if((size_t)bits != DBL_MANT_DIG)
     croak("2nd arg (%u) supplied to Math::MPFR::_d_bytes_fr does not match DBL_MANT_DIG (%u)", bits, DBL_MANT_DIG);
 
-  ld = mpfr_get_d(*str, GMP_RNDN);
+  d = mpfr_get_d(*str, GMP_RNDN);
 
-  sp = mark;
-
-#ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
-  for (i = 0; i < n; i++) {
-#else
-  for (i = n - 1; i >= 0; i--) {
-#endif
-
-    sprintf(buff, "%02x", ((unsigned char*)p)[i]);
-    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
-  }
-  PUTBACK;
-  XSRETURN(n);
-
+  sv = NEWSV(0, 8);
+  sv_setpvn(sv, (char *) &d, 8);
+  return sv;
 }
 
-void _dd_bytes(pTHX_ SV * str, unsigned int bits) {
+SV * _dd_bytes(pTHX_ SV * str, unsigned int bits) {
 
  /* Assumes 128-bit long double (106-bit precision mantissa) */
 
-  dXSARGS;
+
   mpfr_t temp;
   double msd, lsd;
-  int i, n = 8;
-  char buff[4];
-  void * pm = &msd;
-  void * pl = &lsd;
+  SV * sv;
 
   if(bits != 106)
     croak("2nd arg to Math::MPFR::_dd_bytes must be 106");
@@ -6748,44 +6721,26 @@ void _dd_bytes(pTHX_ SV * str, unsigned int bits) {
 
   mpfr_clear(temp);
 
-  sp = mark;
+  sv = NEWSV(0, 16);
 
-#ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
-  for (i = 0; i < n; i++) {
+#ifdef MPFR_HAVE_BENDIAN
+  sv_setpvn(sv, (char *) &msd, 8);
+  sv_catpvn(sv, (char *) &lsd, 8);
 #else
-  for (i = n - 1; i >= 0; i--) {
+  sv_setpvn(sv, (char *) &lsd, 8);
+  sv_catpvn(sv, (char *) &msd, 8);
 #endif
-
-    sprintf(buff, "%02x", ((unsigned char*)pm)[i]);
-    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
-  }
-
-#ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
-  for (i = 0; i < n; i++) {
-#else
-  for (i = n - 1; i >= 0; i--) {
-#endif
-
-    sprintf(buff, "%02x", ((unsigned char*)pl)[i]);
-    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
-  }
-  PUTBACK;
-  XSRETURN(16);
-
+  return sv;
 }
 
-void _dd_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
+SV * _dd_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
  /* Assumes 128-bit long double (106-bit precision mantissa) */
  /* Should handle subnormal values correctly                 */
 
-  dXSARGS;
   mpfr_t temp;
   double msd, lsd;
-  int i, n = 8;
-  char buff[4];
-  void * pm = &msd;
-  void * pl = &lsd;
+  SV * sv;
 
   if(bits != 106)
     croak("2nd arg to Math::MPFR::_dd_bytes must be 106");
@@ -6808,44 +6763,35 @@ void _dd_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
   mpfr_clear(temp);
 
-  sp = mark;
+  sv = NEWSV(0, 16);
 
-#ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
-  for (i = 0; i < n; i++) {
+#ifdef MPFR_HAVE_BENDIAN
+  sv_setpvn(sv, (char *) &msd, 8);
+  sv_catpvn(sv, (char *) &lsd, 8);
 #else
-  for (i = n - 1; i >= 0; i--) {
+  sv_setpvn(sv, (char *) &lsd, 8);
+  sv_catpvn(sv, (char *) &msd, 8);
 #endif
-
-    sprintf(buff, "%02x", ((unsigned char*)pm)[i]);
-    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
-  }
-
-#ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
-  for (i = 0; i < n; i++) {
-#else
-  for (i = n - 1; i >= 0; i--) {
-#endif
-
-    sprintf(buff, "%02x", ((unsigned char*)pl)[i]);
-    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
-  }
-  PUTBACK;
-  XSRETURN(16);
-
+  return sv;
 }
 
-void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
+SV * _ld_bytes(pTHX_ SV * str, unsigned int bits) {
 
  /* For Math::NV - added in version 3.26 */
  /* Corrected to handle subnormal values in 4.02 */
 
-  dXSARGS;
-  mpfr_t temp, temp2, DENORM_MIN;
+  mpfr_t temp;
   long double ld;
-  int i, n, inex, signbit;
-  char buff[4];
-  void * p = &ld;
   mpfr_prec_t emin, emax;
+  SV * sv;
+  int n;
+
+#if !defined(MPFR_VERSION) || MPFR_VERSION <= 196869 /* avoid mpfr_subnormalize */
+  int signbit;
+  mpfr_t temp2, DENORM_MIN;
+#else
+  int inex;
+#endif
 
   if(bits != 64 && bits != 113) {
     if(bits == 106) warn("\nYou probably want to call Math::MPFR::_dd_bytes\n");
@@ -6859,7 +6805,6 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
     croak("2nd arg (%u) supplied to Math::MPFR::_ld_bytes does not match LDBL_MANT_DIG (%u)", bits, LDBL_MANT_DIG);
 
   mpfr_init2(temp, bits);
-
 
 #if defined(MPFR_VERSION) && MPFR_VERSION > 196869 /* use mpfr_subnormalize */
 
@@ -6881,7 +6826,7 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
        * earlier - which renders mpfr_subnormalize unreliable  */
 
 
-  inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+  mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
   emax = bits == 64 ? 16445 : 16494;
   emin = mpfr_get_exp(temp) + emax;
 
@@ -6952,37 +6897,21 @@ void _ld_bytes(pTHX_ SV * str, unsigned int bits) {
 
   mpfr_clear(temp);
 
-  sp = mark;
-
   n = bits == 64 ? 10 : 16;
-
-#ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
-  for (i = 0; i < n; i++) {
-#else
-  for (i = n - 1; i >= 0; i--) {
-#endif
-
-    sprintf(buff, "%02x", ((unsigned char*)p)[i]);
-    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
-  }
-  PUTBACK;
-  XSRETURN(n);
-
+  sv = NEWSV(0, n);
+  sv_setpvn(sv, (char *) &ld, n);
+  return sv;
 }
 
-void _ld_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
+SV * _ld_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
- /* For Math::NV - added in version 3.26                    */
- /* Assumes 80-bit long double (64-bit precision mantissa)  */
- /* This function does not call mpfr_subnormalize(). If     */
- /* the mpfr_t holds a subnormal value, it should probably  */
- /* be subnormalised before being passed to this function.  */
+ /* For Math::NV - added in version 3.26       */
+ /* Calling mpfr_subnormalize is not necessary */
 
-  dXSARGS;
   long double ld;
-  int i, n;
-  char buff[4];
-  void * p = &ld;
+  int n;
+  SV * sv;
+
 
   if(bits != 64 && bits != 113) {
     if(bits == 106) warn("\nYou probably want to call Math::MPFR::_dd_bytes_fr\n");
@@ -6997,25 +6926,14 @@ void _ld_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
   ld = mpfr_get_ld(*str, GMP_RNDN);
 
-  sp = mark;
-
   n = bits == 64 ? 10 : 16;
 
-#ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
-  for (i = 0; i < n; i++) {
-#else
-  for (i = n - 1; i >= 0; i--) {
-#endif
-
-    sprintf(buff, "%02x", ((unsigned char*)p)[i]);
-    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
-  }
-  PUTBACK;
-  XSRETURN(n);
-
+  sv = NEWSV(0, n);
+  sv_setpvn(sv, (char *) &ld, n);
+  return sv;
 }
 
-void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
+SV * _f128_bytes(pTHX_ SV * str, unsigned int bits) {
 
  /* For Math::NV - added in version 3.26 */
  /* Corrected to handle subnormal values in 4.02 */
@@ -7027,13 +6945,18 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
 
 #else
 
-  dXSARGS;
-  mpfr_t temp, temp2, DENORM_MIN;
-  float128 ld;
-  int i, n = 16, inex, signbit;
-  char buff[4];
-  void * p = &ld;
-  mpfr_prec_t emin, emax;
+  mpfr_t temp;
+  float128 f128;
+  mpfr_prec_t emin;
+  SV * sv;
+
+#if !defined(MPFR_VERSION) || MPFR_VERSION <= 196869 /* avoid mpfr_subnormalize */
+  int signbit;
+  mpfr_t temp2, DENORM_MIN;
+#else
+  int inex;
+  mpfr_prec_t emax;
+#endif
 
   if(bits != 113)
     croak("2nd arg to Math::MPFR::_f128_bytes must be 113");
@@ -7059,12 +6982,12 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
     mpfr_set_emin(emin);
     mpfr_set_emax(emax);
 
-    ld = mpfr_get_float128(temp, GMP_RNDN);
+    f128 = mpfr_get_float128(temp, GMP_RNDN);
 
 #  else   /* mpfr_strtofr can return incorrect inex in 3.1.5 and  *
            * earlier - which renders mpfr_subnormalize unreliable */
 
-    inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
 
     emin = mpfr_get_exp(temp) + 16494;
     signbit = mpfr_signbit(temp) ? -1 : 1;
@@ -7103,7 +7026,7 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
           else mpfr_mul_si(temp, temp, signbit, GMP_RNDN);
           mpfr_clear(temp2);
           mpfr_clear(DENORM_MIN);
-          ld = mpfr_get_float128(temp, GMP_RNDN);
+          f128 = mpfr_get_float128(temp, GMP_RNDN);
         }
       }
     }  /* close "if(emin <= 1)" */
@@ -7112,37 +7035,25 @@ void _f128_bytes(pTHX_ SV * str, unsigned int bits) {
         mpfr_set_prec(temp, emin);
         mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
       }
-      ld = mpfr_get_float128(temp, GMP_RNDN);
+      f128 = mpfr_get_float128(temp, GMP_RNDN);
     }   /* close "else" */
 
 #  endif
 
   mpfr_clear(temp);
 
-  sp = mark;
-
-#  ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
-     for (i = 0; i < n; i++) {
-#  else
-     for (i = n - 1; i >= 0; i--) {
-#  endif
-
-    sprintf(buff, "%02x", ((unsigned char*)p)[i]);
-    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
-  }
-  PUTBACK;
-  XSRETURN(n);
+  sv = NEWSV(0, 16);
+  sv_setpvn(sv, (char *) &f128, 16);
+  return sv;
 
 #endif
 
 }
 
-void _f128_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
+SV * _f128_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
- /* Assumes 128-bit float128 (113-bit precision mantissa)   */
- /* This function does not call mpfr_subnormalize(). If     */
- /* the mpfr_t holds a subnormal value, it should probably  */
- /* be subnormalised before being passed to this function.  */
+ /* Assumes 128-bit float128 (113-bit precision mantissa) */
+ /* Calling mpfr_subnormalize is unnecessary              */
 
 #ifndef MPFR_WANT_FLOAT128
 
@@ -7150,11 +7061,8 @@ void _f128_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
 #else
 
-  dXSARGS;
-  float128 ld;
-  int i, n = 16;
-  char buff[4];
-  void * p = &ld;
+  float128 f128;
+  SV * sv;
 
   if(bits != 113)
     croak("2nd arg to Math::MPFR::_f128_bytes_fr must be 113");
@@ -7165,21 +7073,11 @@ void _f128_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
   if((size_t)bits != FLT128_MANT_DIG)
     croak("2nd arg (%u) supplied to Math::MPFR::_f128_bytes_fr does not match FLT128_MANT_DIG (%u)", bits, FLT128_MANT_DIG);
 
-  ld = mpfr_get_float128(*str, GMP_RNDN);
+  f128 = mpfr_get_float128(*str, GMP_RNDN);
 
-  sp = mark;
-
-#  ifdef MPFR_HAVE_BENDIAN /* Big Endian architecture */
-     for (i = 0; i < n; i++) {
-#  else
-     for (i = n - 1; i >= 0; i--) {
-#  endif
-
-    sprintf(buff, "%02x", ((unsigned char*)p)[i]);
-    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
-  }
-  PUTBACK;
-  XSRETURN(n);
+  sv = NEWSV(0, 16);
+  sv_setpvn(sv, (char *) &f128, 16);
+  return sv;
 
 #endif
 
@@ -8819,7 +8717,9 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
 
   char *s2 = dst;
 
-  int sign = items > 1 ? 0 : 1; /* */
+  int sign = items > 1 ? 0 : 1; /* A true value for sign implies that nvtoa(aTHX) will be used  *
+                                 * if grisu3() fails to produce a result. Else sprintf()    *
+                                 * will be used when grisu3() fails. See pod documentation. */
   assert(dst);
 
   /* Prehandle NaNs */
@@ -12955,141 +12855,69 @@ set_nok_pok (x)
         /* must have used dXSARGS; list context implied */
         return; /* assume stack size is correct */
 
-void
+SV *
 _d_bytes (str, bits)
 	SV *	str
 	unsigned int	bits
-        PREINIT:
-        I32* temp;
-        PPCODE:
-        temp = PL_markstack_ptr++;
-        _d_bytes(aTHX_ str, bits);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
-        return; /* assume stack size is correct */
+CODE:
+  RETVAL = _d_bytes (aTHX_ str, bits);
+OUTPUT:  RETVAL
 
-void
+SV *
 _d_bytes_fr (str, bits)
 	mpfr_t *	str
 	unsigned int	bits
-        PREINIT:
-        I32* temp;
-        PPCODE:
-        temp = PL_markstack_ptr++;
-        _d_bytes_fr(aTHX_ str, bits);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
-        return; /* assume stack size is correct */
+CODE:
+  RETVAL = _d_bytes_fr (aTHX_ str, bits);
+OUTPUT:  RETVAL
 
-void
+SV *
 _dd_bytes (str, bits)
 	SV *	str
 	unsigned int	bits
-        PREINIT:
-        I32* temp;
-        PPCODE:
-        temp = PL_markstack_ptr++;
-        _dd_bytes(aTHX_ str, bits);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
-        return; /* assume stack size is correct */
+CODE:
+  RETVAL = _dd_bytes (aTHX_ str, bits);
+OUTPUT:  RETVAL
 
-void
+SV *
 _dd_bytes_fr (str, bits)
 	mpfr_t *	str
 	unsigned int	bits
-        PREINIT:
-        I32* temp;
-        PPCODE:
-        temp = PL_markstack_ptr++;
-        _dd_bytes_fr(aTHX_ str, bits);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
-        return; /* assume stack size is correct */
+CODE:
+  RETVAL = _dd_bytes_fr (aTHX_ str, bits);
+OUTPUT:  RETVAL
 
-void
+SV *
 _ld_bytes (str, bits)
 	SV *	str
 	unsigned int	bits
-        PREINIT:
-        I32* temp;
-        PPCODE:
-        temp = PL_markstack_ptr++;
-        _ld_bytes(aTHX_ str, bits);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
-        return; /* assume stack size is correct */
+CODE:
+  RETVAL = _ld_bytes (aTHX_ str, bits);
+OUTPUT:  RETVAL
 
-void
+SV *
 _ld_bytes_fr (str, bits)
 	mpfr_t *	str
 	unsigned int	bits
-        PREINIT:
-        I32* temp;
-        PPCODE:
-        temp = PL_markstack_ptr++;
-        _ld_bytes_fr(aTHX_ str, bits);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
-        return; /* assume stack size is correct */
+CODE:
+  RETVAL = _ld_bytes_fr (aTHX_ str, bits);
+OUTPUT:  RETVAL
 
-void
+SV *
 _f128_bytes (str, bits)
 	SV *	str
 	unsigned int	bits
-        PREINIT:
-        I32* temp;
-        PPCODE:
-        temp = PL_markstack_ptr++;
-        _f128_bytes(aTHX_ str, bits);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
-        return; /* assume stack size is correct */
+CODE:
+  RETVAL = _f128_bytes (aTHX_ str, bits);
+OUTPUT:  RETVAL
 
-void
+SV *
 _f128_bytes_fr (str, bits)
 	mpfr_t *	str
 	unsigned int	bits
-        PREINIT:
-        I32* temp;
-        PPCODE:
-        temp = PL_markstack_ptr++;
-        _f128_bytes_fr(aTHX_ str, bits);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
-        return; /* assume stack size is correct */
+CODE:
+  RETVAL = _f128_bytes_fr (aTHX_ str, bits);
+OUTPUT:  RETVAL
 
 int
 _required_ldbl_mant_dig ()
