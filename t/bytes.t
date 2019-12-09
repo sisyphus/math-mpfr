@@ -41,9 +41,10 @@ my $arb = 40;
 Rmpfr_set_default_prec($arb);
 
 my @bytes;
+my $unpacked;
 my $dd = 0;
 
-eval {@bytes = Math::MPFR::_ld_bytes('2.3', 64);};
+eval {$unpacked = Math::MPFR::_ld_bytes('2.3', 64);};
 
 if($@) {
 
@@ -82,8 +83,13 @@ if($@) {
 
 }
 else {
-
-  my $hex = join '', @bytes;
+  my $hex;
+  if(Math::MPFR::LITTLE_ENDIAN) {
+    $hex = scalar reverse unpack "h20", pack "a10", Math::MPFR::_ld_bytes('2.3', 64);
+  }
+  else {
+    $hex = unpack "H20", pack "a10", Math::MPFR::_ld_bytes('2.3', 64);
+  }
 
   if($hex eq '40009333333333333333') {print "ok 1\n"}
   else {
@@ -91,8 +97,12 @@ else {
     print "not ok 1\n";
   }
 
-  @bytes = Math::MPFR::_ld_bytes('2.93', 64);
-  $hex = join '', @bytes;
+  if(Math::MPFR::LITTLE_ENDIAN) {
+    $hex = scalar reverse unpack "h20", pack "a10", Math::MPFR::_ld_bytes('2.93', 64);
+  }
+  else {
+    $hex = unpack "H20", pack "a10", Math::MPFR::_ld_bytes('2.93', 64);
+  }
 
   if($hex eq '4000bb851eb851eb851f') {print "ok 2\n"}
   else {
@@ -121,7 +131,7 @@ else {
 #####################################################
 #####################################################
 
-eval {@bytes = Math::MPFR::_f128_bytes('2.3', 113);};
+eval {$unpacked = Math::MPFR::_f128_bytes('2.3', 113);};
 
 if($@) {
 
@@ -154,7 +164,14 @@ if($@) {
 }
 else {
 
-  my $hex = join '', @bytes;
+  my $hex;
+
+  if(Math::MPFR::LITTLE_ENDIAN) {
+    $hex = reverse unpack "h32", pack "a16", Math::MPFR::_f128_bytes('2.3', 113);
+  }
+  else {
+    $hex = unpack "H32", pack "a16", Math::MPFR::_f128_bytes('2.3', 113);
+  }
 
   if($hex eq '40002666666666666666666666666666') {print "ok 5\n"}
   else {
@@ -162,8 +179,12 @@ else {
     print "not ok 5\n";
   }
 
-  @bytes = Math::MPFR::_f128_bytes('2.93', 113);
-  $hex = join '', @bytes;
+  if(Math::MPFR::LITTLE_ENDIAN) {
+    $hex = reverse unpack "h32", pack "a16", Math::MPFR::_f128_bytes('2.93', 113);
+  }
+  else {
+    $hex = unpack "H32", pack "a16", Math::MPFR::_f128_bytes('2.93', 113);
+  }
 
   if($hex eq '4000770a3d70a3d70a3d70a3d70a3d71') {print "ok 6\n"}
   else {
@@ -197,20 +218,20 @@ else {
   print "not ok 9\n";
 }
 
-@bytes = Math::MPFR::_d_bytes('1e+129', 53);
+$unpacked =  unpack "h16", pack"a8", Math::MPFR::_d_bytes('1e+129', 53);
 
-my $hex = join '', @bytes;
+my $hex;
 
 my $double = Math::MPFR::Rmpfr_init2(53);
 Math::MPFR::Rmpfr_set_str($double, '1e+129', 10, 0);
 
 unless($] < 5.01) { # perl-5.8 and earlier don't understand 'pack "d<"'.
 
-  my $hex2 = scalar reverse unpack "h*", pack "d<", Math::MPFR::Rmpfr_get_d($double, 0);
+  my $hex2 = unpack "h*", pack "d", Math::MPFR::Rmpfr_get_d($double, 0);
 
-  if($hex eq $hex2) {print "ok 10\n"}
+  if($unpacked eq $hex2) {print "ok 10\n"}
   else {
-    warn "expected $hex, got $hex2\n";
+    warn "expected $unpacked, got $hex2\n";
     print "not ok 10\n";
   }
 }
@@ -312,7 +333,14 @@ else {
 my $d_fr = Rmpfr_init2(53);
 Rmpfr_set_str($d_fr, '1e+127', 10, MPFR_RNDN);
 
-my $expected = join '', Math::MPFR::_d_bytes_fr($d_fr, 53);
+my $expected;
+
+if(Math::MPFR::LITTLE_ENDIAN ) {
+  $expected = scalar reverse unpack "h16", pack "a8", Math::MPFR::_d_bytes_fr($d_fr, 53);
+}
+else {
+  $expected = unpack "H16", pack "a8", Math::MPFR::_d_bytes_fr($d_fr, 53);
+}
 
 if($expected eq '5a4d8ba7f519c84f') {print "ok 18\n"}
 else {
@@ -323,7 +351,12 @@ else {
 my $dd_fr = Rmpfr_init2(2098);
 Rmpfr_set_str($dd_fr, '1e+127', 10, MPFR_RNDN);
 
-$expected = join '', Math::MPFR::_dd_bytes_fr($dd_fr, 106);
+if(Math::MPFR::LITTLE_ENDIAN ) {
+  $expected = scalar reverse unpack "h32", pack "a16", Math::MPFR::_dd_bytes_fr($dd_fr, 106);
+}
+else {
+  $expected = unpack "H32", pack "a16", Math::MPFR::_dd_bytes_fr($dd_fr, 106);
+}
 
 if($expected eq '5a4d8ba7f519c84f56e7fd1f28f89c56') {print "ok 19\n"}
 else {
@@ -335,7 +368,7 @@ else {
 my $ld_fr = Rmpfr_init2(64);
 Rmpfr_set_str($ld_fr, '1e+127', 10, MPFR_RNDN);
 
-eval {$expected = join '', Math::MPFR::_ld_bytes_fr($ld_fr, 64);};
+eval {$expected = unpack "h20", pack "a10", Math::MPFR::_ld_bytes_fr($ld_fr, 64);};
 
 if(Math::MPFR::_required_ldbl_mant_dig() != 64 && $@ =~ /^2nd arg \(64\) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG/) {
   warn "LDBL_MANT_DIG: ", Math::MPFR::_required_ldbl_mant_dig() == 2098 ? 106 : Math::MPFR::_required_ldbl_mant_dig(), "\n";
@@ -345,6 +378,7 @@ elsif($@) {
   warn "\$\@:$@\n";
   print "not ok 20\n";
 }
+elsif(Math::MPFR::LITTLE_ENDIAN && scalar(reverse($expected)) eq '41a4ec5d3fa8ce427b00') {print "ok 20\n"}
 elsif($expected eq '41a4ec5d3fa8ce427b00') {print "ok 20\n"}
 else {
   warn "Expected *41a4ec5d3fa8ce427b00*, got *$expected*\n";
@@ -354,7 +388,8 @@ else {
 my $f128_fr = Rmpfr_init2(113);
 Rmpfr_set_str($f128_fr, '1e+127', 10, MPFR_RNDN);
 
-eval {$expected = join '', Math::MPFR::_f128_bytes_fr($f128_fr, 113);};
+eval {$expected = unpack "h32", pack "a16", Math::MPFR::_f128_bytes_fr($f128_fr, 113);
+      $expected = reverse $expected if Math::MPFR::LITTLE_ENDIAN;};
 
 if(!Math::MPFR::_MPFR_WANT_FLOAT128()) {
   if($@ =~ /^__float128 support not built into this Math::MPFR/) {print "ok 21\n"}
