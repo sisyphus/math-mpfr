@@ -12,6 +12,8 @@
  - Fix bug in _get_exp_and_bits() for DoubleDoubles. Integer values > 2 ** 105
    were being misrepresented by nvtoa().
  - Improve the private functions _d_bytes, _ld_bytes, _dd_bytes, _f128_bytes
+ - Replace the private functions _d_bytes_fr, _ld_bytes_fr, _dd_bytes_fr,
+   _f128_bytes_fr with tghe single function _bytes_fr.
 
 4.12
  - Fix bug in nvtoa() that had values with negative single digit significands &&
