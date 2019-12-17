@@ -1961,50 +1961,36 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Resets the nok_pok flag to 0.(Essentially the same
     as running set_nok_pok(0).)
 
-   $bytes = Math::MPFR::bytes($val, $type);
-    $type must be either 'double', 'long double', 'IEEE long double',
-    'double-double', or '__float128' (all case-insensitive).
-    $val must either be a string (eg '1.6e+45', '2.3', '0x17.8')
+   $bytes = Math::MPFR::bytes($val, $bits);
+    (The semantics for calling this function have changed as of
+    Math-MPFR-4.13.)
+    $val must either be a string (eg '1.613e-45', '2.3', '0x17.8')
     or a Math::MPFR object.
-    For the given value expressed by the string (or encapsulated in
-    the object) the internal hex form of that value for the given
-    ($type) datatype is returned.
+    $bits must be one of 53, 64, 2098 or 113.
+    $bytes will be set to the hex representation of $val.
+    If $bits is 53, $bytes will display the byte structure (in
+    hex) of the standard 8-byte double, $val.
+    If $bits is 64, the structure returned will be that of $val
+    as an extended precison 10-byte long double.
+    If $bits is 2098, the structure returned will be that of $val
+    as the 16-byte IBM doubledouble.
+    If $bits is 113, the structure returned will be that of $val
+    as the quad precison 16-byte IEEE long double (or __float128,
+    which is identical in byte structure).
 
     eg:
-      bytes('1.3', 'double') returns the string 3ff4cccccccccccd
+      bytes('1.3', 53)   returns 3ff4cccccccccccd
+      bytes('1.3', 64)   returns 3fffa666666666666666
+      bytes('1.3', 2098) returns 3ff4cccccccccccdbc8999999999999a
+      bytes('1.3', 113)  returns 3fff4ccccccccccccccccccccccccccd
 
-    If $val is a Math::MPFR object, its precision must be:
-      53  if $type is 'double'
-      64  if $type is 'long double'
-      113 if $type is 'IEEE long double' or '__float128'
-      106 if $type is 'double-double'
+    If $val is a Math::MPFR object, its precision must be $bits.
 
-    'double' assumes 53-bit precision (8-byte) double.
-    'long double' assumes 64-bit precision (80-bit) long double.
-    'ieee long double' assumes 113-bit precision (16-byte) IEEE 754
-     long double.
-    'double-double' assumes 106-bit prec (16-byte) double-double
-    '__float128' assumes 113-bit prec (16-byte) __float128.
-
-
-    You should specify 'long double' only if your compiler's long
-    double matches the above assumption.
-    You should specify 'ieee long double' only if your compiler's
-    long double matches the above assumption.
-    If your compiler's 'long double' matches neither of those
-    assumptions but is the same as the double, then you need to
-    specify 'double'.
-
-    You can get representations of a 'double' and a 'double-double'
-    on all but the rarest of architectures.
-    You can also get the representation of a __float128 if both
-    Math::MPFR and mpfr have been built with quadmath support - in
-    which case Math::MPFR::_MPFR_WANT_FLOAT128() will return 1.
-    Note however, that not all architectures support quadmath, and
-    even then mpfr-4.0.0 or later is needed.
-    If you have the __float128 representation you also have the
-    IEEE long double representation, as they are identical.
-
+    For many architectures and mpfr configurations, the structures
+    for all 4 allowed values of $bits will be accessible.
+    In some cases, however, $bits values of 64 and/or 113 might
+    throw a fatal error (with diagnostic message stating that the
+    requested byte structure is not currently available).
 
    ##############
 
