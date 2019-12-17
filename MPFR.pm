@@ -301,6 +301,18 @@ $Math::MPFR::doubletoa_fallback = 0; # If FALLBACK_NOTIFY is defined, this scala
 
 %Math::MPFR::NV_properties = _get_NV_properties();
 
+my %bytes = (53   =>  \&_d_bytes,
+             64   =>  \&_ld_bytes,
+             2098 => \&_dd_bytes,
+             113  => \&_f128_bytes,
+            );
+
+my %fmt = (53   =>  'a8',
+           64   =>  'a10',
+           2098 => 'a16',
+           113  => 'a16',
+          );
+
 sub dl_load_flags {0} # Prevent DynaLoader from complaining and croaking
 
 sub Rmpfr_out_str {
@@ -609,47 +621,18 @@ sub mpfr_max_orig_base {
 }
 
 sub bytes {
-  my($val, $type, $ret) = (shift, lc(shift));
+  my($val, $bits, $ret) = (shift, shift);
   my $itsa = _itsa($val);
   die "1st arg to Math::MPFR::bytes must be either a string or a Math::MPFR object"
     if($itsa != 4 && $itsa != 5);
 
-  if($type eq 'double') {
-    $ret = $itsa == 4 ? unpack MM_HP, pack "a8", _d_bytes   ($val, 53)
-                      : unpack MM_HP, pack "a8", _d_bytes_fr($val, 53);
-    return scalar reverse $ret if LITTLE_ENDIAN;
-    return $ret;
-  }
+  die "2nd argument given to Math::MPFR::bytes is neither 53 nor 64 nor 106 nor 113"
+    unless($bits == 53 || $bits == 64 || $bits == 2098 || $bits == 113);
 
-  elsif($type eq 'long double') {
-    $ret = $itsa == 4 ? unpack MM_HP, pack "a10", _ld_bytes   ($val, 64)
-                      : unpack MM_HP, pack "a10", _ld_bytes_fr($val, 64);
-    return scalar reverse $ret if LITTLE_ENDIAN;
-    return $ret;
-  }
-
-  elsif($type eq 'ieee long double') {
-    $ret = $itsa == 4 ? unpack MM_HP, pack "a16", _ld_bytes   ($val, 113)
-                      : unpack MM_HP, pack "a16", _ld_bytes_fr($val, 113);
-    return scalar reverse $ret if LITTLE_ENDIAN;
-    return $ret;
-  }
-
-  elsif($type eq 'double-double') {
-    $ret = $itsa == 4 ? unpack MM_HP, pack "a16", _dd_bytes   ($val, 106)
-                      : unpack MM_HP, pack "a16", _dd_bytes_fr($val, 106);
-    return scalar reverse $ret if LITTLE_ENDIAN;
-    return $ret;
-  }
-
-  elsif($type eq '__float128') {
-    $ret = $itsa == 4 ? unpack MM_HP, pack "a16", _f128_bytes   ($val, 113)
-                      : unpack MM_HP, pack "a16", _f128_bytes_fr($val, 113);
-    return scalar reverse $ret if LITTLE_ENDIAN;
-    return $ret;
-  }
-
-  die "2nd arg to Math::MPFR::bytes must be (case-insensitive) either 'double', 'double-double', 'long double' or '__float128'";
+  $ret = $itsa == 4 ? unpack MM_HP, pack $fmt{$bits}, $bytes   {$bits} -> ($val)
+                    : unpack MM_HP, pack $fmt{$bits}, _bytes_fr($val, $bits);
+  return scalar reverse $ret if LITTLE_ENDIAN;
+  return $ret;
 }
 
 sub rndna {
