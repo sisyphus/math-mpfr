@@ -6562,10 +6562,13 @@ void set_nok_pok(int x) {
   nok_pok = x;
 }
 
-SV * _d_bytes(pTHX_ SV * str, unsigned int bits) {
+SV * _d_bytes(pTHX_ SV * str) {
 
- /* Assumes 64-bit double (53-bit precision mantissa) */
- /* Corrected to handle subnormal values in 4.02 */
+ /* Assumes 64-bit double (53-bit precision mantissa) *
+  * Assumes also that the arg is a PV.                *
+  * Assumptions are not checked because the function  *
+  * is private.                                       *
+  * Corrected to handle subnormal values in 4.02      */
 
   mpfr_t temp;
   double d;
@@ -6579,16 +6582,7 @@ SV * _d_bytes(pTHX_ SV * str, unsigned int bits) {
   mpfr_prec_t emax;
 #endif
 
-  if(bits != 53)
-    croak("2nd arg to Math::MPFR::_d_bytes must be 53");
-
-  if(SvUV(_itsa(aTHX_ str)) != 4)
-    croak("1st arg supplied to Math::MPFR::_d_bytes is not a string");
-
-  if((size_t)bits != DBL_MANT_DIG)
-    croak("2nd arg (%u) supplied to Math::MPFR::_d_bytes does not match DBL_MANT_DIG (%u)", bits, DBL_MANT_DIG);
-
-  mpfr_init2(temp, 53);
+  mpfr_init2(temp, DBL_MANT_DIG);
 
 #if defined(MPFR_VERSION) && MPFR_VERSION > 196869 /* use mpfr_subnormalize */
   emin = mpfr_get_emin();
@@ -6667,44 +6661,95 @@ SV * _d_bytes(pTHX_ SV * str, unsigned int bits) {
   return sv;
 }
 
-SV * _d_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
+SV * _bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
 
- /* Assumes 64-bit double (53-bit precision mantissa) */
- /* Calls to mpfr_subnormalize() are unnecessary      */
+  /* Explicit Calls to mpfr_subnormalize() are unnecessary */
 
-  double d;
   SV * sv;
+  double msd, lsd;
+  long double ld;
+  mpfr_t temp;
 
-  if(bits != 53)
-    croak("2nd arg to Math::MPFR::_d_bytes_fr must be 53");
+#ifdef MPFR_WANT_FLOAT128
+  float128 f128;
+#endif
 
-  if(mpfr_get_prec(*str) != 53)
-    croak("Precision of 1st arg supplied to _d_bytes_fr must be 53");
+  if(mpfr_get_prec(*str) != bits)
+    croak("Precision of 1st arg supplied to _bytes_fr != 2nd arg (%d)", bits );
 
-  if((size_t)bits != DBL_MANT_DIG)
-    croak("2nd arg (%u) supplied to Math::MPFR::_d_bytes_fr does not match DBL_MANT_DIG (%u)", bits, DBL_MANT_DIG);
+  if(bits == 53) {
+    msd = mpfr_get_d(*str, GMP_RNDN);
+    sv = NEWSV(0, 8);
+    sv_setpvn(sv, (char *) &msd, 8);
+    return sv;
+  }
 
-  d = mpfr_get_d(*str, GMP_RNDN);
+  if(bits == 64) {
+#  if LDBL_MANT_DIG != 64
+    croak("Byte structure of 10-byte long double not provided for this architecture");
+#  endif
+    ld = mpfr_get_ld(*str, GMP_RNDN);
+    sv = NEWSV(0, 10);
+    sv_setpvn(sv, (char *) &ld, 10);
+    return sv;
+  }
 
-  sv = NEWSV(0, 8);
-  sv_setpvn(sv, (char *) &d, 8);
-  return sv;
+  if(bits == 2098) {
+
+    mpfr_init2(temp, 2098);
+    mpfr_set(temp, *str, GMP_RNDN); /* Avoid altering the value held by *str */
+
+    msd = mpfr_get_d(temp, GMP_RNDN);
+    if(msd == 0 || msd != msd || msd / msd != 1) { /* zero, nan or inf */
+      lsd = 0.0;
+    }
+    else {
+      mpfr_sub_d(temp, temp, msd, GMP_RNDN);
+      lsd = mpfr_get_d(temp, GMP_RNDN);
+    }
+
+    mpfr_clear(temp);
+    sv = NEWSV(0, 16);
+
+#  ifdef MPFR_HAVE_BENDIAN
+    sv_setpvn(sv, (char *) &msd, 8);
+    sv_catpvn(sv, (char *) &lsd, 8);
+#  else
+    sv_setpvn(sv, (char *) &lsd, 8);
+    sv_catpvn(sv, (char *) &msd, 8);
+#  endif
+
+    return sv;
+  }
+
+  if(bits == 113) {
+#  if !defined(MPFR_WANT_FLOAT128) && LDBL_MANT_DIG != 113
+    croak("Byte structure of 113-bit NV types not provided for this architecture and mpfr configuration");
+#endif
+
+   sv = NEWSV(0, 16);
+
+#  if defined(MPFR_WANT_FLOAT128)
+    f128 = mpfr_get_float128(*str, GMP_RNDN);
+    sv_setpvn(sv, (char *) &f128, 16);
+    return sv;
+#  endif
+    ld = mpfr_get_ld(*str, GMP_RNDN);
+    sv_setpvn(sv, (char *) &ld, 16);
+    return sv;
+  }
 }
 
-SV * _dd_bytes(pTHX_ SV * str, unsigned int bits) {
+SV * _dd_bytes(pTHX_ SV * str) {
 
- /* Assumes 128-bit long double (106-bit precision mantissa) */
-
+ /* Assumes 128-bit long double (106-bit precision mantissa) *
+  * Assumes also that the arg is a PV.                       *
+  * Assumptions are not checked because the function         *
+  * is private.                                              */
 
   mpfr_t temp;
   double msd, lsd;
   SV * sv;
-
-  if(bits != 106)
-    croak("2nd arg to Math::MPFR::_dd_bytes must be 106");
-
-  if(SvUV(_itsa(aTHX_ str)) != 4)
-    croak("1st arg supplied to Math::MPFR::_dd_bytes is not a string");
 
   mpfr_init2(temp, 2098);
 
@@ -6733,220 +6778,154 @@ SV * _dd_bytes(pTHX_ SV * str, unsigned int bits) {
   return sv;
 }
 
-SV * _dd_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
+SV * _ld_bytes(pTHX_ SV * str) {
 
- /* Assumes 128-bit long double (106-bit precision mantissa) */
- /* Should handle subnormal values correctly                 */
+ /* Assumes 10-byte long double (64-bit precision mantissa)  *
+  * 53-bit long doubles are handled by _d_bytes.             *
+  * 113-bit long doubles are handled by _f128_bytes - but    *
+  * only if LDBL_MANT_DIG == 113 or MPFR_WANT_FLOAT128 is    *
+  * is defined.                                              *
+  * Assumes also that the arg is a PV.                       *
+  * Assumptions are not checked because the function         *
+  * is private and should have already been checked.         *
+  * Corrected to handle subnormal values in 4.02             */
 
-  mpfr_t temp;
-  double msd, lsd;
-  SV * sv;
-
-  if(bits != 106)
-    croak("2nd arg to Math::MPFR::_dd_bytes must be 106");
-
-  if(mpfr_get_prec(*str) != 2098)
-    croak("Precision of 1st arg supplied to _dd_bytes_fr must be 2098");
-
-  mpfr_init2(temp, 2098);
-
-  mpfr_set(temp, *str, GMP_RNDN); /* Avoid altering the value held by *str */
-
-  msd = mpfr_get_d(temp, GMP_RNDN);
-  if(msd == 0 || msd != msd || msd / msd != 1) { /* zero, nan or inf */
-    lsd = 0.0;
-  }
-  else {
-    mpfr_sub_d(temp, temp, msd, GMP_RNDN);
-    lsd = mpfr_get_d(temp, GMP_RNDN);
-  }
-
-  mpfr_clear(temp);
-
-  sv = NEWSV(0, 16);
-
-#ifdef MPFR_HAVE_BENDIAN
-  sv_setpvn(sv, (char *) &msd, 8);
-  sv_catpvn(sv, (char *) &lsd, 8);
+#if LDBL_MANT_DIG != 64
+    croak("Byte structure of 10-byte long double not provided for this architecture");
 #else
-  sv_setpvn(sv, (char *) &lsd, 8);
-  sv_catpvn(sv, (char *) &msd, 8);
-#endif
-  return sv;
-}
 
-SV * _ld_bytes(pTHX_ SV * str, unsigned int bits) {
+    mpfr_t temp;
+    long double ld;
+    mpfr_prec_t emin, emax;
+    SV * sv;
 
- /* For Math::NV - added in version 3.26 */
- /* Corrected to handle subnormal values in 4.02 */
+#  if !defined(MPFR_VERSION) || MPFR_VERSION <= 196869 /* avoid mpfr_subnormalize */
+    int signbit;
+    mpfr_t temp2, DENORM_MIN;
+#  else
+    int inex;
+#  endif
 
-  mpfr_t temp;
-  long double ld;
-  mpfr_prec_t emin, emax;
-  SV * sv;
-  int n;
+    mpfr_init2(temp, 64);
 
-#if !defined(MPFR_VERSION) || MPFR_VERSION <= 196869 /* avoid mpfr_subnormalize */
-  int signbit;
-  mpfr_t temp2, DENORM_MIN;
-#else
-  int inex;
-#endif
+#  if defined(MPFR_VERSION) && MPFR_VERSION > 196869 /* use mpfr_subnormalize */
 
-  if(bits != 64 && bits != 113) {
-    if(bits == 106) warn("\nYou probably want to call Math::MPFR::_dd_bytes\n");
-    croak("2nd arg to Math::MPFR::_ld_bytes must be 64 or 113");
-  }
+    emin = mpfr_get_emin();
+    emax = mpfr_get_emax();
 
-  if(SvUV(_itsa(aTHX_ str)) != 4)
-    croak("1st arg supplied to Math::MPFR::_ld_bytes is not a string");
+    mpfr_set_emin(-16444);
+    mpfr_set_emax(16384);
 
-  if((size_t)bits != LDBL_MANT_DIG)
-    croak("2nd arg (%u) supplied to Math::MPFR::_ld_bytes does not match LDBL_MANT_DIG (%u)", bits, LDBL_MANT_DIG);
+    inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    mpfr_subnormalize(temp, inex, GMP_RNDN);
 
-  mpfr_init2(temp, bits);
+    mpfr_set_emin(emin);
+    mpfr_set_emax(emax);
 
-#if defined(MPFR_VERSION) && MPFR_VERSION > 196869 /* use mpfr_subnormalize */
+    ld = mpfr_get_ld(temp, GMP_RNDN);
 
-  emin = mpfr_get_emin();
-  emax = mpfr_get_emax();
-
-  mpfr_set_emin(-16444);
-  mpfr_set_emax(16384);
-
-  inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-  mpfr_subnormalize(temp, inex, GMP_RNDN);
-
-  mpfr_set_emin(emin);
-  mpfr_set_emax(emax);
-
-  ld = mpfr_get_ld(temp, GMP_RNDN);
-
-#else /* mpfr_strtofr can return incorrect inex in 3.1.5 and   *
+#  else /* mpfr_strtofr can return incorrect inex in 3.1.5 and   *
        * earlier - which renders mpfr_subnormalize unreliable  */
 
 
-  mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-  emax = bits == 64 ? 16445 : 16494;
-  emin = mpfr_get_exp(temp) + emax;
+    mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+    emax = bits == 64 ? 16445 : 16494;
+    emin = mpfr_get_exp(temp) + emax;
 
       /* mpfr_get_ld is buggy for extended precision subnormal *
        * values with 3.1.4 and earlier. Hence, croak when this *
        * condition exists.                                      */
 
-#ifdef LD_SUBNORMAL_BUG
+#  ifdef LD_SUBNORMAL_BUG
 
-       if(mpfr_regular_p(temp) && emin >= 0 && emin < bits) {
-         warn("\n mpfr_get_ld is buggy (subnormal values only)\n for this version (%s) of the MPFR library\n", MPFR_VERSION_STRING);
-         croak(" Version 3.1.5 or later is required");
-       }
+         if(mpfr_regular_p(temp) && emin >= 0 && emin < bits) {
+           warn("\n mpfr_get_ld is buggy (subnormal values only)\n for this version (%s) of the MPFR library\n", MPFR_VERSION_STRING);
+           croak(" Version 3.1.5 or later is required");
+         }
 
-#endif
+#  endif
 
 
-  signbit = mpfr_signbit(temp) ? -1 : 1;
+    signbit = mpfr_signbit(temp) ? -1 : 1;
 
-  if(emin <= 1) {
-    if(emin < 0) {
-      ld = 0.0L;
-      ld *= signbit;
-    }
-    else {
-      if(emin == 0) {
-        mpfr_init2(temp2, 2);
-        mpfr_set_ui(temp2, 2, GMP_RNDN);
-        mpfr_div_2ui(temp2, temp2, emax + 2, GMP_RNDN);
-        mpfr_abs(temp, temp, GMP_RNDN);
-        if(mpfr_cmp(temp, temp2) > 0) {
-          mpfr_mul_2ui(temp2, temp2, 1, GMP_RNDN);
-          ld = mpfr_get_ld(temp2, GMP_RNDN);
-          mpfr_clear(temp2);
-        }
-        else {
-          ld = 0.0L;
-        }
+    if(emin <= 1) {
+      if(emin < 0) {
+        ld = 0.0L;
         ld *= signbit;
       }
-      else {  /* emin == 1 *//* Can't set precision to 1 with older versions of mpfr */
+      else {
+        if(emin == 0) {
+          mpfr_init2(temp2, 2);
+          mpfr_set_ui(temp2, 2, GMP_RNDN);
+          mpfr_div_2ui(temp2, temp2, emax + 2, GMP_RNDN);
+          mpfr_abs(temp, temp, GMP_RNDN);
+          if(mpfr_cmp(temp, temp2) > 0) {
+            mpfr_mul_2ui(temp2, temp2, 1, GMP_RNDN);
+            ld = mpfr_get_ld(temp2, GMP_RNDN);
+            mpfr_clear(temp2);
+          }
+          else {
+            ld = 0.0L;
+          }
+          ld *= signbit;
+        }
+        else {  /* emin == 1 *//* Can't set precision to 1 with older versions of mpfr */
 
-        mpfr_abs(temp, temp, GMP_RNDN);
-        mpfr_init2(temp2, 2);
-        mpfr_init2(DENORM_MIN, 2);
-        mpfr_set_ui(DENORM_MIN, 2, GMP_RNDN);
-        mpfr_div_2ui(DENORM_MIN, DENORM_MIN, emax + 1, GMP_RNDN);
-        mpfr_set(temp2, DENORM_MIN, GMP_RNDN);
-        mpfr_div_ui(temp2, temp2, 2, GMP_RNDN);
-        mpfr_add(temp2, temp2, DENORM_MIN, GMP_RNDN);
-        if(mpfr_cmp(temp, temp2) >= 0) mpfr_mul_si(temp, DENORM_MIN, 2 * signbit, GMP_RNDN);
-        else mpfr_mul_si(temp, temp, signbit, GMP_RNDN);
-        mpfr_clear(temp2);
-        mpfr_clear(DENORM_MIN);
-        ld = mpfr_get_ld(temp, GMP_RNDN);
+          mpfr_abs(temp, temp, GMP_RNDN);
+          mpfr_init2(temp2, 2);
+          mpfr_init2(DENORM_MIN, 2);
+          mpfr_set_ui(DENORM_MIN, 2, GMP_RNDN);
+          mpfr_div_2ui(DENORM_MIN, DENORM_MIN, emax + 1, GMP_RNDN);
+          mpfr_set(temp2, DENORM_MIN, GMP_RNDN);
+          mpfr_div_ui(temp2, temp2, 2, GMP_RNDN);
+          mpfr_add(temp2, temp2, DENORM_MIN, GMP_RNDN);
+          if(mpfr_cmp(temp, temp2) >= 0) mpfr_mul_si(temp, DENORM_MIN, 2 * signbit, GMP_RNDN);
+          else mpfr_mul_si(temp, temp, signbit, GMP_RNDN);
+          mpfr_clear(temp2);
+          mpfr_clear(DENORM_MIN);
+          ld = mpfr_get_ld(temp, GMP_RNDN);
+        }
       }
+    }  /* close "if(emin <= 1)" */
+    else {
+      if(emin < bits) {
+        mpfr_set_prec(temp, emin);
+        mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+      }
+    ld = mpfr_get_ld(temp, GMP_RNDN);
     }
-  }  /* close "if(emin <= 1)" */
-  else {
-    if(emin < bits) {
-      mpfr_set_prec(temp, emin);
-      mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-    }
-  ld = mpfr_get_ld(temp, GMP_RNDN);
-  }
 
+#  endif
+
+    mpfr_clear(temp);
+
+    sv = NEWSV(0, 10);
+    sv_setpvn(sv, (char *) &ld, 10);
+    return sv;
 #endif
-
-  mpfr_clear(temp);
-
-  n = bits == 64 ? 10 : 16;
-  sv = NEWSV(0, n);
-  sv_setpvn(sv, (char *) &ld, n);
-  return sv;
 }
 
-SV * _ld_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
+SV * _f128_bytes(pTHX_ SV * str) {
 
- /* For Math::NV - added in version 3.26       */
- /* Calling mpfr_subnormalize is not necessary */
+ /* Assumes 113-bit NV (either long double or __float128).   *
+  * Assumes also that the arg is a Math::MPFR object.        *
+  * Assumptions are not checked because the function         *
+  * is private and should have already been checked.         *
+  * Corrected to handle subnormal values in 4.02             */
 
-  long double ld;
-  int n;
-  SV * sv;
 
-
-  if(bits != 64 && bits != 113) {
-    if(bits == 106) warn("\nYou probably want to call Math::MPFR::_dd_bytes_fr\n");
-    croak("2nd arg to Math::MPFR::_ld_bytes_fr must be 64 or 113");
-  }
-
-  if(mpfr_get_prec(*str) != bits)
-    croak("Precision of 1st arg supplied to _ld_bytes_fr must match 2nd arg (%d)", bits);
-
-  if((size_t)bits != LDBL_MANT_DIG)
-    croak("2nd arg (%u) supplied to Math::MPFR::_ld_bytes_fr does not match LDBL_MANT_DIG (%u)", bits, LDBL_MANT_DIG);
-
-  ld = mpfr_get_ld(*str, GMP_RNDN);
-
-  n = bits == 64 ? 10 : 16;
-
-  sv = NEWSV(0, n);
-  sv_setpvn(sv, (char *) &ld, n);
-  return sv;
-}
-
-SV * _f128_bytes(pTHX_ SV * str, unsigned int bits) {
-
- /* For Math::NV - added in version 3.26 */
- /* Corrected to handle subnormal values in 4.02 */
- /* Assumes 128-bit float128 (113-bit precision mantissa) */
-
-#ifndef MPFR_WANT_FLOAT128
-
-  croak("__float128 support not built into this Math::MPFR");
-
+#if !defined(MPFR_WANT_FLOAT128) && LDBL_MANT_DIG != 113
+  croak("Byte structure of 113-bit NV types not provided for this architecture and mpfr configuration");
 #else
 
   mpfr_t temp;
+
+#if defined(MPFR_WANT_FLOAT128)
   float128 f128;
+#else
+  long double f128;
+#endif
+
   mpfr_prec_t emin;
   SV * sv;
 
@@ -6957,15 +6936,6 @@ SV * _f128_bytes(pTHX_ SV * str, unsigned int bits) {
   int inex;
   mpfr_prec_t emax;
 #endif
-
-  if(bits != 113)
-    croak("2nd arg to Math::MPFR::_f128_bytes must be 113");
-
-  if(SvUV(_itsa(aTHX_ str)) != 4)
-    croak("1st arg supplied to Math::MPFR::_f128_bytes is not a string");
-
-  if((size_t)bits != FLT128_MANT_DIG)
-    croak("2nd arg (%u) supplied to Math::MPFR::_f128_bytes does not match FLT128_MANT_DIG (%u)", bits, FLT128_MANT_DIG);
 
   mpfr_init2(temp, 113);
 
@@ -6982,7 +6952,11 @@ SV * _f128_bytes(pTHX_ SV * str, unsigned int bits) {
     mpfr_set_emin(emin);
     mpfr_set_emax(emax);
 
+#  if defined(MPFR_WANT_FLOAT128)
     f128 = mpfr_get_float128(temp, GMP_RNDN);
+#  else
+    f128 = mpfr_get_ld(temp, GMP_RNDN);
+#  endif
 
 #  else   /* mpfr_strtofr can return incorrect inex in 3.1.5 and  *
            * earlier - which renders mpfr_subnormalize unreliable */
@@ -7035,45 +7009,18 @@ SV * _f128_bytes(pTHX_ SV * str, unsigned int bits) {
         mpfr_set_prec(temp, emin);
         mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
       }
+
+#  if defined(MPFR_WANT_FLOAT128)
       f128 = mpfr_get_float128(temp, GMP_RNDN);
+#  else
+      f128 = mpfr_get_ld(temp, GMP_RNDN);
+#  endif
+
     }   /* close "else" */
 
 #  endif
 
   mpfr_clear(temp);
-
-  sv = NEWSV(0, 16);
-  sv_setpvn(sv, (char *) &f128, 16);
-  return sv;
-
-#endif
-
-}
-
-SV * _f128_bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
-
- /* Assumes 128-bit float128 (113-bit precision mantissa) */
- /* Calling mpfr_subnormalize is unnecessary              */
-
-#ifndef MPFR_WANT_FLOAT128
-
-  croak("__float128 support not built into this Math::MPFR");
-
-#else
-
-  float128 f128;
-  SV * sv;
-
-  if(bits != 113)
-    croak("2nd arg to Math::MPFR::_f128_bytes_fr must be 113");
-
-  if(mpfr_get_prec(*str) != 113)
-    croak("Precision of 1st arg supplied to _f128_bytes_fr must be 113");
-
-  if((size_t)bits != FLT128_MANT_DIG)
-    croak("2nd arg (%u) supplied to Math::MPFR::_f128_bytes_fr does not match FLT128_MANT_DIG (%u)", bits, FLT128_MANT_DIG);
-
-  f128 = mpfr_get_float128(*str, GMP_RNDN);
 
   sv = NEWSV(0, 16);
   sv_setpvn(sv, (char *) &f128, 16);
@@ -12856,67 +12803,39 @@ set_nok_pok (x)
         return; /* assume stack size is correct */
 
 SV *
-_d_bytes (str, bits)
+_d_bytes (str)
 	SV *	str
-	unsigned int	bits
 CODE:
-  RETVAL = _d_bytes (aTHX_ str, bits);
+  RETVAL = _d_bytes (aTHX_ str);
 OUTPUT:  RETVAL
 
 SV *
-_d_bytes_fr (str, bits)
+_bytes_fr (str, bits)
 	mpfr_t *	str
 	unsigned int	bits
 CODE:
-  RETVAL = _d_bytes_fr (aTHX_ str, bits);
+  RETVAL = _bytes_fr (aTHX_ str, bits);
 OUTPUT:  RETVAL
 
 SV *
-_dd_bytes (str, bits)
+_dd_bytes (str)
 	SV *	str
-	unsigned int	bits
 CODE:
-  RETVAL = _dd_bytes (aTHX_ str, bits);
+  RETVAL = _dd_bytes (aTHX_ str);
 OUTPUT:  RETVAL
 
 SV *
-_dd_bytes_fr (str, bits)
-	mpfr_t *	str
-	unsigned int	bits
-CODE:
-  RETVAL = _dd_bytes_fr (aTHX_ str, bits);
-OUTPUT:  RETVAL
-
-SV *
-_ld_bytes (str, bits)
+_ld_bytes (str)
 	SV *	str
-	unsigned int	bits
 CODE:
-  RETVAL = _ld_bytes (aTHX_ str, bits);
+  RETVAL = _ld_bytes (aTHX_ str);
 OUTPUT:  RETVAL
 
 SV *
-_ld_bytes_fr (str, bits)
-	mpfr_t *	str
-	unsigned int	bits
-CODE:
-  RETVAL = _ld_bytes_fr (aTHX_ str, bits);
-OUTPUT:  RETVAL
-
-SV *
-_f128_bytes (str, bits)
+_f128_bytes (str)
 	SV *	str
-	unsigned int	bits
 CODE:
-  RETVAL = _f128_bytes (aTHX_ str, bits);
-OUTPUT:  RETVAL
-
-SV *
-_f128_bytes_fr (str, bits)
-	mpfr_t *	str
-	unsigned int	bits
-CODE:
-  RETVAL = _f128_bytes_fr (aTHX_ str, bits);
+  RETVAL = _f128_bytes (aTHX_ str);
 OUTPUT:  RETVAL
 
 int
