@@ -626,7 +626,7 @@ sub bytes {
   die "1st arg to Math::MPFR::bytes must be either a string or a Math::MPFR object"
     if($itsa != 4 && $itsa != 5);
 
-  die "2nd argument given to Math::MPFR::bytes is neither 53 nor 64 nor 106 nor 113"
+  die "2nd argument given to Math::MPFR::bytes is neither 53 nor 64 nor 2098 nor 113"
     unless($bits == 53 || $bits == 64 || $bits == 2098 || $bits == 113);
 
   $ret = $itsa == 4 ? unpack MM_HP, pack $fmt{$bits}, $bytes   {$bits} -> ($val)
