@@ -104,11 +104,11 @@ REQUIRED_LDBL_MANT_DIG   : Defined to float.h's LDBL_MANT_DIG unless
                            This is needed to ensure that the mpfr value is
                            an accurate rendition of the double-double value.
 
-CHECK_ROUNDING_VALUE     : Macro that checks (on mpfr-versions 2.x.x only)
+CHECK_ROUNDING_VALUE     : Macro that checks (on pre-4.0.0 mpfr versions only)
                            that the rounding value provided is in the
-                           allowable range of 0-3 inclusive.
-                           (The range has been extended for versions 3.0.0
-                           and later.)
+                           allowable range of 0-4 inclusive.
+                           (On 2.x.x versions the allowable range is only 0-3,
+                           but we don't support those versions anyway.)
 
 CHECK_INPUT_BASE         : Macro that checks that the base (where specified)
                            is in the accepted range.
@@ -146,12 +146,13 @@ IVSIZE_BITS              : Defined only if MATH_MPFR_NEED_LONG_LONG_INT is
                            Currently, I think this symbol will only ever be
                            either undefined or set to 64 - and I suspect
                            that it could (currently) be replaced with a hard
-                           code 64 wherever it occurs in the code.
+                           coded 64 wherever it occurs in the code.
 
 _WIN32_BIZARRE_INFNAN    : Defined (on Windows only) when the perl version
                            (as expressed by $]) is less than 5.022.
-                           These earlier perl versions generally stringified
-                           NaNs as (-)1.#IND and Infs as (-)1.#INF.
+                           These earlier perl versions had bizarre strings
+                           representing NaNs (eg 1.#IND) and Infs (eg 1.#INF)
+                           on Win32.
 
 LD_SUBNORMAL_BUG         : Defined for mpfr-3.1.4 and earlier if and only if
                            LDBL_MANT_DIG == 64
