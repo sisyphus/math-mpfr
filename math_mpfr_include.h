@@ -156,6 +156,7 @@ _WIN32_BIZARRE_INFNAN    : Defined (on Windows only) when the perl version
 
 LD_SUBNORMAL_BUG         : Defined for mpfr-3.1.4 and earlier if and only if
                            LDBL_MANT_DIG == 64
+                           (The bug is in mpfr_get_ld)
 
 FALLBACK_NOTIFY          : If defined, $Math::MPFR::doubletoa_fallback
                            (initially set to 0) will be incremented by 1 on
