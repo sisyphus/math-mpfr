@@ -1593,22 +1593,24 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     of the ISO C standard.
 
    $si2 = Rmpfr_check_range($op, $si1, $rnd);
-    This function has changed from earlier implementations.
-    It now forces $op to be in the current range of acceptable
-    values, $si1 the current ternary value: negative if $op is
-    smaller than the exact value, positive if $op is larger than the
-    exact value and zero if $op is exact (before the call). It generates
-    an underflow or an overflow if the exponent of $op is outside the
-    current allowed range; the value of $si1 may be used to avoid a
-    double rounding. This function returns zero if the rounded result
-    is equal to the exact one, a positive value if the rounded result
-    is larger than the exact one, a negative value if the rounded
-    result is smaller than the exact one. Note that unlike most
-    functions, the result is compared to the exact one, not the input
-    value $op, i.e. the ternary value is propagated.
-    Note: If $op is an infinity and $si1 is different from zero
-    (i.e., if the rounded result is an inexact infinity), then the
-    overflow flag is set.
+    This function assumes that $op is the correctly rounded value of
+    some real value X in the direction $rnd and some extended exponent
+    range, and that $si1 is the corresponding ternary value. Thus $si1
+    is negative if $op is smaller than X, positive if $op is larger than
+    X, and zero if $op equals X.
+    This function modifies $op if needed to be in the current range of
+    acceptable values. It generates an underflow or an overflow if the
+    exponent of $op is outside the current allowed range; the value of
+    $si1 may be used to avoid a double rounding. This function returns
+    zero if the new value of $op equals the exact one X, a positive
+    value if that new value is larger than X, and a negative value if
+    it is smaller than X. Note that unlike most functions, the new
+    result $op is compared to the (unknown) exact one X, not the input
+    value $op, i.e., the ternary value is propagated.
+
+    Note: If $op is an infinity and $si1 is different from zero (i.e.,
+          if the rounded result is an inexact infinity), then the
+          overflow flag is set.
 
    Rmpfr_set_underflow();
    Rmpfr_set_overflow();
@@ -1728,22 +1730,25 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     $str will appear in standard decimal format, containing the
     *minimum* number of digits such that the condition ($str == $nv)
     is true.
-    NOTE 1: Except for perls whose nvtype is __float128, perl versions
-            prior to 5.29.4, or subsequent versions that don't define
-            $Config{d_strtod} (or, respectively, $Config{d_strtold}
-            for -Duselongdouble builds) are buggy in their assignment
-            of values to the NV. The nvtoa() function looks only at
-            the value that was passed to it - which, with such buggy
-            perls, may differ from the intended value by a few ULPs.
-            When it matters, assign with atonv() - which requires
-            mpfr-3.1.6.
-    NOTE 2: Be wary of values assigned by perl to double-double NVs.
-            Such assignments may be incorrect by up to a few ULPs,
-            irrespective of the perl version.
-            When it matters, assign with atonv() - which requires
-            mpfr-3.1.6.
+    NOTE 1: Except for perls whose nvtype is __float128:
+             1) perl versions prior to 5.30.0 are buggy in their
+                assignemt of values to the NV;
+             2) perl versions from 5.30.0 on that don't define
+                $Config{d_strtod} (or respectively $Config{d_strtold}
+                for -Duselongdouble builds) are also buggy in their
+                assignmentof values to the NV.
+            The nvtoa() function looks only at the value that was
+            passed to it - which, with such buggy perls, may differ
+            from the intended value by a few ULPs.
+            On these buggy perls, the bug can be avoided by assigning
+            with atonv() - which requires mpfr-3.1.6 or later.
+    NOTE 2: Be wary of values assigned by perl to double-double NVs,
+            as such assignments may also be buggy, irrespective of
+            the perl version.
+            Again, with these perls, assign using atonv() - which
+            requires mpfr-3.1.6 or later.
             With double-double NVs, nvtoa() currently requires
-            mpfr-4.0.0.
+            mpfr-4.0.0 or later.
 
    $MPFR_version = Rmpfr_get_version();
     Returns the version of the MPFR library (eg 4.0.2) being used by
@@ -1783,7 +1788,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     of Math::MPFR took place.
 
    $ui = MPFR_VERSION_NUM($major, $minor, $patchlevel);
-    Returns the value for MPFR_VERSION on "MPFR-$major.$minor.$patchlevel".
+    Returns the value for MPFR_VERSION for "MPFR-$major.$minor.$patchlevel".
 
    $str = Rmpfr_get_patches();
     Return a string containing the ids of the patches applied to the
@@ -2473,7 +2478,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
     This program is free software; you may redistribute it and/or
     modify it under the same terms as Perl itself.
-    Copyright 2006-2019 Sisyphus
+    Copyright 2006-2020 Sisyphus
 
 =head1 AUTHOR
 
