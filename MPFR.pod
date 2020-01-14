@@ -844,7 +844,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
                                            # given to Makefile.PL
    $nv     = Rmpfr_get_NV($op, $rnd);    # double/long double/__float128
    $float  = Rmpfr_get_flt($op, $rnd);   # mpfr-3.0.0 and later
-   Rmpfr_get_LD($LD, $op, $rnd); # $LD is a Math::LongDouble object.
+   Rmpfr_get_LD($LD, $op, $rnd);         # $LD is a Math::LongDouble object.
    Rmpfr_get_DECIMAL64($d64, $op, $rnd); # mpfr-3.1.0 or later &&
                                          # mpfr lib built with
                                          # --enable-decimal-float
@@ -2383,78 +2383,75 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
                                   # been loaded, or quadmath.h does not
                                   # define FLT128_DIG
 .
-   $min_prec = mpfr_min_inter_prec($orig_base, $orig_length, $to_base);
-   $max_len  = mpfr_max_orig_len($orig_base, $to_base, $to_prec);
-   $min_base = mpfr_min_inter_base($orig_base, $orig_length, $to_prec);
-   $max_base = mpfr_max_orig_base($orig_length, $to_base, $to_prec);
+   $min_prec = mpfr_min_inter_prec($orig_base, $orig_prec, $to_base);
 
-   The last 4 of the above functions establish the relationship between
-   $orig_base, $orig_length, $to_base and $to_prec.
-   Given any 3 of those 4, there's a function there to determine the
-   value of the 4th.
+     NOTE: $min_prec can be (very rarely) off by one if $orig_prec is in
+           the millions, or if either $orig_base or $to_base are
+           outside of the range 2..64.
 
-   Let's say we have some base 10 floating point numbers comprising 16
-   significant digits, and we want to convert those numbers to a base 2
-   data type (say, 'long double').
-   If we then convert the value of that long double to a 16-digit base 10
-   float are we guaranteed of getting the original value back ?
-   It all depends upon the precision of the 'long double' type, and the
-   min_inter_prec() subroutine will tell you what the minimum
-   required precision is (in order to be sure of getting the original
-   value back). We have:
+     Example 1:
+     Let's say we have some base 10 integers comprising 16 base 10
+     digits, and we want to represent those numbers in base 2 (binary).
+     What is the minimum required number of bits, such that it can be
+     guaranteed that converting the base 2 representations back to base
+     10 will result in the original 16 digit representations ?
 
-    $min_prec = mpfr_min_inter_prec($orig_base, $orig_length, $to_base);
+     We can calculate that minimum required precision with:
+       $min_prec = mpfr_min_inter_prec($orig_base, $orig_prec, $to_base);
 
-   In our example case that becomes:
+     In this example case that becomes:
+     $min_prec = mpfr_min_inter_prec(10, 16, 2);
+     which will set $min_prec to 55.
 
-    $min_prec = mpfr_min_inter_prec(10, 16, 2);
+     That is, so long as our base 2 representations provide at least 55
+     bits, we can pass 16-digit, base 10, integer values to them,
+     and be assured of retrieving the original base 10 representation when
+     we convert the base 2 representations back to base 10.
+     Sure ... not all 16-digit values require 55 bits, but there are some
+     that do ... and there are none that require more than  55 bits.
 
-   which will set $min_prec to 55.
-   That is, so long as the long double type has a precision of at least 55
-   bits, you can pass 16-digit, base 10, floating point values to it and
-   back again, and be assured of retrieving the original value.
-   (Naturally, this is assuming absence of buggy behaviour, and correct
-   rounding practice.)
+     Example 2:
+     $min_prec = mpfr_min_inter_prec(2, 53, 10);
+     $min_prec is set to 17.
+     This tells us that a base 10 representation of a 53-bit integer needs
+     to comprise at least 17 digits if we are to be assured that assigning
+     that base 10 representation to a 53-bit integer will result in a
+     53-bit integer that is identical to the first.
+     Otherwise, there is no such assurance.
 
-   Similarly, you might like to know the maximum significant number of
-   base 10 digits that can be specified, when assigning to (say) a
-   53-bit double. We have:
 
-    $max_len = mpfr_max_orig_len($orig_base, $to_base, $to_prec);
+   $max_prec = mpfr_max_orig_prec ($orig_base, $to_base, $to_prec);
 
-   For this second example that becomes:
+     NOTE: $max_prec can be (very rarely) off by one if $to_prec is in
+           the millions, or if either $orig_base or $to_base are
+           outside of the range 2..64.
 
-    $max_len = mpfr_max_orig_len(10, 2, 53);
+     For example:
+     To determine the maximum significant number of base 10 digits that
+     can be specified, when assigning to a 53-bit double. We have:
 
-   which will set $max_len to 15.
+     $max_len = mpfr_max_orig_len($orig_base, $to_base, $to_prec);
 
-   That is, so long as your base 10 float consists of no more than 15
-   siginificant digits, you can pass it to a 53-bit double and back again,
-   and be assured of retrieving the original value.
-   (Again, we assume absence of bugs and correct rounding practice.)
+     For this example that becomes:
 
-   It is to be expected that
-    mpfr_max_orig_len(10, 2, $double_prec)
-    and
-    mpfr_max_orig_len(10, 2, $long_double_prec)
-   will (resp.) return the same values as MPFR_DBL_DIG and MPFR_LDBL_DIG.
-   ($double_prec is the precision, in bits, of the C 'double' type,
-   and $long_double_prec is the precision, in bits, of the C 'long double'
-   type.)
+     $max_len = mpfr_max_orig_len(10, 2, 53);
 
-   The last 2 of the above subroutines (ie mpfr_min_inter_base and
-   mpfr_max_orig_base) are provided mainly for completeness.
-   Normally, there wouldn't be a need to use these last 2 forms ... but
-   who knows ...
+     which will set $max_len to 15.
+     That is, so long as our base 10 integer consists of no more than
+     15 significant digits, we can assign it to a 53-bit double and be
+     assured of retrieving the original value upon converting that
+     double back to a 15-digit base 10 representation.
+     Otherwise, there is no such assurance.
 
-   The above examples demonstrate usage in relation to conversion between
-   bases 2 and 10. The functions apply just as well to conversions
-   between bases of any values.
+     It is to be expected that
+      mpfr_max_orig_len(10, 2, 53) == DBL_DIG
+      and
+      mpfr_max_orig_len(10, 2, 113) == FLT128_DIG
+      and
+      mpfr_max_orig_len(10, 2, $long_double_prec) == LDBL_DIG
 
-   The Math::LongDouble module provides 4 identical functions, prefixed
-   with 'ld_' instead of 'mpfr_' (to avoid name clashes).
-   Similarly, it provides constants (prefixed with 'LD_' instead of
-   'MPFR_') that reflect the values of float.h's DBL_DIG and LDBL_DIG.
+     (where $long_double_prec is the precision, in bits, of the
+     the C 'long double' type - usually either 53 or 64 or 113.)
 
    #####################
 
