@@ -589,35 +589,90 @@ sub GMP_LIMB_BITS           () {return _GMP_LIMB_BITS()}
 sub GMP_NAIL_BITS           () {return _GMP_NAIL_BITS()}
 
 sub mpfr_min_inter_prec {
-    die "Wrong number of args to minimum_intermediate_prec()" if @_ != 3;
-    my $orig_base = shift;
-    my $orig_length = shift;
-    my $to_base = shift;
-    return ceil(1 + ($orig_length * log($orig_base) / log($to_base)));
-}
+    die "Wrong number of args to mpfr_min_inter_prec()" unless @_ == 3;
+    my $ob = shift; # base of original representation
+    my $op = shift; # precision (no. of base $ob digits in mantissa) of original representation
+    my $nb = shift; # base of new representation
+    my $np;         # min required precision (no. of base $nb digits in mantissa) of new representation
 
-sub mpfr_min_inter_base {
-    die "Wrong number of args to minimum_intermediate_base()" if @_ != 3;
-    my $orig_base = shift;
-    my $orig_length = shift;
-    my $to_prec = shift;
-    return ceil(exp($orig_length * log($orig_base) / ($to_prec - 1)));
+    my %h = (2 => 1, 4 => 2, 8 => 3, 16 => 4, 32 => 5, 64 => 6,
+             3 => 1, 9 => 2, 27 => 3,
+             5 => 1, 25 => 2,
+             6 => 1, 36 => 2,
+             7 => 1, 49 => 2);
+
+    return $op
+      if $ob == $nb;
+
+    if(_bases_are_power_of_same_integer($ob, $nb)) {
+      $np = POSIX::ceil($op * $h{$ob} / $h{$nb});
+      return $np;
+    }
+
+    $np = POSIX::ceil(1 + ($op * log($ob) / log($nb)));
+    return $np;
 }
 
 sub mpfr_max_orig_len {
     die "Wrong number of args to maximum_orig_length()" if @_ != 3;
-    my $orig_base = shift;
-    my $to_base = shift;
-    my $to_prec = shift;
-    return floor(1 / (log($orig_base) / log($to_base) / ($to_prec - 1)));
+    my $ob = shift; # base of original representation
+    my $nb = shift; # base of new representation
+    my $np = shift; # precision (no. of base $nb digits in mantissa) of new representation
+    my $op;         # max precision (no. of base $ob digits in mantissa) of original representation
+
+    my %h = (2 => 1, 4 => 2, 8 => 3, 16 => 4, 32 => 5, 64 => 6,
+             3 => 1, 9 => 2, 27 => 3,
+             5 => 1, 25 => 2,
+             6 => 1, 36 => 2,
+             7 => 1, 49 => 2);
+
+    return $np
+      if $ob == $nb;
+
+    if(_bases_are_power_of_same_integer($ob, $nb)) {
+      $op = POSIX::floor($np * $h{$nb} / $h{$ob});
+      return $op;
+    }
+
+    $op = POSIX::floor(($np - 1) * log($nb) / log($ob));
+    return $op;
 }
 
-sub mpfr_max_orig_base {
-    die "Wrong number of args to maximum_orig_base()" if @_ != 3;
-    my $orig_length = shift;
-    my $to_base = shift;
-    my $to_prec = shift;
-    return floor(exp(1 / ($orig_length / log($to_base) / ($to_prec -1))));
+sub _bases_are_power_of_same_integer {
+
+  # This function currently doesn't get called if $_[0] == $_[1]
+  # Return true if:
+  # 1) Both $_[0] and $_[1] are in the range 2..64 (inclusive)
+  #    &&
+  # 2) Both $_[0] and $_[1] are powers of the same integer - eg 8 & 32, or 9 & 27, or 7 & 49, ....
+  # Else return false.
+
+  return 1
+    if( ($_[0] == 2 || $_[0] == 16 || $_[0] == 8 || $_[0] == 64 || $_[0] == 32 || $_[0] == 4)
+           &&
+        ($_[1] == 2 || $_[1] == 16 || $_[1] == 8 || $_[1] == 64 || $_[1] == 32 || $_[1] == 4) );
+
+  return 1
+    if( ($_[0] == 3 || $_[0] == 9 || $_[0] == 27)
+           &&
+        ($_[1] == 3 || $_[1] == 9 || $_[1] == 27) );
+
+  return 1
+    if( ($_[0] == 5 || $_[0] == 25)
+           &&
+        ($_[1] == 5 || $_[1] == 25) );
+
+  return 1
+    if( ($_[0] == 6 || $_[0] == 36)
+           &&
+        ($_[1] == 6 || $_[1] == 36) );
+
+  return 1
+    if( ($_[0] == 7 || $_[0] == 49)
+           &&
+        ($_[1] == 7 || $_[1] == 49) );
+
+  return 0;
 }
 
 sub bytes {
