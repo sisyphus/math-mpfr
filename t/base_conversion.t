@@ -3,7 +3,7 @@ use warnings;
 use Test::More tests => 37;
 use Math::MPFR qw(:mpfr);
 
-# The relationship between mpfr_inte_prec() and mpfr_max_orig_len() that
+# The relationship between mpfr_inter_prec() and mpfr_max_orig_len() that
 # is present in the first 24 tests, does not always hold true. See tests
 # 25..36 for example.
 # However, that relationship should always hold true if $in[0] >= $in[2]
