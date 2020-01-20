@@ -6829,16 +6829,16 @@ SV * _ld_bytes(pTHX_ SV * str) {
 
 
     mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-    emax = bits == 64 ? 16445 : 16494;
-    emin = mpfr_get_exp(temp) + emax;
+    emax = 16445;
+    emin = mpfr_get_exp(temp) + 16445;
 
-      /* mpfr_get_ld is buggy for extended precision subnormal *
-       * values with 3.1.4 and earlier. Hence, croak when this *
-       * condition exists.                                      */
+   /* mpfr_get_ld is buggy for extended precision subnormal    *
+    * values with 3.1.4 and earlier. Hence, croak when this    *
+    * condition exists (ie when LD_SUBNORMAL_BUG is dsefined.) */
 
 #  ifdef LD_SUBNORMAL_BUG
 
-         if(mpfr_regular_p(temp) && emin >= 0 && emin < bits) {
+         if(mpfr_regular_p(temp) && emin >= 0 && emin < 64) {
            warn("\n mpfr_get_ld is buggy (subnormal values only)\n for this version (%s) of the MPFR library\n", MPFR_VERSION_STRING);
            croak(" Version 3.1.5 or later is required");
          }
@@ -6888,7 +6888,7 @@ SV * _ld_bytes(pTHX_ SV * str) {
       }
     }  /* close "if(emin <= 1)" */
     else {
-      if(emin < bits) {
+      if(emin < 64) {
         mpfr_set_prec(temp, emin);
         mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
       }
