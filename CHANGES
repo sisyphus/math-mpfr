@@ -1,3 +1,5 @@
+4.14
+
 4.13
  - Fix bug in t/rndna.t and t/rndna2.t (exposed by:
    http://www.cpantesters.org/cpan/report/90030d18-8f4f-11e9-a14c-c69b77725194 )
