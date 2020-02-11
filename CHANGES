@@ -1,4 +1,8 @@
 4.14
+ - #include <inttypes.h> at beginning of grisu3.h to address:
+   https://www.cpantesters.org/cpan/report/0d8a8dfd-6bf4-1014-a7c0-8323ad4a5811
+ - Fix https://www.cpantesters.org/cpan/report/3622b742-4202-11ea-8c53-8f701f24ea8f
+   by amending Makefile.PL
 
 4.13
  - Fix bug in t/rndna.t and t/rndna2.t (exposed by:
