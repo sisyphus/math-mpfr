@@ -192,7 +192,8 @@ else { # we still need to determine whether__float128 should be supported.
 
     $mylibs = '-lmpfr -lgmp -lquadmath' unless $mylibs;
 
-    my $out = `$mycc -o have_f128.exe -x c have_f128.in 2>&1`;
+    # Include $mylibs to ensure that -lquadmath is locatable.
+    my $out = `$mycc -o have_f128.exe -x c have_f128.in $mylibs 2>&1`;
 
     if($out) {
       print "$out\n";
