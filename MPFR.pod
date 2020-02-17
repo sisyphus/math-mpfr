@@ -1750,6 +1750,12 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
             With double-double NVs, nvtoa() currently requires
             mpfr-4.0.0 or later.
 
+   $str = numtoa($sv);
+    As for nvtoa() but prints out UVs and IVs in integer format.
+    (If UV-precision is greater than NV-precision then nvtoa()
+    output loses precision as it prints out UVs and IVs in floating
+    point format.)
+
    $MPFR_version = Rmpfr_get_version();
     Returns the version of the MPFR library (eg 4.0.2) being used by
     Math::MPFR.
