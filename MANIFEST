@@ -59,6 +59,7 @@ t/not_zero.t
 t/new.t
 t/new_in_4.0.0.t
 t/new_in_4.1.0.t
+t/numtoa.t
 t/nvtoa.t
 t/nvtoa2.t
 t/nvtoa3.t
