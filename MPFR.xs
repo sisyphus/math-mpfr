@@ -8807,6 +8807,25 @@ int _fallback_notify(void) {
 #endif
 }
 
+SV * numtoa(pTHX_ SV * in) {
+  char buffer[24];
+
+  if(!SvOK(in) || SvUOK(in)) {
+    sprintf(buffer, "%" UVuf, SvUV(in));
+    return newSVpv(buffer, 0);
+  }
+
+  if(SvIOK(in)) {
+    sprintf(buffer, "%" IVdf, SvIV(in));
+    return newSVpv(buffer, 0);
+  }
+
+  if(SvNOK(in)) {
+    return nvtoa(aTHX_ SvNV(in));
+  }
+
+  croak("Not a numeric argument given to numtoa function");
+}
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
 
@@ -13149,4 +13168,11 @@ doubletoa (sv, ...)
 int
 _fallback_notify ()
 
+
+SV *
+numtoa (in)
+	SV *	in
+CODE:
+  RETVAL = numtoa (aTHX_ in);
+OUTPUT:  RETVAL
 
