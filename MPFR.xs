@@ -8808,7 +8808,7 @@ int _fallback_notify(void) {
 }
 
 SV * numtoa(pTHX_ SV * in) {
-  char buffer[24];
+  char buffer[IVSIZE * 3];
 
   if(!SvOK(in) || SvUOK(in)) {
     sprintf(buffer, "%" UVuf, SvUV(in));
