@@ -1753,7 +1753,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $str = numtoa($sv);
     As for nvtoa() but prints out UVs and IVs in integer format.
     (If UV-precision is greater than NV-precision then nvtoa()
-    output loses precision as it prints out UVs and IVs in floating
+    output can lose precision as it prints out UVs and IVs in floating
     point format.)
 
    $MPFR_version = Rmpfr_get_version();
