@@ -1,7 +1,6 @@
-4.15
- - Add numtoa()
 
 4.14
+ - Add numtoa()
  - #include <inttypes.h> at beginning of grisu3.h to address:
    https://www.cpantesters.org/cpan/report/0d8a8dfd-6bf4-1014-a7c0-8323ad4a5811
  - Fix https://www.cpantesters.org/cpan/report/3622b742-4202-11ea-8c53-8f701f24ea8f
