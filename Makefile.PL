@@ -312,6 +312,10 @@ if($Config{nvsize} == 8) {
   else { print "\ndoubletoa() fallback notification DISABLED\n\n" }
 }
 
+for(@ARGV) {
+  $defines .= ' -DDRAGON_DEBUG' if $_ =~ /DRAGON_DEBUG/i;
+}
+
 # NOTE: The '-lquadmath' link we provide below
 #       to 'LIBS' is generally not needed.
 #       It is, however, currently needed on at
