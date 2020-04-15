@@ -7986,7 +7986,20 @@ SV * nvtoa(pTHX_ NV pnv) {
   mpz_init(LHS);
   mpz_init(TMP);
 
+/***********************************************************************************
+ * Set bits to the precision of the mantissa. If the value is subnormal,           *
+ * then bits will be set to the actual precision of the subnormal value.           *
+ * Also set exp to the (binary) exponent.                                          *
+ * eg (for nvtype of double):                                                      *
+ *  if nv == 10000000000.0 (0x1.2a05f2p+33)         then e == 34    and bits == 53 *
+ *  if nv == 1.125e-100    (0x1.f7f14c11fc5d6p-333) then e == -332  and bits == 53 *
+ *  if nv == 2 ** -1074    (0x1p-1074)              then e == -1073 and bits == 1  *
+ ***********************************************************************************/
   _get_exp_and_bits( &e, &bits, nv);
+
+#ifdef DRAGON_DEBUG
+  warn("exponent: %d bits: %d\n", e, bits);
+#endif
 
 #if REQUIRED_LDBL_MANT_DIG == 2098 && defined(NV_IS_LONG_DOUBLE)
 
@@ -7994,7 +8007,7 @@ SV * nvtoa(pTHX_ NV pnv) {
 
 #else
 
-  if(bits < MATH_MPFR_BITS) is_subnormal = 1;
+  if(bits < MATH_MPFR_BITS) is_subnormal = 1; /* MATH_MPFR_BITS == precision of NV's mantissa */
 
 #endif
 
@@ -8075,11 +8088,15 @@ SV * nvtoa(pTHX_ NV pnv) {
     }
 #endif
 
+  }
+
 /********************************
  * assignment to f is completed *
  ********************************/
 
-  }
+#ifdef DRAGON_DEBUG
+   warn("f is %s\n", f);
+#endif
 
 #if defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098			/* doubledouble */
 
@@ -8088,11 +8105,20 @@ SV * nvtoa(pTHX_ NV pnv) {
 
 #else
 
+/******************************************************************************
+ * eg (for nvtype of double):                                                 *
+ *  if nv == 10000000000.0 (0x1.2a05f2p+33) then f is 12a05f20000000 and      *
+ *           e == 34, bits == 53. (Note that nv == 0x0.12a05f20000000p34)     *
+ *  if nv == 1.125e-100 (0x1.f7f14c11fc5d6p-333) then f is 1f7f14c11fc5d6 and *
+ *           e == -332, bits == 53. (Note that nv == 0x0.1f7f14c11fc5d6p-333) *
+ *  if nv == 2 **-1074 (0x1p-1074) then f is 1 and e == -1073, bits == 1.     *
+ *           (Note that nv == 0x0.1p-1073)                                    *
+ ******************************************************************************/
   mpz_set_str(R, f, 16);
 
 #endif
 
-  lsb = mpz_tstbit(R, 0);
+  lsb = mpz_tstbit(R, 0); /* Set lsb to the value of R's least significant bit */
   mpz_set(TMP, R);
 
   if(mpz_cmp_ui(R, 0) < 1) croak("Negative value in nvtoa XSub is not allowed");
@@ -8110,7 +8136,7 @@ SV * nvtoa(pTHX_ NV pnv) {
   mpz_mul_2exp(M_minus, M_minus, shift1);
   mpz_set(M_plus, M_minus);
 
-  /*************** simple_fixup() **************/
+  /*************** start simple fixup **************/
 
   if(!is_subnormal) {
     mpz_set_ui(LHS, 1);
@@ -8178,7 +8204,7 @@ SV * nvtoa(pTHX_ NV pnv) {
     }                                 /* close second while loop */
   }
 
-  /*********************************************/
+  /*********************** finish simple fixup **********************/
 
   k_index = -1;
 
@@ -8253,8 +8279,18 @@ SV * nvtoa(pTHX_ NV pnv) {
    * Format the result *
    *********************/
 
-  k_index++; /* k_index is now set to strlen(out) */
+#ifdef DRAGON_DEBUG
+  warn("final string: %s\n k = %d\n", out, k);
+#endif
 
+/*******************************************************************************************
+ * eg (for nvtype of double):                                                              *
+ *  if nv == 10000000000.0, final string is set to 1, k == 11.  Note that nv == 0.1e11     *
+ *  if nv == 1.125e-100, final string is set to 1125, k == -99. Note that nv == 0.1125e-99 *
+ *  if nv == 2 ** -1074, final string is set to 5, k == -323.   Note that nv == 0.5e-323   *
+ *******************************************************************************************/
+
+  k_index++;    /* k_index is now set to strlen(out)     */
   critical = k; /* formatting is based around this value */
   k -= k_index;
 
