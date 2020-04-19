@@ -5,6 +5,10 @@ use Config;
 
 use Math::MPFR qw(:mpfr);
 
+my $dd = 0;
+   $dd = 1 if(2 ** 100 + 2 ** -100 > 2 ** 100); # NV is DoubleDouble
+
+
 use Test::More tests => 6;
 
 if($Config{ivsize} == 8) {
@@ -34,7 +38,11 @@ else {
 
 cmp_ok( numtoa(-17), 'eq', '-17', 'handles IVs correctly' );
 
-cmp_ok( numtoa(0.1 / 10), 'eq', '0.01', 'handles NVs correctly' );
+my $f = 0.1 / 10;
+my $f_correct = '0.01';
+   $f_correct = '0.00999999999999999999999999999999996' if $dd; # NV is DoubleDouble
+
+cmp_ok( numtoa($f), 'eq', $f_correct, 'handles NVs correctly' );
 
 eval { numtoa('hello world'); };
 
