@@ -7703,13 +7703,29 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
  *********************/
 
 #elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098	/* double-double */
+
+  /***********************************************************************
+   * We don't need to determine the correct value of *exp as that value  *
+   * is calculated after this sub returns. All we need here is a correct *
+   * evaluation of *bits - for which we do need to look at the exponents *
+   * of both doubles.                                                    *
+   * In the event that it might be useful at some point in the future,   *
+   * I'm including the additional code (albeit, commented out) that also *
+   * derives the correct value of *exp.                                  *
+   ***********************************************************************/
+
   int msd_exp, lsd_exp, t, lsd_is_negative_reduction = 0, lsd_is_zero = 0;
 
+  /*******************************************************
+   * Determine if the least siginificant double is zero. *
+   * If so, set lsd_is_zero to 1 and set *bits to 53.    *
+   *******************************************************/
+
   if( (128 == ((unsigned char *)nvptr)[LSD_BYTE_1] || 0 == ((unsigned char *)nvptr)[LSD_BYTE_1])  &&
-        0 == ((unsigned char *)nvptr)[LSD_BYTE_2]  && 0 == ((unsigned char *)nvptr)[LSD_BYTE_3]    &&
-        0 == ((unsigned char *)nvptr)[LSD_BYTE_4] && 0 == ((unsigned char *)nvptr)[LSD_BYTE_5]    &&
-        0 == ((unsigned char *)nvptr)[LSD_BYTE_6] && 0 == ((unsigned char *)nvptr)[LSD_BYTE_7]    &&
-        0 == ((unsigned char *)nvptr)[LSD_BYTE_8]
+         0 == ((unsigned char *)nvptr)[LSD_BYTE_2] && 0 == ((unsigned char *)nvptr)[LSD_BYTE_3]   &&
+         0 == ((unsigned char *)nvptr)[LSD_BYTE_4] && 0 == ((unsigned char *)nvptr)[LSD_BYTE_5]   &&
+         0 == ((unsigned char *)nvptr)[LSD_BYTE_6] && 0 == ((unsigned char *)nvptr)[LSD_BYTE_7]   &&
+         0 == ((unsigned char *)nvptr)[LSD_BYTE_8]
       ) {
     lsd_is_zero = 1;
     *bits = 53;
@@ -7752,18 +7768,13 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
       (*exp)--;
 
-      if(*exp > 53) {   /* replaces incorrect condition: (*exp > 53 && *exp < 106) *//* 23 Nov 2019 */
-        *bits = *exp;
-      }
-
-      else {
-        if(*exp < 53)
-        *bits += 1022 + *exp;
-      }
+      if(*exp > 53) *bits = *exp;
+      else if(*exp < 53) *bits += 1022 + *exp;
+      *exp += lsd_is_zero;
     }
     else {
-      *exp  -= subnormal_prec_adjustment - 1;
       *bits =  53 - subnormal_prec_adjustment;
+      *exp  -= subnormal_prec_adjustment - 1;
     }
 
   }
@@ -7788,33 +7799,41 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
     if(lsd_is_zero) *bits = 53;
     else *bits = 53 + msd_exp - lsd_exp;
-
-    if(lsd_is_negative_reduction) {		/* lsd is negative and not zero */
-      if(msd_exp - lsd_exp > 53) {		/* need to check that msd is not a power of 2 */
-
-          for(DD_CONDITION_2) {			/* big endian:    (i=2 ;i<8;i++) */
-						/* little endian: (i=13;i>7;i--) */
-
-            t = ((unsigned char *)nvptr)[i];
-            if(t != 0) {
-              lsd_is_negative_reduction = 0;
-              break;
-            }
-          }
-
-          if(lsd_is_negative_reduction) {
-            t = ((unsigned char *)nvptr)[IND_1];
-            if(t & 15) {
-              lsd_is_negative_reduction = 0;
-            }
-          }
-      }
-      else lsd_is_negative_reduction = 0;
-    }
-
+/*****************************************************************************************************
+ * Include this slab of code to correctly calculate *exp                                             *
+ *                                                                                                   *
+ *   if(lsd_is_negative_reduction) {		*//* lsd is negative and not zero *//*               *
+ *     if(msd_exp - lsd_exp > 53) {		*//* need to check that msd is not a power of 2 *//* *
+ *                                                                                                   *
+ *       for(DD_CONDITION_2) {			*//* big endian:    (i=2 ;i<8;i++) *//*              *
+ *						*//* little endian: (i=13;i>7;i--) *//*              *
+ *                                                                                                   *
+ *         t = ((unsigned char *)nvptr)[i];                                                          *
+ *         if(t != 0) {                                                                              *
+ *           lsd_is_negative_reduction = 0;                                                          *
+ *           break;                                                                                  *
+ *         }                                                                                         *
+ *       }                                                                                           *
+ *                                                                                                   *
+ *       if(lsd_is_negative_reduction) {                                                             *
+ *         t = ((unsigned char *)nvptr)[IND_1];                                                      *
+ *         if(t & 15) {                                                                              *
+ *           lsd_is_negative_reduction = 0;                                                          *
+ *         }                                                                                         *
+ *       }                                                                                           *
+ *     }                                                                                             *
+ *     else lsd_is_negative_reduction = 0;                                                           *
+ *   }                                                                                               *
+ *****************************************************************************************************/
     if(lsd_exp < -1022) *bits += (lsd_exp + 1022);
     if(lsd_exp == -1022) *bits -= 1;
-    *exp = msd_exp - lsd_is_negative_reduction;
+
+/****************************************************************************************************
+ * Include next line for accurate calculation of *exp:                                              *
+ *                                                                                                  *
+ * *exp = msd_exp - lsd_is_negative_reduction;                                                      *
+ ****************************************************************************************************/
+
   }
 
 /*******************
@@ -7987,19 +8006,17 @@ SV * nvtoa(pTHX_ NV pnv) {
   mpz_init(TMP);
 
 /***********************************************************************************
- * Set bits to the precision of the mantissa. If the value is subnormal,           *
- * then bits will be set to the actual precision of the subnormal value.           *
+ * Set bits to the precision of the mantissa, including any implicit leading bit.  *
+ * If the value is subnormal, then bits will be set to the actual precision of the *
+ * subnormal value. See the examples given a couple of lines below.                *
  * Also set exp to the (binary) exponent.                                          *
  * eg (for nvtype of double):                                                      *
  *  if nv == 10000000000.0 (0x1.2a05f2p+33)         then e == 34    and bits == 53 *
  *  if nv == 1.125e-100    (0x1.f7f14c11fc5d6p-333) then e == -332  and bits == 53 *
+ *  if nv == 2 ** -1073    (0x1p-1073)              then e == -1072 and bits == 2  *
  *  if nv == 2 ** -1074    (0x1p-1074)              then e == -1073 and bits == 1  *
  ***********************************************************************************/
   _get_exp_and_bits( &e, &bits, nv);
-
-#ifdef DRAGON_DEBUG
-  warn("exponent: %d bits: %d\n", e, bits);
-#endif
 
 #if REQUIRED_LDBL_MANT_DIG == 2098 && defined(NV_IS_LONG_DOUBLE)
 
@@ -8030,9 +8047,9 @@ SV * nvtoa(pTHX_ NV pnv) {
     k++;
 
 #  if defined(MPFR_HAVE_BENDIAN)
-      for(skip = 2; skip <= 15; skip++) {
+    for(skip = 2; skip <= 15; skip++) {
 #  else
-      for(skip = 13; skip >= 0; skip--) {
+    for(skip = 13; skip >= 0; skip--) {
 #  endif
       low = ((unsigned char *)nvptr)[skip];
       f[k] = c[low >> 4];
@@ -8053,14 +8070,15 @@ SV * nvtoa(pTHX_ NV pnv) {
     if(f == NULL) croak("Failed to allocate memory for string buffer in nvtoa XSub");
 
     mpfr_get_str(f, &e, 2, bits, ws, GMP_RNDN);		/* using mpfr to set both f and e */
+
     mpfr_clear(ws);
 
 #elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64	/* 64 bit prec */
 
 #  if defined(MPFR_HAVE_BENDIAN)
-      for(skip = 2; skip <= 9; skip++) {
+    for(skip = 2; skip <= 9; skip++) {
 #  else
-      for(skip = 7; skip >= 0; skip--) {
+    for(skip = 7; skip >= 0; skip--) {
 #  endif
       low = ((unsigned char *)nvptr)[skip];
       f[k] = c[low >> 4];
@@ -8071,9 +8089,9 @@ SV * nvtoa(pTHX_ NV pnv) {
 #else									/* 53 bit prec */
 
 #  if defined(MPFR_HAVE_BENDIAN)
-      for(skip = 1; skip <= 7; skip++) {
+    for(skip = 1; skip <= 7; skip++) {
 #  else
-      for(skip = 6; skip >= 0; skip--) {
+    for(skip = 6; skip >= 0; skip--) {
 #  endif
       low = ((unsigned char *)nvptr)[skip];
       if(!k) {
@@ -8095,7 +8113,7 @@ SV * nvtoa(pTHX_ NV pnv) {
  ********************************/
 
 #ifdef DRAGON_DEBUG
-   warn("f is %s\n", f);
+   warn(" f is %s\n exponent is %d\n precision is %d\n", f, e, bits);
 #endif
 
 #if defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098			/* doubledouble */
@@ -8111,6 +8129,8 @@ SV * nvtoa(pTHX_ NV pnv) {
  *           e == 34, bits == 53. (Note that nv == 0x0.12a05f20000000p34)     *
  *  if nv == 1.125e-100 (0x1.f7f14c11fc5d6p-333) then f is 1f7f14c11fc5d6 and *
  *           e == -332, bits == 53. (Note that nv == 0x0.1f7f14c11fc5d6p-333) *
+ *  if nv == 2 **-1073 (0x2p-1073) then f is 2 and e == -1072, bits == 2.     *
+ *           (Note that nv == 0x0.2p-1072)                                    *
  *  if nv == 2 **-1074 (0x1p-1074) then f is 1 and e == -1073, bits == 1.     *
  *           (Note that nv == 0x0.1p-1073)                                    *
  ******************************************************************************/
@@ -8154,7 +8174,12 @@ SV * nvtoa(pTHX_ NV pnv) {
   mpz_cdiv_q_ui(LHS, S, 10);
 
   if(mpz_cmp(LHS, R) > 0) {
-    k = (int)floor(mpz_sizeinbase(LHS, 2) * 0.30102999566398119); /* 0.30102999566398119 < log(2)/log(10) */
+
+    /* Set k to be close to, but not greater than, the number of *
+     * decimal digits needed to represent the value of LHS.      *
+     * Note that 0.30102999566398119 < log(2)/log(10).           */
+
+    k = (int)floor(mpz_sizeinbase(LHS, 2) * 0.30102999566398119);
     if(k) k--;    /* k should not become -ve here */
     mpz_ui_pow_ui(TMP, 10, k);
     k *= -1;
@@ -8183,7 +8208,12 @@ SV * nvtoa(pTHX_ NV pnv) {
   if(mpz_cmp(LHS, TMP) >= 0) {
     skip = 0;
     mpz_div(TMP, LHS, TMP);
-    u = (int)floor(mpz_sizeinbase(TMP, 2) * 0.30102999566398119); /* 0.30102999566398119 < log(2)/log(10) */
+
+    /* Set u to be close to, but not greater than, the number of *
+     * decimal digits needed to represent the value of TMP.      *
+     * Note that 0.30102999566398119 < log(2)/log(10)            */
+
+    u = (int)floor(mpz_sizeinbase(TMP, 2) * 0.30102999566398119);
     if(u) u--;     /* Do not decrement if u is zero */
     mpz_ui_pow_ui(TMP, 10, u);
     k += u;
@@ -8212,6 +8242,10 @@ SV * nvtoa(pTHX_ NV pnv) {
                                                        exponent and sign */
 
   if(out == NULL) croak("Failed to allocate memory for output string in nvtoa XSub");
+
+  /* Each iteration of the following while() loop outputs, one at a time, the *
+   * digits of the final mantissa - except for the final (least significant)  *
+   * digit Which is set following the termination of the loop.                */
 
   while(1) {
 
@@ -8275,10 +8309,6 @@ SV * nvtoa(pTHX_ NV pnv) {
   mpz_clear(LHS);
   mpz_clear(TMP);
 
-  /*********************
-   * Format the result *
-   *********************/
-
 #ifdef DRAGON_DEBUG
   warn("final string: %s\n k = %d\n", out, k);
 #endif
@@ -8287,9 +8317,14 @@ SV * nvtoa(pTHX_ NV pnv) {
  * eg (for nvtype of double):                                                              *
  *  if nv == 10000000000.0, final string is set to 1, k == 11.  Note that nv == 0.1e11     *
  *  if nv == 1.125e-100, final string is set to 1125, k == -99. Note that nv == 0.1125e-99 *
+ *  if nv == 2 ** -1073, final string is set to 1, k == -322.   Note that nv == 0.1e-322   *
  *  if nv == 2 ** -1074, final string is set to 5, k == -323.   Note that nv == 0.5e-323   *
  *******************************************************************************************/
 
+
+  /*********************
+   * Format the result *
+   *********************/
   k_index++;    /* k_index is now set to strlen(out)     */
   critical = k; /* formatting is based around this value */
   k -= k_index;
