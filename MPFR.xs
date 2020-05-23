@@ -7924,10 +7924,6 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 /* by Guy L. Steele Jr and Jon L. White                                                     */
 
 SV * nvtoa(pTHX_ NV pnv) {
-  /*
-  dXSARGS;
-  */
-
   int subnormal_prec_adjustment, exp_init;
   int k = 0, k_index, lsb, skip = 0, sign = 0, len, critical;
   int bits = MATH_MPFR_BITS, is_subnormal = 0, shift1, shift2, inex, low, high, cmp;
@@ -8070,7 +8066,6 @@ SV * nvtoa(pTHX_ NV pnv) {
     if(f == NULL) croak("Failed to allocate memory for string buffer in nvtoa XSub");
 
     mpfr_get_str(f, &e, 2, bits, ws, GMP_RNDN);		/* using mpfr to set both f and e */
-
     mpfr_clear(ws);
 
 #elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64	/* 64 bit prec */
@@ -8113,15 +8108,8 @@ SV * nvtoa(pTHX_ NV pnv) {
  ********************************/
 
 #ifdef DRAGON_DEBUG
+
    warn(" f is %s\n exponent is %d\n precision is %d\n", f, e, bits);
-#endif
-
-#if defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098			/* doubledouble */
-
-  mpz_set_str(R, f, 2);
-  Safefree(f);
-
-#else
 
 /******************************************************************************
  * eg (for nvtype of double):                                                 *
@@ -8134,6 +8122,16 @@ SV * nvtoa(pTHX_ NV pnv) {
  *  if nv == 2 **-1074 (0x1p-1074) then f is 1 and e == -1073, bits == 1.     *
  *           (Note that nv == 0x0.1p-1073)                                    *
  ******************************************************************************/
+
+#endif
+
+#if defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098			/* doubledouble */
+
+  mpz_set_str(R, f, 2);
+  Safefree(f);
+
+#else
+
   mpz_set_str(R, f, 16);
 
 #endif
@@ -8171,7 +8169,7 @@ SV * nvtoa(pTHX_ NV pnv) {
   k = 0;	/* used above, so we reset to zero */
   skip = 0;	/* used above, so we reset to zero */
 
-  mpz_cdiv_q_ui(LHS, S, 10);
+  mpz_cdiv_q_ui(LHS, S, 10); /* LHS = ceil(S / 10) */
 
   if(mpz_cmp(LHS, R) > 0) {
 
@@ -8320,7 +8318,6 @@ SV * nvtoa(pTHX_ NV pnv) {
  *  if nv == 2 ** -1073, final string is set to 1, k == -322.   Note that nv == 0.1e-322   *
  *  if nv == 2 ** -1074, final string is set to 5, k == -323.   Note that nv == 0.5e-323   *
  *******************************************************************************************/
-
 
   /*********************
    * Format the result *
@@ -8561,7 +8558,11 @@ static int cached_pow(int exp, diy_fp *p) {
 
 static diy_fp minus(diy_fp x, diy_fp y) {
   diy_fp d; d.f = x.f - y.f; d.e = x.e;
-  assert(x.e == y.e && x.f >= y.f);
+#ifdef DTOA_ASSERT
+  if(x.e != y.e) croak("x.e != y.e");
+  if(x.f < y.f) croak("x.f < y.f");
+  /* assert(x.e == y.e && x.f >= y.f); */
+#endif
   return d;
 }
 
@@ -8580,7 +8581,10 @@ static diy_fp multiply(diy_fp x, diy_fp y) {
 }
 
 static diy_fp normalize_diy_fp(diy_fp n) {
-  assert(n.f != 0);
+#ifdef DTOA_ASSERT
+  if(n.f == 0) croak("n.f == 0");
+  /* assert(n.f != 0); */
+#endif
   while(!(n.f & 0xFFC0000000000000ULL)) { n.f <<= 10; n.e -= 10; }
   while(!(n.f & D64_SIGN)) { n.f <<= 1; --n.e; }
   return n;
@@ -8664,7 +8668,13 @@ static int grisu3(double v, char *buffer, int *length, int *d_exp) {
   diy_fp b_minus;
   diy_fp c_mk; /* Cached power of ten: 10^-k */
   uint64_t u64 = CAST_U64(v);
-  assert(v > 0 && v <= 1.7976931348623157e308); /* Grisu only handles strictly positive finite numbers. */
+#ifdef DTOA_ASSERT
+  if(v <= 0)
+    croak("v <= 0, but Grisu only handles strictly positive finite numbers");
+  if(v > 1.7976931348623157e308)
+    croak("v > 1.7976931348623157e308, but Grisu only handles strictly positive finite numbers");
+  /* assert(v > 0 && v <= 1.7976931348623157e308); *//* Grisu only handles strictly positive finite numbers. */
+#endif
   if (!(u64 & D64_FRACT_MASK) && (u64 & D64_EXP_MASK) != 0) { b_minus.f = (dfp.f << 2) - 1; b_minus.e =  dfp.e - 2;} /* lower boundary is closer? */
   else { b_minus.f = (dfp.f << 1) - 1; b_minus.e = dfp.e - 1; }
   b_minus.f = b_minus.f << (b_minus.e - b_plus.e);
@@ -8738,7 +8748,10 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
   int sign = items > 1 ? 0 : 1; /* A true value for sign implies that nvtoa(aTHX) will be used  *
                                  * if grisu3() fails to produce a result. Else sprintf()    *
                                  * will be used when grisu3() fails. See pod documentation. */
-  assert(dst);
+#ifdef DTOA_ASSERT
+  if(!dst) croak("dst does not hold a true value");
+  /* assert(dst); */
+#endif
 
   /* Prehandle NaNs */
   if((u64 << 1) > 0xFFE0000000000000ULL) {
