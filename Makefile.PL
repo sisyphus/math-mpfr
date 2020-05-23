@@ -312,8 +312,13 @@ if($Config{nvsize} == 8) {
   else { print "\ndoubletoa() fallback notification DISABLED\n\n" }
 }
 
+# The following defines serve as debugging
+# aids for nvtoa() and doubletoa()
 for(@ARGV) {
-  $defines .= ' -DDRAGON_DEBUG' if $_ =~ /DRAGON_DEBUG/i;
+  $defines .= ' -DDRAGON_DEBUG'  if $_ =~ /DRAGON_DEBUG/i;  # prints out (to STDERR) intermediate
+                                                            # values in nvtoa().
+  $defines .= ' -DDTOA_ASSERT'   if $_ =~ /DTOA_ASSERT/i; # runs checks at various points in doubletoa()
+                                                          # and croaks whenever a check fails.
 }
 
 # NOTE: The '-lquadmath' link we provide below
@@ -344,12 +349,6 @@ my %options = (
     },
   },
 );
-
-#my %prereq = ();
-#$prereq{'Math::Decimal64'} = '0.01' if $have_decimal64;
-#$prereq{'Math::Float128'}  = '0.01' if ($have_float128 && $Config{nvtype} ne '__float128');
-#
-#$options{PREREQ_PM} = \%prereq;
 
 WriteMakefile(%options);
 
