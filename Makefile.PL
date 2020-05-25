@@ -315,7 +315,7 @@ if($Config{nvsize} == 8) {
 # The following defines serve as debugging
 # aids for nvtoa() and doubletoa()
 for(@ARGV) {
-  $defines .= ' -DDRAGON_DEBUG'  if $_ =~ /DRAGON_DEBUG/i;  # prints out (to STDERR) intermediate
+  $defines .= ' -DNVTOA_DEBUG'  if $_ =~ /NVTOA_DEBUG/i;  # prints out (to STDERR) intermediate
                                                             # values in nvtoa().
   $defines .= ' -DDTOA_ASSERT'   if $_ =~ /DTOA_ASSERT/i; # runs checks at various points in doubletoa()
                                                           # and croaks whenever a check fails.
