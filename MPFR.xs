@@ -8107,7 +8107,7 @@ SV * nvtoa(pTHX_ NV pnv) {
  * assignment to f is completed *
  ********************************/
 
-#ifdef DRAGON_DEBUG
+#ifdef NVTOA_DEBUG
 
    warn(" f is %s\n exponent is %d\n precision is %d\n", f, e, bits);
 
@@ -8173,14 +8173,19 @@ SV * nvtoa(pTHX_ NV pnv) {
 
   if(mpz_cmp(LHS, R) > 0) {
 
-    /* Set k to be close to, but not greater than, the number of *
-     * decimal digits needed to represent the value of LHS.      *
-     * Note that 0.30102999566398119 < log(2)/log(10).           */
+    /* Set k to be close to, but not greater than, the number of     *
+     * decimal digits needed to represent the value of LHS. This     *
+     * reduces the number of times that we need to loop through the  *
+     * the next while{} loop.                                        *
+     * Note that 0.30102999566398118 is slightly less than log2(10). */
 
-    k = (int)floor(mpz_sizeinbase(LHS, 2) * 0.30102999566398119);
-    if(k) k--;    /* k should not become -ve here */
+    k = (int)floor(mpz_sizeinbase(LHS, 2) * 0.30102999566398118);
+    if(k) k--;    /* Do not decrement if k is zero */
     mpz_ui_pow_ui(TMP, 10, k);
     k *= -1;
+#ifdef NVTOA_DEBUG
+    warn(" k init: %d\n", k);
+#endif
     mpz_mul(R, R, TMP);
     mpz_mul(M_minus, M_minus, TMP);
     mpz_mul(M_plus, M_plus, TMP);
@@ -8197,6 +8202,9 @@ SV * nvtoa(pTHX_ NV pnv) {
       mpz_mul_ui(M_minus, M_minus, 10);
       mpz_mul_ui(M_plus, M_plus, 10);
     }                                   /* close first while loop */
+#ifdef NVTOA_DEBUG
+    warn(" k post 1st loop: %d\n", k);
+#endif
   }
 
   mpz_mul_2exp(LHS, R, 1);
@@ -8207,14 +8215,19 @@ SV * nvtoa(pTHX_ NV pnv) {
     skip = 0;
     mpz_div(TMP, LHS, TMP);
 
-    /* Set u to be close to, but not greater than, the number of *
-     * decimal digits needed to represent the value of TMP.      *
-     * Note that 0.30102999566398119 < log(2)/log(10)            */
+    /* Set u to be close to, but not greater than, the number of     *
+     * decimal digits needed to represent the value of TMP. This     *
+     * reduces the number of times that we need to loop through the  *
+     * the next while{} loop.                                        *
+     * Note that 0.30102999566398118 is slightly less than log2(10). */
 
-    u = (int)floor(mpz_sizeinbase(TMP, 2) * 0.30102999566398119);
+    u = (int)floor(mpz_sizeinbase(TMP, 2) * 0.30102999566398118);
     if(u) u--;     /* Do not decrement if u is zero */
     mpz_ui_pow_ui(TMP, 10, u);
     k += u;
+#ifdef NVTOA_DEBUG
+    warn(" u init: %d\n k set to: %d\n", u, k);
+#endif
     mpz_mul(S, S, TMP);
   }
   else {
@@ -8230,6 +8243,9 @@ SV * nvtoa(pTHX_ NV pnv) {
       mpz_mul_ui(S, S, 10);
       k++;
     }                                 /* close second while loop */
+#ifdef NVTOA_DEBUG
+    warn(" k post 2nd loop: %d\n", k);
+#endif
   }
 
   /*********************** finish simple fixup **********************/
@@ -8307,8 +8323,8 @@ SV * nvtoa(pTHX_ NV pnv) {
   mpz_clear(LHS);
   mpz_clear(TMP);
 
-#ifdef DRAGON_DEBUG
-  warn("final string: %s\n k = %d\n", out, k);
+#ifdef NVTOA_DEBUG
+  warn(" final string: %s\n k = %d\n", out, k);
 #endif
 
 /*******************************************************************************************
