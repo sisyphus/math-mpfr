@@ -12,7 +12,7 @@ if($] < 5.03 && $Config{nvtype} ne '__float128') {
 
 else {
 
-  plan tests => 8;
+  plan tests => 11;
 
   my $m = 9.007199254740991e15; # 2 ** 53
 
@@ -30,4 +30,23 @@ else {
 
   cmp_ok(nvtoa(123456789012345.0), '==', 123456789012345.0, "nvtoa(123456789012345.0) == 123456789012345.0");
 
+  cmp_ok(nvtoa(1.0 / 10.0), 'eq', '0.1', "nvtoa(1.0 / 10.0) eq '0.1'");
+
+  if($Config{nvsize} > 8 &&
+     $Config{nvtype} eq 'long double' &&
+     Math::MPFR::_required_ldbl_mant_dig() != 113) {
+
+    cmp_ok(nvtoa(1.4 / 10),  'eq', '0.14',  "nvtoa(1.4 / 10) eq '0.14'" );
+
+    if(Math::MPFR::_required_ldbl_mant_dig() == 2098) {
+      cmp_ok(nvtoa(1.4 / 100), 'ne', '0.014', "nvtoa(1.4 / 10) ne '0.014'"); # 0.014000...0013
+    }
+    else {
+      cmp_ok(nvtoa(1.4 / 100), 'eq', '0.014', "nvtoa(1.4 / 10) eq '0.014'");
+    }
+  }
+  else {
+    cmp_ok(nvtoa(1.4 / 10),  'ne', '0.14',  "nvtoa(1.4 / 10) ne '0.14'" ); # 0.13999...99
+    cmp_ok(nvtoa(1.4 / 100), 'ne', '0.014', "nvtoa(1.4 / 10) ne '0.014'"); # 0.013999...99
+  }
 }
