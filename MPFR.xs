@@ -7926,8 +7926,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 SV * nvtoa(pTHX_ NV pnv) {
   int subnormal_prec_adjustment, exp_init;
   int k = 0, k_index, lsb, skip = 0, sign = 0, len, critical;
-  int bits = MATH_MPFR_BITS, is_subnormal = 0, shift1, shift2, inex, low, high, cmp;
-  unsigned long u;
+  int bits = MATH_MPFR_BITS, is_subnormal = 0, shift1, shift2, inex, low, high, cmp, u;
   mpfr_exp_t e;    /* Change to 'int' when mpfr dependency for doubledouble is removed */
   NV nv;
   void *nvptr = &nv;
@@ -8109,7 +8108,7 @@ SV * nvtoa(pTHX_ NV pnv) {
 
 #ifdef NVTOA_DEBUG
 
-   warn(" f is %s\n exponent is %d\n precision is %d\n", f, e, bits);
+   warn(" f is %s\n exponent is %d\n precision is %d\n", f, (int)e, bits);
 
 /******************************************************************************
  * eg (for nvtype of double):                                                 *
@@ -8222,7 +8221,7 @@ SV * nvtoa(pTHX_ NV pnv) {
      * Note that 0.30102999566398118 is slightly less than log2(10). */
 
     u = (int)floor(mpz_sizeinbase(TMP, 2) * 0.30102999566398118);
-    if(u) u--;     /* Do not decrement if u is zero */
+    /* if(u) u--; *//* Decrement not needed here, AFAIK. */
     mpz_ui_pow_ui(TMP, 10, u);
     k += u;
 #ifdef NVTOA_DEBUG
