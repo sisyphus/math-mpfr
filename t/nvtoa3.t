@@ -39,14 +39,24 @@ else {
     cmp_ok(nvtoa(1.4 / 10),  'eq', '0.14',  "nvtoa(1.4 / 10) eq '0.14'" );
 
     if(Math::MPFR::_required_ldbl_mant_dig() == 2098) {
+      # DoubleDouble
       cmp_ok(nvtoa(1.4 / 100), 'ne', '0.014', "nvtoa(1.4 / 10) ne '0.014'"); # 0.014000...0013
     }
     else {
+      # 64-bit precision NV
       cmp_ok(nvtoa(1.4 / 100), 'eq', '0.014', "nvtoa(1.4 / 10) eq '0.014'");
     }
   }
   else {
     cmp_ok(nvtoa(1.4 / 10),  'ne', '0.14',  "nvtoa(1.4 / 10) ne '0.14'" ); # 0.13999...99
-    cmp_ok(nvtoa(1.4 / 100), 'ne', '0.014', "nvtoa(1.4 / 10) ne '0.014'"); # 0.013999...99
+
+    if($Config{nvtype} eq '__float128' || ($Config{nvsize} > 8 && $Config{nvtype} eq 'long double')) {
+      # 113-bit precision NV
+      cmp_ok(nvtoa(1.4 / 100), 'eq', '0.014', "nvtoa(1.4 / 100) eq '0.014'");
+    }
+    else {
+      # 53-bit precision NV
+      cmp_ok(nvtoa(1.4 / 100), 'ne', '0.014', "nvtoa(1.4 / 100) ne '0.014'"); # 0.013999...99
+    }
   }
 }
