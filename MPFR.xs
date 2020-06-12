@@ -1121,6 +1121,14 @@ SV * Rmpfr_div_2si(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
      return newSViv(mpfr_div_2si(*a, *b, (long)SvIV(c), (mpfr_rnd_t)SvUV(round)));
 }
 
+int Rmpfr_total_order_p(mpfr_t * a, mpfr_t * b) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= 262400 /* version 4.1.0 */
+    return mpfr_total_order_p(*a, *b);
+#else
+    croak("The Rmpfr_total_order_p function requires mpfr-4.1.0");
+#endif
+}
+
 int Rmpfr_cmp(mpfr_t * a, mpfr_t * b) {
      return mpfr_cmp(*a, *b);
 }
@@ -10124,6 +10132,11 @@ Rmpfr_div_2si (a, b, c, round)
 CODE:
   RETVAL = Rmpfr_div_2si (aTHX_ a, b, c, round);
 OUTPUT:  RETVAL
+
+int
+Rmpfr_total_order_p (a, b)
+	mpfr_t *	a
+	mpfr_t *	b
 
 int
 Rmpfr_cmp (a, b)
