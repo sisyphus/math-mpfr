@@ -1097,6 +1097,18 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     If one of the operands is NaN (Not-a-Number), return zero
     and set the erange flag.
 
+   $si = Rmpfr_total_order_p($op1, $op2);
+    This function implements the totalOrder predicate from IEEE
+    754-2008, where -NaN < -Inf < negative finite numbers < -0 < +0
+    < positive finite numbers < +Inf < +NaN. It returns a non-zero
+    value (true) when X is smaller than or equal to Y for this order
+    relation, and zero (false) otherwise.
+    Contrary to Rmpfr_cmp ($x, $y), which returns a ternary value,
+    Rmpfr_total_order_p returns a binary value (zero or non-zero).
+    In particular, Rmpfr_total_order_p($x, $x) returns true,
+    Rmpfr_total_order_p(-0, +0) returns true and
+    Rmpfr_total_order_p (+0, -0) returns false.
+    The sign bit of NaN also matters.
 
    $si = Rmpfr_cmp_ui_2exp($op, $ui, $si);
    $si = Rmpfr_cmp_si_2exp($op, $si, $si);
