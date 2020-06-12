@@ -4,10 +4,10 @@ use strict;
 use Math::MPFR qw(:mpfr);
 use POSIX;
 
-print "1..4\n";
+print "1..5\n";
 
 my $have_new = 1;
-my ($inex, $p);
+my ($inex, $p, $ret, $ok);
 my $rop = Math::MPFR->new();
 
 if(!defined(MPFR_VERSION) || 262400 > MPFR_VERSION) {$have_new = 0} # mpfr version is pre 4.1.0
@@ -70,3 +70,59 @@ else {
   }
 }
 
+$ok = 1;
+
+my $pnan = Math::MPFR->new();              # NaN
+my $nnan = Math::MPFR->new();
+Rmpfr_setsign($nnan, $pnan, 1, MPFR_RNDN); # -NaN
+my $pinf = Math::MPFR->new(1) / 0;         # Inf
+my $ninf = Math::MPFR->new();
+Rmpfr_setsign($ninf, $pinf, 1, MPFR_RNDN); # -Inf
+my $preal = Math::MPFR->new(2);            # 2
+my $nreal = Math::MPFR->new(-2);           # -2
+my $pzero = Math::MPFR->new(0);            # 0
+my $nzero = Math::MPFR->new(-0.0);         # - 0
+
+eval {$ret = Rmpfr_total_order_p($nnan, $pnan);};
+
+if($have_new) {
+
+  for([$nnan, $ninf],   [$ninf, $nreal], [$nreal, $nzero], [$nzero, $pzero],
+      [$pzero, $preal], [$preal, $pinf], [$pinf, $pnan],   [$nnan, $pnan]) {
+    my @x = @{$_};
+    if(!Rmpfr_total_order_p($x[0], $x[1])) {
+      warn "$x[0] is not less than or equal to $x[1]\n";
+      $ok = 0;
+    }
+
+    if(Rmpfr_total_order_p($x[1], $x[0])) {
+      warn "$x[1] <= $x[0]\n";
+     $ok = 0;
+    }
+  }
+
+  for([$nnan, $nnan],   [$pnan, $pnan]) {
+    my @x = @{$_};
+    if(!Rmpfr_total_order_p($x[0], $x[1])) {
+      warn "$x[0] is not less than or equal to $x[1]\n";
+      $ok = 0;
+    }
+
+    if(!Rmpfr_total_order_p($x[1], $x[0])) {
+      warn "$x[1] is not less than or equal to $x[0]\n";
+     $ok = 0;
+    }
+  }
+
+  if($ok) { print "ok 5\n" }
+  else    { print "not ok 5\n" }
+}
+
+else {
+
+  if($@ =~ /Rmpfr_total_order_p function requires/) { print "ok 5\n" }
+  else {
+    warn "\$\@: $@\n";
+    print "not ok 5\n";
+  }
+}
