@@ -70,6 +70,9 @@ else {
   }
 }
 
+# Math::MPFR provides its own implementation of Rmpfr_total_order_p
+# when built against a pre-4.1.0 version of the MPFR library.
+
 $ok = 1;
 
 my $pnan = Math::MPFR->new();              # NaN
@@ -83,46 +86,32 @@ my $nreal = Math::MPFR->new(-2);           # -2
 my $pzero = Math::MPFR->new(0);            # 0
 my $nzero = Math::MPFR->new(-0.0);         # - 0
 
-eval {$ret = Rmpfr_total_order_p($nnan, $pnan);};
-
-if($have_new) {
-
-  for([$nnan, $ninf],   [$ninf, $nreal], [$nreal, $nzero], [$nzero, $pzero],
-      [$pzero, $preal], [$preal, $pinf], [$pinf, $pnan],   [$nnan, $pnan]) {
-    my @x = @{$_};
-    if(!Rmpfr_total_order_p($x[0], $x[1])) {
-      warn "$x[0] is not less than or equal to $x[1]\n";
-      $ok = 0;
-    }
-
-    if(Rmpfr_total_order_p($x[1], $x[0])) {
-      warn "$x[1] <= $x[0]\n";
-     $ok = 0;
-    }
+for([$nnan, $ninf],   [$ninf, $nreal], [$nreal, $nzero], [$nzero, $pzero],
+    [$pzero, $preal], [$preal, $pinf], [$pinf, $pnan],   [$nnan, $pnan]) {
+  my @x = @{$_};
+  if(!Rmpfr_total_order_p($x[0], $x[1])) {
+    warn "$x[0] is not less than or equal to $x[1]\n";
+    $ok = 0;
   }
 
-  for([$nnan, $nnan],   [$pnan, $pnan]) {
-    my @x = @{$_};
-    if(!Rmpfr_total_order_p($x[0], $x[1])) {
-      warn "$x[0] is not less than or equal to $x[1]\n";
-      $ok = 0;
-    }
-
-    if(!Rmpfr_total_order_p($x[1], $x[0])) {
-      warn "$x[1] is not less than or equal to $x[0]\n";
-     $ok = 0;
-    }
+  if(Rmpfr_total_order_p($x[1], $x[0])) {
+    warn "$x[1] <= $x[0]\n";
+   $ok = 0;
   }
+}
+
+for([$nnan, $nnan], [$pnan, $pnan], [$nzero, $nzero], [$pzero, $pzero]) {
+  my @x = @{$_};
+  if(!Rmpfr_total_order_p($x[0], $x[1])) {
+    warn "$x[0] != $x[1]\n";
+    $ok = 0;
+  }
+
+  if(!Rmpfr_total_order_p($x[1], $x[0])) {
+    warn "$x[1] is not less than or equal to $x[0]\n";
+   $ok = 0;
+  }
+}
 
   if($ok) { print "ok 5\n" }
   else    { print "not ok 5\n" }
-}
-
-else {
-
-  if($@ =~ /Rmpfr_total_order_p function requires/) { print "ok 5\n" }
-  else {
-    warn "\$\@: $@\n";
-    print "not ok 5\n";
-  }
-}
