@@ -1125,7 +1125,26 @@ int Rmpfr_total_order_p(mpfr_t * a, mpfr_t * b) {
 #if defined(MPFR_VERSION) && MPFR_VERSION >= 262400 /* version 4.1.0 */
     return mpfr_total_order_p(*a, *b);
 #else
-    croak("The Rmpfr_total_order_p function requires mpfr-4.1.0");
+    if(mpfr_nan_p(*a)) {
+      if(mpfr_signbit(*a)) return 1;    /* *a <= *b */
+      if(mpfr_nan_p(*b)) {
+        if(mpfr_signbit(*b)) return 0;
+        return 1;
+      }
+      return 0;
+    }
+
+    if(mpfr_nan_p(*b)) {
+      if(mpfr_signbit(*b)) return 0;    /* *a > *b */
+      return 1;
+    }
+
+    if(mpfr_zero_p(*a) && mpfr_zero_p(*b)) {
+      if(!mpfr_signbit(*a) && mpfr_signbit(*b)) return 0; /* (*a, *b) is (+0, -0) */
+      return 1; /* (*a, *b) is either (-0, -0) or (-0, +0) or (+0, +0) */
+    }
+
+    return mpfr_lessequal_p(*a, *b);
 #endif
 }
 
