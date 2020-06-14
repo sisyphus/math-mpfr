@@ -1079,6 +1079,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $si = Rmpfr_cmp($op1, $op2);
    $si = Rmpfr_cmpabs($op1, $op2);
+   $si = Rmpfr_cmpabs_ui($op, $ui);
    $si = Rmpfr_cmp_ui($op, $ui);
    $si = Rmpfr_cmp_si($op, $si);
    $si = Rmpfr_cmp_d($op, $double);
@@ -1087,15 +1088,15 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_cmp_q($op, $q); # $q is a mpq object
    $si = Rmpfr_cmp_f($op, $f); # $f is a mpf object
    $si = Rmpfr_cmp_NV($op, $nv);
-    Compare 1st and 2nd args. In the case of 'Rmpfr_cmpabs()'
-    compare the absolute values of the 2 args.  Return a positive
-    value if 1st arg > 2nd arg, zero if 1st arg = 2nd arg, and a
-    negative value if 1st arg < 2nd arg.  Both args are considered
-    to their full own precision, which may differ. In case 1st and
-    2nd args are of same sign but different, the absolute value
-    returned is one plus the absolute difference of their exponents.
-    If one of the operands is NaN (Not-a-Number), return zero
-    and set the erange flag.
+    Compare 1st and 2nd args. In the case of 'Rmpfr_cmpabs()' and
+    'Rmpfr_cmpabs_ui' compare the absolute values of the 2 args.
+    Return a positive value if 1st arg > 2nd arg, zero if
+    1st arg = 2nd arg, and a negative value if 1st arg < 2nd arg.
+    Both args are considered to their full own precision, which may
+    differ. In case 1st and 2nd args are of same sign but different,
+    the absolute value returned is one plus the absolute difference
+    of their exponents. If one of the operands is NaN (Not-a-Number),
+    return zero and set the erange flag.
 
    $si = Rmpfr_total_order_p($op1, $op2);
     This function implements the totalOrder predicate from IEEE
@@ -1103,11 +1104,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     < positive finite numbers < +Inf < +NaN. It returns a non-zero
     value (true) when X is smaller than or equal to Y for this order
     relation, and zero (false) otherwise.
-    Contrary to Rmpfr_cmp ($x, $y), which returns a ternary value,
-    Rmpfr_total_order_p returns a binary value (zero or non-zero).
-    In particular, Rmpfr_total_order_p($x, $x) returns true,
-    Rmpfr_total_order_p(-0, +0) returns true and
-    Rmpfr_total_order_p (+0, -0) returns false.
+    Contrary to 'Rmpfr_cmp($x, $y)', which returns a ternary value,
+    'Rmpfr_total_order_p' returns a binary value (zero or non-zero).
+    In particular, 'Rmpfr_total_order_p($x, $x)' returns true,
+    'Rmpfr_total_order_p(-0, +0)' returns true and
+    'Rmpfr_total_order_p(+0, -0)' returns false.
     The sign bit of NaN also matters.
 
    $si = Rmpfr_cmp_ui_2exp($op, $ui, $si);
@@ -1494,7 +1495,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $ui = Rmpfr_out_str([$prefix,] $op, $base, $digits, $round [, $suffix]);
     BEST TO USE TRmpfr_out_str INSTEAD
     Output $op to STDOUT, as a string of digits in base $base,
-    rounded in direction $round.  $base may be i the range 2 to 62
+    rounded in direction $round.  $base may be in the range 2 to 62
     (or -36..-2, 2 .. 62 if Math::MPFR has been built against
     mpfr-4.1.0 or later).
     Print $digits significant digits exactly, or if $digits is 0,
