@@ -1156,6 +1156,14 @@ int Rmpfr_cmpabs(mpfr_t * a, mpfr_t * b) {
      return mpfr_cmpabs(*a, *b);
 }
 
+int Rmpfr_cmpabs_ui(mpfr_t * a, unsigned long b) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= 262400 /* version 4.1.0 */
+     return mpfr_cmpabs_ui(*a, b);
+#else
+     croak("The Rmpfr_cmpabs_ui function requires mpfr-4.1.0");
+#endif
+}
+
 int Rmpfr_cmp_ui(mpfr_t * a, unsigned long b) {
      return mpfr_cmp_ui(*a, b);
 }
@@ -10166,6 +10174,11 @@ int
 Rmpfr_cmpabs (a, b)
 	mpfr_t *	a
 	mpfr_t *	b
+
+int
+Rmpfr_cmpabs_ui (a, b)
+	mpfr_t *	a
+	unsigned long	b
 
 int
 Rmpfr_cmp_ui (a, b)
