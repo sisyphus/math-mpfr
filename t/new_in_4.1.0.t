@@ -163,7 +163,7 @@ else {
     print "not ok 7\n";
   }
 
-  warn "\nSkipping tests 8 and 9 - Rmpfr_cmpabs_ui is unavailable\n";
+  warn "\n Skipping tests 8 & 9 - we don't have mpfr-4.1.0 or later\n";
   print "ok 8\n";
   print "ok 9\n";
 }
