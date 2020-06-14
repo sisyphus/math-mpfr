@@ -4,7 +4,7 @@ use strict;
 use Math::MPFR qw(:mpfr);
 use POSIX;
 
-print "1..5\n";
+print "1..9\n";
 
 my $have_new = 1;
 my ($inex, $p, $ret, $ok);
@@ -16,7 +16,7 @@ my @op1 = (Math::MPFR->new(200), Math::MPFR->new(-3), Math::MPFR->new(1001));
 my @op2 = (Math::MPFR->new(5), Math::MPFR->new(30), Math::MPFR->new(90));
 
 
-eval {$inex = Rmpfr_dot($rop, \@op1, \@op2, scalar(@op2), MPFR_RNDN);};
+eval { $inex = Rmpfr_dot($rop, \@op1, \@op2, scalar(@op2), MPFR_RNDN) };
 
 if($have_new) {
   if($rop == 91000) {print "ok 1\n"}
@@ -33,7 +33,7 @@ if($have_new) {
 
   push(@op1, 1);
 
-  eval{$inex = Rmpfr_dot($rop, \@op1, \@op2, scalar(@op2) + 1, MPFR_RNDN);};
+  eval{ $inex = Rmpfr_dot($rop, \@op1, \@op2, scalar(@op2) + 1, MPFR_RNDN) };
 
   if($@ =~ /^2nd last arg to Rmpfr_dot is too large/) {print "ok 3\n"}
   else {
@@ -52,7 +52,7 @@ else {
   print "ok 2\nok 3\n";
 }
 
-eval {$p = Rmpfr_get_str_ndigits(5, 100);};
+eval { $p = Rmpfr_get_str_ndigits(5, 100) };
 
 if($have_new) {
   my $expected = 1 + POSIX::ceil(100 * log(2) / log(5));
@@ -86,6 +86,8 @@ my $nreal = Math::MPFR->new(-2);           # -2
 my $pzero = Math::MPFR->new(0);            # 0
 my $nzero = Math::MPFR->new(-0.0);         # - 0
 
+Rmpfr_clear_erangeflag();
+
 for([$nnan, $ninf],   [$ninf, $nreal], [$nreal, $nzero], [$nzero, $pzero],
     [$pzero, $preal], [$preal, $pinf], [$pinf, $pnan],   [$nnan, $pnan]) {
   my @x = @{$_};
@@ -115,3 +117,54 @@ for([$nnan, $nnan], [$pnan, $pnan], [$nzero, $nzero], [$pzero, $pzero]) {
 
   if($ok) { print "ok 5\n" }
   else    { print "not ok 5\n" }
+
+  # Rmpfr_total_order_p() should not set erangeflag
+  if(Rmpfr_erangeflag_p) {
+    Rmpfr_clear_erangeflag();
+    print "not ok 6\n";
+  }
+  else { print "ok 6\n" }
+
+eval { $ret = Rmpfr_cmpabs_ui($nreal, 1) };
+
+if($have_new) {
+
+  if($ret > 0) { print "ok 7\n" }
+  else {
+    warn "$ret <= 0\n";
+    print "not ok 7\n";
+  }
+
+  Rmpfr_clear_erangeflag();
+
+  $ret = Rmpfr_cmpabs_ui($nnan, 1);
+
+  if($ret == 0) { print "ok 8\n" }
+  else {
+    warn "$ret != 0\n";
+    print "not ok 8\n";
+  }
+
+  if(Rmpfr_erangeflag_p()) {
+    Rmpfr_clear_erangeflag;
+    print "ok 9\n";
+  }
+  else {
+    warn "erangeflag not set\n";
+    print "not ok 9\n";
+  }
+}
+
+else {
+
+  if($@ =~ /^The Rmpfr_cmpabs_ui function requires mpfr\-4\.1\.0/) { print "ok 7\n" }
+  else {
+    warn "\$\@: $@\n";
+    print "not ok 7\n";
+  }
+
+  warn "\nSkipping tests 8 and 9 - Rmpfr_cmpabs_ui is unavailable\n";
+  print "ok 8\n";
+  print "ok 9\n";
+}
+
