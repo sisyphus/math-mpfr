@@ -911,13 +911,23 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     is set to the same value and the value of $exp is meaningless (and
     should be ignored).
 
-   $ui1 = Rmpfr_get_str_ndigits($ui2, $ui3); # mpfr-4.1.0 and later only
+   $ui1 = Rmpfr_get_str_ndigits($ui2, $ui3); # new with mpfr-4.1.0
+     Note: $ui2 must be in the range 2..62 (inclusive).
      Return the minimal integer $ui1 such that any number of precision
      $ui3 bits, when output with $ui1 digits in radix $ui2 with rounding
      to nearest, can be recovered exactly when read again, still with
      rounding to nearest.
-     More precisely, we have $ui1 = 1 + ceil($ui3*log(2)/log($ui2)), with $ui3
-     replaced by $ui3-1 if $ui2 is a power of 2.
+     More precisely, we have $ui1 = 1 + ceil($ui3 * log(2) / log($ui2)),
+     with $ui3 decremented by 1 if $ui2 is a power of 2.
+     This function wraps mpfr_get_str_ndigits if mpfr version is 4.1.0
+     or later. Otherwise it calls Rmpfr_get_str_ndigits_alt, which does
+     not require mpfr-4.1.0.
+
+   $ui1 = Rmpfr_get_str_ndigits_alt($ui2, $ui3);
+     Provided as a fallback (though it can also be called separately)
+     for Rmpfr_get_str_ndigits when mpfr version is older than 4.1.0.
+     Unlike Rmpfr_get_str_ndigits, this function does not require that
+     $ui2 is in the range 2..62.
 
    ##########
 
@@ -1079,7 +1089,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $si = Rmpfr_cmp($op1, $op2);
    $si = Rmpfr_cmpabs($op1, $op2);
-   $si = Rmpfr_cmpabs_ui($op, $ui);
+   $si = Rmpfr_cmpabs_ui($op, $ui);  # requires mpfr-4.1.0 and later
    $si = Rmpfr_cmp_ui($op, $ui);
    $si = Rmpfr_cmp_si($op, $si);
    $si = Rmpfr_cmp_d($op, $double);
@@ -1098,7 +1108,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     of their exponents. If one of the operands is NaN (Not-a-Number),
     return zero and set the erange flag.
 
-   $si = Rmpfr_total_order_p($op1, $op2);
+   $si = Rmpfr_total_order_p($op1, $op2); # new with mpfr-4.1.0
     This function implements the totalOrder predicate from IEEE
     754-2008, where -NaN < -Inf < negative finite numbers < -0 < +0
     < positive finite numbers < +Inf < +NaN. It returns a non-zero
@@ -1110,6 +1120,9 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     'Rmpfr_total_order_p(-0, +0)' returns true and
     'Rmpfr_total_order_p(+0, -0)' returns false.
     The sign bit of NaN also matters.
+    This function falls back to our own implementation if the mpfr
+    version is older than 4.1.0 (because, in that case,
+    mpfr_total_order_p is unavailable).
 
    $si = Rmpfr_cmp_ui_2exp($op, $ui, $si);
    $si = Rmpfr_cmp_si_2exp($op, $si, $si);
