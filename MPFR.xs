@@ -7647,15 +7647,51 @@ SV * atonv(pTHX_ SV * str) {
 
 } /* close atonv */
 
+SV * Rmpfr_get_str_ndigits_alt(pTHX_ int base, UV prec) {
+
+    /* Can use this if mpfr version is less than 4.1.0.    *
+     * If mpfr version is at least 4.1.0, then the         *
+     * Math::MPFR test suite checks that this function     *
+     * produces the same results as Rmpfr_get_str_ndigits. */
+
+    UV m = 1;
+    mpfr_t temp1, temp2;
+
+    mpfr_init2(temp1, 128);
+    mpfr_init2(temp2, 128);
+    mpfr_set_ui(temp1, base, GMP_RNDN);
+    mpfr_log2(temp2, temp1, GMP_RNDN);
+    mpfr_trunc(temp1, temp2);
+
+    if(mpfr_equal_p(temp1, temp2))
+      mpfr_ui_div(temp1, prec - 1, temp2, GMP_RNDN);
+    else
+      mpfr_ui_div(temp1, prec, temp2, GMP_RNDN);
+
+    mpfr_ceil(temp1, temp1);
+    m += mpfr_get_ui(temp1, GMP_RNDN);
+
+    mpfr_clear(temp1);
+    mpfr_clear(temp2);
+
+    return newSVuv(m);
+
+}
+
 /* new in 4.1.0 (262400) */
 
 SV * Rmpfr_get_str_ndigits(pTHX_ int base, SV * prec) {
+
+    if(base < 2 || base > 62)
+      croak("1st argument given to Rmpfr_get_str_ndigits must be in the range 2..62");
+
 #if defined(MPFR_VERSION) && MPFR_VERSION >= 262400 /* version 4.1.0 */
     return newSVuv(mpfr_get_str_ndigits(base, (mpfr_prec_t)SvUV(prec)));
 #else
-    croak("The Rmpfr_get_str_ndigits function requires mpfr-4.1.0 or later");
+    return Rmpfr_get_str_ndigits_alt(aTHX_ base, SvUV(prec));
 #endif
 }
+
 
 SV * Rmpfr_dot(pTHX_ mpfr_t * rop, SV * avref_A, SV * avref_B, SV * len, SV * round) {
 #if defined(MPFR_VERSION) && MPFR_VERSION >= 262400 /* version 4.1.0 */
@@ -13253,6 +13289,14 @@ atonv (str)
 	SV *	str
 CODE:
   RETVAL = atonv (aTHX_ str);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_get_str_ndigits_alt (base, prec)
+	int	base
+	UV	prec
+CODE:
+  RETVAL = Rmpfr_get_str_ndigits_alt (aTHX_ base, prec);
 OUTPUT:  RETVAL
 
 SV *
