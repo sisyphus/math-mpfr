@@ -4,7 +4,7 @@ use strict;
 use Math::MPFR qw(:mpfr);
 use POSIX;
 
-print "1..9\n";
+print "1..10\n";
 
 my $have_new = 1;
 my ($inex, $p, $ret, $ok);
@@ -52,23 +52,40 @@ else {
   print "ok 2\nok 3\n";
 }
 
-eval { $p = Rmpfr_get_str_ndigits(5, 100) };
+# Math::MPFR provides its own implementation of Rmpfr_get_str_ndigits,
+# namely Rmpfr_get_str_ndigits_alt, when built against a pre-4.1.0 version
+# of the MPFR library.
 
-if($have_new) {
-  my $expected = 1 + POSIX::ceil(100 * log(2) / log(5));
-  if($expected == $p) {print "ok 4\n"}
+eval { $p = Rmpfr_get_str_ndigits(63, 100) };
+
+if($@) {
+  if($@ =~ /^1st argument given to Rmpfr_get_str_ndigits must be in the range 2\.\.62/) {
+    print "ok 4\n";
+  }
   else {
-    warn "\n Expected $expected, got $p\n";
+    warn "\n\$\@: $@\n";
     print "not ok 4\n";
   }
 }
-else {
-  if($@ =~ /^The Rmpfr_get_str_ndigits function requires mpfr\-4\.1\.0/) {print "ok 4\n"}
-  else {
-    warn "\n \$\@:\n $@\n";
-    print "not ok 4\n";
+
+else { print "not ok 4\n" }
+
+$ok = 1;
+
+for my $base(2..62) {
+  for my $prec(1 .. 1000) {
+    $p = Rmpfr_get_str_ndigits($base, $prec);
+    my $expected = Rmpfr_get_str_ndigits_alt($base, $prec);;
+
+    if($expected != $p) {
+      warn "for base $base, prec $prec bits: $expected != $p\n";
+      $ok = 0;
+    }
   }
 }
+
+if($ok) { print "ok 5\n" }
+else    { print "not ok 5\n" }
 
 # Math::MPFR provides its own implementation of Rmpfr_total_order_p
 # when built against a pre-4.1.0 version of the MPFR library.
@@ -115,56 +132,56 @@ for([$nnan, $nnan], [$pnan, $pnan], [$nzero, $nzero], [$pzero, $pzero]) {
   }
 }
 
-  if($ok) { print "ok 5\n" }
-  else    { print "not ok 5\n" }
+  if($ok) { print "ok 6\n" }
+  else    { print "not ok 6\n" }
 
   # Rmpfr_total_order_p() should not set erangeflag
   if(Rmpfr_erangeflag_p) {
     Rmpfr_clear_erangeflag();
-    print "not ok 6\n";
+    print "not ok 7\n";
   }
-  else { print "ok 6\n" }
+  else { print "ok 7\n" }
 
 eval { $ret = Rmpfr_cmpabs_ui($nreal, 1) };
 
 if($have_new) {
 
-  if($ret > 0) { print "ok 7\n" }
+  if($ret > 0) { print "ok 8\n" }
   else {
     warn "$ret <= 0\n";
-    print "not ok 7\n";
+    print "not ok 8\n";
   }
 
   Rmpfr_clear_erangeflag();
 
   $ret = Rmpfr_cmpabs_ui($nnan, 1);
 
-  if($ret == 0) { print "ok 8\n" }
+  if($ret == 0) { print "ok 9\n" }
   else {
     warn "$ret != 0\n";
-    print "not ok 8\n";
+    print "not ok 9\n";
   }
 
   if(Rmpfr_erangeflag_p()) {
     Rmpfr_clear_erangeflag;
-    print "ok 9\n";
+    print "ok 10\n";
   }
   else {
     warn "erangeflag not set\n";
-    print "not ok 9\n";
+    print "not ok 10\n";
   }
 }
 
 else {
 
-  if($@ =~ /^The Rmpfr_cmpabs_ui function requires mpfr\-4\.1\.0/) { print "ok 7\n" }
+  if($@ =~ /^The Rmpfr_cmpabs_ui function requires mpfr\-4\.1\.0/) { print "ok 8\n" }
   else {
     warn "\$\@: $@\n";
-    print "not ok 7\n";
+    print "not ok 8\n";
   }
 
-  warn "\n Skipping tests 8 & 9 - we don't have mpfr-4.1.0 or later\n";
-  print "ok 8\n";
+  warn "\n Skipping tests 9 & 10 - we don't have mpfr-4.1.0 or later\n";
   print "ok 9\n";
+  print "ok 10\n";
 }
 
