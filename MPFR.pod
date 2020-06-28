@@ -236,7 +236,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
       Rmpfr_get_float128() or Rmpfr_get_NV()
 
     This will also mean that overloaded operations that receive an
-    NV will evaluate that (__float128) NV to it's full precision.
+    NV will evaluate that (__float128) NV to its full precision.
     And assigning the NV as Math::MPFR->new($nv) will also work as
     intended.
 
@@ -247,7 +247,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
       Rmpfr_set_NV() and Rmpfr_get_NV() will still set/get
       __float128 values.
       Also, overloaded operations that receive an NV will still
-      evaluate that (__float128) NV to it's full precision.
+      evaluate that (__float128) NV to its full precision.
       It's only Rmpfr_set_float128() and Rmpfr_get_float128() that
       will not be available.
 

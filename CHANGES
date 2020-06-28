@@ -369,7 +369,7 @@
    (documented for the first time in 2.3.0).
  - Add Rmpfr_init_set_ld.
  - Add Rmpfr_deref2 to the list of exportable functions, and
-   document it's usage in the POD section.
+   document its usage in the POD section.
  - Rmpfr_deref2 now has the mpfr library allocate (and free) memory
    for the mantissa.
  - Add Rmpfr_hypot (previously missed).
