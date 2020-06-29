@@ -7442,7 +7442,7 @@ int _ld_subnormal_bug(void) {
 double atodouble(char * str) {
 
 
-#if defined(MPFR_VERSION) & MPFR_VERSION > 196869
+#if defined(MPFR_VERSION) && MPFR_VERSION > 196869
 
     mpfr_t workspace;
     mpfr_prec_t emin, emax;
@@ -7479,7 +7479,7 @@ double atodouble(char * str) {
 SV * atonv(pTHX_ SV * str) {
 
 
-#if defined(MPFR_VERSION) & MPFR_VERSION > 196869
+#if defined(MPFR_VERSION) && MPFR_VERSION > 196869
     mpfr_t workspace;
 #  if defined(NV_IS_DOUBLE) || LDBL_MANT_DIG == 53        /* D */
       mpfr_prec_t emin, emax;
