@@ -1,6 +1,6 @@
 
 4.14
- - Add numtoa()
+ - Add numtoa() and atonum().
  - #include <inttypes.h> at beginning of grisu3.h to address:
    https://www.cpantesters.org/cpan/report/0d8a8dfd-6bf4-1014-a7c0-8323ad4a5811
  - Fix https://www.cpantesters.org/cpan/report/3622b742-4202-11ea-8c53-8f701f24ea8f
@@ -10,6 +10,8 @@
  - Correct test 5 of t/numtoa.t for DoubleDouble nvtype.
  - Add wrapping of mpfr_total_order_p (previously missed) which is new in 4.1.0.
  - Add wrapping of mpfr_cmpabs_ui (previously missed) which is new in 4.1.0.
+ - In atonv() pre-processing replace " & " with " && " as the former (which was a
+   mistake, anyway) is not guaranteed to yield the correct result.
 
 4.13
  - Fix bug in t/rndna.t and t/rndna2.t (exposed by:
