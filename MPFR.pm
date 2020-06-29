@@ -180,7 +180,7 @@ Rmpfr_fmodquo Rmpfr_fpif_export Rmpfr_fpif_import Rmpfr_flags_clear Rmpfr_flags_
 Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr_roundeven
 Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc Rmpfr_beta
 Rmpfr_round_nearest_away rndna
-atonv nvtoa atodouble doubletoa numtoa Rmpfr_dot Rmpfr_get_str_ndigits Rmpfr_get_str_ndigits_alt
+atonv nvtoa atodouble doubletoa numtoa atonum Rmpfr_dot Rmpfr_get_str_ndigits Rmpfr_get_str_ndigits_alt
 );
 
     our $VERSION = '4.14';
@@ -286,7 +286,7 @@ Rmpfr_fmodquo Rmpfr_fpif_export Rmpfr_fpif_import Rmpfr_flags_clear Rmpfr_flags_
 Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr_roundeven
 Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc Rmpfr_beta
 Rmpfr_round_nearest_away rndna
-atonv nvtoa atodouble doubletoa numtoa Rmpfr_dot Rmpfr_get_str_ndigits Rmpfr_get_str_ndigits_alt
+atonv nvtoa atodouble doubletoa numtoa atonum Rmpfr_dot Rmpfr_get_str_ndigits Rmpfr_get_str_ndigits_alt
 )]);
 
 
@@ -589,6 +589,16 @@ sub MPFR_LDBL_DIG           () {return _LDBL_DIG()}
 sub MPFR_FLT128_DIG         () {return _FLT128_DIG()}
 sub GMP_LIMB_BITS           () {return _GMP_LIMB_BITS()}
 sub GMP_NAIL_BITS           () {return _GMP_NAIL_BITS()}
+
+sub atonum {
+    if(196869 < MPFR_VERSION) {
+      my $copy = $_[0];               # Don't mess with $_[0] flags
+      my $ret = "$copy" + 0;
+      return $ret if _itsa($ret) < 3; # IV
+      return atonv($_[0]);            # NV
+    }
+    die("atonum needs atonv, but atonv is not available with this version (MPFR_VERSION_STRING) of the mpfr library");
+}
 
 sub mpfr_min_inter_prec {
     die "Wrong number of args to mpfr_min_inter_prec()" unless @_ == 3;
