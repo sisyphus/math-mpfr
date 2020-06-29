@@ -335,6 +335,9 @@ my %options = (
   LIBS => [
     '-lmpfr -lgmp -lquadmath'
   ],
+  PREREQ_PM => {
+                'Test::More' => '0.88',
+  },
   LICENSE  => 'perl',
   VERSION_FROM => 'MPFR.pm',
   clean   => { FILES => '*.exe *.txt' },
