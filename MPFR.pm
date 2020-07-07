@@ -38,7 +38,6 @@
     use constant LITTLE_ENDIAN          => $Config{byteorder} =~ /^1/ ? 1 : 0;
     use constant MM_HP                  => LITTLE_ENDIAN ? 'h*' : 'H*';
 
-
     use subs qw(MPFR_VERSION MPFR_VERSION_MAJOR MPFR_VERSION_MINOR
                 MPFR_VERSION_PATCHLEVEL MPFR_VERSION_STRING
                 RMPFR_PREC_MIN RMPFR_PREC_MAX
@@ -186,7 +185,7 @@ atonv nvtoa atodouble doubletoa numtoa atonum Rmpfr_dot Rmpfr_get_str_ndigits Rm
     our $VERSION = '4.14';
     #$VERSION = eval $VERSION;
 
-    DynaLoader::bootstrap Math::MPFR $VERSION;
+    Math::MPFR->DynaLoader::bootstrap($VERSION);
 
     %Math::MPFR::EXPORT_TAGS =(mpfr => [qw(
 GMP_RNDN GMP_RNDZ GMP_RNDU GMP_RNDD
