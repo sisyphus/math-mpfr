@@ -1,17 +1,20 @@
-use ExtUtils::MakeMaker;
+use strict;
+use warnings;
 use Config;
+use ExtUtils::MakeMaker;
+
 #require 5.008008;
 
 our %args = map { split /\s*=\s*/ } @ARGV;
 our $LIBS = $args{ LIBS } || "-lmpfr -lgmp";
 our $INC = $args{ INC };
 
-$use_64_bit_int  = 0;     # Let perl decide whether to include 64-bit 'long long' support
-$use_long_double = 0;     # Let perl decide whether to include 'long double' support
-$have_decimal64  = undef; # Default value
-$have_decimal128 = undef; # Default value
-$have_float128   = undef; # Default value
-$want_float128   = undef; # Default value
+my $use_64_bit_int  = 0;     # Let perl decide whether to include 64-bit 'long long' support
+my $use_long_double = 0;     # Let perl decide whether to include 'long double' support
+my $have_decimal64  = undef; # Default value
+my $have_decimal128 = undef; # Default value
+my $have_float128   = undef; # Default value
+my $want_float128   = undef; # Default value
 
 #$use_64_bit_int  = -1; # Uncomment to Force exclusion of 64-bit 'long long' support
 #$use_long_double = -1; # Uncomment to Force exclusion of 'long double' support
@@ -25,7 +28,7 @@ $want_float128   = undef; # Default value
 #$have_decimal128  = 1; # Uncomment to Force inclusion of _Decimal128 support
 #$have_float128   = 1; # Uncomment to Force inclusion of __float128/_Float128 support
 
-$save = open SAVE, '>', 'save_config.txt';
+my $save = open SAVE, '>', 'save_config.txt';
 
 warn "Couldn't open save_config.txt for writing: $!" unless $save;
 
@@ -316,7 +319,7 @@ if($Config{nvsize} == 8) {
 # aids for nvtoa() and doubletoa()
 for(@ARGV) {
   $defines .= ' -DNVTOA_DEBUG'  if $_ =~ /NVTOA_DEBUG/i;  # prints out (to STDERR) intermediate
-                                                            # values in nvtoa().
+                                                          # values in nvtoa().
   $defines .= ' -DDTOA_ASSERT'   if $_ =~ /DTOA_ASSERT/i; # runs checks at various points in doubletoa()
                                                           # and croaks whenever a check fails.
 }
