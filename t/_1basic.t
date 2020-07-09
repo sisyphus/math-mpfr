@@ -4,7 +4,7 @@ use Config;
 use Math::MPFR qw(:mpfr);
 use Math::MPFR::V;
 
-print "1..8\n";
+print "1..9\n";
 
 warn "\n# Using Math::MPFR version ", $Math::MPFR::VERSION, "\n";
 warn "# MPFR_VERSION is ", MPFR_VERSION, "\n";
@@ -121,6 +121,12 @@ if($Math::MPFR::VERSION eq $Math::MPFR::V::VERSION) {print "ok 8\n"}
 else {
   warn "\$Math::MPFR::V::VERSION: $Math::MPFR::V::VERSION \n";
   print "not ok 8\n";
+}
+
+if(Math::MPFR::Random::_MPFR_VERSION() == Math::MPFR::_MPFR_VERSION()) {print "ok 9\n"}
+else {
+  warn Math::MPFR::Random::_MPFR_VERSION(), " != ", Math::MPFR::_MPFR_VERSION(), "\n";
+  print "not ok 9\n";
 }
 
 if($rebuild == 1) {
