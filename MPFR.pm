@@ -4,7 +4,7 @@
     use POSIX;
     use Config;
     use Math::MPFR::Prec;
-    use Math::MPFR::Random;
+    use Math::MPFR::Random; # Needs to be loaded before Math::MPFR
 
     use constant  GMP_RNDN              => 0;
     use constant  GMP_RNDZ              => 1;
@@ -37,6 +37,7 @@
     use constant MPFR_FREE_GLOBAL_CACHE => 2;
     use constant LITTLE_ENDIAN          => $Config{byteorder} =~ /^1/ ? 1 : 0;
     use constant MM_HP                  => LITTLE_ENDIAN ? 'h*' : 'H*';
+    use constant MPFR_3_1_6_OR_LATER    => Math::MPFR::Random::_MPFR_VERSION() > 196869 ? 1 : 0;
 
     use subs qw(MPFR_VERSION MPFR_VERSION_MAJOR MPFR_VERSION_MINOR
                 MPFR_VERSION_PATCHLEVEL MPFR_VERSION_STRING
@@ -590,13 +591,13 @@ sub GMP_LIMB_BITS           () {return _GMP_LIMB_BITS()}
 sub GMP_NAIL_BITS           () {return _GMP_NAIL_BITS()}
 
 sub atonum {
-    if(196869 < MPFR_VERSION) {
+    if(MPFR_3_1_6_OR_LATER) {
       my $copy = $_[0];               # Don't mess with $_[0] flags
       my $ret = "$copy" + 0;
       return $ret if _itsa($ret) < 3; # IV
       return atonv($_[0]);            # NV
     }
-    die("atonum needs atonv, but atonv is not available with this version (MPFR_VERSION_STRING) of the mpfr library");
+    die("atonum needs atonv, but atonv is not available with this version (", MPFR_VERSION_STRING, ") of the mpfr library");
 }
 
 sub mpfr_min_inter_prec {
