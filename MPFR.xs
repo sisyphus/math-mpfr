@@ -301,9 +301,8 @@ void Rmpfr_init_set_str(pTHX_ SV * q, SV * base, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     CHECK_INPUT_BASE
+     if( FAILS_CHECK_INPUT_BASE )
         croak("2nd argument supplied to Rmpfr_init_set str is out of allowable range");
-     }
 
      NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init_set_str) /* defined in math_mpfr_include.h */
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
@@ -461,9 +460,8 @@ void Rmpfr_init_set_str_nobless(pTHX_ SV * q, SV * base, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     CHECK_INPUT_BASE
+     if( FAILS_CHECK_INPUT_BASE )
         croak("2nd argument supplied to Rmpfr_init_set_str_nobless is out of allowable range");
-     }
 
      NEW_MATH_MPFR_OBJECT(NULL,Rmpfr_init_set_str_nobless) /* defined in math_mpfr_include.h */
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
@@ -480,9 +478,8 @@ void Rmpfr_deref2(pTHX_ mpfr_t * p, SV * base, SV * n_digits, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     CHECK_OUTPUT_BASE
+     if( FAILS_CHECK_OUTPUT_BASE )
         croak("Second argument supplied to Rmpfr_get_str is not in acceptable range");
-     }
 
      out = mpfr_get_str(0, &ptr, SvIV(base), (unsigned long)SvUV(n_digits), *p, (mpfr_rnd_t)SvUV(round));
 
@@ -750,9 +747,8 @@ int Rmpfr_set_str(pTHX_ mpfr_t * p, SV * num, SV * base, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     CHECK_INPUT_BASE
+     if( FAILS_CHECK_INPUT_BASE )
         croak("3rd argument supplied to Rmpfr_set_str is out of allowable range");
-     }
 
 #ifdef _WIN32_BIZARRE_INFNAN
        inf_or_nan = _win32_infnanstring(SvPV_nolen(num));
@@ -1534,9 +1530,8 @@ SV * _TRmpfr_out_str(pTHX_ FILE * stream, SV * base, SV * dig, mpfr_t * p, SV * 
 
      CHECK_ROUNDING_VALUE
 
-     CHECK_OUTPUT_BASE
+     if( FAILS_CHECK_OUTPUT_BASE )
         croak("2nd argument supplied to TRmpfr_out_str is out of allowable range" );
-     }
 
      ret = mpfr_out_str(stream, SvIV(base), (size_t)SvUV(dig), *p, (mpfr_rnd_t)SvUV(round));
      fflush(stream);
@@ -1548,9 +1543,8 @@ SV * _Rmpfr_out_str(pTHX_ mpfr_t * p, SV * base, SV * dig, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     CHECK_OUTPUT_BASE
+     if( FAILS_CHECK_OUTPUT_BASE )
         croak("2nd argument supplied to Rmpfr_out_str is out of allowable range" );
-     }
 
      ret = mpfr_out_str(stdout, SvIV(base), (size_t)SvUV(dig), *p, (mpfr_rnd_t)SvUV(round));
      fflush(stdout);
@@ -1562,9 +1556,8 @@ SV * _TRmpfr_out_strS(pTHX_ FILE * stream, SV * base, SV * dig, mpfr_t * p, SV *
 
      CHECK_ROUNDING_VALUE
 
-     CHECK_OUTPUT_BASE
+     if( FAILS_CHECK_OUTPUT_BASE )
        croak("2nd argument supplied to TRmpfr_out_str is out of allowable range" );
-     }
 
      ret = mpfr_out_str(stream, (int)SvIV(base), (size_t)SvUV(dig), *p, (mpfr_rnd_t)SvUV(round));
      fflush(stream);
@@ -1578,9 +1571,8 @@ SV * _TRmpfr_out_strP(pTHX_ SV * pre, FILE * stream, SV * base, SV * dig, mpfr_t
 
      CHECK_ROUNDING_VALUE
 
-     CHECK_OUTPUT_BASE
+     if( FAILS_CHECK_OUTPUT_BASE )
         croak("3rd argument supplied to TRmpfr_out_str is out of allowable range" );
-     }
 
      fprintf(stream, "%s", SvPV_nolen(pre));
      fflush(stream);
@@ -1594,9 +1586,8 @@ SV * _TRmpfr_out_strPS(pTHX_ SV * pre, FILE * stream, SV * base, SV * dig, mpfr_
 
      CHECK_ROUNDING_VALUE
 
-     CHECK_OUTPUT_BASE
+     if( FAILS_CHECK_OUTPUT_BASE )
         croak("3rd argument supplied to TRmpfr_out_str is out of allowable range" );
-     }
 
      fprintf(stream, "%s", SvPV_nolen(pre));
      fflush(stream);
@@ -1612,9 +1603,8 @@ SV * _Rmpfr_out_strS(pTHX_ mpfr_t * p, SV * base, SV * dig, SV * round, SV * suf
 
      CHECK_ROUNDING_VALUE
 
-     CHECK_OUTPUT_BASE
+     if( FAILS_CHECK_OUTPUT_BASE )
        croak("2nd argument supplied to Rmpfr_out_str is out of allowable range" );
-     }
 
      ret = mpfr_out_str(stdout, (int)SvIV(base), (size_t)SvUV(dig), *p, (mpfr_rnd_t)SvUV(round));
      printf("%s", SvPV_nolen(suff));
@@ -1627,9 +1617,8 @@ SV * _Rmpfr_out_strP(pTHX_ SV * pre, mpfr_t * p, SV * base, SV * dig, SV * round
 
      CHECK_ROUNDING_VALUE
 
-     CHECK_OUTPUT_BASE
+     if( FAILS_CHECK_OUTPUT_BASE )
         croak("3rd argument supplied to Rmpfr_out_str is out of allowable range" );
-     }
 
      printf("%s", SvPV_nolen(pre));
      ret = mpfr_out_str(stdout, (int)SvIV(base), (size_t)SvUV(dig), *p, (mpfr_rnd_t)SvUV(round));
@@ -1642,9 +1631,8 @@ SV * _Rmpfr_out_strPS(pTHX_ SV * pre, mpfr_t * p, SV * base, SV * dig, SV * roun
 
      CHECK_ROUNDING_VALUE
 
-     CHECK_OUTPUT_BASE
+     if( FAILS_CHECK_OUTPUT_BASE )
        croak("3rd argument supplied to Rmpfr_out_str is out of allowable range" );
-     }
 
      printf("%s", SvPV_nolen(pre));
      ret = mpfr_out_str(stdout, (int)SvIV(base), (size_t)SvUV(dig), *p, (mpfr_rnd_t)SvUV(round));
@@ -1658,9 +1646,8 @@ SV * TRmpfr_inp_str(pTHX_ mpfr_t * p, FILE * stream, SV * base, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     CHECK_INPUT_BASE
+     if( FAILS_CHECK_INPUT_BASE )
         croak("3rd argument supplied to TRmpfr_inp_str is out of allowable range" );
-     }
 
      ret = mpfr_inp_str(*p, stream, (int)SvIV(base), (mpfr_rnd_t)SvUV(round));
      if(!ret) {
@@ -1677,9 +1664,8 @@ SV * Rmpfr_inp_str(pTHX_ mpfr_t * p, SV * base, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     CHECK_INPUT_BASE
+     if( FAILS_CHECK_INPUT_BASE )
         croak("2nd argument supplied to Rmpfr_inp_str is out of allowable range" );
-     }
 
      ret = mpfr_inp_str(*p, stdin, (int)SvIV(base), (mpfr_rnd_t)SvUV(round));
      if(!ret) {
@@ -2413,9 +2399,8 @@ SV * Rmpfr_strtofr(pTHX_ mpfr_t * a, SV * str, SV * base, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     CHECK_INPUT_BASE
+     if( FAILS_CHECK_INPUT_BASE )
        croak("3rd argument supplied to Rmpfr_strtofr is out of allowable range");
-     }
 
 #ifdef _WIN32_BIZARRE_INFNAN
        inf_or_nan = _win32_infnanstring(SvPV_nolen(str));
