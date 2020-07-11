@@ -110,10 +110,10 @@ CHECK_ROUNDING_VALUE     : Macro that checks (on pre-4.0.0 mpfr versions only)
                            (On 2.x.x versions the allowable range is only 0-3,
                            but we don't support those versions anyway.)
 
-CHECK_INPUT_BASE         : Macro that checks that the base (where specified)
+FAILS_CHECK_INPUT_BASE   : Macro that checks that the base (where specified)
                            is in the accepted range.
 
-CHECK_OUTPUT_BASE        : Macro that checks that the base (where specified)
+FAILS_CHECK_OUTPUT_BASE  : Macro that checks that the base (where specified)
                            is in the accepted range.
 
 DEAL_WITH_NANFLAG_BUG    : Macro that corrects certain failures (in mpfr
@@ -224,15 +224,15 @@ typedef _Decimal128 D128;
 #define NV_IS_53_BIT 1
 #endif
 
-#define CHECK_INPUT_BASE \
-     if(SvIV(base) < 0 || SvIV(base) > 62 || SvIV(base) == 1) {
+#define FAILS_CHECK_INPUT_BASE \
+     SvIV(base) < 0 || SvIV(base) > 62 || SvIV(base) == 1
 
 #if MPFR_VERSION >= 262400 /* Allowable range of base has been expanded */
-#define CHECK_OUTPUT_BASE \
-     if(SvIV(base) < -36 || SvIV(base) > 62 || abs(SvIV(base)) < 2 )  {
+#define FAILS_CHECK_OUTPUT_BASE \
+     SvIV(base) < -36 || SvIV(base) > 62 || abs(SvIV(base)) < 2
 #else
-#define CHECK_OUTPUT_BASE \
-     if(SvIV(base) < 2 || SvIV(base) > 62)                    {
+#define FAILS_CHECK_OUTPUT_BASE \
+     SvIV(base) < 2 || SvIV(base) > 62
 #endif
 
 /* Don't use CHECK_ROUNDING_VALUE macro with Rmpfr_set_NV      *
