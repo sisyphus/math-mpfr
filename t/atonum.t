@@ -21,9 +21,11 @@ else {
     cmp_ok(atonum("$n"), '==',  $n , "atonum(\"$n\") == $n");
   }
 
-  my $pinf = 99 ** (99 ** 99);
+  my $fr = Math::MPFR->new();
+  my $nan  = Rmpfr_get_NV($fr, MPFR_RNDN);
+  Rmpfr_set_inf($fr, 0);
+  my $pinf = Rmpfr_get_NV($fr, MPFR_RNDN);
   my $ninf = $pinf * -1;
-  my $nan  = $pinf / $pinf;
   my $pzero = 0.0;
   my $nzero = $pzero * -1.0;
 
