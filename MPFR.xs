@@ -7761,6 +7761,8 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 #elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098	/* double-double */
 
   /***********************************************************************
+   * This all works well enough (AFAIK), but needs reviewing with an eye *
+   * towards tidying up and refactoring.                                 *
    * We don't need to determine the correct value of *exp as that value  *
    * is calculated after this sub returns. All we need here is a correct *
    * evaluation of *bits - for which we do need to look at the exponents *
@@ -7770,7 +7772,12 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
    * derives the correct value of *exp.                                  *
    ***********************************************************************/
 
-  int msd_exp, lsd_exp, t, lsd_is_negative_reduction = 0, lsd_is_zero = 0;
+  int msd_exp, lsd_exp, t, lsd_is_zero = 0;
+  /**************************************************************************************************
+   * Include next line for accurate calculation of *exp:                                            *
+   *                                                                                                *
+   * int lsd_is_negative_reduction = 0;                                                             *
+   **************************************************************************************************/
 
   /*******************************************************
    * Determine if the least siginificant double is zero. *
@@ -7787,9 +7794,11 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
     *bits = 53;
   }
 
+  /* else *bits is currently still set at its initial value of 2098 */
+
   int i = IND_1;
 
-  if(*bits == 53) {
+  if(*bits == 53) { /* if the NV is subnormal, *bits need to be reduced accordingly */
     *exp = ((unsigned char *)nvptr)[IND_0];
     *exp <<= 4;
     tmp = ((unsigned char *)nvptr)[IND_1];
@@ -7826,11 +7835,15 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
       if(*exp > 53) *bits = *exp;
       else if(*exp < 53) *bits += 1022 + *exp;
-      *exp += lsd_is_zero;
+/****************************************************************************************************
+ * Include next line for accurate calculation of *exp:                                              *
+ *                                                                                                  *
+ *     *exp += lsd_is_zero;                                                                         *
+ ****************************************************************************************************/
     }
     else {
       *bits =  53 - subnormal_prec_adjustment;
-      *exp  -= subnormal_prec_adjustment - 1;
+      *exp  -= subnormal_prec_adjustment - 1; /* This line is currently needed ... but why/how ? */
     }
 
   }
@@ -7849,7 +7862,11 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
     lsd_exp += tmp >> 4;
     if(lsd_exp > 2047) {
       lsd_exp -= 2048;
-      if(!lsd_is_zero) lsd_is_negative_reduction = 1;
+/****************************************************************************************************
+ * Include next line for accurate calculation of *exp:                                              *
+ *                                                                                                  *
+ *     if(!lsd_is_zero) lsd_is_negative_reduction = 1;                                              *
+ ****************************************************************************************************/
     }
     lsd_exp -= 1022;
 
@@ -7982,7 +7999,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 SV * nvtoa(pTHX_ NV pnv) {
   int subnormal_prec_adjustment, exp_init;
   int k = 0, k_index, lsb, skip = 0, sign = 0, len, critical;
-  int bits = MATH_MPFR_BITS, is_subnormal = 0, shift1, shift2, inex, low, high, cmp, u;
+  int bits = NVSIZE_BITS, is_subnormal = 0, shift1, shift2, inex, low, high, cmp, u;
   mpfr_exp_t e;    /* Change to 'int' when mpfr dependency for doubledouble is removed */
   NV nv;
   void *nvptr = &nv;
@@ -8075,7 +8092,7 @@ SV * nvtoa(pTHX_ NV pnv) {
 
 #else
 
-  if(bits < MATH_MPFR_BITS) is_subnormal = 1; /* MATH_MPFR_BITS == precision of NV's mantissa */
+  if(bits < NVSIZE_BITS) is_subnormal = 1; /* NVSIZE_BITS == precision of NV's mantissa */
 
 #endif
 
