@@ -148,6 +148,10 @@ IVSIZE_BITS              : Defined only if MATH_MPFR_NEED_LONG_LONG_INT is
                            that it could (currently) be replaced with a hard
                            coded 64 wherever it occurs in the code.
 
+NVSIZE_BITS              : Defined to the maximum number of bits effectively
+                           representable by the NV. This will be either 53,
+                           64, 113 or 2098 - depending on perl's NV type.
+
 _WIN32_BIZARRE_INFNAN    : Defined (on Windows only) when the perl version
                            (as expressed by $]) is less than 5.022.
                            These earlier perl versions had bizarre strings
@@ -377,7 +381,7 @@ typedef _Decimal128 D128;
 /* For nvtoa() */
 #if defined(NV_IS_53_BIT)
 #define MATH_MPFR_MAX_DIG 17
-#define MATH_MPFR_BITS 53
+#define NVSIZE_BITS 53
 #define MATH_MPFR_NV_MAX 1.7976931348623157e+308
 #define MATH_MPFR_NORMAL_MIN 2.2250738585072014e-308
 
@@ -399,7 +403,7 @@ typedef _Decimal128 D128;
 
 #elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64
 #define MATH_MPFR_MAX_DIG 21
-#define MATH_MPFR_BITS 64
+#define NVSIZE_BITS 64
 #define MATH_MPFR_NV_MAX 1.18973149535723176502e4932L
 #define MATH_MPFR_NORMAL_MIN 3.36210314311209350626e-4932L
 
@@ -423,7 +427,7 @@ typedef _Decimal128 D128;
 
 #elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098
 #define MATH_MPFR_MAX_DIG 33
-#define MATH_MPFR_BITS 2098
+#define NVSIZE_BITS 2098
 #define MATH_MPFR_NV_MAX 1.797693134862315807937289714053e+308L
 #define MATH_MPFR_NORMAL_MIN 2.2250738585072014e-308
 
@@ -462,7 +466,7 @@ typedef _Decimal128 D128;
 
 #else
 #define MATH_MPFR_MAX_DIG 36
-#define MATH_MPFR_BITS 113
+#define NVSIZE_BITS 113
 #define MATH_MPFR_NV_MAX 1.18973149535723176508575932662800702e+4932Q
 #define MATH_MPFR_NORMAL_MIN 3.3621031431120935062626778173217526e-4932Q
 
