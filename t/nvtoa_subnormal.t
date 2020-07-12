@@ -35,28 +35,33 @@ if(196869 < MPFR_VERSION) {
   # Note that 2 ** $pow is the smallest positive (non-zero) value
   # that can be represented by the particular nvtype.
 
-  $pow--;
-  $bits++;
+  if(2 ** $pow != 0) {
+    $pow--;
+    $bits++;
 
-  my($val, $last_val) = (0, 0);
+    my($val, $last_val) = (0, 0);
 
-  for my $b(1 .. $bits) {
-     next unless $b % 10; # Set every 10th to zero - just for some additional complexity
-     $val = $last_val + (2 ** ($b + $pow));
+    for my $b(1 .. $bits) {
+       next unless $b % 10; # Set every 10th to zero - just for some additional complexity
+       $val = $last_val + (2 ** ($b + $pow));
 
-     $str = nvtoa($val);
-     cmp_ok(atonv($str), '==', $val,     "$b: atonv($str) == $val");
-     cmp_ok(atonv($str), '>', $last_val, "$b: atonv($str) > $last_val");
-     cmp_ok($str, 'eq', doubletoa($val), "$b: $str eq doubletoa($val)")
-       if $Config{nvsize} == 8;
+       $str = nvtoa($val);
+       cmp_ok(atonv($str), '==', $val,     "$b: atonv($str) == $val");
+       cmp_ok(atonv($str), '>', $last_val, "$b: atonv($str) > $last_val");
+       cmp_ok($str, 'eq', doubletoa($val), "$b: $str eq doubletoa($val)")
+         if $Config{nvsize} == 8;
 
-     other_checks($str, $val, $b);
+       other_checks($str, $val, $b);
 
-     $last_val = $val;
+       $last_val = $val;
+    }
+  }
+  else {
+    warn "\nSkipping all tests - this perl thinks that 2 ** $pow == 0\n";
+    ok(1, "This perl is garbage"); # provide a test
   }
 
   done_testing();
-
 }
 else {
 
