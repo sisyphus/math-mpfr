@@ -7764,12 +7764,13 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
    * This all works well enough (AFAIK), but needs reviewing with an eye *
    * towards tidying up and refactoring.                                 *
    * We don't need to determine the correct value of *exp as that value  *
-   * is calculated after this sub returns. All we need here is a correct *
-   * evaluation of *bits - for which we do need to look at the exponents *
-   * of both doubles.                                                    *
+   * is calculated after this sub returns - except for the case that     *
+   * *bits == 1. Otherwise, all we need here is a correct evaluation of  *
+   * *bits - for which we do need to look at the exponents of both       *
+   * doubles.                                                            *
    * In the event that it might be useful at some point in the future,   *
    * I'm including the additional code (albeit, commented out) that also *
-   * derives the correct value of *exp.                                  *
+   * derives the correct value of *exp when *bits != 1.                  *
    ***********************************************************************/
 
   int msd_exp, lsd_exp, t, lsd_is_zero = 0;
@@ -7843,7 +7844,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
     }
     else {
       *bits =  53 - subnormal_prec_adjustment;
-      *exp  -= subnormal_prec_adjustment - 1; /* This line is currently needed ... but why/how ? */
+      *exp  -= subnormal_prec_adjustment - 1; /* This line is currently needed when *bits == 1 */
     }
 
   }
@@ -7997,8 +7998,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 /* by Guy L. Steele Jr and Jon L. White                                                     */
 
 SV * nvtoa(pTHX_ NV pnv) {
-  int subnormal_prec_adjustment, exp_init;
-  int k = 0, k_index, lsb, skip = 0, sign = 0, len, critical;
+  int subnormal_prec_adjustment, k = 0, k_index, lsb, skip = 0, sign = 0, len, critical;
   int bits = NVSIZE_BITS, is_subnormal = 0, shift1, shift2, inex, low, high, cmp, u;
   mpfr_exp_t e;    /* Change to 'int' when mpfr dependency for doubledouble is removed */
   NV nv;
