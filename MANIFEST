@@ -7,6 +7,7 @@ math_mpfr_include.h
 MPFR.xs
 README
 CHANGES
+checklib.in
 have_d64.in
 have_d128.in
 have_f128.in
