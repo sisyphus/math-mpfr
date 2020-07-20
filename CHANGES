@@ -1,4 +1,7 @@
 4.15
+ - Make some changes relatng to bareword filehandles and indirect object syntax.
+ - Enhance the Makefile.PL's capability of detecting that mpfr/gmp libraries are
+   not going to be found when needed.
 
 4.14
  - Add numtoa() and atonum().
