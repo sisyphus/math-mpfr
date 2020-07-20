@@ -5,6 +5,7 @@ use ExtUtils::MakeMaker;
 my %options = %{
 {
   'NAME' => 'Math::MPFR::V',
+  'INC' => $INC,
   'VERSION_FROM' => 'V.pm'
 }
 };
