@@ -2,10 +2,13 @@ use strict;
 use warnings;
 use ExtUtils::MakeMaker;
 
+our $LIBS;
+
 my %options = %{
 {
   'NAME' => 'Math::MPFR::Prec',
-  'LIBS' => '-lmpfr -lgmp',
+  'LIBS' => $LIBS,
+  'INC' => $INC,
   'VERSION_FROM' => 'Prec.pm'
 }
 };
