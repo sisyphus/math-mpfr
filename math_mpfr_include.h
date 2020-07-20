@@ -229,14 +229,14 @@ typedef _Decimal128 D128;
 #endif
 
 #define FAILS_CHECK_INPUT_BASE \
-     SvIV(base) < 0 || SvIV(base) > 62 || SvIV(base) == 1
+     !SvIOK(base) || SvIVX(base) < 0 || SvIVX(base) > 62 || SvIVX(base) == 1
 
 #if MPFR_VERSION >= 262400 /* Allowable range of base has been expanded */
 #define FAILS_CHECK_OUTPUT_BASE \
-     SvIV(base) < -36 || SvIV(base) > 62 || abs(SvIV(base)) < 2
+     !(SvIOK(base) && ((SvIVX(base) >= 2 && SvIVX(base) <= 62) || (SvIVX(base) >= -36 && SvIVX(base) <= -2)))
 #else
 #define FAILS_CHECK_OUTPUT_BASE \
-     SvIV(base) < 2 || SvIV(base) > 62
+     !(SvIOK(base) && SvIVX(base) >= 2 && SvIVX(base) <= 62)
 #endif
 
 /* Don't use CHECK_ROUNDING_VALUE macro with Rmpfr_set_NV      *
