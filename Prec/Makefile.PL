@@ -13,4 +13,4 @@ my %options = %{
 WriteMakefile(%options);
 
 # Remove the Makefile dependency. Causes problems on a few systems.
-sub MY::makefile { '' }
+# sub MY::makefile { '' }
