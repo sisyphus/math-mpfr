@@ -54,8 +54,21 @@ perl Makefile.pl INC="-I/path/to/gmp_includes -I/path/to/mpfr_includes"
  LIBS="-L/path/to/mpfr_lib -lmpfr -L/path/to/gmp_lib -lgmp"
 
 Other commandline args you may want to provide to 'perl Makefile.PL' are
-D64=1 (for _Decimal64 support) and F128=1 (for __float128 support).
-See the Decimal64 and Float128 sections (below).
+D64=1 (for _Decimal64 support), D128=1 (for _Decimal128 support) and
+F128=1 (for __float128 support).
+See the Decimal64/128 and Float128 sections (below).
+
+========
+Checklib
+========
+
+During the running of the Makefile.PL a check is run to ensure that the
+gmp and mpfr libraries can be found when needed.
+This check can be skipped by:
+a) providing CHECK=0 as a Makefile.PL commmand line argument
+or
+b) by uncommenting the line (about line 20) that begins with:
+#$checklib = 0;
 
 ==================================
 64-bit-int and long double support
