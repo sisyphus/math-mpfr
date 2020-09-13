@@ -303,7 +303,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    These next 3 functions are demonstrated above (in SYNOPSIS):
    $rop = Rmpfr_init();
    $rop = Rmpfr_init2($p);
-   $str = Rmpfr_get_str($op, $base, $digits, $rnd); # 1 < $base < 37
+   $str = Rmpfr_get_str($op, $base, $digits, $rnd); # mpfr version >= 4.1.0 ? 1 < abs($base) < 63
+                                                    #                       : 1 < abs($base) < 3
    The third argument to Rmpfr_get_str() specifies the number of digits
    required to be output in the mantissa. (Trailing zeroes are removed.)
    If $digits is 0, the number of digits of the mantissa is chosen
@@ -614,7 +615,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     But the following assignment won't do what you want:
      Rmpfr_set_str($rop, ".1234@-5", 10, GMP_RNDN);
 
-   Rmpfr_strtofr($rop, $str, $base, $rnd);
+   $si = Rmpfr_strtofr($rop, $str, $base, $rnd);
     Read a floating point number from a string $str in base $base,
     rounded in the direction $rnd. If successful, the result is
     stored in $rop. If $str doesn't start with a valid number then
@@ -1785,6 +1786,43 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $sv = atonum($str); # Needs mpfr-3.1.6 or later
     If $str numifies to an IV, return that IV.
     Else return the NV that is returned by atonv($str).
+
+   @data = get_exact_decimal($op);
+    Return a 3-element array that allows construction of an exact base
+    10 representation of the base 2 value held in $op.
+
+    $data[0] contains the base 10 mantissa (with an implicit decimal
+    point before the leading decimal digit.
+
+    $data[1] contains the exponent of this exact decimal value.
+
+    $data[2] contains the number of digits contained in $data[0], or -1
+    if $op is a zero, inf, or nan.
+
+    The user can then pass this array as arguments to the decimalize
+    function (below) which will convert this information into a usual
+    string representation of this exact decimal value.
+    Alternatively, if the user is unhappy with the formatting provided
+    by decimalize, then the 3 arguments can be passed to a customized
+    routine instead.
+
+   $str = decimalize(get_exact_decimal($op));
+    Return an exact base 10 representation of the value held in $op.
+    Alternatively, if one has already run:
+     @data = get_exact_decimal($op);
+      then one can avoid re-running get_exact_decimal() by running:
+     $str = decimalize($data[0], $data[1], $data[2]);
+
+   $bool = check_exact_decimal($op, get_exact_decimal($op));
+    Check that the value obtained by decimalize() is correct. This is
+    achieved by assigning the exact decimal string value to a
+    temporary mpfr_t object and checking that:
+      a) the assignment was exact;
+      b) $op == the temporary object.
+    Again, if get_exact_decimal($op) has already been run:
+     @data = get_exact_decimal($op);
+      then one can avoid re-running get_exact_decimal() by running:
+     $str = check_exact_decimal($op, $data[0], $data[1], $data[2]);
 
    $MPFR_version = Rmpfr_get_version();
     Returns the version of the MPFR library (eg 4.0.2) being used by
