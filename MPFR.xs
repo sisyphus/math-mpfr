@@ -483,7 +483,7 @@ void Rmpfr_deref2(pTHX_ mpfr_t * p, SV * base, SV * n_digits, SV * round) {
 
      out = mpfr_get_str(0, &ptr, SvIV(base), (unsigned long)SvUV(n_digits), *p, (mpfr_rnd_t)SvUV(round));
 
-     if(out == NULL) croak("An error occurred in mpfr_get_str\n");
+     if(out == NULL) croak("An error occurred in memory allocation in mpfr_get_str\n");
 
      ST(0) = sv_2mortal(newSVpv(out, 0));
      mpfr_free_str(out);
@@ -8999,6 +8999,95 @@ SV * numtoa(pTHX_ SV * in) {
   croak("Not a numeric argument given to numtoa function");
 }
 
+void get_exact_decimal(pTHX_ mpfr_t * x) {
+  dXSARGS;
+  mpfr_prec_t prec;
+  mpfr_exp_t exp, high_exp, low_exp;
+  char * buff;
+  char * dec_buff;
+  int i, is_neg = 0, digits = 0;
+  double div = 3.32192809488736;	/* log2(10) */
+  double mul = 0.698970004336019;	/* log10(5) */
+
+  if(!mpfr_regular_p(*x)) {
+    Newxz(buff, 8, char);
+    mpfr_get_str(buff, &exp, 2, 1, *x, GMP_RNDN);
+    ST(0) = sv_2mortal(newSVpv(buff, 0));
+    Safefree(buff);
+    ST(1) = sv_2mortal(newSViv(exp));
+    ST(2) = sv_2mortal(newSViv( -1));
+    XSRETURN(3);
+  }
+
+  prec = mpfr_get_prec(*x);
+
+  Newxz(buff, prec + 2, char);
+
+  mpfr_get_str(buff, &exp, 2, prec, *x, GMP_RNDN);
+
+  if(buff[0] == '+' || buff[0] == '-') {
+    buff++;
+    is_neg = -1;
+  }
+
+  /* The decimal point is implicitly located at the very *
+   * beginning of the string. Therefore, the power to    *
+   * which the highest set bit is raised is exp - 1      */
+
+  high_exp = exp - 1;
+
+  /* The power to which the lowest set bit is raised is  *
+    * calculated in the following for{} loop:             */
+
+  for(i = prec - 1; i >= 0; i--) {
+    if(buff[i] == '1') {
+      low_exp = exp - 1 - i;
+      break;
+    }
+  }
+
+  if(is_neg) buff--;
+
+  Safefree(buff);
+
+  /* Next determine the number of decimal digits that are needed to   *
+   * exactly express the function's first argument in base 10         */
+
+  if(low_exp >= 0) {
+    /* Both low_exp and high_exp are >= 0.                            *
+     * The number of digits is calculated solely from high_exp.       *
+     * We add on "1" to allow for cases where the value of high_exp   *
+     * does not alone determine how many siginificant digits are      *
+     * required - eg the value 2 ** 13 (8192) requires 4 decimal      *
+     * digits, but if the second highest bit is also set, then 5      *
+     * decimal digits are needed because (2**13) + (2**12) == 12288   */
+
+    digits = 1 + ceil( high_exp / div );
+  }
+
+  else if(high_exp < 0) {
+    /* Both low_exp and high_exp are < 0 */
+
+    digits = ceil( -low_exp * mul ) + ceil( -low_exp / div ) - floor( -high_exp / div );
+  }
+
+  else {
+    /* low_exp < 0, high_exp >= 0        *
+     * Add 1, as in the above if{} block */
+
+    digits = 1 + ceil( high_exp / div ) + ceil( -low_exp * mul ) + floor( -low_exp / div );
+  }
+
+  Newxz(dec_buff, digits + 2, char);
+  mpfr_get_str(dec_buff, &exp, 10, digits, *x, GMP_RNDN);
+  ST(0) = sv_2mortal(newSVpv(dec_buff, 0));
+  Safefree(dec_buff);
+  ST(1) = sv_2mortal(newSViv(exp));
+  ST(2) = sv_2mortal(newSViv(digits));
+  XSRETURN(3);
+
+}
+
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
 
 PROTOTYPES: DISABLE
@@ -13365,4 +13454,20 @@ numtoa (in)
 CODE:
   RETVAL = numtoa (aTHX_ in);
 OUTPUT:  RETVAL
+
+void
+get_exact_decimal (x)
+	mpfr_t *	x
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        get_exact_decimal(aTHX_ x);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
 
