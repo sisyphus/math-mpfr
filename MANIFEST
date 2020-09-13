@@ -38,6 +38,7 @@ t/constants.t
 t/D64_LD.t
 t/decimal64_conv.t
 t/decimal128_conv.t
+t/decimalize.t
 t/div_by_zero.t
 t/DoubleDouble.t
 t/DoubleDouble2.t
