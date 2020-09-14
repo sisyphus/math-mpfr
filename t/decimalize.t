@@ -48,10 +48,22 @@ for my $v (1 .. 1290) {
  my $f2 = Math::MPFR->new($s2);
  my $f3 = Math::MPFR->new($s3);
 
+ my @f1 = get_exact_decimal($f1);
+ my @f2 = get_exact_decimal($f2);
+ my @f3 = get_exact_decimal($f3);
 
- cmp_ok(check_exact_decimal($f1, get_exact_decimal($f1)), '==', 1, "'$s1', at precision $prec, decimalized as expected");
- cmp_ok(check_exact_decimal($f2, get_exact_decimal($f2)), '==', 1, "'$s2', at precision $prec, decimalized as expected");
- cmp_ok(check_exact_decimal($f3, get_exact_decimal($f3)), '==', 1, "'$s3', at precision $prec, decimalized as expected");
+ cmp_ok(check_exact_decimal($f1, @f1), '==', 1, "'$s1', at precision $prec, decimalized as expected");
+ cmp_ok(check_exact_decimal($f2, @f2), '==', 1, "'$s2', at precision $prec, decimalized as expected");
+ cmp_ok(check_exact_decimal($f3, @f3), '==', 1, "'$s3', at precision $prec, decimalized as expected");
+
+ ok(decimalize(@f1) =~ /^\-?[1-9]\.\d/, "'$s1', at precision $prec, begins as expected");
+ ok(decimalize(@f1) =~ /\de\-?\d/, "'$s1', at precision $prec, has an exponent");
+
+ ok(decimalize(@f2) =~ /^\-?[1-9]\.\d/, "'$s2', at precision $prec, begins as expected");
+ ok(decimalize(@f2) =~ /\de\-?\d/, "'$s2', at precision $prec, has an exponent");
+
+ ok(decimalize(@f3) =~ /^\-?[1-9]\.\d/, "'$s3', at precision $prec, begins as expected");
+ ok(decimalize(@f3) =~ /\de\-?\d/, "'$s3', at precision $prec, has an exponent");
 
 }
 
