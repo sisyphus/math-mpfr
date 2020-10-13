@@ -9001,11 +9001,12 @@ SV * numtoa(pTHX_ SV * in) {
 
 void get_exact_decimal(pTHX_ mpfr_t * x) {
   dXSARGS;
-  mpfr_prec_t prec;
+  mpfr_prec_t prec, i;
   mpfr_exp_t exp, high_exp, low_exp;
   char * buff;
   char * dec_buff;
-  int i, is_neg = 0, digits = 0;
+  int is_neg = 0;
+  double digits = 0;
   double div = 3.32192809488736;	/* log2(10) */
   double mul = 0.698970004336019;	/* log10(5) */
 
@@ -9041,7 +9042,7 @@ void get_exact_decimal(pTHX_ mpfr_t * x) {
 
   for(i = prec - 1; i >= 0; i--) {
     if(buff[i] == '1') {
-      low_exp = exp - 1 - i;
+      low_exp = high_exp - i;
       break;
     }
   }
@@ -9077,6 +9078,11 @@ void get_exact_decimal(pTHX_ mpfr_t * x) {
 
     digits = 1 + ceil( high_exp / div ) + ceil( -low_exp * mul ) + floor( -low_exp / div );
   }
+
+  /* Let's put a limit of 100,000 on how many digits we accept.    *
+   * This figure can always be amended if we find a need to do so. */
+
+  if(digits > 1.0e5) croak("Too many (%.0f) digits required in get_exact_decimal function", digits);
 
   Newxz(dec_buff, digits + 2, char);
   mpfr_get_str(dec_buff, &exp, 10, digits, *x, GMP_RNDN);
