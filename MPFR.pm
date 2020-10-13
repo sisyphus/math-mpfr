@@ -603,6 +603,10 @@ sub atonum {
 }
 
 sub check_exact_decimal {
+  unless(MPFR_3_1_6_OR_LATER) {
+    warn "check_exact_decimal() requires mpfr-3.1.6 or later\n";
+    die "Math::MPFR was built against mpfr-", MPFR_VERSION_STRING;
+  }
   my($op, $str, $exp, $digits) = (shift, shift, shift, shift);
   my $check;
 
@@ -642,7 +646,9 @@ sub decimalize {
   $offset++ if $data[0] =~ /^\-/;
   $data[1]--;
 
-  substr($data[0], $offset, 0, '.');
+  substr($data[0], $offset, 0, '.');      # Insert decimal point immediately after 1st digit
+  substr($data[0], -1, 1, '')
+    while substr($data[0], -1, 1) eq '0'; # Remove trailing zeros
   my $ret = $data[0] . "e" . $data[1];
   $ret =~ s/\.e/.0e/;
   return $ret;
