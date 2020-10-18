@@ -8999,7 +8999,7 @@ SV * numtoa(pTHX_ SV * in) {
   croak("Not a numeric argument given to numtoa function");
 }
 
-void get_exact_decimal(pTHX_ mpfr_t * x) {
+void decimalize(pTHX_ mpfr_t * x) {
   dXSARGS;
   mpfr_prec_t prec, i;
   mpfr_exp_t exp, high_exp, low_exp;
@@ -9012,12 +9012,10 @@ void get_exact_decimal(pTHX_ mpfr_t * x) {
 
   if(!mpfr_regular_p(*x)) {
     Newxz(buff, 8, char);
-    mpfr_get_str(buff, &exp, 2, 1, *x, GMP_RNDN);
+    mpfr_sprintf(buff, "%Rg", *x);
     ST(0) = sv_2mortal(newSVpv(buff, 0));
     Safefree(buff);
-    ST(1) = sv_2mortal(newSViv(exp));
-    ST(2) = sv_2mortal(newSViv( -1));
-    XSRETURN(3);
+    XSRETURN(1);
   }
 
   prec = mpfr_get_prec(*x);
@@ -9052,7 +9050,7 @@ void get_exact_decimal(pTHX_ mpfr_t * x) {
   Safefree(buff);
 
   /* Next determine the number of decimal digits that are needed to   *
-   * exactly express the function's first argument in base 10         */
+   * exactly express the function's argument in base 10         */
 
   if(low_exp >= 0) {
     /* Both low_exp and high_exp are >= 0.                            *
@@ -9079,18 +9077,20 @@ void get_exact_decimal(pTHX_ mpfr_t * x) {
     digits = 1 + ceil( high_exp / div ) + ceil( -low_exp * mul ) + floor( -low_exp / div );
   }
 
-  /* Let's put a limit of 100,000 on how many digits we accept.    *
-   * This figure can always be amended if we find a need to do so. */
+  if(digits > INT_MAX - 30)
+    croak("Too many digits (%.0f) requested in get_exact_decimal function", digits);
 
-  if(digits > 1.0e5) croak("Too many (%.0f) digits required in get_exact_decimal function", digits);
+  Newxz(dec_buff, (int)digits + 30, char); /* allow for a 20-digit exponent, a radix point, *
+                                            * a leading '-', an 'e-', a terminating NULL,   *
+                                            * and a saftety net of 5 bytes (== 30, total)   */
+  if(dec_buff == NULL)
+    croak("Unable to allocate %.0f bytes of memory in get_exact_decimal function",
+          digits + 30.0);
 
-  Newxz(dec_buff, digits + 2, char);
-  mpfr_get_str(dec_buff, &exp, 10, digits, *x, GMP_RNDN);
+  mpfr_sprintf(dec_buff, "%.*Rg", (int)digits, *x);
   ST(0) = sv_2mortal(newSVpv(dec_buff, 0));
   Safefree(dec_buff);
-  ST(1) = sv_2mortal(newSViv(exp));
-  ST(2) = sv_2mortal(newSViv(digits));
-  XSRETURN(3);
+  XSRETURN(1);
 
 }
 
@@ -13462,13 +13462,13 @@ CODE:
 OUTPUT:  RETVAL
 
 void
-get_exact_decimal (x)
+decimalize (x)
 	mpfr_t *	x
         PREINIT:
         I32* temp;
         PPCODE:
         temp = PL_markstack_ptr++;
-        get_exact_decimal(aTHX_ x);
+        decimalize(aTHX_ x);
         if (PL_markstack_ptr != temp) {
           /* truly void, because dXSARGS not invoked */
           PL_markstack_ptr = temp;
