@@ -155,7 +155,7 @@ Rmpfr_set_sj_2exp Rmpfr_set_str Rmpfr_set_ui Rmpfr_set_ui_2exp
 Rmpfr_set_uj Rmpfr_set_uj_2exp
 Rmpfr_set_DECIMAL64 Rmpfr_get_DECIMAL64 Rmpfr_set_float128 Rmpfr_get_float128
 Rmpfr_set_FLOAT128 Rmpfr_get_FLOAT128 Rmpfr_set_DECIMAL128 Rmpfr_get_DECIMAL128
-decimalize get_exact_decimal check_exact_decimal
+decimalize check_exact_decimal
 Rmpfr_set_underflow Rmpfr_set_z Rmpfr_sgn Rmpfr_si_div Rmpfr_si_sub Rmpfr_sin
 Rmpfr_sin_cos Rmpfr_sinh_cosh
 Rmpfr_sinh Rmpfr_sqr Rmpfr_sqrt Rmpfr_sqrt_ui Rmpfr_strtofr Rmpfr_sub
@@ -262,7 +262,7 @@ Rmpfr_set_sj_2exp Rmpfr_set_str Rmpfr_set_ui Rmpfr_set_ui_2exp
 Rmpfr_set_uj Rmpfr_set_uj_2exp
 Rmpfr_set_DECIMAL64 Rmpfr_get_DECIMAL64 Rmpfr_set_float128 Rmpfr_get_float128
 Rmpfr_set_FLOAT128 Rmpfr_get_FLOAT128 Rmpfr_set_DECIMAL128 Rmpfr_get_DECIMAL128
-decimalize get_exact_decimal check_exact_decimal
+decimalize check_exact_decimal
 Rmpfr_set_underflow Rmpfr_set_z Rmpfr_sgn Rmpfr_si_div Rmpfr_si_sub Rmpfr_sin
 Rmpfr_sin_cos Rmpfr_sinh_cosh
 Rmpfr_sinh Rmpfr_sqr Rmpfr_sqrt Rmpfr_sqrt_ui Rmpfr_strtofr Rmpfr_sub
@@ -603,55 +603,32 @@ sub atonum {
 }
 
 sub check_exact_decimal {
-  unless(MPFR_3_1_6_OR_LATER) {
+  unless( MPFR_3_1_6_OR_LATER ) {
     warn "check_exact_decimal() requires mpfr-3.1.6 or later\n";
     die "Math::MPFR was built against mpfr-", MPFR_VERSION_STRING;
   }
-  my($op, $str, $exp, $digits) = (shift, shift, shift, shift);
-  my $check;
+  my($str, $op) = (shift, shift);
 
-  if($digits < 0) {  # $op is either zero, inf, or nan.
-    $check = Math::MPFR->new($str);
-    if(Rmpfr_nan_p($op) && Rmpfr_nan_p($check)) { return 1 }
-    if(Rmpfr_inf_p($op) && Rmpfr_inf_p($check) && $op == $check) { return 1 }
-    if(Rmpfr_zero_p($op) && Rmpfr_zero_p($check) &&
-      Rmpfr_signbit($op) && Rmpfr_signbit($check)
-        ||
-      Rmpfr_signbit($op) == 0 && Rmpfr_sgn($check) == 0)  { return 1 }
+  if( !Rmpfr_regular_p($op) ) {  # $op is either zero, inf, or nan.
+    if( Rmpfr_nan_p($op)    && $str =~ /^nan$/i )  { return 1 }
+    if( Rmpfr_signbit($op) ) {
+      if( Rmpfr_zero_p($op) && $str eq '-0' )     { return 1 }
+      if( Rmpfr_inf_p($op)  && $str =~ /^\-inf$/i ) { return 1 }
+    }
+    else {
+      if( Rmpfr_zero_p($op) && $str eq '0' )      { return 1 }
+      if( Rmpfr_inf_p($op)  && $str =~ '^inf$/i' )  { return 1 }
+    }
+
     return 0;
   }
 
-  $check = Rmpfr_init2(Rmpfr_get_prec($op));
-
-  $str = ("0." . $str) unless($str =~ s/\-/-0./);
-  $str .= "e$exp";
+  my $check = Rmpfr_init2(Rmpfr_get_prec($op));
 
   my $inex = Rmpfr_strtofr($check, $str, 10, MPFR_RNDN);
 
   if($inex == 0 && $op == $check) { return 1 }
-  print "inex: $inex\n";
   return 0;
-}
-
-sub decimalize {
-
-  my @data = (shift, shift, shift);
-
-  if($data[2] < 0) {
-    $data[0] =~ s/\@//g;
-    return $data[0];
-  }
-
-  my $offset = 1;
-  $offset++ if $data[0] =~ /^\-/;
-  $data[1]--;
-
-  substr($data[0], $offset, 0, '.');      # Insert decimal point immediately after 1st digit
-  substr($data[0], -1, 1, '')
-    while substr($data[0], -1, 1) eq '0'; # Remove trailing zeros
-  my $ret = $data[0] . "e" . $data[1];
-  $ret =~ s/\.e/.0e/;
-  return $ret;
 }
 
 sub mpfr_min_inter_prec {
