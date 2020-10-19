@@ -29,6 +29,62 @@ if(Math::MPFR::MPFR_3_1_6_OR_LATER) {
          'eq', '0.1000000000000000055511151231257827021181583404541015625',
          '0.1 decimalizes as expected');
 
+  cmp_ok(check_exact_decimal(decimalize(Math::MPFR->new('1.7976931348623157e+308')),
+                                        Math::MPFR->new('1.7976931348623157e+308')), '==', 1,
+                                        'DBL_MAX decimalizes as expected');
+
+  cmp_ok(check_exact_decimal(decimalize(Math::MPFR->new('-1.7976931348623157e+308')),
+                                        Math::MPFR->new('-1.7976931348623157e+308')), '==', 1,
+                                        '-DBL_MAX decimalizes as expected');
+
+  cmp_ok(check_exact_decimal(decimalize(Math::MPFR->new('1' x 51, 2)),
+                                        Math::MPFR->new('1' x 51, 2)), '==', 1,
+                                        '2251799813685247.0 decimalizes as expected');
+
+  cmp_ok(check_exact_decimal(decimalize(Math::MPFR->new('-' . ('1' x 51), 2)),
+                                        Math::MPFR->new('-' . ('1' x 51), 2)), '==', 1,
+                                        '-2251799813685247.0 decimalizes as expected');
+
+  cmp_ok(check_exact_decimal(decimalize(Math::MPFR->new('1' x 52, 2)),
+                                        Math::MPFR->new('1' x 52, 2)), '==', 1,
+                                        '4.503599627370495e15 decimalizes as expected');
+
+  cmp_ok(check_exact_decimal(decimalize(Math::MPFR->new('-' . ('1' x 52), 2)),
+                                        Math::MPFR->new('-' . ('1' x 52), 2)), '==', 1,
+                                        '-4.503599627370495e15 decimalizes as expected');
+
+  cmp_ok(check_exact_decimal(decimalize(Math::MPFR->new('1' x 53, 2)),
+                                        Math::MPFR->new('1' x 53, 2)), '==', 1,
+                                        '9.007199254740991e15 decimalizes as expected');
+
+  cmp_ok(check_exact_decimal(decimalize(Math::MPFR->new('-' . ('1' x 53), 2)),
+                                        Math::MPFR->new('-' . ('1' x 53), 2)), '==', 1,
+                                        '-9.007199254740991e15 decimalizes as expected');
+
+  cmp_ok(check_exact_decimal(decimalize(Math::MPFR->new('1' x 54, 2)),
+                                        Math::MPFR->new('1' x 54, 2)), '==', 1,
+                                        '1.8014398509481984e16 decimalizes as expected');
+
+  cmp_ok(check_exact_decimal(decimalize(Math::MPFR->new('-' . ('1' x 54), 2)),
+                                        Math::MPFR->new('-' . ('1' x 54), 2)), '==', 1,
+                                        '-1.8014398509481984e16 decimalizes as expected');
+
+  cmp_ok(check_exact_decimal(decimalize(Math::MPFR->new('1' x 55, 2)),
+                                        Math::MPFR->new('1' x 55, 2)), '==', 1,
+                                        '3.6028797018963968e16 decimalizes as expected');
+
+  cmp_ok(check_exact_decimal(decimalize(Math::MPFR->new('-' . ('1' x 55), 2)),
+                                        Math::MPFR->new('-' . ('1' x 55), 2)), '==', 1,
+                                        '-3.6028797018963968e16 decimalizes as expected');
+
+  cmp_ok(check_exact_decimal(decimalize(Math::MPFR->new(('1' x 53) . '0', 2)),
+                                        Math::MPFR->new(('1' x 53) . '0', 2)), '==', 1,
+                                        '3.6028797018963964e16 decimalizes as expected');
+
+  cmp_ok(check_exact_decimal(decimalize(Math::MPFR->new('-' . ('1' x 53) . '0', 2)),
+                                        Math::MPFR->new('-' . ('1' x 53) . '0', 2)), '==', 1,
+                                        '-3.6028797018963964e16 decimalizes as expected');
+
   for my $v (1 .. 1290) {
 
    my $exp =  $v < 900 ? int(rand(25))
