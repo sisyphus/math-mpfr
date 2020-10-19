@@ -9024,33 +9024,40 @@ void decimalize(pTHX_ mpfr_t * x) {
 
   mpfr_get_str(buff, &exp, 2, prec, *x, GMP_RNDN);
 
-  if(buff[0] == '+' || buff[0] == '-') {
-    buff++;
-    is_neg = -1;
-  }
-
   /* The decimal point is implicitly located at the very *
-   * beginning of the string. Therefore, the power to    *
-   * which the highest set bit is raised is exp - 1      */
+   * beginning of the string. Therefore, the power of 2  *
+   * to which the highest set bit is raised is exp - 1   */
 
   high_exp = exp - 1;
 
-  /* The power to which the lowest set bit is raised is  *
-    * calculated in the following for{} loop:             */
+  if(high_exp >= prec - 1) low_exp = 0; /* No need to locate the lowest set bit */
 
-  for(i = prec - 1; i >= 0; i--) {
-    if(buff[i] == '1') {
-      low_exp = high_exp - i;
-      break;
+  else {
+
+    /* We do need to locate the lowest set bit */
+
+    if(buff[0] == '-') {
+      buff++;
+      is_neg = -1;
     }
-  }
 
-  if(is_neg) buff--;
+    /* The power to which the lowest set bit is raised is  *
+     * calculated in the following for{} loop:             */
+
+    for(i = prec - 1; i >= 0; i--) {
+      if(buff[i] == '1') {
+        low_exp = high_exp - i;
+        break;
+      }
+    }
+
+    if(is_neg) buff--;
+  }
 
   Safefree(buff);
 
   /* Next determine the number of decimal digits that are needed to   *
-   * exactly express the function's argument in base 10         */
+   * exactly express the function's argument in base 10               */
 
   if(low_exp >= 0) {
     /* Both low_exp and high_exp are >= 0.                            *
@@ -9078,13 +9085,13 @@ void decimalize(pTHX_ mpfr_t * x) {
   }
 
   if(digits > INT_MAX - 30)
-    croak("Too many digits (%.0f) requested in get_exact_decimal function", digits);
+    croak("Too many digits (%.0f) requested in decimalize function", digits);
 
   Newxz(dec_buff, (int)digits + 30, char); /* allow for a 20-digit exponent, a radix point, *
                                             * a leading '-', an 'e-', a terminating NULL,   *
                                             * and a saftety net of 5 bytes (== 30, total)   */
   if(dec_buff == NULL)
-    croak("Unable to allocate %.0f bytes of memory in get_exact_decimal function",
+    croak("Unable to allocate %.0f bytes of memory in decimalize function",
           digits + 30.0);
 
   mpfr_sprintf(dec_buff, "%.*Rg", (int)digits, *x);
