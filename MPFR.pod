@@ -1791,6 +1791,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Return an exact base 10 representation of the value held in $op.
 
    $bool = check_exact_decimal($str, $op);
+    Can be used to verify the string returned by decimalize().
     Return 1 if $str is an exact decimal representation of the value
     held in $op.
     Else return 0.
