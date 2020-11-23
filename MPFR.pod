@@ -2237,30 +2237,28 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
           read it thoroughly, including the documentation regarding
           'copy constructors'.
 
-    All overloaded comparisons ( < <= > >= == != <=> ) between
-    Math::MPFR and Math::GMPz objects or between Math::MPFR and
-    Math::GMPq objects are now also permitted.
-   . allowed
+    Furthermore, all overloaded comparisons ( < <= > >= == != <=> )
+    between Math::MPFR and Math::GMPz objects or between Math::MPFR
+    and Math::GMPq objects are permitted.
 
-    As of version 3.13 of Math::MPFR, some cross-class overloading
-    is allowed.
+    Some additional cross-class overloading is also allowed.
     Let $M be a Math::MPFR object, and $G be any one of a Math::GMPz,
     Math::GMPq or Math::GMPf object. Then it is now permissible to
     do:
 
      $M + $G;
-     $M - $G;
-     $M * $G;
-     $M / $G;
-     $M ** $G;
-
-    In each of the above, a Math::MPFR object containing the result
-    of the operation is returned. It is also now permissible to do:
-
      $M += $G;
+
+     $M - $G;
      $M -= $G;
+
+     $M * $G;
      $M *= $G;
+
+     $M / $G;
      $M /= $G;
+
+     $M ** $G;
      $M **= $G;
 
     If you have version 0.35 (or later) of Math::GMPz, Math::GMPq
