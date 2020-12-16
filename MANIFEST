@@ -82,6 +82,7 @@ t/Rmpfr_get_q.t
 t/Rmpfr_q_div_and_Rmpfr_z_div.t
 t/Rmpfr_rec_root.t
 t/Rmpfr_rootn_ui.t
+t/Rmpfr_sinu.t
 t/rndna.t
 t/rndna2.t
 t/set_NV.t
