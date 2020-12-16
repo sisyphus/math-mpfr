@@ -1260,9 +1260,25 @@ SV * Rmpfr_sin(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
      return newSViv(mpfr_sin(*a, *b, (mpfr_rnd_t)SvUV(round)));
 }
 
+SV * Rmpfr_sinu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_sinu(*a, *b, c, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_sinu function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
 SV * Rmpfr_cos(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
      CHECK_ROUNDING_VALUE
      return newSViv(mpfr_cos(*a, *b, (mpfr_rnd_t)SvUV(round)));
+}
+
+SV * Rmpfr_cosu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_cosu(*a, *b, c, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_cosu function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
 }
 
 SV * Rmpfr_tan(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
@@ -10467,12 +10483,32 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
+Rmpfr_sinu (a, b, c, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	unsigned long	c
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_sinu (aTHX_ a, b, c, round);
+OUTPUT:  RETVAL
+
+SV *
 Rmpfr_cos (a, b, round)
 	mpfr_t *	a
 	mpfr_t *	b
 	SV *	round
 CODE:
   RETVAL = Rmpfr_cos (aTHX_ a, b, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_cosu (a, b, c, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	unsigned long	c
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_cosu (aTHX_ a, b, c, round);
 OUTPUT:  RETVAL
 
 SV *
