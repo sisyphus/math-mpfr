@@ -1227,6 +1227,22 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     with their corresponding precisions.  Return 0 if both
     results are exact.
 
+   $si = Rmpfr_sinu($rop, $op, $ui, $rnd); # mpfr-4.2.0 and later
+    Set $rop to the sine of $op multiplied by 2 * Pi and divided
+    by $ui.
+    Thus for $ui equal to 360, we get $rop = sin($op degrees).
+    When $op multiplied by 2 and divided by $ui is an integer,
+    the result is zero with the same sign as $op, following
+    IEEE 754-2019 (sinPi), so that the function is odd.
+
+   $si = Rmpfr_cosu($rop, $op, $ui, $rnd); # mpfr-4.2.0 and later
+    Set $rop to the cosine of $op multiplied by 2 * Pi and divided
+    by $ui.
+    Thus for $ui equal to 360, we get $rop = cos($op degrees).
+    When $op multiplied by 2 and divided by $ui is a half-integer,
+    the result is +0, following IEEE 754-2019 (cosPi), so that the
+    function is even.
+
    $si = Rmpfr_sinh_cosh($rop1, $rop2, $op, $rnd);
     Set simultaneously $rop1 to the hyperbolic sine of $op and
     $rop2 to the hyperbolic cosine of $op, rounded in the direction
