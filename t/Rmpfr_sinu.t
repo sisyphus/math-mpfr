@@ -1,4 +1,5 @@
-# Test file for Rmpfr_sinu() and Rmpfr_cosu()
+# Test file for Rmpfr_sinu(), Rmpfr_cosu(), Rmpfr_tanu(),
+# and also for Rmpfr_sinpi(), Rmpfr_cospi() and Rmpfr_tanpi()
 
 use strict;
 use warnings;
@@ -20,6 +21,10 @@ Rmpfr_set_default_prec($default_prec);
 
 my $rop1 = Math::MPFR->new();
 my $rop2 = Math::MPFR->new();
+my $pinf = Math::MPFR->new();
+
+Rmpfr_set_inf($pinf, 1);
+my $ninf = $pinf * -1;
 
 if(MPFR_VERSION() >= 262656) {
   # Rmpfr_sinu() and Rmpfr_cosu are available
@@ -56,20 +61,83 @@ if(MPFR_VERSION() >= 262656) {
 
   Rmpfr_cosu($rop2, $op2, 360, MPFR_RNDN);
   cmp_ok( $rop2, '==', 0.5, "cosine of 60 degrees is 0.5");
+##
+  Rmpfr_sinpi($rop1, Math::MPFR->new(1), MPFR_RNDN);
+  cmp_ok("$rop1", 'eq', '0', 'sinpi(1) is 0');
+
+  Rmpfr_sinpi($rop1, Math::MPFR->new(-1), MPFR_RNDN);
+  cmp_ok("$rop1", 'eq', '-0', 'sinpi(-1) is -0');
+
+  Rmpfr_sinpi($rop1, Math::MPFR->new(0.5), MPFR_RNDN);
+  cmp_ok($rop1, '==', 1, 'sinpi(0.5) is 1');
+
+  Rmpfr_sinpi($rop1, Math::MPFR->new(-0.5), MPFR_RNDN);
+  cmp_ok($rop1, '==', -1, 'sinpi(-0.5) is -1');
+
+  Rmpfr_sinpi($rop1, Math::MPFR->new(0.25), MPFR_RNDN);
+  cmp_ok($rop1, '==', sqrt(0.5), 'sinpi(0.25) == sqrt(0.5)');
+
+  Rmpfr_sinpi($rop1, Math::MPFR->new(-0.25), MPFR_RNDN);
+  cmp_ok($rop1, '==', -sqrt(0.5), 'sinpi(0.25) == -sqrt(0.5)');
+##
+  Rmpfr_cospi($rop1, Math::MPFR->new(1), MPFR_RNDN);
+  cmp_ok($rop1, '==', -1, 'cospi(1) is -1');
+
+  Rmpfr_cospi($rop1, Math::MPFR->new(-1), MPFR_RNDN);
+  cmp_ok($rop1, '==', -1, 'cospi(-1) is -1');
+
+  Rmpfr_cospi($rop1, Math::MPFR->new(0.5), MPFR_RNDN);
+  cmp_ok("$rop1", 'eq', '0', 'cospi(0.5) is 0');
+
+  Rmpfr_cospi($rop1, Math::MPFR->new(-0.5), MPFR_RNDN);
+  cmp_ok("$rop1", 'eq', '0', 'cospi(-0.5) is 0');
+
+  Rmpfr_cospi($rop1, Math::MPFR->new(0.25), MPFR_RNDN);
+  cmp_ok($rop1, '==', sqrt(0.5), 'cospi(0.25) == sqrt(0.5)');
+
+  Rmpfr_cospi($rop1, Math::MPFR->new(-0.25), MPFR_RNDN);
+  cmp_ok($rop1, '==', sqrt(0.5), 'cospi(-0.25) == sqrt(0.5)');
+##
+  Rmpfr_tanpi($rop1, Math::MPFR->new(1), MPFR_RNDN);
+  cmp_ok("$rop1", 'eq', '-0', 'tanpi(1) is -0');
+
+  Rmpfr_tanpi($rop1, Math::MPFR->new(-1), MPFR_RNDN);
+  cmp_ok("$rop1", 'eq', '0', 'tanpi(-1) is 0');
+
+  Rmpfr_tanpi($rop1, Math::MPFR->new(0.5), MPFR_RNDN);
+  cmp_ok($rop1, '==', $pinf, 'tanpi(0.5) is +Inf');
+
+  Rmpfr_tanpi($rop1, Math::MPFR->new(-0.5), MPFR_RNDN);
+  cmp_ok($rop1, '==', $ninf, 'tanpi(-0.5) is -Inf');
+
+  Rmpfr_tanpi($rop1, Math::MPFR->new(0.25), MPFR_RNDN);
+  cmp_ok($rop1, '==', 1, 'tanpi(0.25) is 1');
+
+  Rmpfr_tanpi($rop1, Math::MPFR->new(-0.25), MPFR_RNDN);
+  cmp_ok($rop1, '==', -1, 'tanpi(-0.25) is -1');
 
 }
 else {
-  # Rmpfr_sinu() is unavailable
+  # Rmpfr_sinu(), Rmpfr_cosu(), Rmpfr_tanu(), Rmpfr_sinpi()
+  # Rmpfr_cospi and Rmpfr_tanpi() are all unavailable
 
   eval{ Rmpfr_sinu($rop1, Math::MPFR->new(6), 3, MPFR_RNDN); };
-
-  like($@, qr/^Rmpfr_sinu function not implemented/, '$@ set as expected');
-
-  # Rmpfr_cosu() is unavailable
+  like($@, qr/^Rmpfr_sinu function not implemented/, 'Rmpfr_sinu: $@ set as expected');
 
   eval{ Rmpfr_cosu($rop1, Math::MPFR->new(6), 3, MPFR_RNDN); };
+  like($@, qr/^Rmpfr_cosu function not implemented/, 'Rmpfr_cosu: $@ set as expected');
 
-  like($@, qr/^Rmpfr_cosu function not implemented/, '$@ set as expected');
+  eval{ Rmpfr_tanu($rop1, Math::MPFR->new(6), 3, MPFR_RNDN); };
+  like($@, qr/^Rmpfr_tanu function not implemented/, 'Rmpfr_tanu: $@ set as expected');
+
+  eval{ Rmpfr_sinpi($rop1, Math::MPFR->new(6), MPFR_RNDN); };
+  like($@, qr/^Rmpfr_sinpi function not implemented/, 'Rmpfr_sinpi: $@ set as expected');
+
+  eval{ Rmpfr_cospi($rop1, Math::MPFR->new(6), MPFR_RNDN); };
+  like($@, qr/^Rmpfr_cospi function not implemented/, 'Rmpfr_cospi: $@ set as expected');
+
+  eval{ Rmpfr_tanpi($rop1, Math::MPFR->new(6), MPFR_RNDN); };
+  like($@, qr/^Rmpfr_tanpi function not implemented/, 'Rmpfr_tanpi: $@ set as expected');
 }
 
 
