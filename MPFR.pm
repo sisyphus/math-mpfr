@@ -157,7 +157,8 @@ Rmpfr_set_DECIMAL64 Rmpfr_get_DECIMAL64 Rmpfr_set_float128 Rmpfr_get_float128
 Rmpfr_set_FLOAT128 Rmpfr_get_FLOAT128 Rmpfr_set_DECIMAL128 Rmpfr_get_DECIMAL128
 decimalize check_exact_decimal
 Rmpfr_set_underflow Rmpfr_set_z Rmpfr_sgn Rmpfr_si_div Rmpfr_si_sub Rmpfr_sin
-Rmpfr_sin_cos Rmpfr_sinu Rmpfr_cosu Rmpfr_sinh_cosh
+Rmpfr_sin_cos Rmpfr_sinu Rmpfr_cosu Rmpfr_tanu Rmpfr_sinpi Rmpfr_cospi Rmpfr_tanpi
+Rmpfr_sinh_cosh
 Rmpfr_sinh Rmpfr_sqr Rmpfr_sqrt Rmpfr_sqrt_ui Rmpfr_strtofr Rmpfr_sub
 Rmpfr_sub_q Rmpfr_sub_si Rmpfr_sub_ui Rmpfr_sub_z Rmpfr_subnormalize
 Rmpfr_sum Rmpfr_swap
@@ -264,7 +265,8 @@ Rmpfr_set_DECIMAL64 Rmpfr_get_DECIMAL64 Rmpfr_set_float128 Rmpfr_get_float128
 Rmpfr_set_FLOAT128 Rmpfr_get_FLOAT128 Rmpfr_set_DECIMAL128 Rmpfr_get_DECIMAL128
 decimalize check_exact_decimal
 Rmpfr_set_underflow Rmpfr_set_z Rmpfr_sgn Rmpfr_si_div Rmpfr_si_sub Rmpfr_sin
-Rmpfr_sin_cos Rmpfr_sinu Rmpfr_cosu Rmpfr_sinh_cosh
+Rmpfr_sin_cos Rmpfr_sinu Rmpfr_cosu Rmpfr_tanu Rmpfr_sinpi Rmpfr_cospi Rmpfr_tanpi
+Rmpfr_sinh_cosh
 Rmpfr_sinh Rmpfr_sqr Rmpfr_sqrt Rmpfr_sqrt_ui Rmpfr_strtofr Rmpfr_sub
 Rmpfr_sub_q Rmpfr_sub_si Rmpfr_sub_ui Rmpfr_sub_z Rmpfr_subnormalize
 Rmpfr_sum Rmpfr_swap
