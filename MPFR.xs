@@ -1268,6 +1268,14 @@ SV * Rmpfr_sinu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
 #endif
 }
 
+SV * Rmpfr_sinpi(pTHX_ mpfr_t *a, mpfr_t *b, SV *round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_sinpi(*a, *b, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_sinpi function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
 SV * Rmpfr_cos(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
      CHECK_ROUNDING_VALUE
      return newSViv(mpfr_cos(*a, *b, (mpfr_rnd_t)SvUV(round)));
@@ -1281,9 +1289,33 @@ SV * Rmpfr_cosu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
 #endif
 }
 
+SV * Rmpfr_cospi(pTHX_ mpfr_t *a, mpfr_t *b, SV *round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_cospi(*a, *b, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_cospi function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
 SV * Rmpfr_tan(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
      CHECK_ROUNDING_VALUE
      return newSViv(mpfr_tan(*a, *b, (mpfr_rnd_t)SvUV(round)));
+}
+
+SV * Rmpfr_tanu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_tanu(*a, *b, c, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_tanu function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
+SV * Rmpfr_tanpi(pTHX_ mpfr_t *a, mpfr_t *b, SV *round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_tanpi(*a, *b, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_tanpi function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
 }
 
 SV * Rmpfr_asin(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
@@ -10493,6 +10525,15 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
+Rmpfr_sinpi (a, b, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_sinpi (aTHX_ a, b, round);
+OUTPUT:  RETVAL
+
+SV *
 Rmpfr_cos (a, b, round)
 	mpfr_t *	a
 	mpfr_t *	b
@@ -10512,12 +10553,40 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
+Rmpfr_cospi (a, b, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_cospi (aTHX_ a, b, round);
+OUTPUT:  RETVAL
+
+SV *
 Rmpfr_tan (a, b, round)
 	mpfr_t *	a
 	mpfr_t *	b
 	SV *	round
 CODE:
   RETVAL = Rmpfr_tan (aTHX_ a, b, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_tanu (a, b, c, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	unsigned long	c
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_tanu (aTHX_ a, b, c, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_tanpi (a, b, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_tanpi (aTHX_ a, b, round);
 OUTPUT:  RETVAL
 
 SV *
