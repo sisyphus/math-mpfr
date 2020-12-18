@@ -115,10 +115,33 @@ if(MPFR_VERSION() >= 262656) {
 
   Rmpfr_tanpi($rop1, Math::MPFR->new(-0.25), MPFR_RNDN);
   cmp_ok($rop1, '==', -1, 'tanpi(-0.25) is -1');
+##
+  my($s, $c) = (0, 0);
+  my $rop3 = Math::MPFR->new();
+  my $rop4 = Math::MPFR->new();
+  for(2 .. $default_prec) {
+    next unless $_ % 11;
+    $s += 2 ** -$_;
+    $c = 0.5 - $s;
+
+    my $op1 = Math::MPFR->new($s);
+    my $op2 = Math::MPFR->new($c);
+
+    Rmpfr_sinpi($rop1, Math::MPFR->new($op1), MPFR_RNDN);
+    Rmpfr_cospi($rop2, Math::MPFR->new($op2), MPFR_RNDN);
+
+    cmp_ok($rop1, '==', $rop2, "$_: sinpi(x) == cospi(0.5 - x)");
+
+    Rmpfr_sinu($rop3, Math::MPFR->new($op1 * 180), 360, MPFR_RNDN);
+    Rmpfr_cosu($rop4, Math::MPFR->new($op2 * 180), 360, MPFR_RNDN);
+
+    cmp_ok($rop1, '==', $rop3, "$_: sinpi(x) == sinu(x * 180, 360)");
+    cmp_ok($rop2, '==', $rop4, "$_: cospi(x) == cosu(x * 180, 360)");
+   }
 
 }
 else {
-  # Rmpfr_sinu(), Rmpfr_cosu(), Rmpfr_tanu(), Rmpfr_sinpi()
+  # Rmpfr_sinu(), Rmpfr_cosu(), Rmpfr_tanu(), Rmpfr_sinpi(),
   # Rmpfr_cospi and Rmpfr_tanpi() are all unavailable
 
   eval{ Rmpfr_sinu($rop1, Math::MPFR->new(6), 3, MPFR_RNDN); };
