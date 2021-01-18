@@ -1973,6 +1973,12 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     quotient is not practical. 'Rmpfr_remainder' and Rmpfr_remquo'
     functions are useful for additive argument reduction.
 
+   $si = Rmpfr_fmod_ui($rop, $op1, $ui, $rnd);
+    As for Rmpfr_fmod(), above, except that the 3rd arg is an
+    unsigned long int instead of a Math::MPFR object. This function
+    was introduced in mpfr-4.2.0-dev, but is implemented (suboptimally)
+    in Math::MPFR built against older versions of the mpfr library.
+
    $si = Rmpfr_integer_p($op);
     Return non-zero if $op is an integer.
 
