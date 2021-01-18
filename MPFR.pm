@@ -169,7 +169,7 @@ Rmpfr_j0 Rmpfr_j1 Rmpfr_jn Rmpfr_y0 Rmpfr_y1 Rmpfr_yn Rmpfr_lgamma
 Rmpfr_signbit Rmpfr_setsign Rmpfr_copysign Rmpfr_get_patches
 Rmpfr_remainder Rmpfr_remquo Rmpfr_fms Rmpfr_init_set_ld
 Rmpfr_add_d Rmpfr_sub_d Rmpfr_d_sub Rmpfr_mul_d Rmpfr_div_d Rmpfr_d_div
-Rmpfr_rec_sqrt Rmpfr_rec_root Rmpfr_li2 Rmpfr_modf Rmpfr_fmod
+Rmpfr_rec_sqrt Rmpfr_rec_root Rmpfr_li2 Rmpfr_modf Rmpfr_fmod Rmpfr_fmod_ui
 Rmpfr_printf Rmpfr_fprintf Rmpfr_sprintf Rmpfr_snprintf
 Rmpfr_buildopt_tls_p Rmpfr_buildopt_decimal_p Rmpfr_regular_p Rmpfr_set_zero Rmpfr_digamma
 Rmpfr_ai Rmpfr_set_flt Rmpfr_get_flt Rmpfr_urandom Rmpfr_set_z_2exp
@@ -277,7 +277,7 @@ Rmpfr_j0 Rmpfr_j1 Rmpfr_jn Rmpfr_y0 Rmpfr_y1 Rmpfr_yn Rmpfr_lgamma
 Rmpfr_signbit Rmpfr_setsign Rmpfr_copysign Rmpfr_get_patches
 Rmpfr_remainder Rmpfr_remquo Rmpfr_fms Rmpfr_init_set_ld
 Rmpfr_add_d Rmpfr_sub_d Rmpfr_d_sub Rmpfr_mul_d Rmpfr_div_d Rmpfr_d_div
-Rmpfr_rec_sqrt Rmpfr_rec_root Rmpfr_li2 Rmpfr_modf Rmpfr_fmod
+Rmpfr_rec_sqrt Rmpfr_rec_root Rmpfr_li2 Rmpfr_modf Rmpfr_fmod Rmpfr_fmod_ui
 Rmpfr_printf Rmpfr_fprintf Rmpfr_sprintf Rmpfr_snprintf
 Rmpfr_buildopt_tls_p Rmpfr_buildopt_decimal_p Rmpfr_regular_p Rmpfr_set_zero Rmpfr_digamma
 Rmpfr_ai Rmpfr_set_flt Rmpfr_get_flt Rmpfr_urandom Rmpfr_set_z_2exp
