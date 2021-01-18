@@ -1765,6 +1765,21 @@ SV * Rmpfr_fmod(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
      return newSViv(mpfr_fmod(*a, *b, *c, (mpfr_rnd_t)SvUV(round)));
 }
 
+SV * Rmpfr_fmod_ui(pTHX_ mpfr_t * a, mpfr_t * b, unsigned long c, SV * round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_fmod_ui(*a, *b, c, (mpfr_rnd_t)SvUV(round)));
+#else
+     mpfr_t temp;
+     int ret;
+     CHECK_ROUNDING_VALUE
+     mpfr_init2(temp, LONGSIZE * 8);
+     mpfr_set_ui(temp, c, GMP_RNDN);
+     ret = mpfr_fmod(*a, *b, c, (mpfr_rnd_t)SvUV(round)));
+     mpfr_clear(temp);
+     return newSViv(ret);
+#endif
+}
+
 void Rmpfr_remquo(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
      dXSARGS;
      long ret, q;
@@ -11215,6 +11230,16 @@ Rmpfr_fmod (a, b, c, round)
 	SV *	round
 CODE:
   RETVAL = Rmpfr_fmod (aTHX_ a, b, c, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_fmod_ui (a, b, c, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	unsigned long	c
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_fmod_ui (aTHX_ a, b, c, round);
 OUTPUT:  RETVAL
 
 void
