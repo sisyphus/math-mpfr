@@ -74,11 +74,15 @@ if(MPFR_VERSION() >= 262656) {
   Rmpfr_sinpi($rop1, Math::MPFR->new(-0.5), MPFR_RNDN);
   cmp_ok($rop1, '==', -1, 'sinpi(-0.5) is -1');
 
-  Rmpfr_sinpi($rop1, Math::MPFR->new(0.25), MPFR_RNDN);
-  cmp_ok($rop1, '==', sqrt(0.5), 'sinpi(0.25) == sqrt(0.5)');
+  SKIP: {
+    skip 'USE_QUADMATH builds miscalculate sqrt(0.5) by 1ULP',
+         2 if ($Config{nvtype} eq '__float128');
+    Rmpfr_sinpi($rop1, Math::MPFR->new(0.25), MPFR_RNDN);
+    cmp_ok($rop1, '==', sqrt(0.5), 'sinpi(0.25) == sqrt(0.5)');
 
-  Rmpfr_sinpi($rop1, Math::MPFR->new(-0.25), MPFR_RNDN);
-  cmp_ok($rop1, '==', -sqrt(0.5), 'sinpi(0.25) == -sqrt(0.5)');
+    Rmpfr_sinpi($rop1, Math::MPFR->new(-0.25), MPFR_RNDN);
+    cmp_ok($rop1, '==', -sqrt(0.5), 'sinpi(0.25) == -sqrt(0.5)');
+  }
 ##
   Rmpfr_cospi($rop1, Math::MPFR->new(1), MPFR_RNDN);
   cmp_ok($rop1, '==', -1, 'cospi(1) is -1');
@@ -92,11 +96,15 @@ if(MPFR_VERSION() >= 262656) {
   Rmpfr_cospi($rop1, Math::MPFR->new(-0.5), MPFR_RNDN);
   cmp_ok("$rop1", 'eq', '0', 'cospi(-0.5) is 0');
 
-  Rmpfr_cospi($rop1, Math::MPFR->new(0.25), MPFR_RNDN);
-  cmp_ok($rop1, '==', sqrt(0.5), 'cospi(0.25) == sqrt(0.5)');
+  SKIP: {
+    skip 'USE_QUADMATH builds miscalculate sqrt(0.5) by 1ULP',
+         2 if ($Config{nvtype} eq '__float128');
+    Rmpfr_cospi($rop1, Math::MPFR->new(0.25), MPFR_RNDN);
+    cmp_ok($rop1, '==', sqrt(0.5), 'cospi(0.25) == sqrt(0.5)');
 
-  Rmpfr_cospi($rop1, Math::MPFR->new(-0.25), MPFR_RNDN);
-  cmp_ok($rop1, '==', sqrt(0.5), 'cospi(-0.25) == sqrt(0.5)');
+    Rmpfr_cospi($rop1, Math::MPFR->new(-0.25), MPFR_RNDN);
+    cmp_ok($rop1, '==', sqrt(0.5), 'cospi(-0.25) == sqrt(0.5)');
+  };
 ##
   Rmpfr_tanpi($rop1, Math::MPFR->new(1), MPFR_RNDN);
   cmp_ok("$rop1", 'eq', '-0', 'tanpi(1) is -0');
