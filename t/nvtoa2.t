@@ -36,7 +36,8 @@ use Test::More;
 # is prone to mis-assignment and $reliable is set to false, irrespective of the value of $].
 #
 # All perl's whose nvtype is __float128 (except those running on Cygwin) assign correctly and
-# $reliable is set to true for them, irrespective of the value of $].
+# $reliable is set to true for them, irrespective of the value of $] ... except that on MS
+# Windows, assignment of subnormal values is unreliable.
 #
 # For all other builds of perl, $reliable will be set to true if and only if:
 # 1) $] >= 5.03 && $Config{nvtype} eq 'double' && defined($Config{d_strtod})
@@ -81,6 +82,9 @@ else                                           { $MAX_DIG = 34;   # NV is Double
 
 my $reliable = 0;
 
+my $win_subnormal_issue = 0;
+$win_subnormal_issue = 1 if ($^O =~/MSWin/ && $Config{nvtype} eq '__float128');
+
 if(
    $^O !~/cygwin/i
    && (
@@ -92,7 +96,13 @@ if(
       )
   ) {
 
-  warn "Using perl for string to NV assignment. (Perl deemed reliable)\n";
+  if( $win_subnormal_issue ) {
+    warn "Using perl for string to NV assignment ... unless the NV is subnormal\n";
+  }
+  else {
+    warn "Using perl for string to NV assignment. (Perl deemed reliable)\n";
+  }
+
   $reliable = 1;
 }
 else {
@@ -120,10 +130,14 @@ while(1) {
   $mantissa .= 1 +int(rand(9)) if $len;
 
   my $str = $mantissa_sign . $mantissa . 'e' . $exponent;
-
+  my $s_copy = $mantissa_sign . $mantissa . 'e' . $exponent;
+  my $float128_subnormal_issue = 0;
+  if($win_subnormal_issue) {
+    $float128_subnormal_issue = float128_subnormal($s_copy * 1.0);
+  }
   my $nv;
 
-  if($reliable) {
+  if($reliable && !$float128_subnormal_issue) {
     $nv = $str * 1.0;
   }
   else {
@@ -134,7 +148,7 @@ while(1) {
 
   # Now check that $nvtoa == $nv
 
-  if($reliable) { # perl can assign the string directly
+  if($reliable && !$float128_subnormal_issue) { # perl can assign the string directly
     my $nvtoa_num = $nvtoa; # Avoid numifying $nvtoa
 
     if($nvtoa_num != $nv) {
@@ -183,7 +197,7 @@ while(1) {
 
   my $new_str = $mantissa_sign . $significand . 'e' . $new_exponent;
 
-  if($reliable) {
+  if($reliable && !$float128_subnormal_issue) {
     my $new_str_num = $new_str; # Avoid numifying $new_str
     if($nv < 0) {               # $new_str_num  should be greater than $nv
       unless($new_str_num > $nv) {
@@ -227,7 +241,7 @@ while(1) {
 
   #print "$new_str\n\n";
 
-  if($reliable) {
+  if($reliable && !$float128_subnormal_issue) {
     my $new_str_num = $new_str; # Avoid numifying $new_str
     if($nv < 0) {               # $new_str_num  should be less than $nv
       unless($new_str_num < $nv) {
@@ -273,6 +287,20 @@ while(1) {
       ok($ok == 1, 'test 1');
     }
 
+sub float128_subnormal {
+  if( $_[0] < 2**-16382               &&
+      $_[0] > -(2**-16382)            &&
+      $_[0] ) {
+  return 1;
+  }
+return 0;
+}
 
 __END__
 
+
+# Trunc: -3.38795036280044891156668187811044e-4951: -33879503628004e-4964 !>
+                                                    -338795036237018204796702691750363127e-4986
+
+# 8599085843582019136955e-4963: 8.599085843761481401410465e-4942 !=
+                                8.59908584376148140141046532016025e-4942
