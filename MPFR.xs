@@ -1774,7 +1774,7 @@ SV * Rmpfr_fmod_ui(pTHX_ mpfr_t * a, mpfr_t * b, unsigned long c, SV * round) {
      CHECK_ROUNDING_VALUE
      mpfr_init2(temp, LONGSIZE * 8);
      mpfr_set_ui(temp, c, GMP_RNDN);
-     ret = mpfr_fmod(*a, *b, c, (mpfr_rnd_t)SvUV(round)));
+     ret = mpfr_fmod(*a, *b, temp, (mpfr_rnd_t)SvUV(round));
      mpfr_clear(temp);
      return newSViv(ret);
 #endif
