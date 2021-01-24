@@ -97,7 +97,12 @@ if(
   ) {
 
   if( $win_subnormal_issue ) {
-    warn "Using perl for string to NV assignment ... unless the NV is subnormal\n";
+    warn " Using perl for string to NV assignment ... unless the NV's\n",
+         " absolute value is in the range:\n",
+         "  0x1p-16414 .. 0x1.ffffffffffffffffffffp-16414\n",
+         "  or\n",
+         "  0x1.00000318p-16446 to 0x1.ffffffffffffp-16446\n",
+         " See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94756\n";
   }
   else {
     warn "Using perl for string to NV assignment. (Perl deemed reliable)\n";
@@ -133,7 +138,7 @@ while(1) {
   my $s_copy = $mantissa_sign . $mantissa . 'e' . $exponent;
   my $float128_subnormal_issue = 0;
   if($win_subnormal_issue) {
-    $float128_subnormal_issue = float128_subnormal($s_copy * 1.0);
+    $float128_subnormal_issue = float128_subnormal_problem($s_copy * 1.0);
   }
   my $nv;
 
@@ -287,20 +292,17 @@ while(1) {
       ok($ok == 1, 'test 1');
     }
 
-sub float128_subnormal {
-  if( $_[0] < 2**-16382               &&
-      $_[0] > -(2**-16382)            &&
-      $_[0] ) {
-  return 1;
+sub float128_subnormal_problem {
+
+  # Values inside these ranges are not assigned correctly on MS Windows.
+  # See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94756
+  if( (abs($_[0]) <= 1.56560127768297377334100959207326356e-4941 && abs($_[0]) >= 2 ** -16414)
+        ||
+      (abs($_[0]) <= 3.64519953188246812735328649559430889e-4951 && abs($_[0]) >= 1.82260010203204199023661059308858291e-4951  )
+ ) {
+  return 1; # problem exists
   }
-return 0;
+return 0;   # no problem
 }
 
 __END__
-
-
-# Trunc: -3.38795036280044891156668187811044e-4951: -33879503628004e-4964 !>
-                                                    -338795036237018204796702691750363127e-4986
-
-# 8599085843582019136955e-4963: 8.599085843761481401410465e-4942 !=
-                                8.59908584376148140141046532016025e-4942
