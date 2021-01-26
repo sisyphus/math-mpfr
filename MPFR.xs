@@ -7806,7 +7806,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
       subnormal_prec_adjustment += 8;
 
-      Q_INC_OR_DEC		/* big endian:    i++; */
+      Q_INC_OR_DEC;		/* big endian:    i++; */
 				/* little endian: i--; */
 
     }			/* close while loop */
@@ -7848,11 +7848,11 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
    * If so, set lsd_is_zero to 1 and set *bits to 53.    *
    *******************************************************/
 
-  if( (128 == ((unsigned char *)nvptr)[LSD_BYTE_1] || 0 == ((unsigned char *)nvptr)[LSD_BYTE_1])  &&
-         0 == ((unsigned char *)nvptr)[LSD_BYTE_2] && 0 == ((unsigned char *)nvptr)[LSD_BYTE_3]   &&
-         0 == ((unsigned char *)nvptr)[LSD_BYTE_4] && 0 == ((unsigned char *)nvptr)[LSD_BYTE_5]   &&
-         0 == ((unsigned char *)nvptr)[LSD_BYTE_6] && 0 == ((unsigned char *)nvptr)[LSD_BYTE_7]   &&
-         0 == ((unsigned char *)nvptr)[LSD_BYTE_8]
+  if( (128 == ((unsigned char *)nvptr)[LSD_IND_0] || 0 == ((unsigned char *)nvptr)[LSD_IND_0])  &&
+         0 == ((unsigned char *)nvptr)[LSD_IND_1] && 0 == ((unsigned char *)nvptr)[LSD_IND_2]   &&
+         0 == ((unsigned char *)nvptr)[LSD_IND_3] && 0 == ((unsigned char *)nvptr)[LSD_IND_4]   &&
+         0 == ((unsigned char *)nvptr)[LSD_IND_5] && 0 == ((unsigned char *)nvptr)[LSD_IND_6]   &&
+         0 == ((unsigned char *)nvptr)[LSD_IND_7]
       ) {
     lsd_is_zero = 1;
     *bits = 53;
@@ -7860,12 +7860,12 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
   /* else *bits is currently still set at its initial value of 2098 */
 
-  int i = IND_1;
+  int i = MSD_IND_1;
 
   if(*bits == 53) { /* if the NV is subnormal, *bits need to be reduced accordingly */
-    *exp = ((unsigned char *)nvptr)[IND_0];
+    *exp = ((unsigned char *)nvptr)[MSD_IND_0];
     *exp <<= 4;
-    tmp = ((unsigned char *)nvptr)[IND_1];
+    tmp = ((unsigned char *)nvptr)[MSD_IND_1];
     *exp += (tmp >> 4) - 1022;
 
     if(*exp == -1022) {
@@ -7875,7 +7875,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
         tmp = ((unsigned char *)nvptr)[i];
         if(tmp) {
-          if(i == IND_1) {
+          if(i == MSD_IND_1) {
             BITSEARCH_4				/* defined in math_mpfr_include.h */
             break;
           }
@@ -7885,10 +7885,10 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
           }
         }
 
-        if(i == IND_1) subnormal_prec_adjustment += 4;
+        if(i == MSD_IND_1) subnormal_prec_adjustment += 4;
         else subnormal_prec_adjustment += 8;
 
-        DD_INC_OR_DEC				/* big endian:    i++ */
+        DD_INC_OR_DEC;				/* big endian:    i++ */
 						/* little endian: i-- */
       }
     }
@@ -7913,16 +7913,16 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
   }
 
   else {
-    msd_exp = ((unsigned char *)nvptr)[IND_0];
+    msd_exp = ((unsigned char *)nvptr)[MSD_IND_0];
     msd_exp <<= 4;
-    tmp = ((unsigned char *)nvptr)[IND_1];
+    tmp = ((unsigned char *)nvptr)[MSD_IND_1];
     msd_exp += (tmp >> 4) - 1022;
 
-    lsd_exp = ((unsigned char *)nvptr)[LSD_BYTE_1];
+    lsd_exp = ((unsigned char *)nvptr)[LSD_IND_0];
 
 
     lsd_exp <<= 4;
-    tmp = ((unsigned char *)nvptr)[LSD_BYTE_2];
+    tmp = ((unsigned char *)nvptr)[LSD_IND_1];
     lsd_exp += tmp >> 4;
     if(lsd_exp > 2047) {
       lsd_exp -= 2048;
@@ -7953,7 +7953,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
  *       }                                                                                           *
  *                                                                                                   *
  *       if(lsd_is_negative_reduction) {                                                             *
- *         t = ((unsigned char *)nvptr)[IND_1];                                                      *
+ *         t = ((unsigned char *)nvptr)[MSD_IND_1];                                                      *
  *         if(t & 15) {                                                                              *
  *           lsd_is_negative_reduction = 0;                                                          *
  *         }                                                                                         *
@@ -7998,7 +7998,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
       subnormal_prec_adjustment += 8;
 
-      LD_INC_OR_DEC		/* big endian: i++; */
+      LD_INC_OR_DEC;		/* big endian: i++; */
                                 /* little endian: i--; */
 
     }			/* close while loop */
@@ -8040,7 +8040,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
       if(i == 1) subnormal_prec_adjustment += 4;
       else subnormal_prec_adjustment += 8;
 
-      D_INC_OR_DEC		/* big endian:    i++; */
+      D_INC_OR_DEC;		/* big endian:    i++; */
 				/* little endian: i--; */
     }
   }
