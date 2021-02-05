@@ -379,6 +379,12 @@ typedef _Decimal128 D128;
 #endif
 
 /* For nvtoa() */
+#if defined(MPFR_HAVE_BENDIAN)			/* big endian architecture - defined by Makefile.PL */
+#define INC_OR_DEC(p) p++
+#else						/* little endian */
+#define INC_OR_DEC(p) p--
+#endif
+
 #if defined(NV_IS_53_BIT)
 #define MATH_MPFR_MAX_DIG 17
 #define NVSIZE_BITS 53
@@ -387,16 +393,14 @@ typedef _Decimal128 D128;
 
 # if defined(MPFR_HAVE_BENDIAN)                /* big endian architecture - defined by Makefile.PL */
 
-# define D_CONDITION_1 i<=7
-# define D_INC_OR_DEC i++
+# define D_CONDITION_1(p) p<=7
 # define DIND_0 0
 # define DIND_1 1
 # define DIND_2 2
 
 # else						/* little endian architecture */
 
-# define D_CONDITION_1 i>=0
-# define D_INC_OR_DEC i--
+# define D_CONDITION_1(p) p>=0
 # define DIND_0 7
 # define DIND_1 6
 # define DIND_2 5
@@ -411,16 +415,14 @@ typedef _Decimal128 D128;
 
 # if defined(MPFR_HAVE_BENDIAN)                /* big endian architecture - defined by Makefile.PL */
 
-# define LD_CONDITION_1 i<=9
-# define LD_INC_OR_DEC i++
+# define LD_CONDITION_1(p) p<=9
 # define LDIND_0 0
 # define LDIND_1 1
 # define LDIND_2 2
 
 # else						/* little endian architecture */
 
-# define LD_CONDITION_1 i>=0
-# define LD_INC_OR_DEC i--
+# define LD_CONDITION_1(p) p>=0
 # define LDIND_0 9
 # define LDIND_1 8
 # define LDIND_2 7
@@ -434,9 +436,8 @@ typedef _Decimal128 D128;
 #define MATH_MPFR_NORMAL_MIN 2.2250738585072014e-308
 
 # if defined(MPFR_HAVE_BENDIAN)                /* big endian architecture - defined by Makefile.PL */
-# define DD_CONDITION_1 i<=7
-# define DD_CONDITION_2 i=2;i<8;i++
-# define DD_INC_OR_DEC i++
+# define DD_CONDITION_1(p) p<=7
+# define DD_CONDITION_2(p) p=2;p<8;p++
 # define MSD_IND_0 0
 # define MSD_IND_1 1
 # define LSD_IND_0 8
@@ -452,7 +453,6 @@ typedef _Decimal128 D128;
 
 # define DD_CONDITION_1 i>=0
 # define DD_CONDITION_2 i=13;i>7;i--
-# define DD_INC_OR_DEC i--
 # define MSD_IND_0 15
 # define MSD_IND_1 14
 # define LSD_IND_0 7
@@ -474,16 +474,14 @@ typedef _Decimal128 D128;
 
 # if defined(MPFR_HAVE_BENDIAN)                /* big endian architecture - defined by Makefile.PL */
 
-# define Q_CONDITION_1 i<=15
-# define Q_INC_OR_DEC i++
+# define Q_CONDITION_1(p) p<=15
 # define QIND_0 0
 # define QIND_1 1
 # define QIND_2 2
 
 # else						/* little endian architecture */
 
-# define Q_CONDITION_1 i>=0
-# define Q_INC_OR_DEC i--
+# define Q_CONDITION_1(p) p>=0
 # define QIND_0 15
 # define QIND_1 14
 # define QIND_2 13
