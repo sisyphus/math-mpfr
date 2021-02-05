@@ -126,9 +126,10 @@ else {
     warn " check_exact_decimal() requires mpfr-3.1.6 or later.\n";
     warn " Math::MPFR was built against mpfr-", MPFR_VERSION_STRING, ".";
 
-    eval { check_exact_decimal(decimalize(Math::MPFR->new(23.2), Math::MPFR->new(23.2))) };
+    eval { check_exact_decimal(decimalize(Math::MPFR->new(23.2))) };
 
-    ok( $@ =~ m/Math::MPFR was built against mpfr-/, '$@ set as expected' );
+
+    ok( $@ =~ m/Math::MPFR was built against mpfr\-/, '$@ set as expected' );
 
 }
 
