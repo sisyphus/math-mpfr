@@ -7796,7 +7796,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
   *exp += tmp - 16382;
 
   if(*exp == -16382) {
-    while(Q_CONDITION_1) {	/* big endian:    (i <= 15) */
+    while(Q_CONDITION_1(i)) {	/* big endian:    (i <= 15) */
 				/* little endian: (i >= 0 ) */
       tmp = ((unsigned char *)nvptr)[i];
       if(tmp) {
@@ -7806,7 +7806,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
       subnormal_prec_adjustment += 8;
 
-      Q_INC_OR_DEC;		/* big endian:    i++; */
+      INC_OR_DEC(i);		/* big endian:    i++; */
 				/* little endian: i--; */
 
     }			/* close while loop */
@@ -7870,7 +7870,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
     if(*exp == -1022) {
 
-      while(DD_CONDITION_1) {			/* big endian:    (i <= 7) */
+      while(DD_CONDITION_1(i)) {			/* big endian:    (i <= 7) */
 						/* little endian: (i >= 0) */
 
         tmp = ((unsigned char *)nvptr)[i];
@@ -7888,7 +7888,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
         if(i == MSD_IND_1) subnormal_prec_adjustment += 4;
         else subnormal_prec_adjustment += 8;
 
-        DD_INC_OR_DEC;				/* big endian:    i++ */
+        INC_OR_DEC(i);				/* big endian:    i++ */
 						/* little endian: i-- */
       }
     }
@@ -7942,7 +7942,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
  *   if(lsd_is_negative_reduction) {		*//* lsd is negative and not zero *//*               *
  *     if(msd_exp - lsd_exp > 53) {		*//* need to check that msd is not a power of 2 *//* *
  *                                                                                                   *
- *       for(DD_CONDITION_2) {			*//* big endian:    (i=2 ;i<8;i++) *//*              *
+ *       for(DD_CONDITION_2(i)) {			*//* big endian:    (i=2 ;i<8;i++) *//*              *
  *						*//* little endian: (i=13;i>7;i--) *//*              *
  *                                                                                                   *
  *         t = ((unsigned char *)nvptr)[i];                                                          *
@@ -7988,7 +7988,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
   if(*exp == -16382) {
 
-    while(LD_CONDITION_1) {			/* big endian:    (i <= 9) */
+    while(LD_CONDITION_1(i)) {			/* big endian:    (i <= 9) */
 						/* little endian: (i >= 0) */
       tmp = ((unsigned char *)nvptr)[i];
       if(tmp) {
@@ -7998,7 +7998,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
       subnormal_prec_adjustment += 8;
 
-      LD_INC_OR_DEC;		/* big endian: i++; */
+      INC_OR_DEC(i);		/* big endian: i++; */
                                 /* little endian: i--; */
 
     }			/* close while loop */
@@ -8023,7 +8023,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
   if(*exp == -1022) {
 
-    while(D_CONDITION_1) {	/* big endian:   (i <= 7) */
+    while(D_CONDITION_1(i)) {	/* big endian:   (i <= 7) */
 				/* little endan: (i >= 0) */
       tmp = ((unsigned char *)nvptr)[i];
       if(tmp) {
@@ -8040,7 +8040,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
       if(i == 1) subnormal_prec_adjustment += 4;
       else subnormal_prec_adjustment += 8;
 
-      D_INC_OR_DEC;		/* big endian:    i++; */
+      INC_OR_DEC(i);		/* big endian:    i++; */
 				/* little endian: i--; */
     }
   }
@@ -8177,11 +8177,10 @@ SV * nvtoa(pTHX_ NV pnv) {
     f[0] = is_subnormal ? c[0] : c[1];
     k++;
 
-#  if defined(MPFR_HAVE_BENDIAN)
-    for(skip = 2; skip <= 15; skip++) {
-#  else
-    for(skip = 13; skip >= 0; skip--) {
-#  endif
+   for(skip = QIND_2; Q_CONDITION_1(skip); INC_OR_DEC(skip)) { /* big endian:
+                                                                *   skip=2;skip<=15;skip++ */
+                                                               /* little endian:
+                                                                *   skip=13;skip>=0;skip-- */
       low = ((unsigned char *)nvptr)[skip];
       f[k] = c[low >> 4];
       f[k + 1] = c[low & 15];
@@ -8205,11 +8204,11 @@ SV * nvtoa(pTHX_ NV pnv) {
 
 #elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64	/* 64 bit prec */
 
-#  if defined(MPFR_HAVE_BENDIAN)
-    for(skip = 2; skip <= 9; skip++) {
-#  else
-    for(skip = 7; skip >= 0; skip--) {
-#  endif
+    for(skip = LDIND_2; LD_CONDITION_1(skip); INC_OR_DEC(skip)) { /* big endian:             *
+                                                                   *   skip=2;skip<=9;skip++ */
+                                                                  /* little endian:          *
+                                                                   *   skip=7;skip>=0;skip-- */
+
       low = ((unsigned char *)nvptr)[skip];
       f[k] = c[low >> 4];
       f[k + 1] = c[low & 15];
@@ -8218,11 +8217,10 @@ SV * nvtoa(pTHX_ NV pnv) {
 
 #else									/* 53 bit prec */
 
-#  if defined(MPFR_HAVE_BENDIAN)
-    for(skip = 1; skip <= 7; skip++) {
-#  else
-    for(skip = 6; skip >= 0; skip--) {
-#  endif
+    for(skip = DIND_1; D_CONDITION_1(skip); INC_OR_DEC(skip)) { /* big endian:             *
+                                                                 *   skip=1;skip<=7;skip++ */
+                                                                /* little endian:          *
+                                                                 *   skip=6;skip>=0;skip-- */
       low = ((unsigned char *)nvptr)[skip];
       if(!k) {
         f[0] = is_subnormal ? c[0] : c[1];
