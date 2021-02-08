@@ -7,7 +7,7 @@
 	http://www.cs.tufts.edu/~nr/cs257/archive/florian-loitsch/printf.pdf */
 
 #include <inttypes.h>
-#include <assert.h> /* assert */
+/* #include <assert.h> */ /* not wanted in Math::MPFR */
 
 #ifdef _MSC_VER
 #pragma warning(disable : 4204) /* nonstandard extension used : non-constant aggregate initializer */
