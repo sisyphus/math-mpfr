@@ -239,3 +239,10 @@ then some assertion checks are run at various points in doubletoa().
 If the assertion fails, then the program croaks with the relevant
 diagnostic  message.
 
+When doubletoa() fails to determine the value of $nv, and falls
+back to returning sprintf("%.16e", $nv), then the default
+behaviour is to increase $Math::MPFR::doubletoa_fallback by 1.
+If you wish to ignore such events, simply provide the Makefie.PL
+with the argument FB=0 .
+See the doubletoa() documentation in MPFR.pod.
+
