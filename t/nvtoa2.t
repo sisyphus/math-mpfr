@@ -37,7 +37,7 @@ use Test::More;
 #
 # All perl's whose nvtype is __float128 (except those running on Cygwin) assign correctly and
 # $reliable is set to true for them, irrespective of the value of $] ... except that on MS
-# Windows, assignment of subnormal values is unreliable.
+# Windows, assignment of subnormal values (within a specific range) is unreliable.
 #
 # For all other builds of perl, $reliable will be set to true if and only if:
 # 1) $] >= 5.03 && $Config{nvtype} eq 'double' && defined($Config{d_strtod})
@@ -97,7 +97,7 @@ if(
   ) {
 
   if( $win_subnormal_issue ) {
-    warn " Using perl for string to NV assignment ... unless the NV's\n",
+    warn " \nUsing perl for string to NV assignment ... unless the NV's\n",
          " absolute value is in the range:\n",
          "  0x1p-16414 .. 0x1.ffffffffffffffffffffp-16414\n",
          "  or\n",
