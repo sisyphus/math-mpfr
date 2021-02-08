@@ -97,7 +97,7 @@ if(
   ) {
 
   if( $win_subnormal_issue ) {
-    warn " \nUsing perl for string to NV assignment ... unless the NV's\n",
+    warn "\n Using perl for string to NV assignment ... unless the NV's\n",
          " absolute value is in the range:\n",
          "  0x1p-16414 .. 0x1.ffffffffffffffffffffp-16414\n",
          "  or\n",
