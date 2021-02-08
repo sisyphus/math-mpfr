@@ -5,7 +5,9 @@
    not going to be found when needed.
  - Add decimalize() and check_exact_decimal().
  - For mpfr-4.2.0 and later only: add Rmpfr_sinu, Rmpfr_cosu, Rmpfr_tanu,
-   Rmpfr_sinpi, Rmpfr_cospi, Rmpfr_tanpi and Rmpfr_fmod_ui.
+   Rmpfr_sinpi, Rmpfr_cospi, Rmpfr_tanpi.
+ - Add Rmpfr_fmod_ui - new in mpfr-4.2.0, but also implemented here in Math::MPFR
+   when built against earlier versions of the mpfr library.
 
 
 4.14
