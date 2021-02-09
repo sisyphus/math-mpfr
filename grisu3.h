@@ -41,3 +41,8 @@ typedef struct power {
   int16_t b_exp, d_exp;
 } power;
 
+
+int grisu3(double, char*, int*, int*);
+int i_to_str(int, char*);
+
+
