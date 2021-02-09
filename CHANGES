@@ -8,6 +8,7 @@
    Rmpfr_sinpi, Rmpfr_cospi, Rmpfr_tanpi.
  - Add Rmpfr_fmod_ui - new in mpfr-4.2.0, but also implemented here in Math::MPFR
    when built against earlier versions of the mpfr library.
+ - Move code out of MPFR.xs and into (newly created) grisu3.c.
 
 
 4.14
