@@ -2,6 +2,7 @@ MANIFEST
 Makefile.PL
 MPFR.pm
 MPFR.pod
+grisu3.c
 grisu3.h
 math_mpfr_include.h
 MPFR.xs
