@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Math::MPFR qw(:mpfr);
+use Config;
 use Test::More;
 
 # With version 4 and later of mpfr, minimum precision is 1.
@@ -13,14 +14,25 @@ if(Math::MPFR::MPFR_3_1_6_OR_LATER) {
   like( decimalize(Math::MPFR->new()), '/^nan$/i',
          'NaN decimalizes as expected');
 
-  like( decimalize(Math::MPFR->new('inf' + 0)),  '/^inf$/i',
-         'Inf decimalizes as expected');
+  if('inf' + 0 == 0) { # Can happen with older perls on MS Win32
 
-  like( decimalize(Math::MPFR->new('-inf' + 0)), '/^\-inf$/i',
-         '-Inf decimalizes as expected');
+    like( decimalize(Math::MPFR->new(99 ** (99 ** 99))),  '/^inf$/i',
+           'Inf decimalizes as expected');
+
+    like( decimalize(Math::MPFR->new(-(99 ** (99 ** 99)))), '/^\-inf$/i',
+           '-Inf decimalizes as expected');
+  }
+  else {
+
+    like( decimalize(Math::MPFR->new('inf' + 0)),  '/^inf$/i',
+           'Inf decimalizes as expected');
+
+    like( decimalize(Math::MPFR->new('-inf' + 0)), '/^\-inf$/i',
+           '-Inf decimalizes as expected');
+  }
 
   cmp_ok( decimalize(Math::MPFR->new(0)),    'eq', '0',
-         '0 decimalizes as expected');
+           '0 decimalizes as expected');
 
   cmp_ok( decimalize(Math::MPFR->new('-0')), 'eq', '-0',
          '-0 decimalizes as expected');
@@ -85,10 +97,14 @@ if(Math::MPFR::MPFR_3_1_6_OR_LATER) {
                                         Math::MPFR->new('-' . ('1' x 53) . '0', 2)), '==', 1,
                                         '-3.6028797018963964e16 decimalizes as expected');
 
+  my $rand_max = 500;
+  $rand_max    = 5000
+    if $Config{nvsize} > 8;
+
   for my $v (1 .. 1290) {
 
    my $exp =  $v < 900 ? int(rand(25))
-                     : int(rand(5000));
+                     : int(rand($rand_max));
 
    $exp = -$exp if $v % 3;
    my $x = 1 + int(rand(99000));
