@@ -343,26 +343,23 @@ for(@ARGV) {
 #             Jan 8 2018.
 
 my %options = (
-  NAME => 'Math::MPFR',
-  AUTHOR => 'Sisyphus (sisyphus at (@) cpan dot (.) org)',
-  ABSTRACT => 'Perl interface to the MPFR (floating point) library',
-  DEFINE   => $defines,
-  LIBS => [
-    '-lmpfr -lgmp -lquadmath'
-  ],
-  PREREQ_PM => {
-                'Test::More' => '0.88',
-  },
-  LICENSE  => 'perl',
+  NAME         => 'Math::MPFR',
+  AUTHOR       => 'Sisyphus (sisyphus at (@) cpan dot (.) org)',
+  ABSTRACT     => 'Perl interface to the MPFR (floating point) library',
+  DEFINE       => $defines,
+  LIBS         => [ '-lmpfr -lgmp -lquadmath' ],
+  PREREQ_PM    => { 'Test::More' => '0.88', },
+  OBJECT       => '$(O_FILES)',
+  LICENSE      => 'perl',
   VERSION_FROM => 'MPFR.pm',
-  clean   => { FILES => '*.exe *.txt' },
-  META_MERGE => {
-   'meta-spec' => { version => 2 },
-    resources => {
-      repository => {
-        type => 'git',
-        url => 'https://github.com/sisyphus/math-mpfr.git',
-        web => 'https://github.com/sisyphus/math-mpfr',
+  clean        => { FILES => '*.exe *.txt' },
+  META_MERGE   => {
+    'meta-spec'  => { version => 2 },
+    resources    => {
+      repository   => {
+        type         => 'git',
+        url          => 'https://github.com/sisyphus/math-mpfr.git',
+        web          => 'https://github.com/sisyphus/math-mpfr',
       },
     },
   },
