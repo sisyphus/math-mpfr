@@ -13,7 +13,10 @@
 
 
 #include "math_mpfr_include.h"
-#include "grisu3.h"
+
+#if NVSIZE == 8
+#  include "grisu3.h"
+#endif
 
 int nnum = 0; /* flag that is incremented whenever a string containing
                  non-numeric characters is treated as a number */
