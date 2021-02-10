@@ -349,7 +349,7 @@ my %options = (
   DEFINE       => $defines,
   LIBS         => [ '-lmpfr -lgmp -lquadmath' ],
   PREREQ_PM    => { 'Test::More' => '0.88', },
-  OBJECT       => '$(O_FILES)',
+  #OBJECT       => '$(O_FILES)', # set below if $Config{nvsize} == 8
   LICENSE      => 'perl',
   VERSION_FROM => 'MPFR.pm',
   clean        => { FILES => '*.exe *.txt' },
@@ -364,6 +364,12 @@ my %options = (
     },
   },
 );
+
+# Invlolve grisu3.h and grisu3.c if $Config{nvsize} == 8.
+# Otherwise they're not needed :
+
+$options{OBJECT} = '$(O_FILES)'
+  if $Config{nvsize} == 8;
 
 WriteMakefile(%options);
 
