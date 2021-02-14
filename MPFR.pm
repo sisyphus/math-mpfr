@@ -723,6 +723,11 @@ sub _bases_are_power_of_same_integer {
 sub bytes {
   my($val, $bits, $ret) = (shift, shift);
   my $itsa = _itsa($val);
+
+  # $itsa == 4 implies that $val's POK flag is set && IOK flag is unset.
+  # $itsa == 5 implies that $val is a Math::MPFR::object.
+  # We now croak if neither of those cases is satisfied.
+
   die "1st arg to Math::MPFR::bytes must be either a string or a Math::MPFR object"
     if($itsa != 4 && $itsa != 5);
 
