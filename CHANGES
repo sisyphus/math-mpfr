@@ -1,4 +1,9 @@
 4.17
+ - In Rmpfr_set_default_prec(), Rmpfr_set_prec() and Rmpfr_set_prec_raw(), check
+   that the argument is not less than 2 if mpfr version is less than 4.0.0.
+   (This change was actually appplied to Rmpfr_set_default_prec in Math-MPFR-4.16.)
+ - Remove all occurrences of "scalar reverse" demos\doubledouble.p and
+   t\subnormal_doubles.t.
 
 4.16
  - Workaround mpfr library assertion failure in decimalize() could occur when
