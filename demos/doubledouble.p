@@ -84,13 +84,13 @@ sub dd2dd {
 # sub internal_hex returns the internal hex format (byte structure) of the double precision
 # argument it received.
 sub internal_hex {
-  return scalar(reverse(unpack("h*", (pack "d<", $_[0]))));
+  return unpack("H*", (pack "d>", $_[0]));
 }
 
 # sub internal_hex2dec does the reverse of internal_hex() - ie returns the value, derived from
 # the internal hex argument.
 sub internal_hex2dec {
-  return unpack "d<", pack "h*", scalar reverse $_[0];
+  return unpack "d>", pack "H*", $_[0];
 }
 
 __END__
