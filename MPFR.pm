@@ -183,6 +183,7 @@ Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr
 Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc Rmpfr_beta
 Rmpfr_round_nearest_away rndna
 atonv nvtoa atodouble doubletoa numtoa atonum Rmpfr_dot Rmpfr_get_str_ndigits Rmpfr_get_str_ndigits_alt
+q_add_fr q_sub_fr q_mul_fr q_div_fr q_cmp_fr fr_cmp_q_rounded
 );
 
     our $VERSION = '4.17';
@@ -291,6 +292,7 @@ Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr
 Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc Rmpfr_beta
 Rmpfr_round_nearest_away rndna
 atonv nvtoa atodouble doubletoa numtoa atonum Rmpfr_dot Rmpfr_get_str_ndigits Rmpfr_get_str_ndigits_alt
+q_add_fr q_sub_fr q_mul_fr q_div_fr q_cmp_fr fr_cmp_q_rounded
 )]);
 
 
