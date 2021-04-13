@@ -78,6 +78,7 @@ t/overload_float128.t
 t/P_specifier.t
 t/pod.t
 t/printf.t
+t/q_arith.t
 t/remainder.t
 t/Rmpfr_fmod_ui.t
 t/Rmpfr_get_q.t
