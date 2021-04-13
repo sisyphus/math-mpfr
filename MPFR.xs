@@ -495,9 +495,11 @@ void Rmpfr_deref2(pTHX_ mpfr_t * p, SV * base, SV * n_digits, SV * round) {
 }
 
 void Rmpfr_set_default_prec(pTHX_ SV * prec) {
+
 #if MPFR_VERSION < 262144      /* earlier than version 4.0.0 */
-     if(SvUV(prec) < 2) croak("Precision must be set to at least 2 for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
+     if(SvIV(prec) < 2) croak("Precision must be set to at least 2 for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
 #endif
+
      mpfr_set_default_prec((mpfr_prec_t)SvIV(prec));
 }
 
@@ -510,10 +512,20 @@ SV * Rmpfr_min_prec(pTHX_ mpfr_t * x) {
 }
 
 void Rmpfr_set_prec(pTHX_ mpfr_t * p, SV * prec) {
+
+#if MPFR_VERSION < 262144      /* earlier than version 4.0.0 */
+     if(SvIV(prec) < 2) croak("Precision must be set to at least 2 for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
+#endif
+
      mpfr_set_prec(*p, (mpfr_prec_t)SvIV(prec));
 }
 
 void Rmpfr_set_prec_raw(pTHX_ mpfr_t * p, SV * prec) {
+
+#if MPFR_VERSION < 262144      /* earlier than version 4.0.0 */
+     if(SvIV(prec) < 2) croak("Precision must be set to at least 2 for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
+#endif
+
      mpfr_set_prec_raw(*p, (mpfr_prec_t)SvIV(prec));
 }
 
@@ -936,6 +948,11 @@ SV * Rmpfr_add_q(pTHX_ mpfr_t * a, mpfr_t * b, mpq_t * c, SV * round) {
      return newSViv(mpfr_add_q(*a, *b, *c, (mpfr_rnd_t)SvUV(round)));
 }
 
+void q_add_fr(mpq_t * a, mpq_t * b, mpfr_t * c) {
+     mpfr_get_q(*a, *c);
+     mpq_add(*a, *b, *a);
+}
+
 SV * Rmpfr_sub(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
      CHECK_ROUNDING_VALUE
      return newSViv(mpfr_sub(*a, *b, *c, (mpfr_rnd_t)SvUV(round)));
@@ -960,6 +977,11 @@ SV * Rmpfr_sub_z(pTHX_ mpfr_t * a, mpfr_t * b, mpz_t * c, SV * round) {
 SV * Rmpfr_sub_q(pTHX_ mpfr_t * a, mpfr_t * b, mpq_t * c, SV * round) {
      CHECK_ROUNDING_VALUE
      return newSViv(mpfr_sub_q(*a, *b, *c, (mpfr_rnd_t)SvUV(round)));
+}
+
+void q_sub_fr(mpq_t * a, mpq_t * b, mpfr_t * c) {
+     mpfr_get_q(*a, *c);
+     mpq_sub(*a, *b, *a);
 }
 
 SV * Rmpfr_ui_sub(pTHX_ mpfr_t * a, SV * b, mpfr_t * c, SV * round) {
@@ -997,6 +1019,11 @@ SV * Rmpfr_mul_q(pTHX_ mpfr_t * a, mpfr_t * b, mpq_t * c, SV * round) {
      return newSViv(mpfr_mul_q(*a, *b, *c, (mpfr_rnd_t)SvUV(round)));
 }
 
+void q_mul_fr(mpq_t * a, mpq_t * b, mpfr_t * c) {
+     mpfr_get_q(*a, *c);
+     mpq_mul(*a, *b, *a);
+}
+
 SV * Rmpfr_dim(pTHX_ mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, SV * round) {
      CHECK_ROUNDING_VALUE
          int ret = mpfr_dim( *rop, *op1, *op2, (mpfr_rnd_t)SvUV(round));
@@ -1026,6 +1053,11 @@ SV * Rmpfr_div_z(pTHX_ mpfr_t * a, mpfr_t * b, mpz_t * c, SV * round) {
 SV * Rmpfr_div_q(pTHX_ mpfr_t * a, mpfr_t * b, mpq_t * c, SV * round) {
      CHECK_ROUNDING_VALUE
      return newSViv(mpfr_div_q(*a, *b, *c, (mpfr_rnd_t)SvUV(round)));
+}
+
+void q_div_fr(mpq_t * a, mpq_t * b, mpfr_t * c) {
+     mpfr_get_q(*a, *c);
+     mpq_div(*a, *b, *a);
 }
 
 SV * Rmpfr_ui_div(pTHX_ mpfr_t * a, SV * b, mpfr_t * c, SV * round) {
@@ -1950,6 +1982,17 @@ int Rmpfr_cmp_z(mpfr_t * a, mpz_t * b) {
 
 int Rmpfr_cmp_q(mpfr_t * a, mpq_t * b) {
      return mpfr_cmp_q(*a, *b);
+}
+
+int fr_cmp_q_rounded(pTHX_ mpfr_t * a, mpq_t * b, SV * round) {
+     CHECK_ROUNDING_VALUE
+     mpfr_t temp;
+     int ret;
+     mpfr_init(temp);
+     mpfr_set_q(temp, *b, (mpfr_rnd_t)SvUV(round));
+     ret = mpfr_cmp(*a, temp);
+     mpfr_clear(temp);
+     return ret;
 }
 
 int Rmpfr_cmp_f(mpfr_t * a, mpf_t * b) {
@@ -9730,6 +9773,24 @@ CODE:
   RETVAL = Rmpfr_add_q (aTHX_ a, b, c, round);
 OUTPUT:  RETVAL
 
+void
+q_add_fr (a, b, c)
+	mpq_t *	a
+	mpq_t *	b
+	mpfr_t *	c
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        q_add_fr(a, b, c);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
 SV *
 Rmpfr_sub (a, b, c, round)
 	mpfr_t *	a
@@ -9779,6 +9840,24 @@ Rmpfr_sub_q (a, b, c, round)
 CODE:
   RETVAL = Rmpfr_sub_q (aTHX_ a, b, c, round);
 OUTPUT:  RETVAL
+
+void
+q_sub_fr (a, b, c)
+	mpq_t *	a
+	mpq_t *	b
+	mpfr_t *	c
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        q_sub_fr(a, b, c);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
 
 SV *
 Rmpfr_ui_sub (a, b, c, round)
@@ -9850,6 +9929,24 @@ CODE:
   RETVAL = Rmpfr_mul_q (aTHX_ a, b, c, round);
 OUTPUT:  RETVAL
 
+void
+q_mul_fr (a, b, c)
+	mpq_t *	a
+	mpq_t *	b
+	mpfr_t *	c
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        q_mul_fr(a, b, c);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
 SV *
 Rmpfr_dim (rop, op1, op2, round)
 	mpfr_t *	rop
@@ -9909,6 +10006,24 @@ Rmpfr_div_q (a, b, c, round)
 CODE:
   RETVAL = Rmpfr_div_q (aTHX_ a, b, c, round);
 OUTPUT:  RETVAL
+
+void
+q_div_fr (a, b, c)
+	mpq_t *	a
+	mpq_t *	b
+	mpfr_t *	c
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        q_div_fr(a, b, c);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
 
 SV *
 Rmpfr_ui_div (a, b, c, round)
@@ -11258,6 +11373,15 @@ int
 Rmpfr_cmp_q (a, b)
 	mpfr_t *	a
 	mpq_t *	b
+
+int
+fr_cmp_q_rounded (a, b, round)
+	mpfr_t *	a
+	mpq_t *	b
+	SV *	round
+CODE:
+  RETVAL = fr_cmp_q_rounded (aTHX_ a, b, round);
+OUTPUT:  RETVAL
 
 int
 Rmpfr_cmp_f (a, b)
