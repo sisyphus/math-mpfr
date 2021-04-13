@@ -265,7 +265,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     3) Convert the __float128 values to a string and pass them to
     and from Math::MPFR using:
 
-      Rmpfr_set_str() and Rmpfr_get_str()
+      Rmpfr_strtofr()/Rmpfr_set_str() and Rmpfr_get_str()
 
 =head1 PASSING _Decimal64 & _Decimal128 VALUES
 
@@ -995,6 +995,18 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     value when $rop is larger than 2nd arg divided by 3rd arg,
     and a negative value otherwise.
 
+   q_add_fr($q1, $q2, $op); # $q1, $q2 are mpq objects
+    Set $q1 to the exact rational value of $q2 + $op
+
+   q_sub_fr($q1, $q2, $op); # $q1, $q2 are mpq objects
+    Set $q1 to the exact rational value of $q2 - $op
+
+   q_mul_fr($q1, $q2, $op); # $q1, $q2 are mpq objects
+    Set $q1 to the exact rational value of $q2 * $op
+
+   q_div_fr($q1, $q2, $op); # $q1, $q2 are mpq objects
+    Set $q1 to the exact rational value of $q2 / $op
+
    $si = Rmpfr_sqr($rop, $op, $rnd);
     Set $rop to the square of $op, rounded in direction $rnd.
 
@@ -1108,6 +1120,12 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     the absolute value returned is one plus the absolute difference
     of their exponents. If one of the operands is NaN (Not-a-Number),
     return zero and set the erange flag.
+
+   $si = fr_cmp_q_rounded($op, $q, $rnd); # $q is a mpq object
+    Convert $q to an mpfr object of current default precision,
+    rounded in accordance with the value specified by $rnd.
+    Then compare $op with this mpfr object, according to the rules
+    specified for Rmpfr_cmp (above).
 
    $si = Rmpfr_total_order_p($op1, $op2); # new with mpfr-4.1.0
     This function implements the totalOrder predicate from IEEE
@@ -2551,7 +2569,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
     This program is free software; you may redistribute it and/or
     modify it under the same terms as Perl itself.
-    Copyright 2006-2020 Sisyphus
+    Copyright 2006-2021 Sisyphus
 
 =head1 AUTHOR
 
