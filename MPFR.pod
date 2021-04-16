@@ -1110,6 +1110,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_cmp_z($op, $z); # $z is a mpz object
    $si = Rmpfr_cmp_q($op, $q); # $q is a mpq object
    $si = Rmpfr_cmp_f($op, $f); # $f is a mpf object
+   $si = Rmpfr_cmp_IV($op, $iv);
+   $si = Rmpfr_cmp_UV($op, $uv);
    $si = Rmpfr_cmp_NV($op, $nv);
     Compare 1st and 2nd args. In the case of 'Rmpfr_cmpabs()' and
     'Rmpfr_cmpabs_ui' compare the absolute values of the 2 args.
