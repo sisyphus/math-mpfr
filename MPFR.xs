@@ -1202,6 +1202,56 @@ int Rmpfr_cmp_ui(mpfr_t * a, unsigned long b) {
      return mpfr_cmp_ui(*a, b);
 }
 
+int Rmpfr_cmp_si(mpfr_t * a, long b) {
+     return mpfr_cmp_si(*a, b);
+}
+
+int Rmpfr_cmp_uj(pTHX_ mpfr_t * a, UV b) {
+#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
+    int ret;
+    mpfr_t temp;
+    mpfr_init2(temp, 64);
+
+    mpfr_set_uj(temp, b, GMP_RNDN);
+    ret = mpfr_cmp(*a, temp);
+    mpfr_clear(temp);
+    return ret;
+#else
+    croak("Rmpfr_cmp_uj is unavailable because MATH_MPFR_NEED_LONG_LONG_INT is not defined");
+#endif
+}
+
+int Rmpfr_cmp_sj(pTHX_ mpfr_t * a, IV b) {
+#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
+    int ret;
+    mpfr_t temp;
+    mpfr_init2(temp, 64);
+
+    mpfr_set_sj(temp, b, GMP_RNDN);
+    ret = mpfr_cmp(*a, temp);
+    mpfr_clear(temp);
+    return ret;
+#else
+    croak("Rmpfr_cmp_sj is unavailable because MATH_MPFR_NEED_LONG_LONG_INT is not defined");
+#endif
+}
+
+int Rmpfr_cmp_IV(pTHX_ mpfr_t *a, IV b) {
+#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
+    return Rmpfr_cmp_sj(aTHX_ a, b);
+#else
+    return mpfr_cmp_si(*a, b);
+#endif
+}
+
+int Rmpfr_cmp_UV(pTHX_ mpfr_t *a, UV b) {
+#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
+    return Rmpfr_cmp_uj(aTHX_ a, b);
+#else
+    return mpfr_cmp_ui(*a, b);
+#endif
+}
+
 int Rmpfr_cmp_d(mpfr_t * a, double b) {
      return mpfr_cmp_d(*a, b);
 }
@@ -1216,10 +1266,6 @@ int Rmpfr_cmp_ld(pTHX_ mpfr_t * a, SV * b) {
 #else
      croak("Rmpfr_cmp_ld not implemented on this build of perl");
 #endif
-}
-
-int Rmpfr_cmp_si(mpfr_t * a, long b) {
-     return mpfr_cmp_si(*a, b);
 }
 
 int Rmpfr_cmp_ui_2exp(pTHX_ mpfr_t * a, SV * b, SV * c) {
@@ -10235,6 +10281,43 @@ Rmpfr_cmp_ui (a, b)
 	unsigned long	b
 
 int
+Rmpfr_cmp_si (a, b)
+	mpfr_t *	a
+	long	b
+
+int
+Rmpfr_cmp_uj (a, b)
+	mpfr_t *	a
+	UV	b
+CODE:
+  RETVAL = Rmpfr_cmp_uj (aTHX_ a, b);
+OUTPUT:  RETVAL
+
+int
+Rmpfr_cmp_sj (a, b)
+	mpfr_t *	a
+	IV	b
+CODE:
+  RETVAL = Rmpfr_cmp_sj (aTHX_ a, b);
+OUTPUT:  RETVAL
+
+int
+Rmpfr_cmp_IV (a, b)
+	mpfr_t *	a
+	IV	b
+CODE:
+  RETVAL = Rmpfr_cmp_IV (aTHX_ a, b);
+OUTPUT:  RETVAL
+
+int
+Rmpfr_cmp_UV (a, b)
+	mpfr_t *	a
+	UV	b
+CODE:
+  RETVAL = Rmpfr_cmp_UV (aTHX_ a, b);
+OUTPUT:  RETVAL
+
+int
 Rmpfr_cmp_d (a, b)
 	mpfr_t *	a
 	double	b
@@ -10246,11 +10329,6 @@ Rmpfr_cmp_ld (a, b)
 CODE:
   RETVAL = Rmpfr_cmp_ld (aTHX_ a, b);
 OUTPUT:  RETVAL
-
-int
-Rmpfr_cmp_si (a, b)
-	mpfr_t *	a
-	long	b
 
 int
 Rmpfr_cmp_ui_2exp (a, b, c)
