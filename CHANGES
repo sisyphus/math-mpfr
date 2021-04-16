@@ -5,6 +5,8 @@
  - Remove all occurrences of "scalar reverse" demos\doubledouble.p and
    t\subnormal_doubles.t.
  - Add q_add_fr, q_sub_fr, q_mul_fr, q_div_fr and fr_cmp_q_rounded functions.
+ - Add Rmpfr_cmp_IV, Rmpfr_cmp_UV, Rmpfr_cmp_sj and Rmpfr_cmp_uj (though the MPFR
+   library currently contains neither mpfr_cmp_sj nor mpfr_cmp_uj).
 
 4.16
  - Workaround mpfr library assertion failure in decimalize() could occur when
