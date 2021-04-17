@@ -2367,6 +2367,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
        '0B' it is regarded as a base 2 number. If it starts with '0x'
        or '0X' it is regarded as a base 16 number. Otherwise it is
        regarded as a base 10 number.
+       The value is then handed to a temporary Math::MPFR object that
+       has current default precision. Any rounding required will be
+       done in accordance with current default rounding mode.
+       See "STRING OVERLOADING ANOMALY" (below) for an example of
+       possible anomalies regarding string overloading.
 
     5. If the variable is a Math::MPFR, Math::GMPz, Math::GMPf, or
        Math::GMPq object then the value of that object is used.
@@ -2374,6 +2379,27 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     6. If none of the above is true, then the second variable is
        deemed to be of an invalid type. The subroutine croaks with
        an appropriate error message.
+
+   #####################
+
+   STRING OVERLOADING ANOMALY
+
+    An example, when $Config{ivsize} == 8, default precision <= 63,
+    default rounding mode is either MPFR_RNDN, MPFR_RNDU or MPFR_RNDA :
+
+      my $i = 18446744073709551615;
+      my $f = Math::MPFR->new(2 ** 64); # 0x1p+63
+      my $i = 18446744073709551615;     # 1 less than 2 ** 64
+      print ($f <=>  $i ); # prints 1
+      print ($f <=> "$i"); # prints 0
+
+    If you want an integer string in an overloaded expression to be
+    evaluated to its full (arbitrary) precision, then convert it to a
+    Math::GMPz object first:
+
+      print ($f <=> Math::GMPz->new("$i")); # prints 1
+
+    We test this in t/anomaly.t in the test suite.
 
    #####################
 
