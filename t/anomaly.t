@@ -51,7 +51,7 @@ my $f = Math::MPFR->new(2 ** 70); # 1180591620717411303424
 my $s = '1180591620717411303423'; # 1 less than 2 ** 70;
 
 
-cmp_ok($f, '==', $s, '2**70 == (2**70)-1 - RHS is IV'); # Value of $s is rounded to 53-bit precision.
+cmp_ok($f, '==', $s, '2**70 == (2**70)-1 - RHS is PV'); # Value of $s is rounded to 53-bit precision.
 
 if($have_mpz) {
   # $s is evaluated to its full (70-bit) precision:
