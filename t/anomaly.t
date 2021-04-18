@@ -3,7 +3,7 @@
 # arise when strings are involved in overloaded comparisons with
 # Math::MPFR objects ('==', '!=', '<', '>', '<=', '>=' and '<=>')
 # is as expected.
-# Some of these tests require Math::GMP.
+# Some of these tests require Math::GMPz.
 
 use strict;
 use warnings;
