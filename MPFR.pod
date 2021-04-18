@@ -2387,7 +2387,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     An example, when $Config{ivsize} == 8, default precision <= 63,
     default rounding mode is either MPFR_RNDN, MPFR_RNDU or MPFR_RNDA :
 
-      my $f = Math::MPFR->new(2 ** 64); # 0x1p+63
+      my $f = Math::MPFR->new(2 ** 64); # 0x1p+64
       my $i = 18446744073709551615;     # 1 less than 2 ** 64
       print ($f <=>  $i ); # prints 1
       print ($f <=> "$i"); # prints 0
