@@ -4,7 +4,7 @@
 # Math::MPFR objects ('==', '!=', '<', '>', '<=', '>=' and '<=>')
 # is as expected.
 # Some of these tests require Math::GMP.
-use Devel::Peek;
+
 use strict;
 use warnings;
 use Math::MPFR;
