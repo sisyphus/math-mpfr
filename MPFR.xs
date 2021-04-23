@@ -7798,8 +7798,10 @@ SV * Rmpfr_get_str_ndigits_alt(pTHX_ int base, UV prec) {
      * produces the same results as Rmpfr_get_str_ndigits. */
 
     UV m = 1;
+    int inexflag;
     mpfr_t temp1, temp2;
 
+    inexflag = mpfr_inexflag_p();
     mpfr_init2(temp1, 128);
     mpfr_init2(temp2, 128);
     mpfr_set_ui(temp1, base, GMP_RNDN);
@@ -7817,6 +7819,11 @@ SV * Rmpfr_get_str_ndigits_alt(pTHX_ int base, UV prec) {
     mpfr_clear(temp1);
     mpfr_clear(temp2);
 
+    /* Clear the inex flag if it *
+     * was unset to begin with   */
+
+    if(!inexflag) mpfr_clear_inexflag();
+
     return newSVuv(m);
 
 }
@@ -7829,7 +7836,18 @@ SV * Rmpfr_get_str_ndigits(pTHX_ int base, SV * prec) {
       croak("1st argument given to Rmpfr_get_str_ndigits must be in the range 2..62");
 
 #if defined(MPFR_VERSION) && MPFR_VERSION >= 262400 /* version 4.1.0 */
-    return newSVuv(mpfr_get_str_ndigits(base, (mpfr_prec_t)SvUV(prec)));
+#  if MPFR_VERSION == 262400
+      int inexflag;
+      size_t ret;
+
+      inexflag = = mpfr_inexflag_p();
+      ret = mpfr_get_str_ndigits(base, (mpfr_prec_t)SvUV(prec));
+      if(!inexflag) mpfr_clear_inexflag(); /* In case mpfr_get_str_ndigits changed it from *
+                                            * unset to set. This was fixed after 4.1.0     */
+      return newSVuv(ret);
+#  else
+      return newSVuv(mpfr_get_str_ndigits(base, (mpfr_prec_t)SvUV(prec)));
+#  endif
 #else
     return Rmpfr_get_str_ndigits_alt(aTHX_ base, SvUV(prec));
 #endif
