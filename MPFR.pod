@@ -1808,6 +1808,14 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
             With double-double NVs, nvtoa() currently requires
             mpfr-4.0.0 or later.
 
+   $str = mpfrtoa($op);
+    As for nvtoa(), except that mpfrtoa() instead takes a Math::MPFR
+    object as its argument.
+    Sets $str to the value of $op.
+    $str will appear in standard decimal format, containing the
+    *minimum* number of digits such that the condition ($str == $op)
+    is true.
+
    $nv = atonv($str); # Needs mpfr-3.1.6 or later
     Sets $nv to the NV value represented by the string $str.
     If $str expresses a base 2 value, begin it with '0b' or '0B'.
