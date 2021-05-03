@@ -8702,6 +8702,392 @@ SV * nvtoa(pTHX_ NV pnv) {
 /****************************
  * END nvtoa                *
  ****************************/
+
+/****************************
+ * BEGIN mpfrtoa            *
+ ****************************/
+
+/* mpfrtoa is, like nvtoa, adapted from p120 of     *
+ * "How to Print Floating-Point Numbers Accurately" *
+ * by Guy L. Steele Jr and Jon L. White             */
+
+SV * mpfrtoa(pTHX_ mpfr_t * pnv) {
+  int k = 0, k_index, lsb, skip = 0, sign = 0, critical;
+  int bits, shift1, shift2, low, high, cmp, u;
+  mpfr_exp_t e;
+  mpz_t R, S, M_plus, M_minus, LHS, TMP;
+
+  /* Assign 24 bytes to str[] */
+  char str[] = {'\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0'};
+
+  char * f, *out, *bstr;
+  SV * outsv;
+
+  sign = mpfr_signbit(*pnv);
+
+  if(!mpfr_regular_p(*pnv)) {
+    if(mpfr_zero_p(*pnv)) {
+      if(sign) return newSVpv("-0.0", 0);
+      return newSVpv("0.0", 0);
+    }
+
+    if(mpfr_nan_p(*pnv)) {
+      return newSVpv("NaN", 0);
+    }
+
+    /* Must be Inf */
+
+    if(sign) return newSVpv("-Inf", 0);
+    return newSVpv("Inf", 0);
+  }
+
+  mpz_init(R);
+  mpz_init(S);
+  mpz_init(M_plus);
+  mpz_init(M_minus);
+  mpz_init(LHS);
+  mpz_init(TMP);
+
+/***************
+ * Assign to f *
+ ***************/
+
+  bits = mpfr_get_prec(*pnv);
+
+  Newxz(f, bits + 8, char);
+  if(f == NULL) croak("Failed to allocate memory for string buffer in mpfrtoa XSub");
+
+  mpfr_get_str(f, &e, 2, bits, *pnv, GMP_RNDN);
+
+
+/********************************
+ * assignment to f is completed *
+ ********************************/
+
+#ifdef NVTOA_DEBUG
+
+   warn(" f is %s\n exponent is %d\n precision is %d\n", f, (int)e, bits);
+
+#endif
+
+  if(sign) f++;
+
+  mpz_set_str(R, f, 2);
+
+  if(sign) f--;
+  Safefree(f);
+
+  lsb = mpz_tstbit(R, 0); /* Set lsb to the value of R's least significant bit */
+  mpz_set(TMP, R);
+
+  if(mpz_cmp_ui(R, 0) < 1) croak("Negative value in mpfrtoa XSub is not allowed");
+  mpz_set_ui(S, 1);
+
+  shift2 = e - bits;
+
+  shift1 = shift2 > 0 ? shift2 : 0;
+  mpz_mul_2exp(R, R, shift1);
+
+  shift2 = shift1       ? 0 : -shift2;
+  mpz_mul_2exp(S, S, shift2);
+
+  mpz_set_ui(M_minus, 1);
+  mpz_mul_2exp(M_minus, M_minus, shift1);
+  mpz_set(M_plus, M_minus);
+
+  /*************** start simple fixup **************/
+
+  mpz_set_ui(LHS, 1);
+  mpz_mul_2exp(LHS, LHS, bits - 1);
+  if(!mpz_cmp(LHS, TMP)) {
+    mpz_mul_2exp(M_plus, M_plus, 1);
+    mpz_mul_2exp(R,      R,      1);
+    mpz_mul_2exp(S,      S,      1);
+  }
+
+  k = 0;	/* used above, so we reset to zero */
+  skip = 0;	/* used above, so we reset to zero */
+
+  mpz_cdiv_q_ui(LHS, S, 10); /* LHS = ceil(S / 10) */
+
+  if(mpz_cmp(LHS, R) > 0) {
+
+    /* Set k to be close to, but not greater than, the number of     *
+     * decimal digits needed to represent the value of LHS. This     *
+     * reduces the number of times that we need to loop through the  *
+     * the next while{} loop.                                        *
+     * Note that 0.30102999566398118 is slightly less than log2(10). */
+
+    k = (int)floor(mpz_sizeinbase(LHS, 2) * 0.30102999566398118);
+    if(k) k--;    /* Do not decrement if k is zero */
+    mpz_ui_pow_ui(TMP, 10, k);
+    k *= -1;
+#ifdef NVTOA_DEBUG
+    warn(" k init: %d\n", k);
+#endif
+    mpz_mul(R, R, TMP);
+    mpz_mul(M_minus, M_minus, TMP);
+    mpz_mul(M_plus, M_plus, TMP);
+  }
+  else {
+    skip = 1; /* No need to enter the following while() loop */
+  }
+
+  if(!skip) {
+    while(1) {
+      if(mpz_cmp(LHS, R) <= 0) break;
+      k--;
+      mpz_mul_ui(R, R, 10);
+      mpz_mul_ui(M_minus, M_minus, 10);
+      mpz_mul_ui(M_plus, M_plus, 10);
+    }                                   /* close first while loop */
+#ifdef NVTOA_DEBUG
+    warn(" k post 1st loop: %d\n", k);
+#endif
+  }
+
+  mpz_mul_2exp(LHS, R, 1);
+  mpz_add(LHS, LHS, M_plus);
+  mpz_mul_2exp(TMP, S, 1);
+
+  if(mpz_cmp(LHS, TMP) >= 0) {
+    skip = 0;
+    mpz_div(TMP, LHS, TMP);
+
+    /* Set u to be close to, but not greater than, the number of     *
+     * decimal digits needed to represent the value of TMP. This     *
+     * reduces the number of times that we need to loop through the  *
+     * the next while{} loop.                                        *
+     * Note that 0.30102999566398118 is slightly less than log2(10). */
+
+    u = (int)floor(mpz_sizeinbase(TMP, 2) * 0.30102999566398118);
+    /* if(u) u--; *//* Decrement not needed here, AFAIK. */
+    mpz_ui_pow_ui(TMP, 10, u);
+    k += u;
+#ifdef NVTOA_DEBUG
+    warn(" u init: %d\n k set to: %d\n", u, k);
+#endif
+    mpz_mul(S, S, TMP);
+  }
+  else {
+    skip = 1; /* No need to enter the following while() loop */
+  }
+
+  if(!skip) {
+    while(1) {
+      mpz_mul_2exp(TMP, S, 1);
+
+      if(mpz_cmp(LHS, TMP) < 0) break;
+
+      mpz_mul_ui(S, S, 10);
+      k++;
+    }                                 /* close second while loop */
+#ifdef NVTOA_DEBUG
+    warn(" k post 2nd loop: %d\n", k);
+#endif
+  }
+
+  /*********************** finish simple fixup **********************/
+
+  k_index = -1;
+
+  Newxz(out, (int)(12 + ceil(0.30103 * bits)), char); /* 1 + ceil(log(2) / log(10) * bits), but  *
+                                                       * allow a few extra for exponent and sign */
+
+  if(out == NULL) croak("Failed to allocate memory for output string in mpfrtoa XSub");
+
+  /* Each iteration of the following while() loop outputs, one at a time, the *
+   * digits of the final mantissa - except for the final (least significant)  *
+   * digit Which is set following the termination of the loop.                */
+
+  while(1) {
+
+    k_index++;
+
+    mpz_mul_ui(TMP, R, 10);
+    mpz_fdiv_qr(LHS, R, TMP, S);
+    u = mpz_get_ui(LHS);
+
+    mpz_mul_ui(M_minus, M_minus, 10);
+    mpz_mul_ui(M_plus, M_plus, 10);
+
+    mpz_mul_2exp(LHS, R, 1);
+
+    cmp = mpz_cmp(LHS, M_minus);
+
+    if(!cmp && !lsb) { /* !lsb implies that f is even */
+      low = 1;
+    }
+    else {
+      low = cmp < 0 ? 1 : 0;
+    }
+
+    mpz_mul_2exp(TMP, S, 1);
+    mpz_sub(TMP, TMP, M_plus);
+
+    cmp = mpz_cmp(LHS, TMP);
+
+    if(!cmp && !lsb) { /* !lsb implies that f is even */
+      high = 1;
+    }
+    else {
+      high = cmp > 0 ? 1 : 0;
+    }
+
+    if(low | high) break;
+
+    out[k_index] = 48 + u;
+
+  }                                   /* close while loop */
+
+  /* Next we set the final digit, rounding up where appropriate */
+
+  if(low & high) {                                  /* ( low &&  high) */
+    mpz_mul_2exp(LHS, R, 1);
+    cmp = mpz_cmp(LHS, S);
+    if        (cmp >  0) out[k_index] = 49 + u;
+    else if   (cmp <  0) out[k_index] = 48 + u;
+    else { /* (cmp == 0) */
+      if(u & 1)          out[k_index] = 49 + u;
+      else               out[k_index] = 48 + u;
+    }
+  }
+  else if(high)          out[k_index] = 49 + u; /* (!low &&  high) */
+  else                   out[k_index] = 48 + u; /* ( low && !high) */
+
+  mpz_clear(R);
+  mpz_clear(S);
+  mpz_clear(M_plus);
+  mpz_clear(M_minus);
+  mpz_clear(LHS);
+  mpz_clear(TMP);
+
+#ifdef NVTOA_DEBUG
+  warn(" final string: %s\n k = %d\n", out, k);
+#endif
+
+  /*********************
+   * Format the result *
+   *********************/
+  k_index++;    /* k_index is now set to strlen(out)     */
+  critical = k; /* formatting is based around this value */
+  k -= k_index;
+
+  if(critical < -3) {
+
+    sprintf(str, "e%03d", critical - 1);
+    if(sign || k_index > 1) {
+      /* insert decimal point */
+      for(skip = k_index + sign; skip > 1 + sign; skip--) {
+        out[skip] = out[skip - 1 - sign];
+      }
+
+      if(k_index > 1) {
+        out[1 + sign] = '.';
+        out[k_index + 1 + sign] = 0;
+      }
+
+      if(sign) {
+        out[1] = out[0];
+        out[0] = '-';
+      }
+    }
+    strcat(out, str);
+
+    outsv = newSVpv(out, 0);
+    Safefree(out);
+    return outsv;
+
+  }
+
+  if(critical <= 0 ) {
+    /* bstr = concatenate "0." . ("0" x -critical) . out; */
+    Newxz(bstr, (int)(16 + ceil(0.30103 * bits)), char); /* 1 + ceil(log(2) / log(10) * bits),
+                                                        but allow a few extra for exponent and sign */
+
+    if(bstr == NULL) croak("Failed to allocate memory for 2nd output string in mpfrtoa XSub");
+
+    if(sign) bstr[0] = '-';
+
+    bstr[0 + sign] = '0';
+    bstr[1 + sign] = '.';
+
+    sign += 2;
+
+    for(skip = critical; skip < 0; skip++) {
+      bstr[sign] = '0';
+      sign++;
+    }
+
+    bstr[sign] = 0;
+    strcat(bstr, out);
+
+    outsv = newSVpv(bstr, 0);
+    Safefree(out);
+    Safefree(bstr);
+    return outsv;
+
+  }
+
+  if(critical < ceil(3.010299956639812e-1 * bits) + 1) {
+    if(sign) {
+      for(skip = k_index; skip > 0; skip--) out[skip] = out[skip - 1];
+      out[0] = '-';
+      out[k_index + 1] = 0;
+    }
+
+   if(k >= 0) {
+      /* out = concatenate out . ('0' x k); */
+      for(skip = 0; skip < k; skip++) out[k_index + skip + sign] = '0';
+      out[k_index + k + sign] = '.';
+      out[k_index + k + sign + 1] = '0';
+      out[k_index + k + sign + 2] = 0;
+
+      outsv = newSVpv(out, 0);
+      Safefree(out);
+      return outsv;
+
+    }
+
+    /* insert decimal point; */
+    for(skip = k_index + sign; skip > k_index + k + sign; skip--) out[skip] = out[skip - 1];
+    out[k_index + k + sign] = '.';
+    out[k_index + sign + 1] = 0;
+
+    outsv = newSVpv(out, 0);
+    Safefree(out);
+    return outsv;
+
+  }
+
+  if( k_index > 1) {
+    /* insert decimal point */
+    for(skip = k_index + sign; skip > 1 + sign; skip--) {
+      out[skip] = out[skip - 1 - sign];
+    }
+
+    out[1 + sign] = '.';
+    out[k_index + 1 + sign] = 0;
+  }
+
+  if(sign) {
+    out[1] = out[0];
+    out[0] = '-';
+  }
+
+  sprintf(str, "e+%d", critical - 1);
+  strcat(out, str);
+
+  outsv = newSVpv(out, 0);
+  Safefree(out);
+  return outsv;
+
+}
+
+/****************************
+ * END mpfrtoa              *
+ ****************************/
+
 /****************************
  * BEGIN doubletoa          *
  ****************************/
@@ -13508,6 +13894,13 @@ nvtoa (pnv)
 	NV	pnv
 CODE:
   RETVAL = nvtoa (aTHX_ pnv);
+OUTPUT:  RETVAL
+
+SV *
+mpfrtoa (pnv)
+	mpfr_t *	pnv
+CODE:
+  RETVAL = mpfrtoa (aTHX_ pnv);
 OUTPUT:  RETVAL
 
 void
