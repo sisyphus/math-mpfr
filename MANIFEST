@@ -56,6 +56,7 @@ t/integer_string.t
 t/inits.t
 t/lngamma_bug.t
 t/LongDouble.t
+t/mpfrtoa.t
 t/MPFR_RND.t
 t/nan_cmp.t
 t/native_float128.t
