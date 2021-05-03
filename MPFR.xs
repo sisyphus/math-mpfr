@@ -7840,7 +7840,7 @@ SV * Rmpfr_get_str_ndigits(pTHX_ int base, SV * prec) {
       int inexflag;
       size_t ret;
 
-      inexflag = = mpfr_inexflag_p();
+      inexflag = mpfr_inexflag_p();
       ret = mpfr_get_str_ndigits(base, (mpfr_prec_t)SvUV(prec));
       if(!inexflag) mpfr_clear_inexflag(); /* In case mpfr_get_str_ndigits changed it from *
                                             * unset to set. This was fixed after 4.1.0     */
