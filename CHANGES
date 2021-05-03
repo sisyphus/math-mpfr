@@ -10,6 +10,7 @@
  - Fix Rmpfr_get_str_ndigits and Rmpfr_get_str_ndigits_alt so that they don't change
    the inexflag from unset to set. (This was fixed for mpfr_get_str_ndigits in
    mpfr versions > 4.1.0.)
+ - Add new function mpfrtoa.
 
 4.16
  - Workaround mpfr library assertion failure in decimalize() could occur when
