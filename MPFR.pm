@@ -183,7 +183,8 @@ Rmpfr_fmodquo Rmpfr_fpif_export Rmpfr_fpif_import Rmpfr_flags_clear Rmpfr_flags_
 Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr_roundeven
 Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc Rmpfr_beta
 Rmpfr_round_nearest_away rndna
-atonv nvtoa atodouble doubletoa numtoa atonum Rmpfr_dot Rmpfr_get_str_ndigits Rmpfr_get_str_ndigits_alt
+atonv nvtoa atodouble doubletoa numtoa atonum mpfrtoa Rmpfr_dot
+Rmpfr_get_str_ndigits Rmpfr_get_str_ndigits_alt
 q_add_fr q_sub_fr q_mul_fr q_div_fr q_cmp_fr fr_cmp_q_rounded
 );
 
@@ -293,7 +294,8 @@ Rmpfr_fmodquo Rmpfr_fpif_export Rmpfr_fpif_import Rmpfr_flags_clear Rmpfr_flags_
 Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr_roundeven
 Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc Rmpfr_beta
 Rmpfr_round_nearest_away rndna
-atonv nvtoa atodouble doubletoa numtoa atonum Rmpfr_dot Rmpfr_get_str_ndigits Rmpfr_get_str_ndigits_alt
+atonv nvtoa atodouble doubletoa numtoa atonum mpfrtoa Rmpfr_dot
+Rmpfr_get_str_ndigits Rmpfr_get_str_ndigits_alt
 q_add_fr q_sub_fr q_mul_fr q_div_fr q_cmp_fr fr_cmp_q_rounded
 )]);
 
