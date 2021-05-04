@@ -66,6 +66,7 @@ t/not_zero.t
 t/new.t
 t/new_in_4.0.0.t
 t/new_in_4.1.0.t
+t/new_pow_log_exp.t
 t/numtoa.t
 t/nvtoa.t
 t/nvtoa_subnormal.t
@@ -83,6 +84,7 @@ t/pod.t
 t/printf.t
 t/q_arith.t
 t/remainder.t
+t/Rmpfr_asinu.t
 t/Rmpfr_fmod_ui.t
 t/Rmpfr_get_q.t
 t/Rmpfr_q_div_and_Rmpfr_z_div.t
