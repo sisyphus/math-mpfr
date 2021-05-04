@@ -10,14 +10,7 @@ use Math::MPFR qw(:mpfr);
 # For testing, set mpfr default precision
 # to the same value as NV precision
 
-my $default_prec = 53;
-if($Config{nvsize} > 8) {
-  if($Config{nvtype} eq '__float128' || Math::MPFR::_have_IEEE_754_long_double()) {
-    $default_prec = 113;
-  }
-  else { $default_prec = 64 }
-}
-Rmpfr_set_default_prec($default_prec);
+Rmpfr_set_default_prec($Math::MPFR::NV_properties{bits});
 
 my $rop1 = Math::MPFR->new();
 my $rop2 = Math::MPFR->new();
@@ -127,7 +120,7 @@ if(MPFR_VERSION() >= 262656) {
   my($s, $c) = (0, 0);
   my $rop3 = Math::MPFR->new();
   my $rop4 = Math::MPFR->new();
-  for(2 .. $default_prec) {
+  for(2 .. $Math::MPFR::NV_properties{bits}) {
     next unless $_ % 11;
     $s += 2 ** -$_;
     $c = 0.5 - $s;
