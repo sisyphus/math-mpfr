@@ -11,6 +11,13 @@
    the inexflag from unset to set. (This was fixed for mpfr_get_str_ndigits in
    mpfr versions > 4.1.0.)
  - Add new function mpfrtoa.
+ - Fix typo in Rmpfr_get_str_ndigits code:
+   https://github.com/sisyphus/math-mpfr/commit/1f47b34b4d6b289bef9a40994f95ff57da3c6952#commitcomment-50313325
+   Thanks @trizen.
+ - Add new functions Rmpfr_acosu, Rmpfr_acospi, Rmpfr_asinu, Rmpfr_asinpi,
+   Rmpfr_atanu, Rmpfr_atanpi, Rmpfr_atan2u, Rmpfr_atan2pi, Rmpfr_powr, Rmpfr_pown,
+   Rmpfr_pow_uj, Rmpfr_pow_sj, Rmpfr_log2p1, Rmpfr_log10p1, Rmpfr_compound_si,
+   Rmpfr_exp2m1 and Rmpfr_exp10m1.
 
 4.16
  - Workaround mpfr library assertion failure in decimalize() could occur when
