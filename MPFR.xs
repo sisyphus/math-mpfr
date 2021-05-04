@@ -1095,6 +1095,18 @@ SV * Rmpfr_pow_ui(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
      return newSViv(mpfr_pow_ui(*a, *b, (unsigned long)SvUV(c), (mpfr_rnd_t)SvUV(round)));
 }
 
+SV * Rmpfr_pow_uj(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
+#if MPFR_VERSION >= 262656
+#ifdef MATH_MPFR_NEED_LONG_LONG_INT
+     return newSViv(mpfr_pow_uj(*a, *b, (uintmax_t)SvUV(c), (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_pow_uj not implemented for this build of perl");
+#endif
+#else
+     croak("Rmpfr_pow_uj function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
 SV * Rmpfr_ui_pow_ui(pTHX_ mpfr_t * a, SV * b, SV * c, SV * round) {
      CHECK_ROUNDING_VALUE
      return newSViv(mpfr_ui_pow_ui(*a, (unsigned long)SvUV(b), (unsigned long)SvUV(c), (mpfr_rnd_t)SvUV(round)));
@@ -1110,9 +1122,49 @@ SV * Rmpfr_pow_si(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
      return newSViv(mpfr_pow_si(*a, *b, (long)SvIV(c), (mpfr_rnd_t)SvUV(round)));
 }
 
+SV * Rmpfr_pow_sj(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
+#if MPFR_VERSION >= 262656
+#ifdef MATH_MPFR_NEED_LONG_LONG_INT
+     return newSViv(mpfr_pow_sj(*a, *b, (intmax_t)SvIV(c), (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_pow_sj not implemented for this build of perl");
+#endif
+#else
+     croak("Rmpfr_pow_sj function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
 SV * Rmpfr_pow(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
      CHECK_ROUNDING_VALUE
      return newSViv(mpfr_pow(*a, *b, *c, (mpfr_rnd_t)SvUV(round)));
+}
+
+SV * Rmpfr_powr(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_powr(*a, *b, *c, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_powr function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
+SV * Rmpfr_pown(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
+#if MPFR_VERSION >= 262656
+#ifdef MATH_MPFR_NEED_LONG_LONG_INT
+     return newSViv(mpfr_pown(*a, *b, (intmax_t)SvIV(c), (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_pown not implemented for this build of perl");
+#endif
+#else
+     croak("Rmpfr_pown function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
+SV * Rmpfr_compound_si(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_compound_si(*a, *b, (long)SvIV(c), (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_compound_si function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
 }
 
 SV * Rmpfr_neg(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
@@ -1407,14 +1459,62 @@ SV * Rmpfr_asin(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
      return newSViv(mpfr_asin(*a, *b, (mpfr_rnd_t)SvUV(round)));
 }
 
+SV * Rmpfr_asinu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_asinu(*a, *b, c, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_asinu function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
+SV * Rmpfr_asinpi(pTHX_ mpfr_t *a, mpfr_t *b, SV *round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_asinpi(*a, *b, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_asinpi function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
 SV * Rmpfr_acos(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
      CHECK_ROUNDING_VALUE
      return newSViv(mpfr_acos(*a, *b, (mpfr_rnd_t)SvUV(round)));
 }
 
+SV * Rmpfr_acosu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_acosu(*a, *b, c, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_acosu function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
+SV * Rmpfr_acospi(pTHX_ mpfr_t *a, mpfr_t *b, SV *round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_acospi(*a, *b, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_acospi function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
 SV * Rmpfr_atan(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
      CHECK_ROUNDING_VALUE
      return newSViv(mpfr_atan(*a, *b, (mpfr_rnd_t)SvUV(round)));
+}
+
+SV * Rmpfr_atanu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_atanu(*a, *b, c, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_atanu function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
+SV * Rmpfr_atanpi(pTHX_ mpfr_t *a, mpfr_t *b, SV *round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_atanpi(*a, *b, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_atanpi function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
 }
 
 SV * Rmpfr_sinh(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
@@ -1462,14 +1562,46 @@ SV * Rmpfr_expm1(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
      return newSViv(mpfr_expm1(*a, *b, (mpfr_rnd_t)SvUV(round)));
 }
 
+SV * Rmpfr_exp2m1(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_exp2m1(*a, *b, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_exp2m1 function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
+SV * Rmpfr_exp10m1(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_exp10m1(*a, *b, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_exp10m1 function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
 SV * Rmpfr_log2(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
      CHECK_ROUNDING_VALUE
      return newSViv(mpfr_log2(*a, *b, (mpfr_rnd_t)SvUV(round)));
 }
 
+SV * Rmpfr_log2p1(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_log2p1(*a, *b, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_log2p1 function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
 SV * Rmpfr_log10(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
      CHECK_ROUNDING_VALUE
      return newSViv(mpfr_log10(*a, *b, (mpfr_rnd_t)SvUV(round)));
+}
+
+SV * Rmpfr_log10p1(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_log10p1(*a, *b, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_log10p1 function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
 }
 
 SV * Rmpfr_fma(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, mpfr_t * d, SV * round) {
@@ -2638,6 +2770,22 @@ SV * Rmpfr_yn(pTHX_ mpfr_t * a, SV * n, mpfr_t * b, SV * round) {
 SV * Rmpfr_atan2(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
      CHECK_ROUNDING_VALUE
      return newSViv(mpfr_atan2(*a, *b, *c, (mpfr_rnd_t)SvUV(round)));
+}
+
+SV * Rmpfr_atan2u(pTHX_ mpfr_t *a, mpfr_t *b, mpfr_t *c, unsigned long d, SV *round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_atan2u(*a, *b, *c, d, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_atan2u function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
+SV * Rmpfr_atan2pi(pTHX_ mpfr_t *a, mpfr_t *b, mpfr_t *c, SV *round) {
+#if MPFR_VERSION >= 262656
+     return newSViv(mpfr_atan2pi(*a, *b, *c, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_atan2pi function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
 }
 
 SV * Rmpfr_pow_z(pTHX_ mpfr_t * a, mpfr_t * b, mpz_t * c,  SV * round) {
@@ -8765,9 +8913,7 @@ SV * mpfrtoa(pTHX_ mpfr_t * pnv) {
  ********************************/
 
 #ifdef NVTOA_DEBUG
-
    warn(" f is %s\n exponent is %d\n precision is %d\n", f, (int)e, bits);
-
 #endif
 
   if(sign) f++;
@@ -10542,6 +10688,16 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
+Rmpfr_pow_uj (a, b, c, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	SV *	c
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_pow_uj (aTHX_ a, b, c, round);
+OUTPUT:  RETVAL
+
+SV *
 Rmpfr_ui_pow_ui (a, b, c, round)
 	mpfr_t *	a
 	SV *	b
@@ -10572,6 +10728,16 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
+Rmpfr_pow_sj (a, b, c, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	SV *	c
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_pow_sj (aTHX_ a, b, c, round);
+OUTPUT:  RETVAL
+
+SV *
 Rmpfr_pow (a, b, c, round)
 	mpfr_t *	a
 	mpfr_t *	b
@@ -10579,6 +10745,36 @@ Rmpfr_pow (a, b, c, round)
 	SV *	round
 CODE:
   RETVAL = Rmpfr_pow (aTHX_ a, b, c, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_powr (a, b, c, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	mpfr_t *	c
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_powr (aTHX_ a, b, c, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_pown (a, b, c, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	SV *	c
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_pown (aTHX_ a, b, c, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_compound_si (a, b, c, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	SV *	c
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_compound_si (aTHX_ a, b, c, round);
 OUTPUT:  RETVAL
 
 SV *
@@ -10942,6 +11138,25 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
+Rmpfr_asinu (a, b, c, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	unsigned long	c
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_asinu (aTHX_ a, b, c, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_asinpi (a, b, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_asinpi (aTHX_ a, b, round);
+OUTPUT:  RETVAL
+
+SV *
 Rmpfr_acos (a, b, round)
 	mpfr_t *	a
 	mpfr_t *	b
@@ -10951,12 +11166,50 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
+Rmpfr_acosu (a, b, c, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	unsigned long	c
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_acosu (aTHX_ a, b, c, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_acospi (a, b, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_acospi (aTHX_ a, b, round);
+OUTPUT:  RETVAL
+
+SV *
 Rmpfr_atan (a, b, round)
 	mpfr_t *	a
 	mpfr_t *	b
 	SV *	round
 CODE:
   RETVAL = Rmpfr_atan (aTHX_ a, b, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_atanu (a, b, c, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	unsigned long	c
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_atanu (aTHX_ a, b, c, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_atanpi (a, b, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_atanpi (aTHX_ a, b, round);
 OUTPUT:  RETVAL
 
 SV *
@@ -11041,6 +11294,24 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
+Rmpfr_exp2m1 (a, b, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_exp2m1 (aTHX_ a, b, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_exp10m1 (a, b, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_exp10m1 (aTHX_ a, b, round);
+OUTPUT:  RETVAL
+
+SV *
 Rmpfr_log2 (a, b, round)
 	mpfr_t *	a
 	mpfr_t *	b
@@ -11050,12 +11321,30 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
+Rmpfr_log2p1 (a, b, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_log2p1 (aTHX_ a, b, round);
+OUTPUT:  RETVAL
+
+SV *
 Rmpfr_log10 (a, b, round)
 	mpfr_t *	a
 	mpfr_t *	b
 	SV *	round
 CODE:
   RETVAL = Rmpfr_log10 (aTHX_ a, b, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_log10p1 (a, b, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_log10p1 (aTHX_ a, b, round);
 OUTPUT:  RETVAL
 
 SV *
@@ -12319,6 +12608,27 @@ Rmpfr_atan2 (a, b, c, round)
 	SV *	round
 CODE:
   RETVAL = Rmpfr_atan2 (aTHX_ a, b, c, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_atan2u (a, b, c, d, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	mpfr_t *	c
+	unsigned long	d
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_atan2u (aTHX_ a, b, c, d, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_atan2pi (a, b, c, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	mpfr_t *	c
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_atan2pi (aTHX_ a, b, c, round);
 OUTPUT:  RETVAL
 
 SV *
