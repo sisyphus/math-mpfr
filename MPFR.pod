@@ -336,6 +336,14 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    "$ui" means any integer that will fit into a C 'unsigned long int',
 
    "$si" means any integer that will fit into a C 'signed long int'.
+   Where a function is documented as returning "$si" it is (unless
+   otherwise stated) returning a ternary value where:
+    $si == 0 indicates that the function's result was exact;
+    $si < 0 indicates that the function's result was rounded to a
+      value that is less than the exact result;
+    $si > 0 indicates that the function's result was rounded to a
+      a value that is greater than the exact result.
+
 
    "$uj" means any integer that will fit into a C 'uintmax_t'. Don't
    use any of these functions unless your perl's UV is at least as big
@@ -381,7 +389,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     in overloaded operations.
 
    $si = Rmpfr_get_default_rounding_mode();
-    Returns the numeric value (0, 1, 2, 3 or 4) of the
+    Returns to $si the numeric value (0, 1, 2, 3 or 4) of the
     current default rounding mode. This will initially be 0.
 
    $si = Rmpfr_prec_round($rop, $p, $rnd);
@@ -493,7 +501,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     value stored in $op, use 'Rmpfr_prec_round' instead.
 
    $si = Rmpfr_get_prec($op);
-    Return the precision actually used for assignments of $op,
+    Return to $si the precision actually used for assignments of $op,
    i.e. the number of bits used to store its mantissa.
 
    Rmpfr_set_prec_raw($rop, $p);
@@ -1047,17 +1055,31 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     the IEEE 754-2008 standard (Section 9.2).
 
    $si = Rmpfr_pow_ui($rop, $op, $ui, $rnd);
+   $si = Rmpfr_pow_uj($rop, $op, $uj, $rnd);
    $si = Rmpfr_pow_si($rop, $op, $si, $rnd);
+   $si = Rmpfr_pow_sj($rop, $op, $sj, $rnd);
+   $si = Rmpfr_pown  ($rop, $op, $sj, $rnd); # identical to Rmpfr_pow_sj
    $si = Rmpfr_ui_pow_ui($rop, $ui, $ui, $rnd);
    $si = Rmpfr_ui_pow($rop, $ui, $op, $rnd);
    $si = Rmpfr_pow($rop, $op1, $op2, $rnd);
    $si = Rmpfr_pow_z($rop, $op1, $z, $rnd);  # $z is a mpz object
-    Set $rop to 2nd arg raised to 3rd arg, rounded to the directio
+    Set $rop to 2nd arg raised to 3rd arg, rounded to the direction
     $rnd with the precision of $rop.  Return zero if the result is
     exact, a positive value when the result is greater than 2nd arg
     to the power 3rd arg, and a negative value when it is smaller.
     See the MPFR documentation for documentation regarding special
-    cases.
+    cases (ie when nan or signed inf/zero values are involved).
+
+   $si = Rmpfr_powr($rop, $op1, $op2, $rnd);
+    Corresponds to the 'powr' function from IEEE 754:
+    $rop = exp($op2 * log($op1)) rounded to the direction $rnd
+    with the precision of $rop.
+
+
+   $si = Rmpfr_compound_si($rop, $op, $si, $rnd);
+    $rop = ($op + 1) ** $si, rounded according to $rnd, to the
+    precsion of $rop.
+    When $si is 0 and $op is NaN or is >= -1, $rop is set to 1.
 
    $si = Rmpfr_neg($rop, $op, $rnd);
     Set $rop to -$op rounded in the direction $rnd. Just
@@ -1261,12 +1283,24 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     is odd.  Similarly, the function 'Rmpfr_tanu' follows IEEE 754-2019
     (tanPi).
 
+   $si = Rmpfr_acosu($rop, $op, $ui, $rnd); # mpfr-4.2.0 and later only
+   $si = Rmpfr_asinu($rop, $op, $ui, $rnd); # mpfr-4.2.0 and later only
+   $si = Rmpfr_atanu($rop, $op, $ui, $rnd); # mpfr-4.2.0 and later only
+    Set $rop to X multiplied by $ui and divided by 2*Pi, where X is the
+    arc-cosine (resp. arc-sine and arc-tangent) of $op.  For example,
+    if $ui equals 360, mpfr_acosu yields the arc-cosine in degrees.
+
    $si = Rmpfr_cospi($rop, $op, $rnd); # mpfr-4.2.0 and later only
    $si = Rmpfr_sinpi($rop, $op, $rnd); # mpfr-4.2.0 and later only
    $si = Rmpfr_tanpi($rop, $op, $rnd); # mpfr-4.2.0 and later only
-    Set $rop to the cosine (resp. sine and tangent) of $op multiplied by
-    Pi.  See the description of 'Rmpfr_sinu', 'Rmpfr_cosu' and
+    Set $rop to the cosine (resp. sine and tangent) of $op multiplied
+    by Pi.  See the description of 'Rmpfr_sinu', 'Rmpfr_cosu' and
     'Rmpfr_tanu' for special values.
+
+   $si = Rmpfr_acospi($rop, $op, $rnd); # mpfr-4.2.0 and later only
+   $si = Rmpfr_asinpi($rop, $op, $rnd); # mpfr-4.2.0 and later only
+   $si = Rmpfr_atanpi($rop, $op, $rnd); # mpfr-4.2.0 and later only
+    $rop = acos($op)/Pi, resp. asin($op)/Pi and atan($op)/Pi.
 
    $si = Rmpfr_sinh_cosh($rop1, $rop2, $op, $rnd);
     Set simultaneously $rop1 to the hyperbolic sine of $op and
@@ -1292,6 +1326,12 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     result if the return is greater than the actual value.
     See the MPFR documentation for details regarding special cases.
 
+   $si = Rmpfr_atan2u($rop, $op1, $op2, $ui, $rnd);
+    Same as taking the Rmpfr_atan2() result and multiplying it
+    by $ui/(2*Pi).
+
+   $si = Rmpfr_atan2pi($rop, $op1, $op2, $rnd);
+    Same as Rmpfr_atan2u() with $ui = 2.
 
    $si = Rmpfr_cosh($rop, $op, $rnd);
    $si = Rmpfr_sinh($rop, $op, $rnd);
@@ -1329,22 +1369,28 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     result is less than the actual value. Return a positive
     result if the return is greater than the actual value.
 
-   $bool = Rmpfr_fac_ui($rop, $ui, $rnd);
+   $si = Rmpfr_fac_ui($rop, $ui, $rnd);
     Set $rop to the factorial of $ui, rounded to the direction
-    $rnd with the precision of $rop.  Return 0 if the
-    result is exact.
+    $rnd with the precision of $rop.
 
-   $bool = Rmpfr_log1p($rop, $op, $rnd);
-    Set $rop to the logarithm of one plus $op, rounded to the
-    direction $rnd with the precision of $rop.  Return 0 if
-    the result is exact (this occurs in fact only when $op is 0
-    i.e. the result is 0).
+   $si = Rmpfr_log1p  ($rop, $op, $rnd);
+   $si = Rmpfr_log2p1 ($rop, $op, $rnd);
+   $si = Rmpfr_log10p1($rop, $op, $rnd);
+    In Rmpfr_log1p   set $rop = log(  $op + 1).
+    In Rmpfr_log2p1  set $rop = log2( $op + 1).
+    In Rmpfr_log10p1 set $rop = log10($op + 1).
+    In all three cases, round the result in the
+    direction $rnd to the precision of $rop.
 
-   $bool = Rmpfr_expm1($rop, $op, $rnd);
-    Set $rop to the exponential of $op minus one, rounded to the
-    direction $rnd with the precision of $rop.  Return 0 if the
-    result is exact (this occurs in fact only when $op is 0 i.e
-    the result is 0).
+   $si = Rmpfr_expm1  ($rop, $op, $rnd);
+   $si = Rmpfr_exp2m1 ($rop, $op, $rnd);
+   $si = Rmpfr_exp10m1($rop, $op, $rnd);
+    In Rmpfr_expm1, set $rop to the exponential of $op followed
+    by a subraction of 1. $rop = (e  ** $op) - 1.
+    In Rmpfr_exp2p1,  set $rop = (2  ** $op) - 1.
+    In Rmpfr_exp10p1, set $rop = (10 ** $op) - 1.
+    For all three, the result is rounded to the direction $rnd
+    with the precision of $rop.
 
    $si = Rmpfr_fma($rop, $op1, $op2, $op3, $rnd);
     Set $rop to $op1 * $op2 + $op3, rounded to the direction $rnd.
@@ -1637,14 +1683,14 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $si =  Rmpfr_get_emin();
    $si =  Rmpfr_get_emax();
-    Return the (current) smallest and largest exponents
+    Return to $si the (current) smallest and largest exponents
     allowed for a floating-point variable.
 
    $si = Rmpfr_get_emin_min();
    $si = Rmpfr_get_emin_max();
    $si = Rmpfr_get_emax_min();
    $si = Rmpfr_get_emax_max();
-    Return the minimum and maximum of the smallest and largest
+    Return to $si the minimum and maximum of the smallest and largest
     exponents allowed for 'mpfr_set_emin' and 'mpfr_set_emax'. These
     values are implementation dependent
 
@@ -2226,8 +2272,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     undef if $rnd is an invalid rounding mode.
 
    $si = Rmpfr_get_exp($op);
-    Get the exponent of $op, assuming that $op is a non-zero
-    ordinary number.
+    Return to $si the exponent of $op.
+    The behavior for nan, infinity or zero is undefined.
 
    $si = Rmpfr_set_exp($op, $si);
     Set the exponent of $op if $si is in the current exponent
