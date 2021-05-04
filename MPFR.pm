@@ -159,7 +159,9 @@ Rmpfr_set_FLOAT128 Rmpfr_get_FLOAT128 Rmpfr_set_DECIMAL128 Rmpfr_get_DECIMAL128
 decimalize check_exact_decimal
 Rmpfr_set_underflow Rmpfr_set_z Rmpfr_sgn Rmpfr_si_div Rmpfr_si_sub Rmpfr_sin
 Rmpfr_sin_cos Rmpfr_sinu Rmpfr_cosu Rmpfr_tanu Rmpfr_sinpi Rmpfr_cospi Rmpfr_tanpi
-Rmpfr_sinh_cosh
+Rmpfr_sinh_cosh Rmpfr_acosu Rmpfr_acospi Rmpfr_asinu Rmpfr_asinpi Rmpfr_atanu
+Rmpfr_atanpi Rmpfr_atan2u Rmpfr_atan2pi Rmpfr_powr Rmpfr_pown Rmpfr_pow_uj
+Rmpfr_pow_sj Rmpfr_log2p1 Rmpfr_log10p1 Rmpfr_compound_si Rmpfr_exp2m1 Rmpfr_exp10m1
 Rmpfr_sinh Rmpfr_sqr Rmpfr_sqrt Rmpfr_sqrt_ui Rmpfr_strtofr Rmpfr_sub
 Rmpfr_sub_q Rmpfr_sub_si Rmpfr_sub_ui Rmpfr_sub_z Rmpfr_subnormalize
 Rmpfr_sum Rmpfr_swap
@@ -270,7 +272,9 @@ Rmpfr_set_FLOAT128 Rmpfr_get_FLOAT128 Rmpfr_set_DECIMAL128 Rmpfr_get_DECIMAL128
 decimalize check_exact_decimal
 Rmpfr_set_underflow Rmpfr_set_z Rmpfr_sgn Rmpfr_si_div Rmpfr_si_sub Rmpfr_sin
 Rmpfr_sin_cos Rmpfr_sinu Rmpfr_cosu Rmpfr_tanu Rmpfr_sinpi Rmpfr_cospi Rmpfr_tanpi
-Rmpfr_sinh_cosh
+Rmpfr_sinh_cosh Rmpfr_acosu Rmpfr_acospi Rmpfr_asinu Rmpfr_asinpi Rmpfr_atanu
+Rmpfr_atanpi Rmpfr_atan2u Rmpfr_atan2pi Rmpfr_powr Rmpfr_pown Rmpfr_pow_uj
+Rmpfr_pow_sj Rmpfr_log2p1 Rmpfr_log10p1 Rmpfr_compound_si Rmpfr_exp2m1 Rmpfr_exp10m1
 Rmpfr_sinh Rmpfr_sqr Rmpfr_sqrt Rmpfr_sqrt_ui Rmpfr_strtofr Rmpfr_sub
 Rmpfr_sub_q Rmpfr_sub_si Rmpfr_sub_ui Rmpfr_sub_z Rmpfr_subnormalize
 Rmpfr_sum Rmpfr_swap
