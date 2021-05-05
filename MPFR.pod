@@ -1058,11 +1058,13 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_pow_uj($rop, $op, $uj, $rnd);
    $si = Rmpfr_pow_si($rop, $op, $si, $rnd);
    $si = Rmpfr_pow_sj($rop, $op, $sj, $rnd);
-   $si = Rmpfr_pown  ($rop, $op, $sj, $rnd); # identical to Rmpfr_pow_sj
+   $si = Rmpfr_pown($rop, $op, $sj, $rnd); # same as Rmpfr_pow_sj
    $si = Rmpfr_ui_pow_ui($rop, $ui, $ui, $rnd);
-   $si = Rmpfr_ui_pow($rop, $ui, $op, $rnd);
-   $si = Rmpfr_pow($rop, $op1, $op2, $rnd);
-   $si = Rmpfr_pow_z($rop, $op1, $z, $rnd);  # $z is a mpz object
+   $si = Rmpfr_ui_pow($rop, $ui,  $op,  $rnd);
+   $si = Rmpfr_pow   ($rop, $op1, $op2, $rnd);
+   $si = Rmpfr_pow_z ($rop, $op,  $z,   $rnd); # $z is a mpz object
+   $si = Rmpfr_pow_UV($rop, $op,  $uv,  $rnd);
+   $si = Rmpfr_pow_IV($rop, $op,  $iv,  $rnd);
     Set $rop to 2nd arg raised to 3rd arg, rounded to the direction
     $rnd with the precision of $rop.  Return zero if the result is
     exact, a positive value when the result is greater than 2nd arg
