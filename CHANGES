@@ -18,6 +18,7 @@
    Rmpfr_atanu, Rmpfr_atanpi, Rmpfr_atan2u, Rmpfr_atan2pi, Rmpfr_powr, Rmpfr_pown,
    Rmpfr_pow_uj, Rmpfr_pow_sj, Rmpfr_log2p1, Rmpfr_log10p1, Rmpfr_compound_si,
    Rmpfr_exp2m1 and Rmpfr_exp10m1.
+ - Add Rmpfr_pow_IV and Rmpfr_pow_UV
 
 4.16
  - Workaround mpfr library assertion failure in decimalize() could occur when
