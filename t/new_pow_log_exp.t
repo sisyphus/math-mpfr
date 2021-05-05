@@ -102,4 +102,18 @@ else {
 
 }
 
+my $inex1 = Rmpfr_pow_IV($rop1, Math::MPFR->new(2), -11, MPFR_RNDN);
+my $inex2 = Rmpfr_pow_si($rop2, Math::MPFR->new(2), -11, MPFR_RNDN);
+
+cmp_ok( $rop1,  '==', $rop2, "Rmpfr_pow_IV and Rmpfr_pow_si calculate same result" );
+cmp_ok( $inex1, '==', 0,     "Rmpfr_pow_IV returns 0" );
+cmp_ok( $inex2, '==', 0,     "Rmpfr_pow_si returns 0" );
+
+$inex1 = Rmpfr_pow_UV($rop1, Math::MPFR->new(2), 11, MPFR_RNDN);
+$inex2 = Rmpfr_pow_ui($rop2, Math::MPFR->new(2), 11, MPFR_RNDN);
+
+cmp_ok( $rop1,  '==', $rop2, "Rmpfr_pow_UV and Rmpfr_pow_ui calculate same result" );
+cmp_ok( $inex1, '==', 0,     "Rmpfr_pow_UV returns 0" );
+cmp_ok( $inex2, '==', 0,     "Rmpfr_pow_ui returns 0" );
+
 done_testing();
