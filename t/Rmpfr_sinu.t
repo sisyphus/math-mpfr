@@ -47,7 +47,7 @@ if(MPFR_VERSION() >= 262656) {
   cmp_ok( $rop1, '==', 0.5, "sine of 30 degrees is 0.5");
 
   Rmpfr_sinu($rop2, $op2, 360, MPFR_RNDN);
-  cmp_ok( $rop2, '==', sqrt(3) / 2, "sine of 60 degrees is 0.5 * sqrt(3)");
+  cmp_ok( $rop2, '==', sqrt(Math::MPFR->new(3)) / 2, "sine of 60 degrees is 0.5 * sqrt(3)");
 
   Rmpfr_cosu($rop1, $op1, 360, MPFR_RNDN);
   cmp_ok( $rop1, '==', $rop2, "cosine of 30 degrees == sine of 60 degrees");
@@ -71,10 +71,10 @@ if(MPFR_VERSION() >= 262656) {
     skip 'USE_QUADMATH builds miscalculate sqrt(0.5) by 1ULP',
          2 if ($Config{nvtype} eq '__float128');
     Rmpfr_sinpi($rop1, Math::MPFR->new(0.25), MPFR_RNDN);
-    cmp_ok($rop1, '==', sqrt(0.5), 'sinpi(0.25) == sqrt(0.5)');
+    cmp_ok($rop1, '==', sqrt(Math::MPFR->new(0.5)), 'sinpi(0.25) == sqrt(0.5)');
 
     Rmpfr_sinpi($rop1, Math::MPFR->new(-0.25), MPFR_RNDN);
-    cmp_ok($rop1, '==', -sqrt(0.5), 'sinpi(0.25) == -sqrt(0.5)');
+    cmp_ok($rop1, '==', -sqrt(Math::MPFR->new(0.5)), 'sinpi(0.25) == -sqrt(0.5)');
   }
 ##
   Rmpfr_cospi($rop1, Math::MPFR->new(1), MPFR_RNDN);
@@ -93,10 +93,10 @@ if(MPFR_VERSION() >= 262656) {
     skip 'USE_QUADMATH builds miscalculate sqrt(0.5) by 1ULP',
          2 if ($Config{nvtype} eq '__float128');
     Rmpfr_cospi($rop1, Math::MPFR->new(0.25), MPFR_RNDN);
-    cmp_ok($rop1, '==', sqrt(0.5), 'cospi(0.25) == sqrt(0.5)');
+    cmp_ok($rop1, '==', sqrt(Math::MPFR->new(0.5)), 'cospi(0.25) == sqrt(0.5)');
 
     Rmpfr_cospi($rop1, Math::MPFR->new(-0.25), MPFR_RNDN);
-    cmp_ok($rop1, '==', sqrt(0.5), 'cospi(-0.25) == sqrt(0.5)');
+    cmp_ok($rop1, '==', sqrt(Math::MPFR->new(0.5)), 'cospi(-0.25) == sqrt(0.5)');
   };
 ##
   Rmpfr_tanpi($rop1, Math::MPFR->new(1), MPFR_RNDN);
@@ -166,3 +166,7 @@ else {
 
 
 done_testing();
+
+__END__
+
+
