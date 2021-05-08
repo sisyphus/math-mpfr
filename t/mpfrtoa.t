@@ -6,16 +6,20 @@ use Test::More;
 my @in = ('15400000000000000.0', '1.54e+16', '1107610000000000000.0', '1.10761e+18',
           '13687000000000000.0', '1.3687e+16', '16800000000000000000.0','1.68e+19',
           '11443200000000000000000000000.0', '1.14432e+28',
-          '128702000000000000000000000000000.0', '1.28702e+32', '0.0', '-0.0', 'NaN',
-          '-NaN', 'Inf', '-Inf', '0.1', '0.3', nvtoa(atonv('1.4') / 10));
+          '0.0', '-0.0', 'NaN', '-NaN', 'Inf', '-Inf', '0.1', '0.3',
+           nvtoa(atonv('1.4') / 10));
 
 Rmpfr_set_default_prec($Math::MPFR::NV_properties{bits});
 
+
+if( $Math::MPFR::NV_properties{bits} == 2098 ) {
+  warn "Skipping tests that are not written for DoubleDouble nvtype. (TODO.)\n"
+}
+else {
+  push @in, ('128702000000000000000000000000000.0', '1.28702e+32');
+}
+
 for(@in) {
-  if($Math::MPFR::NV_properties{bits} == 2098) {
-    warn "Skipping tests that are not written for DoubleDouble nvtype. (TODO.)\n";
-    last;
-  }
   my $nv = Rmpfr_get_NV(Math::MPFR->new($_), MPFR_RNDN);
 
   my $s1 = mpfrtoa(Math::MPFR->new($_));
