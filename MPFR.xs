@@ -9469,7 +9469,7 @@ SV * numtoa(pTHX_ SV * in) {
   croak("Not a numeric argument given to numtoa function");
 }
 
-void decimalize(pTHX_ mpfr_t * x) {
+void decimalize(pTHX_ SV * a, ...) {
   dXSARGS;
   mpfr_prec_t prec, i;
   mpfr_exp_t exp, high_exp, low_exp;
@@ -9480,15 +9480,15 @@ void decimalize(pTHX_ mpfr_t * x) {
   double div = 3.32192809488736;	/* log2(10) */
   double mul = 0.698970004336019;	/* log10(5) */
 
-  if(!mpfr_regular_p(*x)) {
+  if(!mpfr_regular_p(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))))) {
     Newxz(buff, 8, char);
-    mpfr_sprintf(buff, "%Rg", *x);
+    mpfr_sprintf(buff, "%Rg", *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))));
     ST(0) = sv_2mortal(newSVpv(buff, 0));
     Safefree(buff);
     XSRETURN(1);
   }
 
-  prec = mpfr_get_prec(*x);
+  prec = mpfr_get_prec(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))));
 
 #if 262146 > MPFR_VERSION
   if(prec < 2) croak("Precision of 1 not allowed in decimalize function until mpfr-4.0.2");
@@ -9496,7 +9496,7 @@ void decimalize(pTHX_ mpfr_t * x) {
 
   Newxz(buff, prec + 2, char);
 
-  mpfr_get_str(buff, &exp, 2, prec, *x, GMP_RNDN);
+  mpfr_get_str(buff, &exp, 2, prec, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), GMP_RNDN);
 
   /* The decimal point is implicitly located at the very *
    * beginning of the string. Therefore, the power of 2  *
@@ -9561,6 +9561,11 @@ void decimalize(pTHX_ mpfr_t * x) {
   if(digits > INT_MAX - 30)
     croak("Too many digits (%.0f) requested in decimalize function", digits);
 
+  if(items > 1) {
+    ST(0) = sv_2mortal(newSViv(digits));
+    XSRETURN(1);
+  }
+
   Newxz(dec_buff, (int)digits + 30, char); /* allow for a 20-digit exponent, a radix point, *
                                             * a leading '-', an 'e-', a terminating NULL,   *
                                             * and a saftety net of 5 bytes (== 30, total)   */
@@ -9568,7 +9573,7 @@ void decimalize(pTHX_ mpfr_t * x) {
     croak("Unable to allocate %.0f bytes of memory in decimalize function",
           digits + 30.0);
 
-  mpfr_sprintf(dec_buff, "%.*Rg", (int)digits, *x);
+  mpfr_sprintf(dec_buff, "%.*Rg", (int)digits, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))));
   ST(0) = sv_2mortal(newSVpv(dec_buff, 0));
   Safefree(dec_buff);
   XSRETURN(1);
@@ -14314,13 +14319,13 @@ CODE:
 OUTPUT:  RETVAL
 
 void
-decimalize (x)
-	mpfr_t *	x
+decimalize (a, ...)
+	SV *	a
         PREINIT:
         I32* temp;
         PPCODE:
         temp = PL_markstack_ptr++;
-        decimalize(aTHX_ x);
+        decimalize(aTHX_ a);
         if (PL_markstack_ptr != temp) {
           /* truly void, because dXSARGS not invoked */
           PL_markstack_ptr = temp;
