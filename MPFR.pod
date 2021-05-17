@@ -1878,14 +1878,20 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     As for nvtoa() but prints out UVs and IVs in integer format.
     (If UV-precision is greater than NV-precision then nvtoa()
     output can lose precision as it prints out UVs and IVs in floating
-    point format.)
+    floating point format.)
 
    $sv = atonum($str); # Needs mpfr-3.1.6 or later
     If $str numifies to an IV, return that IV.
     Else return the NV that is returned by atonv($str).
 
-   $str = decimalize($op);
-    Return an exact base 10 representation of the value held in $op.
+   $ret = decimalize($op [, $anything]); # 2nd (optional) arg
+                                         # can be any scalar.
+    If no second argument is provided, return an exact base 10
+    representation of the value held in $op.
+    Else return the no. of decimal digits (not counting leading zeros)
+    contained in the significand of that "exact base 10 representation",
+    as calculated by decimalize(). (This value can be one greater than
+    the actual number of those significand digits.)
 
    $bool = check_exact_decimal($str, $op);
     Can be used to verify the string returned by decimalize().
