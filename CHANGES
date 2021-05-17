@@ -19,6 +19,9 @@
    Rmpfr_pow_uj, Rmpfr_pow_sj, Rmpfr_log2p1, Rmpfr_log10p1, Rmpfr_compound_si,
    Rmpfr_exp2m1 and Rmpfr_exp10m1.
  - Add Rmpfr_pow_IV and Rmpfr_pow_UV
+ - Alter decimalize() such that, if a second argument is provided, the function returns
+   the projected number of significant digits. This does not break backward compatibility.
+   (See the POD for elaboration.)
 
 4.16
  - Workaround mpfr library assertion failure in decimalize() could occur when
