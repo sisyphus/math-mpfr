@@ -169,6 +169,23 @@ if(Math::MPFR::MPFR_3_1_6_OR_LATER) {
     cmp_ok($len3_c - $len3, '<=', 1, "$str3: calculated length - no. of significant digits <= 1");
 
   }
+
+  cmp_ok(decimalize(Math::MPFR->new(0), undef), '==', 0, "Zero has 0 significand digits");
+
+  my $irregular = Math::MPFR->new();
+  cmp_ok(decimalize($irregular, undef), '==', 0, "NaN has 0 significand digits");
+
+  Rmpfr_set_inf($irregular, 1);
+  cmp_ok(decimalize($irregular, undef), '==', 0, "Inf has 0 significand digits");
+
+  Rmpfr_set_inf($irregular, -1);
+  cmp_ok(decimalize($irregular, undef), '==', 0, "-Inf has 0 significand digits");
+
+  Rmpfr_set_zero($irregular, 1);
+  cmp_ok(decimalize($irregular, undef), '==', 0, "Zero has 0 significand digits");
+
+  Rmpfr_set_zero($irregular, -1);
+  cmp_ok(decimalize($irregular, undef), '==', 0, "-0 has 0 significand digits");
 }
 
 else {
