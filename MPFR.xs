@@ -9481,6 +9481,10 @@ void decimalize(pTHX_ SV * a, ...) {
   double mul = 0.698970004336019;	/* log10(5) */
 
   if(!mpfr_regular_p(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))))) {
+    if(items > 1) {
+      ST(0) = sv_2mortal(newSViv(0));
+      XSRETURN(1);
+    }
     Newxz(buff, 8, char);
     mpfr_sprintf(buff, "%Rg", *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))));
     ST(0) = sv_2mortal(newSVpv(buff, 0));
