@@ -143,9 +143,9 @@ else {
 
   $dtoa = doubletoa($d, ''); # fall back to sprintf("%.17g", $d)
 
-  if($dtoa eq '9.9999999999999992e+22') { print "ok 9\n" }
+  if($dtoa eq '9.9999999999999992e+22' || $dtoa eq '9.9999999999999992e+022') { print "ok 9\n" }
   else {
-    warn "\nexpected: '9.9999999999999992e+22'\ngot     : '", $dtoa, "'\n";
+    warn "\nexpected: '9.9999999999999992e+22 or 9.9999999999999992e+022'\ngot     : '", $dtoa, "'\n";
     print "not ok 9\n";
   }
 }
