@@ -943,13 +943,40 @@ SV * Rmpfr_add_z(pTHX_ mpfr_t * a, mpfr_t * b, mpz_t * c, SV * round) {
      return newSViv(mpfr_add_z(*a, *b, *c, (mpfr_rnd_t)SvUV(round)));
 }
 
+/* No need for rounding as result will be exact */
+void Rmpfr_get_q(mpq_t * a, mpfr_t * b) {
+
+#if defined(MPFR_VERSION_MAJOR) && MPFR_VERSION_MAJOR >= 4
+
+     mpfr_get_q(*a, *b);
+
+#else
+     mpf_t temp;
+
+     if(!mpfr_number_p(*b)) {
+       mpq_set_ui(*a, 0, 1);
+       mpfr_set_erangeflag();
+     }
+     else {
+       mpf_init2 (temp, (mp_bitcnt_t)mpfr_get_prec(*b));
+       mpfr_get_f(temp, *b, GMP_RNDN);
+       mpq_set_f (*a, temp);
+       mpf_clear(temp);
+     }
+#endif
+}
+
 SV * Rmpfr_add_q(pTHX_ mpfr_t * a, mpfr_t * b, mpq_t * c, SV * round) {
      CHECK_ROUNDING_VALUE
      return newSViv(mpfr_add_q(*a, *b, *c, (mpfr_rnd_t)SvUV(round)));
 }
 
 void q_add_fr(mpq_t * a, mpq_t * b, mpfr_t * c) {
+#if defined(MPFR_VERSION_MAJOR) && MPFR_VERSION_MAJOR >= 4
      mpfr_get_q(*a, *c);
+#else
+     Rmpfr_get_q(a, c);
+#endif
      mpq_add(*a, *b, *a);
 }
 
@@ -980,7 +1007,11 @@ SV * Rmpfr_sub_q(pTHX_ mpfr_t * a, mpfr_t * b, mpq_t * c, SV * round) {
 }
 
 void q_sub_fr(mpq_t * a, mpq_t * b, mpfr_t * c) {
+#if defined(MPFR_VERSION_MAJOR) && MPFR_VERSION_MAJOR >= 4
      mpfr_get_q(*a, *c);
+#else
+     Rmpfr_get_q(a, c);
+#endif
      mpq_sub(*a, *b, *a);
 }
 
@@ -1020,7 +1051,11 @@ SV * Rmpfr_mul_q(pTHX_ mpfr_t * a, mpfr_t * b, mpq_t * c, SV * round) {
 }
 
 void q_mul_fr(mpq_t * a, mpq_t * b, mpfr_t * c) {
+#if defined(MPFR_VERSION_MAJOR) && MPFR_VERSION_MAJOR >= 4
      mpfr_get_q(*a, *c);
+#else
+     Rmpfr_get_q(a, c);
+#endif
      mpq_mul(*a, *b, *a);
 }
 
@@ -1056,7 +1091,11 @@ SV * Rmpfr_div_q(pTHX_ mpfr_t * a, mpfr_t * b, mpq_t * c, SV * round) {
 }
 
 void q_div_fr(mpq_t * a, mpq_t * b, mpfr_t * c) {
+#if defined(MPFR_VERSION_MAJOR) && MPFR_VERSION_MAJOR >= 4
      mpfr_get_q(*a, *c);
+#else
+     Rmpfr_get_q(a, c);
+#endif
      mpq_div(*a, *b, *a);
 }
 
@@ -1118,7 +1157,7 @@ SV * Rmpfr_pow_UV(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
        mpfr_set_uj(t, (uintmax_t)SvUV(c), (mpfr_rnd_t)SvUV(round));
        ret = mpfr_pow(*a, *b, t, (mpfr_rnd_t)SvUV(round));
        mpfr_clear(t);
-       return ret;
+       return newSViv(ret);
 #  endif
 #else
      return newSViv(mpfr_pow_ui(*a, *b, (unsigned long)SvUV(c), (mpfr_rnd_t)SvUV(round)));
@@ -1136,7 +1175,7 @@ SV * Rmpfr_pow_IV(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
        mpfr_set_sj(t, (intmax_t)SvIV(c), (mpfr_rnd_t)SvUV(round));
        ret = mpfr_pow(*a, *b, t, (mpfr_rnd_t)SvUV(round));
        mpfr_clear(t);
-       return ret;
+       return newSViv(ret);
 #  endif
 #else
      return newSViv(mpfr_pow_si(*a, *b, (unsigned long)SvIV(c), (mpfr_rnd_t)SvUV(round)));
@@ -2875,29 +2914,6 @@ SV * Rmpfr_li2(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
 SV * Rmpfr_get_f(pTHX_ mpf_t * a, mpfr_t * b, SV * round) {
      CHECK_ROUNDING_VALUE
      return newSViv(mpfr_get_f(*a, *b, (mpfr_rnd_t)SvUV(round)));
-}
-
-/* No need for rounding as result will be exact */
-void Rmpfr_get_q(mpq_t * a, mpfr_t * b) {
-
-#if defined(MPFR_VERSION_MAJOR) && MPFR_VERSION_MAJOR >= 4
-
-     mpfr_get_q(*a, *b);
-
-#else
-     mpf_t temp;
-
-     if(!mpfr_number_p(*b)) {
-       mpq_set_ui(*a, 0, 1);
-       mpfr_set_erangeflag();
-     }
-     else {
-       mpf_init2 (temp, (mp_bitcnt_t)mpfr_get_prec(*b));
-       mpfr_get_f(temp, *b, GMP_RNDN);
-       mpq_set_f (*a, temp);
-       mpf_clear(temp);
-     }
-#endif
 }
 
 SV * Rmpfr_sech(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
@@ -10409,6 +10425,23 @@ CODE:
   RETVAL = Rmpfr_add_z (aTHX_ a, b, c, round);
 OUTPUT:  RETVAL
 
+void
+Rmpfr_get_q (a, b)
+	mpq_t *	a
+	mpfr_t *	b
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpfr_get_q(a, b);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
 SV *
 Rmpfr_add_q (a, b, c, round)
 	mpfr_t *	a
@@ -12791,23 +12824,6 @@ Rmpfr_get_f (a, b, round)
 CODE:
   RETVAL = Rmpfr_get_f (aTHX_ a, b, round);
 OUTPUT:  RETVAL
-
-void
-Rmpfr_get_q (a, b)
-	mpq_t *	a
-	mpfr_t *	b
-        PREINIT:
-        I32* temp;
-        PPCODE:
-        temp = PL_markstack_ptr++;
-        Rmpfr_get_q(a, b);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
-        return; /* assume stack size is correct */
 
 SV *
 Rmpfr_sech (a, b, round)
