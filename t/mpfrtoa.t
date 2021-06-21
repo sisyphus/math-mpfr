@@ -3,6 +3,14 @@ use warnings;
 use Math::MPFR qw(:mpfr);
 use Test::More;
 
+if( MPFR_VERSION_MAJOR() < 4) {
+  warn " Skipping - these tests require mpfr-4.0.0\n or later, but we have only mpfr-",
+       MPFR_VERSION_STRING(), "\n";
+ ok('1' eq '1', "dummy test");
+  done_testing();
+  exit 0;
+}
+
 my @in = ('15400000000000000.0', '1.54e+16', '1107610000000000000.0', '1.10761e+18',
           '13687000000000000.0', '1.3687e+16', '16800000000000000000.0','1.68e+19',
           '11443200000000000000000000000.0', '1.14432e+28',
