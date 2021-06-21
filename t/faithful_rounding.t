@@ -10,7 +10,7 @@ use Math::MPFR qw(:mpfr);
 if( MPFR_VERSION_MAJOR() < 4) {
   warn " Skipping - these tests require mpfr-4.0.0\n or later, but we have only mpfr-",
        MPFR_VERSION_STRING(), "\n";
-
+ ok('1' eq '1', "dummy test");
   done_testing();
   exit 0;
 }
