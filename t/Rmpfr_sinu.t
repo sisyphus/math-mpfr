@@ -52,6 +52,8 @@ if(MPFR_VERSION() >= 262656) {
   cmp_ok( $rop1, '==', 0.5, "sine of 30 degrees is 0.5");
   cmp_ok($inex, '==', 0, 'result was exact');
 
+
+
   $inex = Rmpfr_sinu($rop2, $op2, 360, MPFR_RNDN);
   cmp_ok( $rop2, '==', sqrt(Math::MPFR->new(3)) / 2, "sine of 60 degrees is 0.5 * sqrt(3)");
   cmp_ok($inex, '!=', 0, 'result was inexact');
@@ -63,6 +65,13 @@ if(MPFR_VERSION() >= 262656) {
   $inex = Rmpfr_cosu($rop2, $op2, 360, MPFR_RNDN);
   cmp_ok( $rop2, '==', 0.5, "cosine of 60 degrees is 0.5");
   cmp_ok($inex, '==', 0, 'result was exact');
+
+##
+
+  $inex = Rmpfr_tanu($rop2, Math::MPFR->new(45), 360, MPFR_RNDN);
+  cmp_ok( $rop2, '==', 1, "tan of 45 degrees is 1");
+  cmp_ok($inex, '==', 0, 'result was exact');
+
 ##
   $inex = Rmpfr_sinpi($rop1, Math::MPFR->new(1), MPFR_RNDN);
   cmp_ok("$rop1", 'eq', '0', 'sinpi(1) is 0');
@@ -143,6 +152,7 @@ if(MPFR_VERSION() >= 262656) {
   $inex = Rmpfr_tanpi($rop1, Math::MPFR->new(-0.25), MPFR_RNDN);
   cmp_ok($rop1, '==', -1, 'tanpi(-0.25) is -1');
   cmp_ok($inex, '==', 0, 'result was exact');
+
 ##
   my($s, $c) = (0, 0);
   my $rop3 = Math::MPFR->new();
