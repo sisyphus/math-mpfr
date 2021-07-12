@@ -186,7 +186,7 @@ Rmpfr_fmodquo Rmpfr_fpif_export Rmpfr_fpif_import Rmpfr_flags_clear Rmpfr_flags_
 Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr_roundeven
 Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc Rmpfr_beta
 Rmpfr_round_nearest_away rndna
-atonv nvtoa atodouble doubletoa numtoa atonum mpfrtoa Rmpfr_dot
+atonv nvtoa atodouble doubletoa numtoa atonum mpfrtoa anytoa Rmpfr_dot
 Rmpfr_get_str_ndigits Rmpfr_get_str_ndigits_alt
 q_add_fr q_sub_fr q_mul_fr q_div_fr q_cmp_fr fr_cmp_q_rounded
 );
@@ -300,7 +300,7 @@ Rmpfr_fmodquo Rmpfr_fpif_export Rmpfr_fpif_import Rmpfr_flags_clear Rmpfr_flags_
 Rmpfr_flags_test Rmpfr_flags_save Rmpfr_flags_restore Rmpfr_rint_roundeven Rmpfr_roundeven
 Rmpfr_nrandom Rmpfr_erandom Rmpfr_fmma Rmpfr_fmms Rmpfr_log_ui Rmpfr_gamma_inc Rmpfr_beta
 Rmpfr_round_nearest_away rndna
-atonv nvtoa atodouble doubletoa numtoa atonum mpfrtoa Rmpfr_dot
+atonv nvtoa atodouble doubletoa numtoa atonum mpfrtoa anytoa Rmpfr_dot
 Rmpfr_get_str_ndigits Rmpfr_get_str_ndigits_alt
 q_add_fr q_sub_fr q_mul_fr q_div_fr q_cmp_fr fr_cmp_q_rounded
 )]);
@@ -907,6 +907,105 @@ sub _get_NV_properties {
 
 sub perl_set_fallback_flag {
   $Math::MPFR::doubletoa_fallback++;
+}
+
+sub anytoa {
+
+  die "1st argument given to anytoa() must be a Math::MPFR object"
+    unless Math::MPFR::_itsa($_[0]) == 5;
+
+  die "2nd argument given to anytoa() must be 53 or 64 or 113 or 2098"
+    unless ($_[1] == 53 || $_[1] == 64 || $_[1] == 113 || $_[1] == 2098);
+
+  my ($v, $bits) = (shift, shift);
+
+  my $f_init = Rmpfr_init2($bits);
+
+  my %emax_emin = (53   => [1024,  -1073,  -1022 ],
+                   64   => [16384, -16444, -16382],
+                   2098 => [1024,  -1073,  -1022 ],
+                   113  => [16384, -16493, -16382],
+                  );
+
+  if($bits == 2098) {    # DoubleDouble
+
+    Rmpfr_strtofr($f_init, "$v", 0, MPFR_RNDN);
+
+    return mpfrtoa($f_init)
+      if !Rmpfr_regular_p($f_init);
+
+    # Obtain the pair of doubles pertinent to $f_init.
+    # $msd is the "more siginificant double" and $lsd
+    # is the "less significant double".
+
+    my($msd, $lsd) = _mpfr2dd($f_init);
+    if($lsd == 0 ) {
+      my $f = Rmpfr_init2(53);
+      Rmpfr_set_d($f, sprintf("%.17g", $msd), MPFR_RNDN);
+      return anytoa($f, 53);
+    }
+
+    # Determine the no. of implied (intermediate)
+    # bits that lie between the end of $msd and
+    # and the start of $lsd
+    my $intermediates = _intermediate_bits($msd, $lsd);
+
+    my $f_final = Rmpfr_init2(106 + $intermediates);
+    Rmpfr_set_d($f_final, $msd, MPFR_RNDN);
+    Rmpfr_add_d($f_final, $f_final, $lsd, MPFR_RNDN);
+
+    return mpfrtoa($f_final);
+  } # End DoubleDouble
+
+  # The next 4 lines cater for the possibility that
+  # the value is either subnormal or infinite or
+  # zero for the floating point type specified by
+  # the value of $bits.
+
+  Rmpfr_set_emax($emax_emin{$bits}->[0]);
+  Rmpfr_set_emin($emax_emin{$bits}->[1]);
+  my $inex = Rmpfr_strtofr($f_init, "$v", 0, MPFR_RNDN);
+  Rmpfr_subnormalize($f_init, $inex, MPFR_RNDN);
+  my ($significand, $exponent) = Rmpfr_deref2($f_init, 2, 0, MPFR_RNDN);
+
+  if($exponent < $emax_emin{$bits}->[2]) {    # The value is subnormal, and therefore
+                                              # requires further treatment.
+    my $f_final = Rmpfr_init2(1 + $exponent - $emax_emin{$bits}->[1]);
+
+    if($significand =~ s/^\-/-0./) {          # The value is -ve.
+      Rmpfr_strtofr($f_final, "${significand}p$exponent", 2, MPFR_RNDN);
+    }
+    else {                                    # The value is positive
+      Rmpfr_strtofr($f_final, "0.${significand}p$exponent", 2, MPFR_RNDN);
+    }
+    return mpfrtoa($f_final);
+  }
+
+  return mpfrtoa($f_init);
+
+}
+
+sub _mpfr2dd {
+  # Can be called from anytoa()
+  my $obj = shift;
+  my $msd = Rmpfr_get_d($obj, MPFR_RNDN);
+  $obj -= $msd;
+  return ($msd, Rmpfr_get_d($obj, MPFR_RNDN));
+}
+
+sub _intermediate_bits {
+  # Can be called from anytoa()
+  my($exp1, $exp2) = (_get_exp(shift), _get_exp(shift));
+  return $exp1 - 53 - $exp2;
+}
+
+sub _get_exp {
+  # Can be called from anytoa(), via _intermediate_bits().
+  my $hex = scalar reverse unpack "h*", pack "d<", $_[0];
+  my $exp = hex(substr($hex, 0, 3));
+  $exp -= 2048 if $exp > 2047; # Remove sign bit
+  $exp++ unless $exp; # increment if 0
+  return ($exp - 1023);
 }
 
 *Rmpfr_get_z_exp             = \&Rmpfr_get_z_2exp;
