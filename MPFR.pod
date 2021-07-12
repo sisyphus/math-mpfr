@@ -1864,6 +1864,31 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     *minimum* number of digits such that the condition ($str == $op)
     is true.
 
+   $str = anytoa($op, $bits);
+    For example, you want to know what nvtoa(sqrt 3) would return
+    on a perl whose nvtype is the 113-bit precision __float128 (or
+    IEEE-754 128-bit long double) but you don't have access to such
+    a perl. You can do:
+
+      my $bits = 113;
+      my $op = Rmpfr_init2($bits);
+      Rmpfr_set_ui($op, 3, MPFR_RNDN);
+      $op = sqrt($op);
+      print anytoa($op, $bits);
+
+    Similarly, changing $bits to 53, or 64, or 2098 will provide
+    the same as nvtoa(sqrt 3) for (respectively) the 53-bit
+    precision double , the 64-bit extended precision long double,
+    and the double-double.
+    $bits must be either 53, 64, 113 or 2098.
+
+    The value returned will be the same as for mpfrtoa($op) unless:
+     1) $op holds a finite value that is of such magnitude that
+        the specified nvtype will turn it into (+ or -) Inf, or;
+     2) $op holds a finite non-zero value that is so close to zero
+        that the specified nvtype will either round it to zero or
+        denormalize it.
+
    $nv = atonv($str); # Needs mpfr-3.1.6 or later
     Sets $nv to the NV value represented by the string $str.
     If $str expresses a base 2 value, begin it with '0b' or '0B'.
