@@ -22,6 +22,7 @@
  - Alter decimalize() such that, if a second argument is provided, the function returns
    the projected number of significant digits. This does not break backward compatibility.
    (See the POD for elaboration.)
+ - Add anytoa() function.
 
 4.16
  - Workaround mpfr library assertion failure in decimalize() could occur when
