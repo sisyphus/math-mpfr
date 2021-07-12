@@ -30,6 +30,7 @@ t/_1aaa_v.t
 t/_1basic.t
 t/_2exp.t
 t/anomaly.t
+t/anytoa.t
 t/atonum.t
 t/atonv.t
 t/base_conversion.t
