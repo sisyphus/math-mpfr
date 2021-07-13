@@ -917,6 +917,9 @@ sub anytoa {
   die "2nd argument given to anytoa() must be 53 or 64 or 113 or 2098"
     unless ($_[1] == 53 || $_[1] == 64 || $_[1] == 113 || $_[1] == 2098);
 
+  my $emax = Rmpfr_get_emax();                # Save original value
+  my $emin = Rmpfr_get_emin();                # Save original value
+
   my ($v, $bits) = (shift, shift);
 
   my $f_init = Rmpfr_init2($bits);
@@ -927,12 +930,19 @@ sub anytoa {
                    113  => [16384, -16493, -16382],
                   );
 
-  if($bits == 2098) {    # DoubleDouble
+  Rmpfr_set_emax($emax_emin{$bits}->[0]);
+  Rmpfr_set_emin($emax_emin{$bits}->[1]);
+
+  # DoubleDouble
+  if($bits == 2098) {
 
     Rmpfr_strtofr($f_init, "$v", 0, MPFR_RNDN);
 
-    return mpfrtoa($f_init)
-      if !Rmpfr_regular_p($f_init);
+    if(!Rmpfr_regular_p($f_init)) {
+      Rmpfr_set_emax($emax);                  # Revert to original value
+      Rmpfr_set_emin($emin);                  # Revert to original value
+      return mpfrtoa($f_init);
+    }
 
     # Obtain the pair of doubles pertinent to $f_init.
     # $msd is the "more siginificant double" and $lsd
@@ -942,19 +952,25 @@ sub anytoa {
     if($lsd == 0 ) {
       my $f = Rmpfr_init2(53);
       Rmpfr_set_d($f, sprintf("%.17g", $msd), MPFR_RNDN);
+      Rmpfr_set_emax($emax);                  # Revert to original value
+      Rmpfr_set_emin($emin);                  # Revert to original value
       return anytoa($f, 53);
     }
 
     # Determine the no. of implied (intermediate)
     # bits that lie between the end of $msd and
     # and the start of $lsd
+
     my $intermediates = _intermediate_bits($msd, $lsd);
 
     my $f_final = Rmpfr_init2(106 + $intermediates);
     Rmpfr_set_d($f_final, $msd, MPFR_RNDN);
     Rmpfr_add_d($f_final, $f_final, $lsd, MPFR_RNDN);
 
+    Rmpfr_set_emax($emax);                    # Revert to original value
+    Rmpfr_set_emin($emin);                    # Revert to original value
     return mpfrtoa($f_final);
+
   } # End DoubleDouble
 
   # The next 4 lines cater for the possibility that
@@ -962,14 +978,14 @@ sub anytoa {
   # zero for the floating point type specified by
   # the value of $bits.
 
-  Rmpfr_set_emax($emax_emin{$bits}->[0]);
-  Rmpfr_set_emin($emax_emin{$bits}->[1]);
   my $inex = Rmpfr_strtofr($f_init, "$v", 0, MPFR_RNDN);
-  Rmpfr_subnormalize($f_init, $inex, MPFR_RNDN);
-  my ($significand, $exponent) = Rmpfr_deref2($f_init, 2, 0, MPFR_RNDN);
 
-  if($exponent < $emax_emin{$bits}->[2]) {    # The value is subnormal, and therefore
-                                              # requires further treatment.
+  if(Rmpfr_regular_p($f_init) && Rmpfr_get_exp($f_init) < $emax_emin{$bits}->[2]) {
+    # The value is subnormal, and therefore requires further treatment.
+
+    Rmpfr_subnormalize($f_init, $inex, MPFR_RNDN);
+    my ($significand, $exponent) = Rmpfr_deref2($f_init, 2, 0, MPFR_RNDN);
+
     my $f_final = Rmpfr_init2(1 + $exponent - $emax_emin{$bits}->[1]);
 
     if($significand =~ s/^\-/-0./) {          # The value is -ve.
@@ -978,11 +994,14 @@ sub anytoa {
     else {                                    # The value is positive
       Rmpfr_strtofr($f_final, "0.${significand}p$exponent", 2, MPFR_RNDN);
     }
+    Rmpfr_set_emax($emax);                    # Revert to original value
+    Rmpfr_set_emin($emin);                    # Revert to original value
     return mpfrtoa($f_final);
   }
 
+  Rmpfr_set_emax($emax);                      # Revert to original value
+  Rmpfr_set_emin($emin);                      # Revert to original value
   return mpfrtoa($f_init);
-
 }
 
 sub _mpfr2dd {
