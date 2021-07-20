@@ -23,6 +23,7 @@
    the projected number of significant digits. This does not break backward compatibility.
    (See the POD for elaboration.)
  - Add anytoa() function.
+ - Use POSIX in demos/doubledouble.p to fix a (rarely encountered) bug.
 
 4.16
  - Workaround mpfr library assertion failure in decimalize() could occur when
