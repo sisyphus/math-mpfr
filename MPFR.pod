@@ -1823,13 +1823,6 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     the FB=0 argument to the 'perl Makefile.PL' step of the
     Math::MPFR build.
 
-   $nv = atodouble($str); # Needs mpfr-3.1.6 or later
-    Sets the $nv to the value of the double that's represented by
-    the string $str.
-    If $Config{nvtype} is double, it therefore returns the same
-    value as atonv.
-    See atonv() below.
-
    $str = nvtoa($nv); # Available irrespective of $Config{nvsize}
                       # and $Config{nvtype}
     Sets $str to the value of $nv.
@@ -1882,12 +1875,26 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     and the double-double.
     $bits must be either 53, 64, 113 or 2098.
 
-    The value returned will be the same as for mpfrtoa($op) unless:
+    When $bits is 53 or 64 or 113, the value returned will be the
+    same as for mpfrtoa($op) unless:
      1) $op holds a finite value that is of such magnitude that
         the specified nvtype will turn it into (+ or -) Inf, or;
      2) $op holds a finite non-zero value that is so close to zero
         that the specified nvtype will either round it to zero or
         denormalize it.
+
+   $str = numtoa($sv);
+    As for nvtoa() but prints out UVs and IVs in integer format.
+    (If UV-precision is greater than NV-precision then nvtoa()
+    output can lose precision as it prints out UVs and IVs in floating
+    floating point format.)
+
+   $nv = atodouble($str); # Needs mpfr-3.1.6 or later
+    Sets the $nv to the value of the double that's represented by
+    the string $str.
+    If $Config{nvtype} is double, it therefore returns the same
+    value as atonv.
+    See atonv() below.
 
    $nv = atonv($str); # Needs mpfr-3.1.6 or later
     Sets $nv to the NV value represented by the string $str.
@@ -1898,12 +1905,6 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
       atonv('0b0.10001001e5') all return 17.125.
     NOTE: ORIGINALLY TOOK 2 ARGUMENTS - NOW TAKES ONLY 1, as of
           Math-MPFR-4.07.
-
-   $str = numtoa($sv);
-    As for nvtoa() but prints out UVs and IVs in integer format.
-    (If UV-precision is greater than NV-precision then nvtoa()
-    output can lose precision as it prints out UVs and IVs in floating
-    floating point format.)
 
    $sv = atonum($str); # Needs mpfr-3.1.6 or later
     If $str numifies to an IV, return that IV.
