@@ -11,6 +11,8 @@ use warnings;
 use strict;
 
 use Math::MPFR qw(:mpfr);
+use POSIX; # Needed by dd_str() and dd_obj() to deal
+           # with 2 specific cases.
 
 die "Must provide at least one command line argument" if !@ARGV;
 
@@ -48,7 +50,18 @@ sub dd_str {
   my $msd = Rmpfr_get_d($val, MPFR_RNDN);
   if($msd == 0 || $msd != $msd || $msd / $msd != 1) {return ($msd, 0.0)} # it's  inf, nan or zero.
   $val -= $msd;
-  return ($msd, Rmpfr_get_d($val, MPFR_RNDN));
+  my $lsd = Rmpfr_get_d($val, MPFR_RNDN);
+
+  # At this point, we could simply return ($msd, $lsd)
+  # if not for the possibility that $msd and $lsd have
+  # the same sign && abs($msd) == POSIX::DBL_MAX &&
+  # abs($lsd) == 2 ** 970
+
+  return ($msd, $lsd)
+    unless ($msd ==  POSIX::DBL_MAX && $lsd ==   2 ** 970) ||
+           ($msd == -POSIX::DBL_MAX && $lsd == -(2 ** 970));
+
+  return ($msd + $lsd, 0); # ie return (Inf, 0) or (-Inf, 0) as appropriate
 }
 
 # sub dd_obj takes a Math::MPFR object (with 2098-bit precision) as its arg
@@ -60,7 +73,18 @@ sub dd_obj {
   my $msd = Rmpfr_get_d($obj, MPFR_RNDN);
   if($msd == 0 || $msd != $msd || $msd / $msd != 1) {return ($msd, 0.0)} # $msd is zero, nan, or inf.
   $obj -= $msd;
-  return ($msd, Rmpfr_get_d($obj, MPFR_RNDN));
+  my $lsd = Rmpfr_get_d($obj, MPFR_RNDN);
+
+  # At this point, we could simply return ($msd, $lsd)
+  # if not for the possibility that $msd and $lsd have
+  # the same sign && abs($msd) == POSIX::DBL_MAX &&
+  # abs($lsd) == 2 ** 970
+
+  return ($msd, $lsd)
+    unless ($msd ==  POSIX::DBL_MAX && $lsd ==   2 ** 970) ||
+           ($msd == -POSIX::DBL_MAX && $lsd == -(2 ** 970));
+
+  return ($msd + $lsd, 0); # ie return (Inf, 0) or (-Inf, 0) as appropriate
 }
 
 # sub dd2dd takes 2 doubles as arguments. It returns the 2 doubles (msd, lsd) that form the
