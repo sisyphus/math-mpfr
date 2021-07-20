@@ -64,11 +64,17 @@ for my $bits(53, 64, 113, 2098) {
   cmp_ok(Rmpfr_get_emin(), '==', $emin, "1: emin was reset correctly");
   cmp_ok($res, 'eq', $expected{$bits}->[0], "$res eq $expected{$bits}->[0]");
 
+  cmp_ok($res, 'eq', mpfrtoa($op), "$res eq mpfrtoa($op)")
+    unless $bits == 2098;
+
   Rmpfr_neg($op, $op, MPFR_RNDN);
   $res = anytoa($op, $bits);
   cmp_ok(Rmpfr_get_emax(), '==', $emax, "2: emax was reset correctly");
   cmp_ok(Rmpfr_get_emin(), '==', $emin, "2: emin was reset correctly");
   cmp_ok($res, 'eq', $nexpected{$bits}->[0], "$res eq $nexpected{$bits}->[0]");
+
+  cmp_ok($res, 'eq', mpfrtoa($op), "$res eq mpfrtoa($op)")
+    unless $bits == 2098;
 
   Rmpfr_strtofr($op, '1.4', 10, MPFR_RNDN);
   $op /= 10;
@@ -77,11 +83,17 @@ for my $bits(53, 64, 113, 2098) {
   cmp_ok(Rmpfr_get_emin(), '==', $emin, "3: emin was reset correctly");
   cmp_ok($res, 'eq', $expected{$bits}->[1], "$res eq $expected{$bits}->[1]");
 
+  cmp_ok($res, 'eq', mpfrtoa($op), "$res eq mpfrtoa($op)")
+    unless $bits == 2098;
+
   Rmpfr_neg($op, $op, MPFR_RNDN);
   $res = anytoa($op, $bits);
   cmp_ok(Rmpfr_get_emax(), '==', $emax, "4: emax was reset correctly");
   cmp_ok(Rmpfr_get_emin(), '==', $emin, "4: emin was reset correctly");
   cmp_ok($res, 'eq', $nexpected{$bits}->[1], "$res eq $nexpected{$bits}->[1]");
+
+  cmp_ok($res, 'eq', mpfrtoa($op), "$res eq mpfrtoa($op)")
+    unless $bits == 2098;
 
   Rmpfr_strtofr($op, '0.1', 10, MPFR_RNDN);
   $res = anytoa($op, $bits);
@@ -89,11 +101,17 @@ for my $bits(53, 64, 113, 2098) {
   cmp_ok(Rmpfr_get_emin(), '==', $emin, "5: emin was reset correctly");
   cmp_ok($res, 'eq', $expected{$bits}->[2], "$res eq $expected{$bits}->[2]");
 
+  cmp_ok($res, 'eq', mpfrtoa($op), "$res eq mpfrtoa($op)")
+    unless $bits == 2098;
+
   Rmpfr_neg($op, $op, MPFR_RNDN);
   $res = anytoa($op, $bits);
   cmp_ok(Rmpfr_get_emax(), '==', $emax, "6: emax was reset correctly");
   cmp_ok(Rmpfr_get_emin(), '==', $emin, "6: emin was reset correctly");
   cmp_ok($res, 'eq', $nexpected{$bits}->[2], "$res eq $nexpected{$bits}->[2]");
+
+  cmp_ok($res, 'eq', mpfrtoa($op), "$res eq mpfrtoa($op)")
+    unless $bits == 2098;
 
   if( MPFR_VERSION() >= 262146 && $bits == 53 ) {
     # The mpfr library does not properly support 1-bit precision until 4.0.2
@@ -116,11 +134,17 @@ for my $bits(53, 64, 113, 2098) {
   cmp_ok(Rmpfr_get_emin(), '==', $emin, "9: emin was reset correctly");
   cmp_ok($res, 'eq', $expected{$bits}->[4], "$res eq $expected{$bits}->[4]");
 
+  cmp_ok($res, 'eq', mpfrtoa($op), "$res eq mpfrtoa($op)")
+    unless ($bits == 2098 || $bits == 53);
+
   Rmpfr_neg($op, $op, MPFR_RNDN);
   $res = anytoa($op, $bits);
   cmp_ok(Rmpfr_get_emax(), '==', $emax, "10: emax was reset correctly");
   cmp_ok(Rmpfr_get_emin(), '==', $emin, "10: emin was reset correctly");
   cmp_ok($res, 'eq', $nexpected{$bits}->[4], "$res eq $nexpected{$bits}->[4]");
+
+  cmp_ok($res, 'eq', mpfrtoa($op), "$res eq mpfrtoa($op)")
+    unless ($bits == 2098 || $bits == 53);
 
   Rmpfr_neg($op, $op, MPFR_RNDN); # Revert to +ve value.
 
@@ -131,11 +155,17 @@ for my $bits(53, 64, 113, 2098) {
   cmp_ok(Rmpfr_get_emin(), '==', $emin, "11: emin was reset correctly");
   cmp_ok($res, 'eq', $expected{$bits}->[5], "$res eq $expected{$bits}->[5]");
 
+  cmp_ok($res, 'eq', mpfrtoa($op), "$res eq mpfrtoa($op)")
+    unless $bits == 2098;
+
   Rmpfr_neg($op, $op, MPFR_RNDN);
   $res = anytoa($op, $bits);
   cmp_ok(Rmpfr_get_emax(), '==', $emax, "12: emax was reset correctly");
   cmp_ok(Rmpfr_get_emin(), '==', $emin, "12: emin was reset correctly");
   cmp_ok($res, 'eq', $nexpected{$bits}->[5], "$res eq $nexpected{$bits}->[5]");
+
+  cmp_ok($res, 'eq', mpfrtoa($op), "$res eq mpfrtoa($op)")
+    unless $bits == 2098;
 
   Rmpfr_set_ui($op, 2, MPFR_RNDN);
   Rmpfr_add_d($op, $op, 2 ** -200, MPFR_RNDN);
@@ -144,11 +174,17 @@ for my $bits(53, 64, 113, 2098) {
   cmp_ok(Rmpfr_get_emin(), '==', $emin, "13: emin was reset correctly");
   cmp_ok($res, 'eq', $expected{$bits}->[6], "$res eq $expected{$bits}->[6]");
 
+  cmp_ok($res, 'eq', mpfrtoa($op), "$res eq mpfrtoa($op)")
+    unless $bits == 2098;
+
   Rmpfr_neg($op, $op, MPFR_RNDN);
   $res = anytoa($op, $bits);
   cmp_ok(Rmpfr_get_emax(), '==', $emax, "14: emax was reset correctly");
   cmp_ok(Rmpfr_get_emin(), '==', $emin, "14: emin was reset correctly");
   cmp_ok($res, 'eq', $nexpected{$bits}->[6], "$res eq $nexpected{$bits}->[6]");
+
+  cmp_ok($res, 'eq', mpfrtoa($op), "$res eq mpfrtoa($op)")
+    unless $bits == 2098;
 
   Rmpfr_set_ui($op, 2, MPFR_RNDN);
   $op **= -16420;
