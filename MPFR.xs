@@ -7094,6 +7094,14 @@ SV * _bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
     mpfr_clear(temp);
     sv = NEWSV(0, 16);
 
+   /* Work around sneaky DoubleDouble gotcha */
+   if( (msd ==  DBL_MAX && lsd ==   pow(2.0, 970.0))
+         ||
+       (msd == -DBL_MAX && lsd == -(pow(2.0, 970.0))) ) {
+     msd += lsd; /* set msd to infinity */
+     lsd = 0.0;  /* set lsd to zero     */
+   }
+
 #  ifdef MPFR_HAVE_BENDIAN
     sv_setpvn(sv, (char *) &msd, 8);
     sv_catpvn(sv, (char *) &lsd, 8);
@@ -7150,6 +7158,14 @@ SV * _dd_bytes(pTHX_ SV * str) {
   mpfr_clear(temp);
 
   sv = NEWSV(0, 16);
+
+  /* Work around sneaky DoubleDouble gotcha */
+  if( (msd ==  DBL_MAX && lsd ==   pow(2.0, 970.0))
+        ||
+      (msd == -DBL_MAX && lsd == -(pow(2.0, 970.0))) ) {
+    msd += lsd; /* set msd to infinity */
+    lsd = 0.0;  /* set lsd to zero     */
+  }
 
 #ifdef MPFR_HAVE_BENDIAN
   sv_setpvn(sv, (char *) &msd, 8);
