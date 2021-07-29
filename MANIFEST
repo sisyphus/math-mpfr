@@ -28,6 +28,7 @@ V/V.pm
 V/Makefile.PL
 t/_1aaa_v.t
 t/_1basic.t
+t/_itsa.t
 t/_2exp.t
 t/anomaly.t
 t/anytoa.t
