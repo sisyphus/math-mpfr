@@ -2433,25 +2433,13 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     using the first value it finds, or croaking if it gets
     to step 6:
 
-    1. If the variable is a UV (unsigned integer value) then that
-       value is used. The variable is considered to be a UV if
-       (perl 5.8) the UOK flag is set or if (perl 5.6) SvIsUV()
-       returns true.
+    1. If the variable is a UV then that value is used. The variable
+       is considered to be a UV if the IOK and IsUV flags are set.
 
-    2. If the variable is an IV (signed integer value) then that
-       value is used. The variable is considered to be an IV if the
-       IOK flag is set.
+    2. If the variable is an IV, then that value is used.
+       The variable is considered to be an IV if the IOK flag is set.
 
-    3. If the variable is an NV (floating point value) then that
-       value is used. The variable is considered to be an NV if the
-       NOK flag is set && the POK flag is unset.
-       Note therefore, that if the variable is both an NV (NOK flag
-       set) and PV (POK flag also set) then the string value in the
-       PV slot will be used. This is probably, but not necessarily,
-       what you want, and it's recommended not to pass such values
-       to the overloaded operators.
-
-    4. If the variable is a string (ie the POK flag is set) then the
+    3. If the variable is a string (ie the POK flag is set) then the
        value of that string is used. If the POK flag is set, but the
        string is not a valid number, the subroutine croaks with an
        appropriate error message. If the string starts with '0b' or
@@ -2463,6 +2451,15 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
        done in accordance with current default rounding mode.
        See "STRING OVERLOADING ANOMALY" (below) for an example of
        possible anomalies regarding string overloading.
+
+    4. If the variable is an NV (floating point value) then that
+       value is used. The variable is considered to be an NV if the
+       NOK flag is set.
+       Note therefore, that if the variable is both an NV (NOK flag
+       set) and PV (POK flag also set) then the string value in the
+       PV slot will be used. This is probably, but not necessarily,
+       what you want, and it's recommended not to pass such values
+       to the overloaded operators.
 
     5. If the variable is a Math::MPFR, Math::GMPz, Math::GMPf, or
        Math::GMPq object then the value of that object is used.
