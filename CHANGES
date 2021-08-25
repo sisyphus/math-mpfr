@@ -24,6 +24,7 @@
    (See the POD for elaboration.)
  - Add anytoa() function.
  - Use POSIX in demos/doubledouble.p to fix a (rarely encountered) bug.
+ - Refactor IV/UV/NV/PV handling inside overload subs.
 
 4.16
  - Workaround mpfr library assertion failure in decimalize() could occur when
