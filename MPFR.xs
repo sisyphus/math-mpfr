@@ -972,12 +972,15 @@ SV * Rmpfr_add_q(pTHX_ mpfr_t * a, mpfr_t * b, mpq_t * c, SV * round) {
 }
 
 void q_add_fr(mpq_t * a, mpq_t * b, mpfr_t * c) {
+     mpq_t temp;
+     mpq_init(temp);
 #if defined(MPFR_VERSION_MAJOR) && MPFR_VERSION_MAJOR >= 4
-     mpfr_get_q(*a, *c);
+     mpfr_get_q(temp, *c);
 #else
-     Rmpfr_get_q(a, c);
+     Rmpfr_get_q(&temp, c);
 #endif
-     mpq_add(*a, *b, *a);
+     mpq_add(*a, *b, temp);
+     mpq_clear(temp);
 }
 
 SV * Rmpfr_sub(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
@@ -1007,12 +1010,15 @@ SV * Rmpfr_sub_q(pTHX_ mpfr_t * a, mpfr_t * b, mpq_t * c, SV * round) {
 }
 
 void q_sub_fr(mpq_t * a, mpq_t * b, mpfr_t * c) {
+     mpq_t temp;
+     mpq_init(temp);
 #if defined(MPFR_VERSION_MAJOR) && MPFR_VERSION_MAJOR >= 4
-     mpfr_get_q(*a, *c);
+     mpfr_get_q(temp, *c);
 #else
-     Rmpfr_get_q(a, c);
+     Rmpfr_get_q(&temp, c);
 #endif
-     mpq_sub(*a, *b, *a);
+     mpq_sub(*a, *b, temp);
+     mpq_clear(temp);
 }
 
 SV * Rmpfr_ui_sub(pTHX_ mpfr_t * a, SV * b, mpfr_t * c, SV * round) {
@@ -1051,12 +1057,15 @@ SV * Rmpfr_mul_q(pTHX_ mpfr_t * a, mpfr_t * b, mpq_t * c, SV * round) {
 }
 
 void q_mul_fr(mpq_t * a, mpq_t * b, mpfr_t * c) {
+     mpq_t temp;
+     mpq_init(temp);
 #if defined(MPFR_VERSION_MAJOR) && MPFR_VERSION_MAJOR >= 4
-     mpfr_get_q(*a, *c);
+     mpfr_get_q(temp, *c);
 #else
-     Rmpfr_get_q(a, c);
+     Rmpfr_get_q(&temp, c);
 #endif
-     mpq_mul(*a, *b, *a);
+     mpq_mul(*a, *b, temp);
+     mpq_clear(temp);
 }
 
 SV * Rmpfr_dim(pTHX_ mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, SV * round) {
@@ -1091,12 +1100,15 @@ SV * Rmpfr_div_q(pTHX_ mpfr_t * a, mpfr_t * b, mpq_t * c, SV * round) {
 }
 
 void q_div_fr(mpq_t * a, mpq_t * b, mpfr_t * c) {
+     mpq_t temp;
+     mpq_init(temp);
 #if defined(MPFR_VERSION_MAJOR) && MPFR_VERSION_MAJOR >= 4
-     mpfr_get_q(*a, *c);
+     mpfr_get_q(temp, *c);
 #else
-     Rmpfr_get_q(a, c);
+     Rmpfr_get_q(&temp, c);
 #endif
-     mpq_div(*a, *b, *a);
+     mpq_div(*a, *b, temp);
+     mpq_clear(temp);
 }
 
 SV * Rmpfr_ui_div(pTHX_ mpfr_t * a, SV * b, mpfr_t * c, SV * round) {
