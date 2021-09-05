@@ -81,4 +81,25 @@ cmp_ok( $rop,   "==", $rop_check,              "Rmpfr_q_div produces expected re
 $cmp = fr_cmp_q_rounded( $rop, $q_rop, MPFR_RNDN );
 cmp_ok($cmp, "==", 0, "q_cmp_fr reports equality" );
 
+my $q_arg = Math::GMPq->new('1/3');
+my $fr_arg = Math::MPFR->new(7);
+
+q_add_fr($q_arg, $q_arg, $fr_arg);
+cmp_ok($q_arg, '==', '22/3', "Returned Math::GMPq object can be operand in addition");
+
+Math::GMPq::Rmpq_set_str($q_arg, '1/3', 10);
+
+q_sub_fr($q_arg, $q_arg, $fr_arg);
+cmp_ok($q_arg, '==', '-20/3', "Returned Math::GMPq object can be operand in subtraction");
+
+Math::GMPq::Rmpq_set_str($q_arg, '1/3', 10);
+
+q_mul_fr($q_arg, $q_arg, $fr_arg);
+cmp_ok($q_arg, '==', '7/3', "Returned Math::GMPq object can be operand in multiplication");
+
+Math::GMPq::Rmpq_set_str($q_arg, '1/3', 10);
+
+q_div_fr($q_arg, $q_arg, $fr_arg);
+cmp_ok($q_arg, '==', '1/21', "Returned Math::GMPq object can be operand in division");
+
 done_testing();
