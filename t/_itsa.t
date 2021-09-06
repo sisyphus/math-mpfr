@@ -27,6 +27,19 @@ $uv_x -= 2;
 cmp_ok(_ITSA($uv_x),    '==', 1, "\$uv_x is also UV");
 cmp_ok(_ITSA($uv_copy), '==', 1, "\$uv_copy is UV");
 
+my $uv2 = ~0 - 1;
+my $foo = $uv2 + 2;
+cmp_ok(_ITSA($uv2),     '==', 1, "\$uv2 is still UV");
+
+my $uv3 = ~0;
+$uv3 += 1;
+cmp_ok(_ITSA($uv3),     '==', 3, "\$uv3 is now NV");
+
+my $uv4 = ~0;
+$foo = "$uv4";
+$uv4 += 1;
+cmp_ok(_ITSA($uv4),     '==', 3, "\$uv4 is now NV");
+
 my $iv = -23;
 cmp_ok(_ITSA($iv),      '==', 2, "\$iv is IV");
 my $iv_copy = $iv;
@@ -37,7 +50,7 @@ cmp_ok(_ITSA($iv_x),    '==', 2, "\$iv_x is also IV");
 cmp_ok(_ITSA($iv_copy), '==', 2, "\$iv_copy is IV");
 
 my $iv2 = 14411;
-my $foo = 112 / $iv2;
+$foo = 112 / $iv2;
 cmp_ok(_ITSA($iv2), '==', 2, "\$iv2 is still IV");
 
 my $pv1 = "$uv_max";
@@ -84,6 +97,23 @@ cmp_ok($pv3, '>=', 0, "\$pv3 >= 0"); # NOK flag is now set, but we want
 
 cmp_ok(_ITSA($pv3),     '==', 4, "\$pv3 is still PV");
 cmp_ok($pv3, 'eq', '987654' x 100, "\$pv3 PV slot is unchanged");
+
+my $pv4 = sprintf "%u", ~0;
+$foo = $pv4 + 1; # $pv4 should now be seen as UV, though it
+                 # would be ok if it were still seen as PV
+
+cmp_ok(_ITSA($pv4),     '==', 1, "\$pv4 is now UV");
+cmp_ok($pv4, 'eq', sprintf("%u", ~0), "\$pv4 PV slot is unchanged");
+
+my $pv5 = sprintf("%u", ~0) . 'xyz';
+
+{
+  no warnings 'numeric';
+  $foo = $pv5 + 1; # $pv5 should still be seen as PV
+}
+
+cmp_ok(_ITSA($pv5),     '==', 4, "\$pv5 is still PV");
+cmp_ok($pv5, 'eq', sprintf("%u", ~0) . 'xyz', "\$pv5 PV slot is unchanged");
 
 
 done_testing();
