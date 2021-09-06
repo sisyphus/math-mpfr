@@ -18,6 +18,28 @@ my $nan2 = 'nan' + 0;
 my $inf1 = 'inf' + 0;
 my $inf2 = 'inf' + 0;
 
+if($] < 5.03) {
+  warn "Skipping for $] - the aim here is to detect any recent changes,\n",
+       "                        not to concern ourselves with old behaviour.\n";
+  is(1, 1);
+  done_testing();
+  exit 0;
+}
+
+if($inf1 - $inf1 == 0) {
+  warn "Skipping - failed to create an inf\n";
+  is(1, 1);
+  done_testing();
+  exit 0;
+}
+
+if($nan1 == $nan1) {
+  warn "Skipping - failed to create a nan\n";
+  is(1, 1);
+  done_testing();
+  exit 0;
+}
+
 my $uv = $uv_max;
 cmp_ok(_ITSA($uv),      '==', 1, "\$uv is UV");
 my $uv_copy = $uv;
