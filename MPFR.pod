@@ -303,8 +303,10 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    These next 3 functions are demonstrated above (in SYNOPSIS):
    $rop = Rmpfr_init();
    $rop = Rmpfr_init2($p);
-   $str = Rmpfr_get_str($op, $base, $digits, $rnd); # mpfr version >= 4.1.0 ? 1 < abs($base) < 63
-                                                    #                       : 1 < abs($base) < 3
+   $str = Rmpfr_get_str($op, $base, $digits, $rnd); # mpfr version >= 4.1.0 ? 1 < $base < 63
+                                                                                    ||
+                                                                              -37 < $base < -1
+                                                    #                       : 1 < $base < 63
    The third argument to Rmpfr_get_str() specifies the number of digits
    required to be output in the mantissa. (Trailing zeroes are removed.)
    If $digits is 0, the number of digits of the mantissa is chosen
