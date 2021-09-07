@@ -951,7 +951,7 @@ sub anytoa {
     my($msd, $lsd) = _mpfr2dd($f_init);
     if($lsd == 0 ) {
       my $f = Rmpfr_init2(53);
-      Rmpfr_set_d($f, sprintf("%.17g", $msd), MPFR_RNDN);
+      Rmpfr_set_d($f, $msd, MPFR_RNDN);
       Rmpfr_set_emax($emax);                  # Revert to original value
       Rmpfr_set_emin($emin);                  # Revert to original value
       return anytoa($f, 53);
