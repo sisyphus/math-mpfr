@@ -1,3 +1,6 @@
+4.18
+ -
+
 4.17
  - In Rmpfr_set_default_prec(), Rmpfr_set_prec() and Rmpfr_set_prec_raw(), check
    that the argument is not less than 2 if mpfr version is less than 4.0.0.
