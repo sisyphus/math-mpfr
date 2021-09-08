@@ -191,7 +191,7 @@ Rmpfr_get_str_ndigits Rmpfr_get_str_ndigits_alt
 q_add_fr q_sub_fr q_mul_fr q_div_fr q_cmp_fr fr_cmp_q_rounded
 );
 
-    our $VERSION = '4.17';
+    our $VERSION = '4.18';
     #$VERSION = eval $VERSION;
 
     Math::MPFR->DynaLoader::bootstrap($VERSION);
