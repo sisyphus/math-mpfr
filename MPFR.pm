@@ -1020,7 +1020,15 @@ sub _intermediate_bits {
 
 sub _get_exp {
   # Can be called from anytoa(), via _intermediate_bits().
-  my $hex = scalar reverse unpack "h*", pack "d<", $_[0];
+  # For as long as we support perl-5.8, we cannot use
+  # the "d<" and "d>" templates.
+  my $hex;
+  if(LITTLE_ENDIAN) {
+    $hex = scalar reverse unpack "h*", pack "d", $_[0];
+  }
+  else {
+    $hex = unpack "H*", pack "d", $_[0];
+  }
   my $exp = hex(substr($hex, 0, 3));
   $exp -= 2048 if $exp > 2047; # Remove sign bit
   $exp++ unless $exp; # increment if 0
