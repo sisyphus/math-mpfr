@@ -6,7 +6,11 @@ use Test::More;
 use Config;
 
 my ($op, $op2, $res);
-my $inf = 99 ** (99 ** 99);
+
+# Create an inf portably:
+my $kludge = Math::MPFR->new();
+Rmpfr_set_inf($kludge, 1);      # +inf
+my $inf = Rmpfr_get_NV($kludge, MPFR_RNDN);
 
 # %bounds is a copy of %emax_emin, declared in anytoa()
 my %bounds = (53   => [1024,  -1073,  -1022 ],
@@ -115,7 +119,9 @@ for my $bits(53, 64, 113, 2098) {
 
   if( MPFR_VERSION() >= 262146 && $bits == 53 ) {
     # The mpfr library does not properly support 1-bit precision until 4.0.2
-    Rmpfr_set_d($op, 2 ** -1074,  MPFR_RNDN);
+    # Also, cater for older perls that don't set subnormals correctly.
+    Rmpfr_set($kludge, Math::MPFR->new(2) ** -1074, MPFR_RNDN);
+    Rmpfr_set_d($op, Rmpfr_get_d($kludge, MPFR_RNDN),  MPFR_RNDN);
     $res = anytoa($op, $bits);
     cmp_ok(Rmpfr_get_emax(), '==', $emax, "7: emax was reset correctly");
     cmp_ok(Rmpfr_get_emin(), '==', $emin, "7: emin was reset correctly");
@@ -128,7 +134,8 @@ for my $bits(53, 64, 113, 2098) {
     cmp_ok($res, 'eq', $nexpected{$bits}->[3], "$res eq $nexpected{$bits}->[3]");
   }
 
-  Rmpfr_set_d($op, 2 ** -1030 +  2 ** -1040,  MPFR_RNDN);
+  # Deal with 2 more subnormals that might be mis-assigned by older perls
+  Rmpfr_set($op, (Math::MPFR->new(2) ** -1030) +  (Math::MPFR->new(2) ** -1040),  MPFR_RNDN);
   $res = anytoa($op, $bits);
   cmp_ok(Rmpfr_get_emax(), '==', $emax, "9: emax was reset correctly");
   cmp_ok(Rmpfr_get_emin(), '==', $emin, "9: emin was reset correctly");
