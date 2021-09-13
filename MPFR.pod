@@ -1859,7 +1859,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     *minimum* number of digits such that the condition ($str == $op)
     is true.
 
-   $str = anytoa($op, $bits);
+   $str = anytoa($op [, $bits]);
     For example, you want to know what nvtoa(sqrt 3) would return
     on a perl whose nvtype is the 113-bit precision __float128 (or
     IEEE-754 128-bit long double) but you don't have access to such
@@ -1869,18 +1869,32 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
       my $op = Rmpfr_init2($bits);
       Rmpfr_set_ui($op, 3, MPFR_RNDN);
       $op = sqrt($op);
-      print anytoa($op, $bits);
+      print anytoa($op);
+    # alternatively:
+    # print anytoa($op, $bits);
+
+    We allow the second arg solely for back-compatibility.
+    This also allows one to provide a second arg to anytoa()
+    that differs in value to the precision of $op, though it's
+    not clear to me that this is in any way useful.
 
     Similarly, changing $bits to 53, or 64, or 2098 will provide
     the same as nvtoa(sqrt 3) for (respectively) the 53-bit
     precision double , the 64-bit extended precision long double,
     and the double-double.
-    $bits must be either 53, 64, 113 or 2098.
+    $bits must be either 53, 64, 113 or 2098 (and the same goes
+    for the precision of $op).
 
-    When $bits is 53 or 64 or 113, the value returned will be the
-    same as for mpfrtoa($op) unless:
+    When anytoa() is called with only the one argument ($op), or
+    with a 2nd argument that is equivalent to the precision of $op,
+    then the value returned will be the same as returned by
+    mpfrtoa($op) unless:
+
      1) $op holds a finite value that is of such magnitude that
-        the specified nvtype will turn it into (+ or -) Inf, or;
+        the specified nvtype will turn it into (+ or -) Inf;
+
+     or
+
      2) $op holds a finite non-zero value that is so close to zero
         that the specified nvtype will either round it to zero or
         denormalize it.
@@ -1888,7 +1902,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $str = numtoa($sv);
     As for nvtoa() but prints out UVs and IVs in integer format.
     (If UV-precision is greater than NV-precision then nvtoa()
-    output can lose precision as it prints out UVs and IVs in floating
+    output can lose precision as it prints out UVs and IVs in
     floating point format.)
 
    $nv = atodouble($str); # Needs mpfr-3.1.6 or later
