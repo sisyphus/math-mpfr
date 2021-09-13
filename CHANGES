@@ -1,5 +1,6 @@
 4.18
- -
+ - Allow anytoa() to (optionally) take just one (Math::MPFR object)arg, instead of
+   the two args originally mandated.
 
 4.17
  - In Rmpfr_set_default_prec(), Rmpfr_set_prec() and Rmpfr_set_prec_raw(), check
