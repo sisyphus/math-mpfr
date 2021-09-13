@@ -1897,7 +1897,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
      2) $op holds a finite non-zero value that is so close to zero
         that the specified nvtype will either round it to zero or
-        denormalize it.
+        denormalize it;
+
+     or
+
+     3) the precision of $op is 2098 bits.
 
    $str = numtoa($sv);
     As for nvtoa() but prints out UVs and IVs in integer format.
