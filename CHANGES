@@ -1,6 +1,11 @@
 4.18
- - Allow anytoa() to (optionally) take just one (Math::MPFR object)arg, instead of
+ - Allow anytoa() to (optionally) take just one (Math::MPFR object) arg, instead of
    the two args originally mandated.
+ - Simplify Makefile.PL.
+ - Replace XS defines NV_IS_FLOAT128 and NV_IS_LONG_DOUBLE with
+   USE_QUADMATH and USE_LONG_DOUBLE (which are already defined by perl headers).
+ - Replace XS defines NV_IS_DOUBLE and NV_IS_53_BIT with the condition NVSIZE == 8
+   (which is already defined in the perl headers).
 
 4.17
  - In Rmpfr_set_default_prec(), Rmpfr_set_prec() and Rmpfr_set_prec_raw(), check
