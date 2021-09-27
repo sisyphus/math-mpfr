@@ -226,7 +226,7 @@ void Rmpfr_init_set_d(pTHX_ SV * q, SV * round) {
 }
 
 void Rmpfr_init_set_ld(pTHX_ SV * q, SV * round) {
-#ifdef NV_IS_LONG_DOUBLE
+#ifdef USE_LONG_DOUBLE
 #ifndef _MSC_VER
      dXSARGS;
      mpfr_t * mpfr_t_obj;
@@ -389,7 +389,7 @@ void Rmpfr_init_set_d_nobless(pTHX_ SV * q, SV * round) {
 }
 
 void Rmpfr_init_set_ld_nobless(pTHX_ SV * q, SV * round) {
-#ifdef NV_IS_LONG_DOUBLE
+#ifdef USE_LONG_DOUBLE
 #ifndef _MSC_VER
      dXSARGS;
      mpfr_t * mpfr_t_obj;
@@ -577,7 +577,7 @@ SV * Rmpfr_set_sj(pTHX_ mpfr_t * p, SV * q, SV * round) {
 
 SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
 
-#if defined(NV_IS_LONG_DOUBLE) && !defined(_MSC_VER)
+#if defined(USE_LONG_DOUBLE) && !defined(_MSC_VER)
 
      if(!SV_IS_NOK(q)) croak("Second arg given to Rmpfr_set_NV is not an NV");
 
@@ -593,7 +593,7 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
 
      return newSViv(mpfr_set_float128(*p, (float128)SvNVX(q), (mpfr_rnd_t)round));
 
-#elif defined(NV_IS_FLOAT128)
+#elif defined(USE_QUADMATH)
 
      char buffer[45];
      int exp;
@@ -649,7 +649,7 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
 
 int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
 
-#if defined(NV_IS_LONG_DOUBLE) && !defined(_MSC_VER)
+#if defined(USE_LONG_DOUBLE) && !defined(_MSC_VER)
 
      return mpfr_cmp_ld(*a, SvNV(b));
 
@@ -663,7 +663,7 @@ int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
      mpfr_clear(t);
      return ret;
 
-#elif defined(NV_IS_FLOAT128)
+#elif defined(USE_QUADMATH)
 
      mpfr_t t;
      char buffer[45];
@@ -726,7 +726,7 @@ int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
 
 SV * Rmpfr_set_ld(pTHX_ mpfr_t * p, SV * q, SV * round) {
      CHECK_ROUNDING_VALUE
-#if defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
+#if defined(USE_LONG_DOUBLE) || defined(USE_QUADMATH)
 #ifndef _MSC_VER
      return newSViv(mpfr_set_ld(*p, (long double)SvNV(q), (mpfr_rnd_t)SvUV(round)));
 #else
@@ -824,8 +824,8 @@ SV * Rmpfr_get_d_2exp(pTHX_ SV * exp, mpfr_t * p, SV * round){
 }
 
 SV * Rmpfr_get_ld_2exp(pTHX_ SV * exp, mpfr_t * p, SV * round){
-#if defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
-#if defined(NV_IS_FLOAT128) && defined(__GNUC__) && ((__GNUC__ > 4 && __GNUC__ < 7) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 9))
+#if defined(USE_LONG_DOUBLE) || defined(USE_QUADMATH)
+#if defined(USE_QUADMATH) && defined(__GNUC__) && ((__GNUC__ > 4 && __GNUC__ < 7) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 9))
   /*
      Casting long double Inf to float128 might result in NaN.
      This is GCC bug 77265, which was fixed for GCC 7:
@@ -857,8 +857,8 @@ SV * Rmpfr_get_ld_2exp(pTHX_ SV * exp, mpfr_t * p, SV * round){
 
 SV * Rmpfr_get_ld(pTHX_ mpfr_t * p, SV * round){
      CHECK_ROUNDING_VALUE
-#if defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
-#  if defined(NV_IS_FLOAT128) && defined(__GNUC__) && ((__GNUC__ > 4 && __GNUC__ < 7) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 9))
+#if defined(USE_LONG_DOUBLE) || defined(USE_QUADMATH)
+#  if defined(USE_QUADMATH) && defined(__GNUC__) && ((__GNUC__ > 4 && __GNUC__ < 7) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 9))
       /*
       Casting long double Inf to float128 might result in NaN.
       This is GCC bug 77265, which was fixed for GCC 7:
@@ -1396,7 +1396,7 @@ int Rmpfr_cmp_d(mpfr_t * a, double b) {
 }
 
 int Rmpfr_cmp_ld(pTHX_ mpfr_t * a, SV * b) {
-#if defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
+#if defined(USE_LONG_DOUBLE) || defined(USE_QUADMATH)
 #  ifndef _MSC_VER
        return mpfr_cmp_ld(*a, (long double)SvNV(b));
 #  else
@@ -2402,7 +2402,7 @@ SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
 
      return newSVnv(mpfr_get_float128(*x, (mpfr_rnd_t)SvUV(round)));
 
-#elif defined(NV_IS_FLOAT128)
+#elif defined(USE_QUADMATH)
 
      mpfr_t t;
      int i, c = 0;
@@ -2519,7 +2519,7 @@ SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
      ret *= powq(2.0Q, exp - 113);
      return newSVnv(ret * sign);
 
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
 #  if defined(LD_SUBNORMAL_BUG)
 
        if(mpfr_get_exp(*x) < -16381 && mpfr_regular_p(*x) && mpfr_get_exp(*x) >= -16445 ) {
@@ -3161,7 +3161,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        mpfr_init2(t, FLT128_MANT_DIG);
        Rmpfr_set_NV(aTHX_ &t, b, __gmpfr_default_rounding_mode);
@@ -3170,7 +3170,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
        return obj_ref;
      }
 
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
@@ -3296,7 +3296,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        mpfr_init2(t, FLT128_MANT_DIG);
        Rmpfr_set_NV(aTHX_ &t, b, GMP_RNDN);
@@ -3305,7 +3305,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
        return obj_ref;
      }
 
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
@@ -3436,7 +3436,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        mpfr_init2(t, FLT128_MANT_DIG);
        Rmpfr_set_NV(aTHX_ &t, b, GMP_RNDN);
@@ -3447,7 +3447,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
        mpfr_clear(t);
        return obj_ref;
      }
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
@@ -3581,7 +3581,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        mpfr_init2(t, FLT128_MANT_DIG);
        Rmpfr_set_NV(aTHX_ &t, b, GMP_RNDN);
@@ -3593,7 +3593,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
        return obj_ref;
      }
 
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
@@ -3791,9 +3791,9 @@ SV * overload_gt(pTHX_ mpfr_t * a, SV * b, SV * third) {
          return newSVuv(0);
        }
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
        ret = Rmpfr_cmp_NV(aTHX_ a, b);
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
        ret = mpfr_cmp_ld(*a, (long double)SvNVX(b));
 #else
        ret = mpfr_cmp_d(*a, (double)SvNVX(b));
@@ -3932,11 +3932,11 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
          return newSVuv(0);
        }
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ret = Rmpfr_cmp_NV(aTHX_ a, b);
 
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
 
        ret = mpfr_cmp_ld(*a, (long double)SvNVX(b));
 #else
@@ -4077,11 +4077,11 @@ SV * overload_lt(pTHX_ mpfr_t * a, SV * b, SV * third) {
          return newSVuv(0);
        }
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ret = Rmpfr_cmp_NV(aTHX_ a, b);
 
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
 
        ret = mpfr_cmp_ld(*a, (long double)SvNVX(b));
 #else
@@ -4222,11 +4222,11 @@ SV * overload_lte(pTHX_ mpfr_t * a, SV * b, SV * third) {
          return newSVuv(0);
        }
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ret = Rmpfr_cmp_NV(aTHX_ a, b);
 
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
 
        ret = mpfr_cmp_ld(*a, (long double)SvNVX(b));
 #else
@@ -4371,11 +4371,11 @@ SV * overload_spaceship(pTHX_ mpfr_t * a, SV * b, SV * third) {
        return &PL_sv_undef;
      }
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ret = Rmpfr_cmp_NV(aTHX_ a, b);
 
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
 
        ret = mpfr_cmp_ld(*a, (long double)SvNVX(b));
 #else
@@ -4508,11 +4508,11 @@ SV * overload_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
          return newSVuv(0);
        }
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ret = Rmpfr_cmp_NV(aTHX_ a, b);
 
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
 
        ret = mpfr_cmp_ld(*a, (long double)SvNVX(b));
 #else
@@ -4645,11 +4645,11 @@ SV * overload_not_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
          return newSVuv(1);
        }
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ret = Rmpfr_cmp_NV(aTHX_ a, b);
 
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
 
        ret = mpfr_cmp_ld(*a, (long double)SvNVX(b));
 #else
@@ -4797,12 +4797,12 @@ SV * overload_pow(pTHX_ SV * p, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        mpfr_init2(t, FLT128_MANT_DIG);
        Rmpfr_set_NV(aTHX_ &t, b, __gmpfr_default_rounding_mode);
 
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
@@ -5026,10 +5026,10 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
        mpfr_init2(t, FLT128_MANT_DIG);
        Rmpfr_set_NV(aTHX_ &t, b, __gmpfr_default_rounding_mode);
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
 #else
@@ -5261,10 +5261,10 @@ SV * overload_pow_eq(pTHX_ SV * p, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
        mpfr_init2(t, FLT128_MANT_DIG);
        Rmpfr_set_NV(aTHX_ &t, b, __gmpfr_default_rounding_mode);
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
 #else
@@ -5391,12 +5391,12 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        mpfr_init2(t, FLT128_MANT_DIG);
        Rmpfr_set_NV(aTHX_ &t, b, __gmpfr_default_rounding_mode);
 
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
@@ -5523,12 +5523,12 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        mpfr_init2(t, FLT128_MANT_DIG);
        Rmpfr_set_NV(aTHX_ &t, b, __gmpfr_default_rounding_mode);
 
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
@@ -5656,12 +5656,12 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        mpfr_init2(t, FLT128_MANT_DIG);
        Rmpfr_set_NV(aTHX_ &t, b, __gmpfr_default_rounding_mode);
 
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
@@ -5789,12 +5789,12 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        mpfr_init2(t, FLT128_MANT_DIG);
        Rmpfr_set_NV(aTHX_ &t, b, __gmpfr_default_rounding_mode);
 
-#elif defined(NV_IS_LONG_DOUBLE)
+#elif defined(USE_LONG_DOUBLE)
 
        mpfr_init2(t, REQUIRED_LDBL_MANT_DIG);
        mpfr_set_ld(t, (long double)SvNVX(b), __gmpfr_default_rounding_mode);
@@ -5866,7 +5866,7 @@ int _has_longlong(void) {
 }
 
 int _has_longdouble(void) {
-#if defined(NV_IS_LONG_DOUBLE) || defined(NV_IS_FLOAT128)
+#if defined(USE_LONG_DOUBLE) || defined(USE_QUADMATH)
     return 1;
 #else
     return 0;
@@ -7502,7 +7502,7 @@ SV * Rmpfr_buildopt_sharedcache_p(pTHX) {
 }
 
 int _nv_is_float128(void) {
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
     return 1;
 #else
     return 0;
@@ -7716,7 +7716,7 @@ SV * atonv(pTHX_ SV * str) {
 
 #if defined(MPFR_VERSION) && MPFR_VERSION > 196869
     mpfr_t workspace;
-#  if defined(NV_IS_DOUBLE) || LDBL_MANT_DIG == 53        /* D */
+#  if NVSIZE == 8 || LDBL_MANT_DIG == 53        /* D */
       mpfr_prec_t emin, emax;
       int inex;
       double ret;
@@ -7742,7 +7742,7 @@ SV * atonv(pTHX_ SV * str) {
 
 #  endif                                                  /* close D */
 
-#  if defined(NV_IS_LONG_DOUBLE) && LDBL_MANT_DIG != 53   /* LD */
+#  if defined(USE_LONG_DOUBLE) && LDBL_MANT_DIG != 53   /* LD */
 #    if REQUIRED_LDBL_MANT_DIG == 64
 
         mpfr_prec_t emin, emax;
@@ -7842,7 +7842,7 @@ SV * atonv(pTHX_ SV * str) {
 #    endif
 #  endif                                                  /* close LD */
 
-#  if defined(NV_IS_FLOAT128)                             /* F128 */
+#  if defined(USE_QUADMATH)                             /* F128 */
 #    if defined(MPFR_WANT_FLOAT128)
 
         mpfr_prec_t emin, emax;
@@ -7991,7 +7991,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
   int subnormal_prec_adjustment = 0, tmp;
   void *nvptr = &nv_in;
 
-#if defined(NV_IS_FLOAT128) || (defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 113)	/* 113 bit prec */
+#if defined(USE_QUADMATH) || (defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 113)	/* 113 bit prec */
 
   int i = QIND_2;				/* big endian: 2, little endian: 13 */
 
@@ -8026,7 +8026,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
  * START DOUBLEDOUBLE*
  *********************/
 
-#elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098	/* double-double */
+#elif defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098	/* double-double */
 
   /***********************************************************************
    * This all works well enough (AFAIK), but needs reviewing with an eye *
@@ -8182,7 +8182,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
  * END DOUBLEDOUBLE*
  *******************/
 
-#elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64	/* 64 bit prec */
+#elif defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64	/* 64 bit prec */
 
   int i = LDIND_2;				/* big endian: 2, little endian: 7 */
 
@@ -8271,14 +8271,14 @@ SV * nvtoa(pTHX_ NV pnv) {
   mpfr_exp_t e;    /* Change to 'int' when mpfr dependency for doubledouble is removed */
   NV nv;
   void *nvptr = &nv;
-#if defined(NV_IS_53_BIT)
+#if NVSIZE == 8
   char f[] = {'\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0'};
 
-#elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64
+#elif defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64
   char f[] = {'\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0',
               '\0','\0','\0','\0'};
 
-#elif REQUIRED_LDBL_MANT_DIG == 2098 && defined(NV_IS_LONG_DOUBLE)
+#elif REQUIRED_LDBL_MANT_DIG == 2098 && defined(USE_LONG_DOUBLE)
   char *f;
   mpfr_t ws;
 
@@ -8298,19 +8298,19 @@ SV * nvtoa(pTHX_ NV pnv) {
 #if defined(MPFR_HAVE_BENDIAN)
 
   if(((unsigned char *)nvptr)[0] >= 128) {
-#  if defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098
+#  if defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098
       nv = -nv;
 #  else
       ((unsigned char *)nvptr)[0] &= 127;
 #  endif
 
-#elif defined(NV_IS_53_BIT)
+#elif NVSIZE == 8
   if(((unsigned char *)nvptr)[7] >= 128) {
     ((unsigned char *)nvptr)[7] &= 127;
-#elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64
+#elif defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64
   if(((unsigned char *)nvptr)[9] >= 128) {
     ((unsigned char *)nvptr)[9] &= 127;
-#elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098
+#elif defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098
   if(((unsigned char *)nvptr)[15] >= 128) {
     nv = -nv;
 #else
@@ -8354,7 +8354,7 @@ SV * nvtoa(pTHX_ NV pnv) {
  ***********************************************************************************/
   _get_exp_and_bits( &e, &bits, nv);
 
-#if REQUIRED_LDBL_MANT_DIG == 2098 && defined(NV_IS_LONG_DOUBLE)
+#if REQUIRED_LDBL_MANT_DIG == 2098 && defined(USE_LONG_DOUBLE)
 
   if(bits < 53) is_subnormal = 1;
 
@@ -8369,7 +8369,7 @@ SV * nvtoa(pTHX_ NV pnv) {
  ***************/
 
   if(bits == 1) {
-#if defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098			/* doubledouble */
+#if defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098			/* doubledouble */
     Newxz(f, 4, char);
     if(f == NULL) croak("Failed to allocate memory for string buffer in nvtoa XSub");
 #endif
@@ -8377,7 +8377,7 @@ SV * nvtoa(pTHX_ NV pnv) {
   }
   else {
 
-#if defined(NV_IS_FLOAT128) || (defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 113)	/* 113 bit prec */
+#if defined(USE_QUADMATH) || (defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 113)	/* 113 bit prec */
 
     f[0] = is_subnormal ? c[0] : c[1];
     k++;
@@ -8392,7 +8392,7 @@ SV * nvtoa(pTHX_ NV pnv) {
       k += 2;
     }
 
-#elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098			/* doubledouble */
+#elif defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098			/* doubledouble */
 
     /*********************************************
      * TODO: Remove the mpfr dependency entirely *
@@ -8407,7 +8407,7 @@ SV * nvtoa(pTHX_ NV pnv) {
     mpfr_get_str(f, &e, 2, bits, ws, GMP_RNDN);		/* using mpfr to set both f and e */
     mpfr_clear(ws);
 
-#elif defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64	/* 64 bit prec */
+#elif defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64	/* 64 bit prec */
 
     for(skip = LDIND_2; LD_CONDITION_1(skip); INC_OR_DEC(skip)) { /* big endian:             *
                                                                    *   skip=2;skip<=9;skip++ */
@@ -8463,7 +8463,7 @@ SV * nvtoa(pTHX_ NV pnv) {
 
 #endif
 
-#if defined(NV_IS_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098			/* doubledouble */
+#if defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098			/* doubledouble */
 
   mpz_set_str(R, f, 2);
   Safefree(f);
@@ -9193,7 +9193,7 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
 
   /* calls functions contained in grisu3.c */
 
-#if defined(NV_IS_53_BIT)
+#if NVSIZE == 8
 
   dXSARGS;
 
