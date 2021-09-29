@@ -76,46 +76,41 @@ if($checklib) {
 # Whether to build with _Decimal64 support #
 ############################################
 
-if($have_decimal64) {$have_decimal64++} # $have_decimal64 is now either 0 or 2, depending
-                                        # upon which of the above lines was uncommented
+for(@ARGV) {
+  $have_decimal64 = 1 if $_ eq 'D64=1';
+  $have_decimal64 = 0 if $_ eq 'D64=0';
+}
 
-else { # we still need to determine whether_Decimal64 should be supported
+if(!defined($have_decimal64)) { # _Decimal64 support still undetermined
 
-  for(@ARGV) {
-    $have_decimal64 = 1 if $_ eq 'D64=1';
-    $have_decimal64 = 0 if $_ eq 'D64=0';
+  my $mylibs = $mklib . " " . $mylibpth;
+
+  my $out = `$mycc -o have_d64.exe -x c have_d64.in 2>&1`;
+
+  if($out) {
+    print "$out\n";
+    if($save) {print $SAVE "try_64 build: $out\n"}
   }
 
-  if(!defined($have_decimal64)) { # _Decimal64 support still undetermined
+  unless(-e 'have_d64.exe') {$have_decimal64 = 0}
 
-    my $mylibs = $mklib . " " . $mylibpth;
+  else { # _Decimal64 support still undetermined
 
-    my $out = `$mycc -o have_d64.exe -x c have_d64.in 2>&1`;
+    my $out = `$mycc -o try_dec64.exe -x c try_dec64.in $mkinc $mylibs 2>&1`;
 
     if($out) {
       print "$out\n";
-      if($save) {print $SAVE "try_64 build: $out\n"}
-    }
-
-    unless(-e 'have_d64.exe') {$have_decimal64 = 0}
-
-    else { # _Decimal64 support still undetermined
-
-      my $out = `$mycc -o try_dec64.exe -x c try_dec64.in $mkinc $mylibs 2>&1`;
-
-      if($out) {
-        print "$out\n";
-        if($save) {print $SAVE "try_dec64 build: $out\n"}
+      if($save) {print $SAVE "try_dec64 build: $out\n"}
       }
 
-      if(-e 'try_dec64.exe') {
-        $out = $^O =~ /MSWin32/i ? `try_dec64.exe` : `./try_dec64.exe`;
-        if($out == 42) {$have_decimal64 = 1}
-        if($save) {print $SAVE "try_dec64.exe: $out\n"}
-      }
+    if(-e 'try_dec64.exe') {
+      $out = $^O =~ /MSWin32/i ? `try_dec64.exe` : `./try_dec64.exe`;
+      if($out == 42) {$have_decimal64 = 1}
+      if($save) {print $SAVE "try_dec64.exe: $out\n"}
     }
   }
 }
+
 
 my $d64_message = $have_decimal64 ? "Attempting to build with Math::Decimal64 support\n"
                                   : "Building without Math::Decimal64 support\n";
@@ -128,43 +123,37 @@ my $d64_message = $have_decimal64 ? "Attempting to build with Math::Decimal64 su
 # Whether to build with _Decimal128 support #
 #############################################
 
-if($have_decimal128) {$have_decimal128++} # $have_decimal128 is now either 0 or 2, depending
-                                          # upon which of the above lines was uncommented
+for(@ARGV) {
+  $have_decimal128 = 1 if $_ eq 'D128=1';
+  $have_decimal128 = 0 if $_ eq 'D128=0';
+}
 
-else { # we still need to determine whether_Decimal128 should be supported
+if(!defined($have_decimal128)) { # _Decimal128 support still undetermined
 
-  for(@ARGV) {
-    $have_decimal128 = 1 if $_ eq 'D128=1';
-    $have_decimal128 = 0 if $_ eq 'D128=0';
+  my $mylibs = $mklib . " " . $mylibpth;
+
+  my $out = `$mycc -o have_d128.exe -x c have_d128.in 2>&1`;
+
+  if($out) {
+    print "$out\n";
+    if($save) {print $SAVE "try_128 build: $out\n"}
   }
 
-  if(!defined($have_decimal128)) { # _Decimal128 support still undetermined
+  unless(-e 'have_d128.exe') {$have_decimal128 = 0}
 
-    my $mylibs = $mklib . " " . $mylibpth;
+  else { # _Decimal128 support still undetermined
 
-    my $out = `$mycc -o have_d128.exe -x c have_d128.in 2>&1`;
+    my $out = `$mycc -o try_dec128.exe -x c try_dec128.in $mkinc $mylibs 2>&1`;
 
     if($out) {
       print "$out\n";
-      if($save) {print $SAVE "try_128 build: $out\n"}
+      if($save) {print $SAVE "try_dec128 build: $out\n"}
     }
 
-    unless(-e 'have_d128.exe') {$have_decimal128 = 0}
-
-    else { # _Decimal128 support still undetermined
-
-      my $out = `$mycc -o try_dec128.exe -x c try_dec128.in $mkinc $mylibs 2>&1`;
-
-      if($out) {
-        print "$out\n";
-        if($save) {print $SAVE "try_dec128 build: $out\n"}
-      }
-
-      if(-e 'try_dec128.exe') {
-        $out = $^O =~ /MSWin32/i ? `try_dec128.exe` : `./try_dec128.exe`;
-        if($out == 128) {$have_decimal128 = 1}
-        if($save) {print $SAVE "try_dec128.exe: $out\n"}
-      }
+    if(-e 'try_dec128.exe') {
+      $out = $^O =~ /MSWin32/i ? `try_dec128.exe` : `./try_dec128.exe`;
+      if($out == 128) {$have_decimal128 = 1}
+      if($save) {print $SAVE "try_dec128.exe: $out\n"}
     }
   }
 }
