@@ -6,6 +6,10 @@
    USE_QUADMATH and USE_LONG_DOUBLE (which are already defined by perl headers).
  - Replace XS defines NV_IS_DOUBLE and NV_IS_53_BIT with the condition NVSIZE == 8
    (which is already defined in the perl headers).
+ - Add Rmpfr_set_IV.
+ - Utilize Rmpfr_cmp_IV and Rmpfr_cmp_NV in the overloaded comparison subs.
+ - Remove the *_UV functions and adapt the corresponding *_IV functions to handle the case
+   that SvUOK() is true. (This is how it should always have been.)
 
 4.17
  - In Rmpfr_set_default_prec(), Rmpfr_set_prec() and Rmpfr_set_prec_raw(), check
