@@ -11,7 +11,7 @@ if(Math::MPFR::_has_longlong()) {
 
   cmp_ok(Rmpfr_cmp   ( $fr1, $uv ), '==', 0, "Math::MPFR->new(2 ** 64) == Math::MPFR->new(~0)");
   cmp_ok(Rmpfr_cmp_uj( $fr1, ~0  ), '>',  0, "Math::MPFR->new(2 ** 64) > ~0");
-  cmp_ok(Rmpfr_cmp_UV( $fr1, ~0  ), '>',  0, "Rmpf_cmp_UV and Rmpfr_cmp_uj are the same");
+  cmp_ok(Rmpfr_cmp_IV( $fr1, ~0  ), '>',  0, "Rmpf_cmp_UV and Rmpfr_cmp_uj are the same");
 
   my $iv = Math::MPFR->new(~0 >> 1);
 
@@ -50,7 +50,7 @@ else {
 
     cmp_ok(Rmpfr_cmp   ( $fr1, $uv ), '>', 0, "Math::MPFR->new(2 ** 32) > Math::MPFR->new(~0)");
     cmp_ok(Rmpfr_cmp_ui( $fr1, ~0  ), '>', 0, "Math::MPFR->new(2 ** 32) > ~0");
-    cmp_ok(Rmpfr_cmp_UV( $fr1, ~0  ), '>', 0, "Rmpf_cmp_UV and Rmpfr_cmp_ui are the same");
+    cmp_ok(Rmpfr_cmp_IV( $fr1, ~0  ), '>', 0, "Rmpf_cmp_IV and Rmpfr_cmp_ui are the same");
 
     my $iv = Math::MPFR->new(~0 >> 1);
 
