@@ -577,37 +577,24 @@ SV * Rmpfr_set_sj(pTHX_ mpfr_t * p, SV * q, SV * round) {
 
 SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
 
-#if defined(USE_LONG_DOUBLE) && !defined(_MSC_VER)
-
-     if(!SV_IS_NOK(q)) croak("Second arg given to Rmpfr_set_NV is not an NV");
-
 #if MPFR_VERSION_MAJOR < 3
      if((mpfr_rnd_t)round > 3)
        croak("Illegal rounding value supplied for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
 #endif
-     return newSViv(mpfr_set_ld(*p, (long double)SvNVX(q), (mpfr_rnd_t)round));
+
+#if defined(USE_LONG_DOUBLE) && !defined(_MSC_VER)
+     return newSViv(mpfr_set_ld(*p, (long double)SvNV(q), (mpfr_rnd_t)round));
 
 #elif defined(CAN_PASS_FLOAT128)
-
-     if(!SV_IS_NOK(q)) croak("Second arg given to Rmpfr_set_NV is not an NV");
-
-     return newSViv(mpfr_set_float128(*p, (float128)SvNVX(q), (mpfr_rnd_t)round));
+     return newSViv(mpfr_set_float128(*p, (float128)SvNV(q), (mpfr_rnd_t)round));
 
 #elif defined(USE_QUADMATH)
-
      char buffer[45];
      int exp;
      float128 ld;
      int returned;
 
-     if(!SV_IS_NOK(q)) croak("Second arg given to Rmpfr_set_NV is not an NV");
-
-#if MPFR_VERSION_MAJOR < 3
-     if((mpfr_rnd_t)round > 3)
-       croak("Illegal rounding value supplied for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
-#endif
-
-     ld = (float128)SvNVX(q);
+     ld = (float128)SvNV(q);
 
      if(ld != ld) {
        mpfr_set_nan(*p);
@@ -636,14 +623,8 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
      return newSViv(returned);
 
 #else
+     return newSViv(mpfr_set_d (*p, (double)SvNV(q), (mpfr_rnd_t)round));
 
-     if(!SV_IS_NOK(q)) croak("Second arg given to Rmpfr_set_NV is not an NV");
-
-#if MPFR_VERSION_MAJOR < 3
-     if((mpfr_rnd_t)round > 3)
-       croak("Illegal rounding value supplied for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
-#endif
-     return newSViv(mpfr_set_d (*p, (double)SvNVX(q), (mpfr_rnd_t)round));
 #endif
 }
 
