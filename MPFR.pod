@@ -686,8 +686,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    Rmpfr_set_nan($rop);
    Rmpfr_set_zero($rop, $si); # mpfr-3.0.0 and later only.
     Set the variable $rop to infinity or NaN (Not-a-Number) or zero
-    respectively. In 'mpfr_set_inf' and 'mpfr_set_zero', the sign of $rop
-    is positive if 2nd arg >= 0. Else the sign is negative.
+    respectively. In 'Rmpfr_set_inf' and 'Rmpfr_set_zero', the sign of
+    $rop is positive if 2nd arg >= 0. Else the sign is negative.
 
    Rmpfr_swap($op1, $op2);
     Swap the values $op1 and $op2 efficiently. Warning: the precisions
@@ -750,6 +750,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    ($rop, $si) = Rmpfr_init_set_z_nobless($z, $rnd);# $z is a mpz object
    ($rop, $si) = Rmpfr_init_set_q($q, $rnd);        # $q is a mpq object
    ($rop, $si) = Rmpfr_init_set_q_nobless($q, $rnd);# $q is a mpq object
+   ($rop, $si) = Rmpfr_init_set_IV($IV,$rnd);        # $IV is $Config{ivtype}
+   ($rop, $si) = Rmpfr_init_set_IV_nobless($IV,$rnd);# $IV is $Config{ivtype}
+   ($rop, $si) = Rmpfr_init_set_IV($NV,$rnd);        # $NV is $Config{nvtype}
+   ($rop, $si) = Rmpfr_init_set_IV_nobless($NV,$rnd);# $NV is $Config{nvtype}
+
     Initialize $rop and set its value from the 1st arg, rounded to
     direction $rnd. The precision of $rop will be taken from the
     active default precision, as set by 'Rmpfr_set_default_prec'.
