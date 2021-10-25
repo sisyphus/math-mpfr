@@ -575,7 +575,7 @@ SV * Rmpfr_set_sj(pTHX_ mpfr_t * p, SV * q, SV * round) {
 }
 
 
-SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
+int Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
 
 #if MPFR_VERSION_MAJOR < 3
      if((mpfr_rnd_t)round > 3)
@@ -583,10 +583,10 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
 #endif
 
 #if defined(USE_LONG_DOUBLE) && !defined(_MSC_VER)
-     return newSViv(mpfr_set_ld(*p, (long double)SvNV(q), (mpfr_rnd_t)round));
+     return mpfr_set_ld(*p, (long double)SvNV(q), (mpfr_rnd_t)round);
 
 #elif defined(CAN_PASS_FLOAT128)
-     return newSViv(mpfr_set_float128(*p, (float128)SvNV(q), (mpfr_rnd_t)round));
+     return mpfr_set_float128(*p, (float128)SvNV(q), (mpfr_rnd_t)round);
 
 #elif defined(USE_QUADMATH)
      char buffer[45];
@@ -598,13 +598,13 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
 
      if(ld != ld) {
        mpfr_set_nan(*p);
-       return newSViv(0);
+       return 0;
      }
 
      if(ld != 0.0Q && (ld / ld != 1)) {
        returned = ld > 0.0Q ? 1 : -1;
        mpfr_set_inf(*p, returned);
-       return newSViv(0);
+       return 0;
      }
 
      ld = frexpq(ld, &exp); /* 0.5 <= returned value < 1.0 */
@@ -620,12 +620,47 @@ SV * Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
 
      mpfr_mul_2si(*p, *p, exp - 113, GMP_RNDN);
 
-     return newSViv(returned);
+     return returned;
 
 #else
-     return newSViv(mpfr_set_d (*p, (double)SvNV(q), (mpfr_rnd_t)round));
+     return mpfr_set_d (*p, (double)SvNV(q), (mpfr_rnd_t)round);
 
 #endif
+}
+
+
+void Rmpfr_init_set_NV(pTHX_ SV * q, SV * round) {
+     dXSARGS;
+     mpfr_t * mpfr_t_obj;
+     SV * obj_ref, * obj;
+     int ret;
+
+     CHECK_ROUNDING_VALUE
+
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init_set_NV) /* defined in math_mpfr_include.h */
+
+     mpfr_init(*mpfr_t_obj);
+     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
+     ret = Rmpfr_set_NV(aTHX_ mpfr_t_obj, q, (mpfr_rnd_t)SvUV(round));
+     SvREADONLY_on(obj);
+     RETURN_STACK_2  /*defined in math_mpfr_include.h */
+}
+
+void Rmpfr_init_set_NV_nobless(pTHX_ SV * q, SV * round) {
+     dXSARGS;
+     mpfr_t * mpfr_t_obj;
+     SV * obj_ref, * obj;
+     int ret;
+
+     CHECK_ROUNDING_VALUE
+
+     NEW_MATH_MPFR_OBJECT("NULL",Rmpfr_init_set_NV_nobless) /* defined in math_mpfr_include.h */
+
+     mpfr_init(*mpfr_t_obj);
+     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
+     ret = Rmpfr_set_NV(aTHX_ mpfr_t_obj, q, (mpfr_rnd_t)SvUV(round));
+     SvREADONLY_on(obj);
+     RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
 int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
@@ -1356,22 +1391,32 @@ int Rmpfr_cmp_sj(pTHX_ mpfr_t * a, IV b) {
 
 int Rmpfr_cmp_IV(pTHX_ mpfr_t *a, SV * b) {
 
-    if(SV_IS_IOK(b)) {
+    int call_uv = 0;
 
-#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
-      if(SvUOK(b)) {
-        return Rmpfr_cmp_uj(aTHX_ a, SvUV(b));
-      }
-      return Rmpfr_cmp_sj(aTHX_ a, SvIV(b));
-#else
-      if(SvUOK(b)) {
-        return mpfr_cmp_ui(*a, SvUV(b));
-      }
-      return mpfr_cmp_si(*a, SvIV(b));
-#endif
+    if(SV_IS_IOK(b)) {
+      if(SvUOK(b)) call_uv = 1;
+    }
+    else {
+      mpfr_t t;
+      mpfr_init2(t, sizeof(IV) * 8);
+      mpfr_strtofr(t, SvPV_nolen(b), NULL, 10, GMP_RNDN);
+
+      if(mpfr_cmp_ui(t, 0) >= 0) call_uv = 1;
+      mpfr_clear(t);
     }
 
-    croak("Arg provided to Rmpfr_cmp_IV is not an IV");
+#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
+    if(call_uv) {
+      return Rmpfr_cmp_uj(aTHX_ a, SvUV(b));
+    }
+    return Rmpfr_cmp_sj(aTHX_ a, SvIV(b));
+#else
+    if(call_uv) {
+      return mpfr_cmp_ui(*a, SvUV(b));
+    }
+    return mpfr_cmp_si(*a, SvIV(b));
+#endif
+
 }
 
 int Rmpfr_cmp_d(mpfr_t * a, double b) {
@@ -2388,27 +2433,70 @@ SV * Rmpfr_get_IV(pTHX_ mpfr_t * x, SV * round) {
 
 }
 
-SV * Rmpfr_set_IV(pTHX_ mpfr_t * x, SV * sv,  SV * round) {
+int Rmpfr_set_IV(pTHX_ mpfr_t * x, SV * sv,  SV * round) {
+     int call_uv = 0;
 
      CHECK_ROUNDING_VALUE
 
      if(SV_IS_IOK(sv)) {
+       if(SvUOK(sv)) call_uv = 1;
+     }
+     else {
+       mpfr_t t;
+       mpfr_init2(t, sizeof(IV) * 8);
+       mpfr_strtofr(t, SvPV_nolen(sv), NULL, 10, GMP_RNDN);
 
-#if defined MATH_MPFR_NEED_LONG_LONG_INT
-       if(SvUOK(sv))
-         return newSViv(mpfr_set_uj(*x, SvUVX(sv), (mpfr_rnd_t)SvNV(round)));
-
-       return newSViv(mpfr_set_sj(*x, SvIVX(sv), (mpfr_rnd_t)SvNV(round)));
-
-#else
-       if(SvUOK(sv))
-         return newSViv(mpfr_set_ui(*x, SvUVX(sv), (mpfr_rnd_t)SvNV(round)));
-
-       return newSViv(mpfr_set_si(*x, SvIVX(sv), (mpfr_rnd_t)SvNV(round)));
-#endif
+       if(mpfr_cmp_ui(t, 0) >= 0) call_uv = 1;
+       mpfr_clear(t);
      }
 
-     croak("Arg provided to Rmpfr_set_IV is not an IV");
+#if defined MATH_MPFR_NEED_LONG_LONG_INT
+     if(call_uv)
+       return mpfr_set_uj(*x, SvUV(sv), (mpfr_rnd_t)SvNV(round));
+
+     return mpfr_set_sj(*x, SvIV(sv), (mpfr_rnd_t)SvNV(round));
+
+#else
+     if(call_uv)
+       return mpfr_set_ui(*x, SvUV(sv), (mpfr_rnd_t)SvNV(round));
+
+     return mpfr_set_si(*x, SvIV(sv), (mpfr_rnd_t)SvNV(round));
+#endif
+
+}
+
+void Rmpfr_init_set_IV(pTHX_ SV * q, SV * round) {
+     dXSARGS;
+     mpfr_t * mpfr_t_obj;
+     SV * obj_ref, * obj;
+     int ret;
+
+     CHECK_ROUNDING_VALUE
+
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init_set_IV) /* defined in math_mpfr_include.h */
+
+     mpfr_init(*mpfr_t_obj);
+     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
+     ret = Rmpfr_set_IV(aTHX_ mpfr_t_obj, q, round);
+     SvREADONLY_on(obj);
+     RETURN_STACK_2  /*defined in math_mpfr_include.h */
+}
+
+void Rmpfr_init_set_IV_nobless(pTHX_ SV * q, SV * round) {
+     dXSARGS;
+     mpfr_t * mpfr_t_obj;
+     SV * obj_ref, * obj;
+     int ret;
+
+     CHECK_ROUNDING_VALUE
+
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init_set_IV_nobless) /* defined in math_mpfr_include.h */
+
+     mpfr_init(*mpfr_t_obj);
+     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
+     ret = Rmpfr_set_IV(aTHX_ mpfr_t_obj, q, round);
+     SvREADONLY_on(obj);
+     RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
 SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
@@ -9652,7 +9740,7 @@ CODE:
   RETVAL = Rmpfr_set_sj (aTHX_ p, q, round);
 OUTPUT:  RETVAL
 
-SV *
+int
 Rmpfr_set_NV (p, q, round)
 	mpfr_t *	p
 	SV *	q
@@ -9660,6 +9748,40 @@ Rmpfr_set_NV (p, q, round)
 CODE:
   RETVAL = Rmpfr_set_NV (aTHX_ p, q, round);
 OUTPUT:  RETVAL
+
+void
+Rmpfr_init_set_NV (q, round)
+	SV *	q
+	SV *	round
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpfr_init_set_NV(aTHX_ q, round);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+void
+Rmpfr_init_set_NV_nobless (q, round)
+	SV *	q
+	SV *	round
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpfr_init_set_NV_nobless(aTHX_ q, round);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
 
 int
 Rmpfr_cmp_NV (a, b)
@@ -11879,7 +12001,7 @@ CODE:
   RETVAL = Rmpfr_get_IV (aTHX_ x, round);
 OUTPUT:  RETVAL
 
-SV *
+int
 Rmpfr_set_IV (x, sv, round)
 	mpfr_t *	x
 	SV *	sv
@@ -11887,6 +12009,40 @@ Rmpfr_set_IV (x, sv, round)
 CODE:
   RETVAL = Rmpfr_set_IV (aTHX_ x, sv, round);
 OUTPUT:  RETVAL
+
+void
+Rmpfr_init_set_IV (q, round)
+	SV *	q
+	SV *	round
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpfr_init_set_IV(aTHX_ q, round);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+void
+Rmpfr_init_set_IV_nobless (q, round)
+	SV *	q
+	SV *	round
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpfr_init_set_IV_nobless(aTHX_ q, round);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
 
 SV *
 Rmpfr_get_NV (x, round)
