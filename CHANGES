@@ -10,6 +10,9 @@
  - Utilize Rmpfr_cmp_IV and Rmpfr_cmp_NV in the overloaded comparison subs.
  - Remove the *_UV functions and adapt the corresponding *_IV functions to handle the case
    that SvUOK() is true. (This is how it should always have been.)
+ - Add Rmpfr_init_set_IV and Rmpfr_init_set_NV.
+ - Allow all Rmpfr_cmp_IV, Rmpfr_set_IV, Rmpfr_init_set_IV, Rmpfr_cmp_NV, Rmpfr_set_NV
+   and Rmpfr_init_set_NV to accept scalars that are not IOK or (respectively) NOK.
 
 4.17
  - In Rmpfr_set_default_prec(), Rmpfr_set_prec() and Rmpfr_set_prec_raw(), check
