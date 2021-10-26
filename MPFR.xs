@@ -663,13 +663,9 @@ void Rmpfr_init_set_NV_nobless(pTHX_ SV * q, SV * round) {
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
-int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
+int Rmpfr_cmp_float128(pTHX_ mpfr_t * a, SV * b) {
 
-#if defined(USE_LONG_DOUBLE) && !defined(_MSC_VER)
-
-     return mpfr_cmp_ld(*a, SvNV(b));
-
-#elif defined(CAN_PASS_FLOAT128)
+#if defined(CAN_PASS_FLOAT128)
 
      mpfr_t t;
      int ret;
@@ -732,6 +728,23 @@ int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
      returned = mpfr_cmp(*a, t);
      mpfr_clear(t);
      return returned;
+
+#else
+
+     croak("Rmpfr_cmp_float128 not available on this build of perl");
+
+#endif
+}
+
+int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
+
+#if defined(USE_LONG_DOUBLE) && !defined(_MSC_VER)
+
+     return mpfr_cmp_ld(*a, SvNV(b));
+
+#elif defined(USE_QUADMATH)
+
+     return Rmpfr_cmp_float128(aTHX_ a, b);
 
 #else
 
@@ -6398,7 +6411,56 @@ SV * Rmpfr_set_float128(pTHX_ mpfr_t * rop, SV * q, SV * rnd) {
          croak("See \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
        }
 #  endif
+
      croak("Cannot use Rmpfr_set_float128 to set an NV - see \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
+#endif
+
+}
+
+void Rmpfr_init_set_float128(pTHX_ SV * q, SV * round) {
+
+#ifdef CAN_PASS_FLOAT128
+     dXSARGS;
+     mpfr_t * mpfr_t_obj;
+     SV * obj_ref, * obj;
+     int ret;
+
+     CHECK_ROUNDING_VALUE
+
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init_set_float128) /* defined in math_mpfr_include.h */
+
+     mpfr_init(*mpfr_t_obj);
+     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
+     ret = mpfr_set_float128(*mpfr_t_obj, SvNV(q), (mpfr_rnd_t)SvUV(round));
+     SvREADONLY_on(obj);
+     RETURN_STACK_2  /*defined in math_mpfr_include.h */
+#else
+
+     croak("Cannot use Rmpfr_init_set_float128 to set an NV - see \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
+#endif
+
+}
+
+void Rmpfr_init_set_float128_nobless(pTHX_ SV * q, SV * round) {
+
+#ifdef CAN_PASS_FLOAT128
+     dXSARGS;
+     mpfr_t * mpfr_t_obj;
+     SV * obj_ref, * obj;
+     int ret;
+
+     CHECK_ROUNDING_VALUE
+
+     NEW_MATH_MPFR_OBJECT("NULL",Rmpfr_init_set_float128_nobless) /* defined in math_mpfr_include.h */
+
+     mpfr_init(*mpfr_t_obj);
+     sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
+     ret = mpfr_set_float128(*mpfr_t_obj, SvNV(q), (mpfr_rnd_t)SvUV(round));
+     SvREADONLY_on(obj);
+     RETURN_STACK_2  /*defined in math_mpfr_include.h */
+#else
+
+     croak("Cannot use Rmpfr_init_set_float128_nobless to set an NV - see \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
 #endif
 
 }
@@ -9782,6 +9844,14 @@ Rmpfr_init_set_NV_nobless (q, round)
         }
         /* must have used dXSARGS; list context implied */
         return; /* assume stack size is correct */
+
+int
+Rmpfr_cmp_float128 (a, b)
+	mpfr_t *	a
+	SV *	b
+CODE:
+  RETVAL = Rmpfr_cmp_float128 (aTHX_ a, b);
+OUTPUT:  RETVAL
 
 int
 Rmpfr_cmp_NV (a, b)
@@ -13424,6 +13494,40 @@ Rmpfr_set_float128 (rop, q, rnd)
 CODE:
   RETVAL = Rmpfr_set_float128 (aTHX_ rop, q, rnd);
 OUTPUT:  RETVAL
+
+void
+Rmpfr_init_set_float128 (q, round)
+	SV *	q
+	SV *	round
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpfr_init_set_float128(aTHX_ q, round);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+void
+Rmpfr_init_set_float128_nobless (q, round)
+	SV *	q
+	SV *	round
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpfr_init_set_float128_nobless(aTHX_ q, round);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
 
 SV *
 _is_readonly (sv)
