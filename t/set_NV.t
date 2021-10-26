@@ -89,13 +89,14 @@ if    ($bits == 53)                     { *MPFR_SET_NV      =\&Rmpfr_set_d;
                                           *MPFR_CMP_NV      =\&Rmpfr_cmp_d;
                                           warn "\nUsing mpfr*_set_d and mpfr_cmp_d functions\n";   }
 
-elsif($Config{nvtype} eq 'long double') { *MPFR_SET_NV      =\&Rmpfr_set_ld;
-                                          *MPFR_INIT_SET_NV =\&Rmpfr_init_set_ld;
-                                          *MPFR_CMP_NV      =\&Rmpfr_cmp_ld;
+elsif($Config{nvtype} eq 'long double') { *MPFR_SET_NV      = \&Rmpfr_set_ld;
+                                          *MPFR_INIT_SET_NV = \&Rmpfr_init_set_ld;
+                                          *MPFR_CMP_NV      = \&Rmpfr_cmp_ld;
                                           warn "\nUsing mpfr*_set_ld and mpfr_cmp_ld functions\n";   }
 
-else                                    { *MPFR_SET_NV      =\&Rmpfr_set_float128;
-                                          *MPFR_INIT_SET_NV =\&init_set_float128;    # provided below
+else                                    { *MPFR_SET_NV      = \&Rmpfr_set_float128;
+                                          *MPFR_INIT_SET_NV = \&Rmpfr_init_set_float128;
+                                          *MPFR_CMP_NV      = \&Rmpfr_cmp_float128;
                                           warn "\nUsing mpfr_set_float128 function\n";   }
 Rmpfr_set_default_prec($bits);
 
@@ -139,42 +140,38 @@ for(@in) {
 # We'll now run similar checks on Rmpfr_cmp_NV, using the
 # values (in @in) that we've already used to check Rmpfr_set_NV.
 # In all cases Rmpfr_cmp_NV should agree with MPFR_CMP_NV().
-# The mpfr library does not provide an mpfr_cmp_float128()
-# function, so we don't run these checks if $Config{nvtype}
-# is '__float128'.
 
-unless($Config{nvtype} eq '__float128') {
-  for(@in) {
+for(@in) {
 
-    no warnings 'numeric';
+  no warnings 'numeric';
 
-    # Create copies of $_ - and use each copy only once
-    # as perl might change the flags.
-    my($c1, $c2, $c3, $c4, $c5, $c6) = ($_, $_, $_, $_, $_, $_);
+  # Create copies of $_ - and use each copy only once
+  # as perl might change the flags.
+  my($c1, $c2, $c3, $c4, $c5, $c6) = ($_, $_, $_, $_, $_, $_);
 
-    my $rnd = int(rand(4));
+  my $rnd = int(rand(4));
 
-    my $rop1  = Math::MPFR->new(10);
+  my $rop1  = Math::MPFR->new(10);
 
-    next if Rmpfr_nan_p($rop1);
+  next if Rmpfr_nan_p($rop1);
 
-    if(Rmpfr_cmp_NV($rop1, $c1) < 0) {
-      cmp_ok(MPFR_CMP_NV($rop1, $c6), '<', 0, "$rnd: $_: comparisons concur");
-    }
-    elsif(Rmpfr_cmp_NV($rop1, $c2) == 0) {
-      cmp_ok(MPFR_CMP_NV($rop1, $c6), '==', 0, "$rnd: $_: comparisons concur");
-    }
-    else {
-      cmp_ok(MPFR_CMP_NV($rop1, $c6), '>', 0, "$rnd: $_: comparisons concur");
-    }
+  if(Rmpfr_cmp_NV($rop1, $c1) < 0) {
+    cmp_ok(MPFR_CMP_NV($rop1, $c6), '<', 0, "$rnd: $_: comparisons concur");
+  }
+  elsif(Rmpfr_cmp_NV($rop1, $c2) == 0) {
+    cmp_ok(MPFR_CMP_NV($rop1, $c6), '==', 0, "$rnd: $_: comparisons concur");
+  }
+  else {
+    cmp_ok(MPFR_CMP_NV($rop1, $c6), '>', 0, "$rnd: $_: comparisons concur");
   }
 }
 
 done_testing();
 
-sub init_set_float128 {
-  no warnings 'numeric';
-  my $ret = Math::MPFR->new();
-  my $inex = Rmpfr_set_float128($ret, $_[0], $_[1]);
-  return ($ret, $inex);
-}
+# No longer used
+#sub init_set_float128 {
+#  no warnings 'numeric';
+#  my $ret = Math::MPFR->new();
+#  my $inex = Rmpfr_set_float128($ret, $_[0], $_[1]);
+#  return ($ret, $inex);
+#}
