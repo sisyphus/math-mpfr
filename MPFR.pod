@@ -734,25 +734,27 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     immediately below.
     Note that these functions (below) return a list of 2 values.
 
-   ($rop, $si) = Rmpfr_init_set($op, $rnd);
+   ($rop, $si) = Rmpfr_init_set        ($op, $rnd);
    ($rop, $si) = Rmpfr_init_set_nobless($op, $rnd);
-   ($rop, $si) = Rmpfr_init_set_ui($ui, $rnd);
+   ($rop, $si) = Rmpfr_init_set_ui        ($ui, $rnd);
    ($rop, $si) = Rmpfr_init_set_ui_nobless($ui, $rnd);
-   ($rop, $si) = Rmpfr_init_set_si($si, $rnd);
+   ($rop, $si) = Rmpfr_init_set_si        ($si, $rnd);
    ($rop, $si) = Rmpfr_init_set_si_nobless($si, $rnd);
-   ($rop, $si) = Rmpfr_init_set_d($double, $rnd);
+   ($rop, $si) = Rmpfr_init_set_d        ($double, $rnd);
    ($rop, $si) = Rmpfr_init_set_d_nobless($double, $rnd);
-   ($rop, $si) = Rmpfr_init_set_ld($double, $rnd);
-   ($rop, $si) = Rmpfr_init_set_ld_nobless($double, $rnd);
-   ($rop, $si) = Rmpfr_init_set_f($f, $rnd);        # $f is a mpf object
+   ($rop, $si) = Rmpfr_init_set_ld        ($longdouble, $rnd);
+   ($rop, $si) = Rmpfr_init_set_ld_nobless($longdouble, $rnd);
+   ($rop, $si) = Rmpfr_init_set_float128        ($float128, $rnd);
+   ($rop, $si) = Rmpfr_init_set_float128_nobless($float128, $rnd);
+   ($rop, $si) = Rmpfr_init_set_f        ($f, $rnd);# $f is a mpf object
    ($rop, $si) = Rmpfr_init_set_f_nobless($f, $rnd);# $f is a mpf object
-   ($rop, $si) = Rmpfr_init_set_z($z, $rnd);        # $z is a mpz object
+   ($rop, $si) = Rmpfr_init_set_z        ($z, $rnd);# $z is a mpz object
    ($rop, $si) = Rmpfr_init_set_z_nobless($z, $rnd);# $z is a mpz object
-   ($rop, $si) = Rmpfr_init_set_q($q, $rnd);        # $q is a mpq object
+   ($rop, $si) = Rmpfr_init_set_q        ($q, $rnd);# $q is a mpq object
    ($rop, $si) = Rmpfr_init_set_q_nobless($q, $rnd);# $q is a mpq object
-   ($rop, $si) = Rmpfr_init_set_IV($IV,$rnd);        # $IV is $Config{ivtype}
+   ($rop, $si) = Rmpfr_init_set_IV        ($IV,$rnd);# $IV is $Config{ivtype}
    ($rop, $si) = Rmpfr_init_set_IV_nobless($IV,$rnd);# $IV is $Config{ivtype}
-   ($rop, $si) = Rmpfr_init_set_IV($NV,$rnd);        # $NV is $Config{nvtype}
+   ($rop, $si) = Rmpfr_init_set_IV        ($NV,$rnd);# $NV is $Config{nvtype}
    ($rop, $si) = Rmpfr_init_set_IV_nobless($NV,$rnd);# $NV is $Config{nvtype}
 
     Initialize $rop and set its value from the 1st arg, rounded to
@@ -1130,6 +1132,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_cmp_si($op, $si);
    $si = Rmpfr_cmp_d($op, $double);
    $si = Rmpfr_cmp_ld($op, $ld); # long double
+   $si = Rmpfr_cmp_float128($op, $float128); # __float128
    $si = Rmpfr_cmp_z($op, $z); # $z is a mpz object
    $si = Rmpfr_cmp_q($op, $q); # $q is a mpq object
    $si = Rmpfr_cmp_f($op, $f); # $f is a mpf object
