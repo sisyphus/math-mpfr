@@ -71,6 +71,13 @@ if($Config{nvtype} eq '__float128') {
   cmp_ok(Rmpfr_cmp_NV($small_neg, $nv_small_neg), '==', 0, 'Rmpfr_cmp_NV again agrees with overloaded "=="');
 }
 
+# The following tests don't really prove anything.
+# All they demonstrate is that Rmpfr_set_NV, Rmpfr_init_set_NV
+# and Rmpfr_cmp_NV call the mpfr functions that we expect them
+# to - which is something that *should not* even need to be
+# checked.
+
+
 # We'll now check some more values - even ones that are not NVs.
 # In all cases Rmpfr_set_NV should agree with both MPFR_SET_NV()
 # and MPFR_INIT_SET_NV().
@@ -79,23 +86,28 @@ my $bits = $Math::MPFR::NV_properties{bits};
 
 if    ($bits == 53)                     { *MPFR_SET_NV      =\&Rmpfr_set_d;
                                           *MPFR_INIT_SET_NV =\&Rmpfr_init_set_d;
-                                          warn "\nUsing *_set_d functions\n";   }
+                                          *MPFR_CMP_NV      =\&Rmpfr_cmp_d;
+                                          warn "\nUsing mpfr*_set_d and mpfr_cmp_d functions\n";   }
 
 elsif($Config{nvtype} eq 'long double') { *MPFR_SET_NV      =\&Rmpfr_set_ld;
                                           *MPFR_INIT_SET_NV =\&Rmpfr_init_set_ld;
-                                          warn "\nUsing *_set_ld functions\n";   }
+                                          *MPFR_CMP_NV      =\&Rmpfr_cmp_ld;
+                                          warn "\nUsing mpfr*_set_ld and mpfr_cmp_ld functions\n";   }
 
 else                                    { *MPFR_SET_NV      =\&Rmpfr_set_float128;
                                           *MPFR_INIT_SET_NV =\&init_set_float128;    # provided below
-                                          warn "\nUsing _set_float128 function\n";   }
+                                          warn "\nUsing mpfr_set_float128 function\n";   }
 Rmpfr_set_default_prec($bits);
 
 my $x = '42.3';
 my $y = ~0;
 my $z = -1;
 
-for(0, 'inf', '-inf', 'nan', '-nan', 'hello', ~0, -1, sqrt(2), Math::MPFR->new(),
-    Math::MPFR->new(-11), $x, \$x, "$y", "$z", 2 ** 32, 2 ** 64) {
+my @in = (0, 'inf', '-inf', 'nan', '-nan', 'hello', ~0, -1, sqrt(2), Math::MPFR->new(),
+    Math::MPFR->new(-11), $x, \$x, "$y", "$z", 2 ** 32, 2 ** 64, 2 ** -1069, 2 ** -16300,
+    ~0 * 2, ~0 * -2);
+
+for(@in) {
 
   no warnings 'numeric';
 
@@ -122,6 +134,40 @@ for(0, 'inf', '-inf', 'nan', '-nan', 'hello', ~0, -1, sqrt(2), Math::MPFR->new()
   cmp_ok($rop1, '==', $rop2, "$rnd: $_: \$rop1 == \$rop2");
   cmp_ok($rop1, '==', $rop3, "$rnd: $_: \$rop1 == \$rop3");
   cmp_ok($rop1, '==', $rop4, "$rnd: $_: \$rop1 == \$rop2");
+}
+
+# We'll now run similar checks on Rmpfr_cmp_NV, using the
+# values (in @in) that we've already used to check Rmpfr_set_NV.
+# In all cases Rmpfr_cmp_NV should agree with MPFR_CMP_NV().
+# The mpfr library does not provide an mpfr_cmp_float128()
+# function, so we don't run these checks if $Config{nvtype}
+# is '__float128'.
+
+unless($Config{nvtype} eq '__float128') {
+  for(@in) {
+
+    no warnings 'numeric';
+
+    # Create copies of $_ - and use each copy only once
+    # as perl might change the flags.
+    my($c1, $c2, $c3, $c4, $c5, $c6) = ($_, $_, $_, $_, $_, $_);
+
+    my $rnd = int(rand(4));
+
+    my $rop1  = Math::MPFR->new(10);
+
+    next if Rmpfr_nan_p($rop1);
+
+    if(Rmpfr_cmp_NV($rop1, $c1) < 0) {
+      cmp_ok(MPFR_CMP_NV($rop1, $c6), '<', 0, "$rnd: $_: comparisons concur");
+    }
+    elsif(Rmpfr_cmp_NV($rop1, $c2) == 0) {
+      cmp_ok(MPFR_CMP_NV($rop1, $c6), '==', 0, "$rnd: $_: comparisons concur");
+    }
+    else {
+      cmp_ok(MPFR_CMP_NV($rop1, $c6), '>', 0, "$rnd: $_: comparisons concur");
+    }
+  }
 }
 
 done_testing();
