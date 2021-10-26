@@ -16,12 +16,16 @@ if($Config{ivtype} eq 'long' &&
                                            *MPFR_INIT_SET_IV = \&Rmpfr_init_set_si;
                                            *MPFR_SET_UV      = \&Rmpfr_set_ui;
                                            *MPFR_INIT_SET_UV = \&Rmpfr_init_set_ui;
-                                           warn "\nUsing *_set_ui and *_set_si functions\n"; }
+                                           *MPFR_CMP_IV      = \&Rmpfr_cmp_si;
+                                           *MPFR_CMP_UV      = \&Rmpfr_cmp_ui;
+                                           warn "\nUsing *_set_ui,*_set_si _cmp_ui and cmp_si functions\n"; }
 
 else                                     { *MPFR_SET_IV      = \&Rmpfr_set_sj;
                                            *MPFR_INIT_SET_IV = \&init_set_sj;          # provided below
                                            *MPFR_SET_UV      = \&Rmpfr_set_uj;
                                            *MPFR_INIT_SET_UV = \&init_set_uj;          # provided below
+                                           *MPFR_CMP_IV      = \&Rmpfr_cmp_sj;
+                                           *MPFR_CMP_UV      = \&Rmpfr_cmp_uj;
                                            warn "\nUsing set_uj and _set_sj functions\n"; }
 Rmpfr_set_default_prec($bits);
 
@@ -29,8 +33,11 @@ my $x = '42.3';
 my $y = ~0;
 my $z = -1;
 
-for(0, 'inf', '-inf', 'nan', '-nan', 'hello', ~0, -1, sqrt(2), Math::MPFR->new(),
-    Math::MPFR->new(-11), $x, \$x, "$y", "$z", 2 ** 32, 2 ** 64) {
+my @in = (0, 'inf', '-inf', 'nan', '-nan', 'hello', ~0, -1, sqrt(2), Math::MPFR->new(),
+    Math::MPFR->new(-11), $x, \$x, "$y", "$z", 2 ** 32, 2 ** 64, 2 ** -1069, 2 ** -16300,
+    ~0 * 2, ~0 * -2);
+
+for(@in) {
 
   no warnings 'numeric';
 
@@ -73,6 +80,45 @@ for(0, 'inf', '-inf', 'nan', '-nan', 'hello', ~0, -1, sqrt(2), Math::MPFR->new()
   cmp_ok($rop1, '==', $rop2, "$rnd: $_: \$rop1 == \$rop2");
   cmp_ok($rop1, '==', $rop3, "$rnd: $_: \$rop1 == \$rop3");
   cmp_ok($rop1, '==', $rop4, "$rnd: $_: \$rop1 == \$rop2");
+}
+
+# We'll now run similar checks on Rmpfr_cmp_IV, using the
+# values (in @in) that we've already used to check Rmpfr_set_IV.
+
+for(@in) {
+
+  no warnings 'numeric';
+
+  # Create copies of $_ - and use each copy only once
+  # as perl might change the flags.
+  my($c1, $c2, $c3, $c4, $c5, $c6) = ($_, $_, $_, $_, $_, $_);
+
+  my $rnd = int(rand(4));
+  my $rop1 = Math::MPFR->new();
+  Rmpfr_set_IV($rop1, $c1, $rnd);
+
+  if($rop1 < (~0 >> 1)) {
+    if(Rmpfr_cmp_IV     ($rop1, $c2) < 0) {
+      cmp_ok(MPFR_CMP_IV($rop1, $c6), '<', 0, "$rnd: $_: comparisons concur");
+    }
+    elsif(Rmpfr_cmp_IV($rop1, $c3) == 0) {
+      cmp_ok(MPFR_CMP_IV($rop1, $c6), '==', 0, "$rnd: $_: comparisons concur");
+    }
+    else {
+      cmp_ok(MPFR_CMP_IV($rop1, $c6), '>', 0, "$rnd: $_: comparisons concur");
+    }
+  }
+  else {
+    if(Rmpfr_cmp_IV     ($rop1, $c2) < 0) {
+      cmp_ok(MPFR_CMP_UV($rop1, $c6), '<', 0, "$rnd: $_: comparisons concur");
+    }
+    elsif(Rmpfr_cmp_IV($rop1, $c3) == 0) {
+      cmp_ok(MPFR_CMP_UV($rop1, $c6), '==', 0, "$rnd: $_: comparisons concur");
+    }
+    else {
+      cmp_ok(MPFR_CMP_UV($rop1, $c6), '>', 0, "$rnd: $_: comparisons concur");
+    }
+  }
 }
 
 done_testing();
