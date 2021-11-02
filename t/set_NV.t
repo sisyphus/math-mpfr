@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Math::MPFR qw(:mpfr);
+use Math::MPFR qw(:mpfr NOK_flag);
 use Config;
 
 use Test::More;
@@ -117,7 +117,16 @@ for(@in) {
   my($c1, $c2, $c3, $c4, $c5, $c6) = ($_, $_, $_, $_, $_, $_);
 
   my $rnd = int(rand(4));
-  my($rop1, $inex1) = Rmpfr_init_set_NV($c1, $rnd);
+  my($rop1, $inex1);
+
+  if(NOK_flag($c1)) {
+    ($rop1, $inex1) = Rmpfr_init_set_NV($c1, $rnd);
+  }
+  else {
+    eval {($rop1, $inex1) = Rmpfr_init_set_NV($c1, $rnd);};
+    like($@, qr/In Rmpfr_set_NV, 2nd argument is not an NV/, '$@ set as expected');
+    next;
+  }
   my($rop2, $inex2) = MPFR_INIT_SET_NV ($c2, $rnd);
 
   my $rop3  = Math::MPFR->new();
@@ -153,7 +162,7 @@ for(@in) {
 
   my $rop1  = Math::MPFR->new(10);
 
-  next if Rmpfr_nan_p($rop1);
+  next if Rmpfr_nan_p($rop1) || !NOK_flag($c1);
 
   if(Rmpfr_cmp_NV($rop1, $c1) < 0) {
     cmp_ok(MPFR_CMP_NV($rop1, $c6), '<', 0, "$rnd: $_: comparisons concur");
