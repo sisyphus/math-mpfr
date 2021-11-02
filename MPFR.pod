@@ -534,10 +534,10 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_set_si($rop, $si, $rnd);
    $si = Rmpfr_set_sj($rop, $sj, $rnd);
    $si = Rmpfr_set_uj($rop, $uj, $rnd);
-   $si = Rmpfr_set_IV($rop, $IV, $rnd); # $IV is $Config{ivtype}
+   $si = Rmpfr_set_IV($rop, $iv, $rnd); # $iv is $Config{ivtype}
    $si = Rmpfr_set_d ($rop, $double, $rnd);
    $si = Rmpfr_set_ld($rop, $ld, $rnd); # long double
-   $si = Rmpfr_set_NV($rop, $NV, $rnd); # $NV is $Config{nvtype}
+   $si = Rmpfr_set_NV($rop, $nv, $rnd); # $nv is $Config{nvtype}
    $si = Rmpfr_set_LD($rop, $LD, $rnd); # $LD is a Math::LongDouble object
    $si = Rmpfr_set_z($rop, $z, $rnd); # $z is a mpz object.
    $si = Rmpfr_set_q($rop, $q, $rnd); # $q is a mpq object.
@@ -572,6 +572,14 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     number (this happens for 0.1 for instance), in which case it is
     first rounded by the C compiler to a double-precision number,
     and then only to a mpfr floating-point number.
+
+    NOTE:
+         Rmpfr_set_IV requires that $iv has it's IOK flag set, and
+         Rmpfr_set_NV requires that $nv has its NOK flag set.
+         Otherwise these functions will croak.
+         Best to first check IOK_flag($iv) or NOK_flag($nv), both of which
+         will return a non-zero value if and only if the flag in question
+         is set.
 
    $si = Rmpfr_set_ui_2exp($rop, $ui, $exp, $rnd);
    $si = Rmpfr_set_si_2exp($rop, $si, $exp, $rnd);
@@ -1136,8 +1144,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_cmp_z($op, $z); # $z is a mpz object
    $si = Rmpfr_cmp_q($op, $q); # $q is a mpq object
    $si = Rmpfr_cmp_f($op, $f); # $f is a mpf object
-   $si = Rmpfr_cmp_IV($op, $IV); # $IV is $Config{ivtype}
-   $si = Rmpfr_cmp_NV($op, $NV); # $NV is $Config{nvtype}
+   $si = Rmpfr_cmp_IV($op, $iv); # $iv is $Config{ivtype}
+   $si = Rmpfr_cmp_NV($op, $nv); # $nv is $Config{nvtype}
     Compare 1st and 2nd args. In the case of 'Rmpfr_cmpabs()' and
     'Rmpfr_cmpabs_ui' compare the absolute values of the 2 args.
     Return a positive value if 1st arg > 2nd arg, zero if
@@ -1147,6 +1155,15 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     the absolute value returned is one plus the absolute difference
     of their exponents. If one of the operands is NaN (Not-a-Number),
     return zero and set the erange flag.
+
+    NOTE:
+         Rmpfr_cmp_IV() requires that the 2nd argument has its IOK
+         flag set, and Rmpfr_cmp_NV() requires that the 2nd
+         argument has its NOK flag set.
+         Otherwise these functions croak.
+         Suggestion: first check the status of the flag using
+         IOK_flag($iv) or NOK_flag($nv),which return a non-zero
+         value if and only if the flag in question is set.
 
    $si = fr_cmp_q_rounded($op, $q, $rnd); # $q is a mpq object
     Convert $q to an mpfr object of current default precision,
@@ -2199,6 +2216,16 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     In some cases, however, $bits values of 64 and/or 113 might
     throw a fatal error (with diagnostic message stating that the
     requested byte structure is not currently available).
+
+   $si = IOK_flag($sv); # $sv is a perl scalar variable.
+   $si = NOK_flag($sv);
+   $si = POK_flag($sv);
+
+    Return 0 if $sv's IOK/NOK/POK flag is unset.
+    Else return 1.
+    If the IsUV flag is set, then IOK_flag() returns 2, thereby indicating
+    that both the IOK and IsUV flags are set (and that the integer value
+    held by $sv should therefore be treated as unsigned).
 
    ##############
 
