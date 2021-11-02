@@ -583,9 +583,17 @@ int Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
 #endif
 
 #if defined(USE_LONG_DOUBLE) && !defined(_MSC_VER)
+
+     if(!SV_IS_NOK(q))
+       croak("In Rmpfr_set_NV, 2nd argument is not an NV");
+
      return mpfr_set_ld(*p, (long double)SvNV(q), (mpfr_rnd_t)round);
 
 #elif defined(CAN_PASS_FLOAT128)
+
+     if(!SV_IS_NOK(q))
+       croak("In Rmpfr_set_NV, 2nd argument is not an NV");
+
      return mpfr_set_float128(*p, (float128)SvNV(q), (mpfr_rnd_t)round);
 
 #elif defined(USE_QUADMATH)
@@ -593,6 +601,9 @@ int Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
      int exp;
      float128 ld;
      int returned;
+
+     if(!SV_IS_NOK(q))
+       croak("In Rmpfr_set_NV, 2nd argument is not an NV");
 
      ld = (float128)SvNV(q);
 
@@ -623,7 +634,11 @@ int Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
      return returned;
 
 #else
-     return mpfr_set_d (*p, (double)SvNV(q), (mpfr_rnd_t)round);
+
+     if(!SV_IS_NOK(q))
+       croak("In Rmpfr_set_NV, 2nd argument is not an NV");
+
+     return mpfr_set_d (*p, SvNV(q), (mpfr_rnd_t)round);
 
 #endif
 }
@@ -737,6 +752,9 @@ int Rmpfr_cmp_float128(pTHX_ mpfr_t * a, SV * b) {
 }
 
 int Rmpfr_cmp_NV(pTHX_ mpfr_t * a, SV * b) {
+
+     if(!SvNOK(b))
+       croak("In Rmpfr_cmp_NV, 2nd argument is not an NV");
 
 #if defined(USE_LONG_DOUBLE) && !defined(_MSC_VER)
 
@@ -1409,14 +1427,8 @@ int Rmpfr_cmp_IV(pTHX_ mpfr_t *a, SV * b) {
     if(SV_IS_IOK(b)) {
       if(SvUOK(b)) call_uv = 1;
     }
-    else {
-      mpfr_t t;
-      mpfr_init2(t, sizeof(IV) * 8);
-      mpfr_strtofr(t, SvPV_nolen(b), NULL, 10, GMP_RNDN);
-
-      if(mpfr_cmp_ui(t, 0) >= 0) call_uv = 1;
-      mpfr_clear(t);
-    }
+    else
+      croak("Arg provided to Rmpfr_cmp_IV is not an IV");
 
 #if defined(MATH_MPFR_NEED_LONG_LONG_INT)
     if(call_uv) {
@@ -2454,14 +2466,7 @@ int Rmpfr_set_IV(pTHX_ mpfr_t * x, SV * sv,  SV * round) {
      if(SV_IS_IOK(sv)) {
        if(SvUOK(sv)) call_uv = 1;
      }
-     else {
-       mpfr_t t;
-       mpfr_init2(t, sizeof(IV) * 8);
-       mpfr_strtofr(t, SvPV_nolen(sv), NULL, 10, GMP_RNDN);
-
-       if(mpfr_cmp_ui(t, 0) >= 0) call_uv = 1;
-       mpfr_clear(t);
-     }
+     else croak("Arg provided to Rmpfr_set_IV is not an IV");
 
 #if defined MATH_MPFR_NEED_LONG_LONG_INT
      if(call_uv)
@@ -9195,6 +9200,23 @@ void decimalize(pTHX_ SV * a, ...) {
 
 }
 
+int IOK_flag(SV * sv) {
+  if(SvUOK(sv)) return 2;
+  if(SvIOK(sv)) return 1;
+  return 0;
+}
+
+int POK_flag(SV * sv) {
+  if(SvPOK(sv)) return 1;
+  return 0;
+}
+
+int NOK_flag(SV * sv) {
+  if(SvNOK(sv)) return 1;
+  return 0;
+}
+
+
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
 
 PROTOTYPES: DISABLE
@@ -14033,4 +14055,16 @@ decimalize (a, ...)
         }
         /* must have used dXSARGS; list context implied */
         return; /* assume stack size is correct */
+
+int
+IOK_flag (sv)
+	SV *	sv
+
+int
+POK_flag (sv)
+	SV *	sv
+
+int
+NOK_flag (sv)
+	SV *	sv
 
