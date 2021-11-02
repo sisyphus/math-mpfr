@@ -4,7 +4,7 @@
 # and MPFR_INIT_SET_IV().
 use strict;
 use warnings;
-use Math::MPFR qw(:mpfr);
+use Math::MPFR qw(:mpfr IOK_flag NOK_flag POK_flag);
 use Config;
 
 use Test::More;
@@ -47,7 +47,15 @@ for(@in) {
 
   my($rop1, $rop2, $rop3, $rop4, $inex1, $inex2, $inex3, $inex4);
   my $rnd = int(rand(4));
-  ($rop1, $inex1) = Rmpfr_init_set_IV($c1, $rnd);
+
+  if(IOK_flag($c1)) {
+    ($rop1, $inex1) = Rmpfr_init_set_IV($c1, $rnd);
+  }
+  else {
+    eval { ($rop1, $inex1) = Rmpfr_init_set_IV($c1, $rnd);};
+    like($@, qr/Arg provided to Rmpfr_set_IV is not an IV/, '$@ set as expected');
+    next;
+  }
 
   if($rop1 < (~0 >> 1)) {
     ($rop2, $inex2) = MPFR_INIT_SET_IV ($c2, $rnd);
@@ -95,7 +103,16 @@ for(@in) {
 
   my $rnd = int(rand(4));
   my $rop1 = Math::MPFR->new();
-  Rmpfr_set_IV($rop1, $c1, $rnd);
+#  Rmpfr_set_IV($rop1, $c1, $rnd);
+
+  if(IOK_flag($c1)) {
+    Rmpfr_set_IV($rop1, $c1, $rnd);
+  }
+  else {
+    eval { Rmpfr_set_IV($rop1, $c1, $rnd);};
+    like($@, qr/Arg provided to Rmpfr_set_IV is not an IV/, '$@ set as expected');
+    next;
+  }
 
   if($rop1 < (~0 >> 1)) {
     if(Rmpfr_cmp_IV     ($rop1, $c2) < 0) {
@@ -120,6 +137,12 @@ for(@in) {
     }
   }
 }
+
+cmp_ok(POK_flag("$bits"), '==', 1, "POK_flag set as expected"  );
+cmp_ok(POK_flag(2.3)    , '==', 0, "POK_flag unset as expected");
+
+cmp_ok(NOK_flag(2.3)    , '==', 1, "NOK_flag set as expected"  );
+cmp_ok(NOK_flag("2.3")  , '==', 0, "NOK_flag unset as expected");
 
 done_testing();
 
