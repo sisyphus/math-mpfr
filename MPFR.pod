@@ -1638,8 +1638,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     is different (to match the order of the mpfr_out_str args).
     To print to STDERR:
        TRmpfr_out_str(*stderr, $base, $digits, $op, $round);
-    To print to an open filehandle (let's call it FH):
-       TRmpfr_out_str(\*FH, $base, $digits, $op, $round);
+    To print to an open filehandle (let's call it $fh):
+       TRmpfr_out_str(\*$fh, $base, $digits, $op, $round);
 
    $ui = Rmpfr_inp_str($rop, $base, $round);
     BEST TO USE TRmpfr_inp_str INSTEAD.
