@@ -1672,8 +1672,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     from somewhere other than STDIN.
     To read from STDIN:
        TRmpfr_inp_str($rop, *stdin, $base, $round);
-    To read from an open filehandle (let's call it FH):
-       TRmpfr_inp_str($rop, \*FH, $base,  $round);
+    To read from an open filehandle (let's call it $fh):
+       TRmpfr_inp_str($rop, \*$fh, $base,  $round);
 
    Rmpfr_dump($op);
     Output "$op\n" on stdout in base 2.
