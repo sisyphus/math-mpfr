@@ -80,6 +80,147 @@ int _win32_infnanstring(char * s) { /* MS Windows only - detect 1.#INF and 1.#IN
 #endif
 }
 
+/* _fmt_flt is used by nvtoa, doubletoa and mpfrtoa to format numeric strings */
+
+SV * _fmt_flt(pTHX_ char * out, int k, int sign, int max_decimal_prec, int sf) {
+/*
+
+  out             : the string that contains the mantissa of the value as decimal digits;
+                    does not contain a radix point.
+  k               : the exponent of the value.
+  sign            : is 0 if the value is non-negative; else is non-zero.
+  max_decimal_prec: calculated as ceil(3.010299956639812e-1 * p) + 1, where p is the precision
+                    in bits of the given floating point value.
+  sf              : If non-zero, then Safefree(out) will be run prior to this function returning;
+                    else Safefree(out) will not be run. The doubletoa function requires that
+                    Safefree(out) is not run.
+
+*/
+
+  int k_index, critical, skip;
+  SV * outsv;
+  char *bstr;
+  char str[] = {'\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0'};
+
+  k_index = strlen(out);    /* k_index is now set to strlen(out)     */
+  critical = k; /* formatting is based around this value */
+  k -= k_index;
+
+  if(critical < -3) {
+
+    sprintf(str, "e%03d", critical - 1);
+    if(sign || k_index > 1) {
+      /* insert decimal point */
+      for(skip = k_index + sign; skip > 1 + sign; skip--) {
+        out[skip] = out[skip - 1 - sign];
+      }
+
+      if(k_index > 1) {
+        out[1 + sign] = '.';
+        out[k_index + 1 + sign] = 0;
+      }
+
+      if(sign) {
+        out[1] = out[0];
+        out[0] = '-';
+      }
+    }
+    strcat(out, str);
+
+    outsv = newSVpv(out, 0);
+    if(sf) Safefree(out);
+    return outsv;
+
+  }
+
+  if(critical <= 0 ) {
+
+    /* bstr = concatenate "0." . ("0" x -critical) . out; */
+
+    Newxz(bstr, 8 - critical + strlen(out), char); /* Note: 'critical' has -ve value */
+
+    /* Newxz(bstr, (int)(16 + ceil(0.30103 * NVSIZE_BITS)), char); <= OLD VERSION */
+
+    if(bstr == NULL) croak("Failed to allocate memory for 2nd output string in _fmt_flt sub");
+
+    if(sign) bstr[0] = '-';
+
+    bstr[0 + sign] = '0';
+    bstr[1 + sign] = '.';
+
+    sign += 2;
+
+    for(skip = critical; skip < 0; skip++) {
+      bstr[sign] = '0';
+      sign++;
+    }
+
+    bstr[sign] = 0;
+    strcat(bstr, out);
+
+    outsv = newSVpv(bstr, 0);
+    if(sf) Safefree(out);
+    Safefree(bstr);
+    return outsv;
+
+  }
+
+  if(critical < max_decimal_prec) {
+
+    if(sign) {
+      for(skip = k_index; skip > 0; skip--) out[skip] = out[skip - 1];
+      out[0] = '-';
+      out[k_index + 1] = 0;
+    }
+
+   if(k >= 0) {
+      /* out = concatenate out . ('0' x k); */
+      for(skip = 0; skip < k; skip++) out[k_index + skip + sign] = '0';
+      out[k_index + k + sign] = '.';
+      out[k_index + k + sign + 1] = '0';
+      out[k_index + k + sign + 2] = 0;
+
+      outsv = newSVpv(out, 0);
+      if(sf) Safefree(out);
+      return outsv;
+
+    }
+
+    /* insert decimal point; */
+    for(skip = k_index + sign; skip > k_index + k + sign; skip--) out[skip] = out[skip - 1];
+    out[k_index + k + sign] = '.';
+    out[k_index + sign + 1] = 0;
+
+    outsv = newSVpv(out, 0);
+    if(sf) Safefree(out);
+    return outsv;
+
+  }
+
+  if( k_index > 1) {
+    /* insert decimal point */
+    for(skip = k_index + sign; skip > 1 + sign; skip--) {
+      out[skip] = out[skip - 1 - sign];
+    }
+
+    out[1 + sign] = '.';
+    out[k_index + 1 + sign] = 0;
+  }
+
+  if(sign) {
+    out[1] = out[0];
+    out[0] = '-';
+  }
+
+  sprintf(str, "e+%d", critical - 1);
+  strcat(out, str);
+
+  outsv = newSVpv(out, 0);
+  if(sf) Safefree(out);
+  return outsv;
+
+}
+
 void Rmpfr_set_default_rounding_mode(pTHX_ SV * round) {
      CHECK_ROUNDING_VALUE
      mpfr_set_default_rounding_mode((mpfr_rnd_t)SvUV(round));
@@ -8375,7 +8516,7 @@ SV * nvtoa(pTHX_ NV pnv) {
   mpz_clear(TMP);
 
 #ifdef NVTOA_DEBUG
-  warn(" final string: %s\n k = %d\n", out, k);
+  warn("nvtoa: %s %d %d\n", out, k, bits);
 #endif
 
 /*******************************************************************************************
@@ -8386,121 +8527,13 @@ SV * nvtoa(pTHX_ NV pnv) {
  *  if nv == 2 ** -1074, final string is set to 5, k == -323.   Note that nv == 0.5e-323   *
  *******************************************************************************************/
 
-  /*********************
-   * Format the result *
-   *********************/
-  k_index++;    /* k_index is now set to strlen(out)     */
-  critical = k; /* formatting is based around this value */
-  k -= k_index;
+  /*******************************
+   * Return the formatted result *
+   *******************************/
 
-  if(critical < -3) {
+  /* printf("# nvtoa: %s %d\n", out, k); */
 
-    sprintf(str, "e%03d", critical - 1);
-    if(sign || k_index > 1) {
-      /* insert decimal point */
-      for(skip = k_index + sign; skip > 1 + sign; skip--) {
-        out[skip] = out[skip - 1 - sign];
-      }
-
-      if(k_index > 1) {
-        out[1 + sign] = '.';
-        out[k_index + 1 + sign] = 0;
-      }
-
-      if(sign) {
-        out[1] = out[0];
-        out[0] = '-';
-      }
-    }
-    strcat(out, str);
-
-    outsv = newSVpv(out, 0);
-    Safefree(out);
-    return outsv;
-
-  }
-
-  if(critical <= 0 ) {
-    /* bstr = concatenate "0." . ("0" x -critical) . out; */
-    Newxz(bstr, (int)(16 + ceil(0.30103 * bits)), char); /* 1 + ceil(log(2) / log(10) * bits),
-                                                        but allow a few extra for exponent and sign */
-
-    if(bstr == NULL) croak("Failed to allocate memory for 2nd output string in nvtoa XSub");
-
-    if(sign) bstr[0] = '-';
-
-    bstr[0 + sign] = '0';
-    bstr[1 + sign] = '.';
-
-    sign += 2;
-
-    for(skip = critical; skip < 0; skip++) {
-      bstr[sign] = '0';
-      sign++;
-    }
-
-    bstr[sign] = 0;
-    strcat(bstr, out);
-
-    outsv = newSVpv(bstr, 0);
-    Safefree(out);
-    Safefree(bstr);
-    return outsv;
-
-  }
-
-  if(critical < MATH_MPFR_MAX_DIG) {
-    if(sign) {
-      for(skip = k_index; skip > 0; skip--) out[skip] = out[skip - 1];
-      out[0] = '-';
-      out[k_index + 1] = 0;
-    }
-
-   if(k >= 0) {
-      /* out = concatenate out . ('0' x k); */
-      for(skip = 0; skip < k; skip++) out[k_index + skip + sign] = '0';
-      out[k_index + k + sign] = '.';
-      out[k_index + k + sign + 1] = '0';
-      out[k_index + k + sign + 2] = 0;
-
-      outsv = newSVpv(out, 0);
-      Safefree(out);
-      return outsv;
-
-    }
-
-    /* insert decimal point; */
-    for(skip = k_index + sign; skip > k_index + k + sign; skip--) out[skip] = out[skip - 1];
-    out[k_index + k + sign] = '.';
-    out[k_index + sign + 1] = 0;
-
-    outsv = newSVpv(out, 0);
-    Safefree(out);
-    return outsv;
-
-  }
-
-  if( k_index > 1) {
-    /* insert decimal point */
-    for(skip = k_index + sign; skip > 1 + sign; skip--) {
-      out[skip] = out[skip - 1 - sign];
-    }
-
-    out[1 + sign] = '.';
-    out[k_index + 1 + sign] = 0;
-  }
-
-  if(sign) {
-    out[1] = out[0];
-    out[0] = '-';
-  }
-
-  sprintf(str, "e+%d", critical - 1);
-  strcat(out, str);
-
-  outsv = newSVpv(out, 0);
-  Safefree(out);
-  return outsv;
+  return _fmt_flt(aTHX_ out, k, sign, MATH_MPFR_MAX_DIG, 1);
 
 }
 
@@ -8770,121 +8803,10 @@ SV * mpfrtoa(pTHX_ mpfr_t * pnv) {
 #endif
 
   /*********************
-   * Format the result *
+   * Return the formatted the result *
    *********************/
-  k_index++;    /* k_index is now set to strlen(out)     */
-  critical = k; /* formatting is based around this value */
-  k -= k_index;
 
-  if(critical < -3) {
-
-    sprintf(str, "e%03d", critical - 1);
-    if(sign || k_index > 1) {
-      /* insert decimal point */
-      for(skip = k_index + sign; skip > 1 + sign; skip--) {
-        out[skip] = out[skip - 1 - sign];
-      }
-
-      if(k_index > 1) {
-        out[1 + sign] = '.';
-        out[k_index + 1 + sign] = 0;
-      }
-
-      if(sign) {
-        out[1] = out[0];
-        out[0] = '-';
-      }
-    }
-    strcat(out, str);
-
-    outsv = newSVpv(out, 0);
-    Safefree(out);
-    return outsv;
-
-  }
-
-  if(critical <= 0 ) {
-    /* bstr = concatenate "0." . ("0" x -critical) . out; */
-    Newxz(bstr, (int)(16 + ceil(0.30103 * bits)), char); /* 1 + ceil(log(2) / log(10) * bits),
-                                                        but allow a few extra for exponent and sign */
-
-    if(bstr == NULL) croak("Failed to allocate memory for 2nd output string in mpfrtoa XSub");
-
-    if(sign) bstr[0] = '-';
-
-    bstr[0 + sign] = '0';
-    bstr[1 + sign] = '.';
-
-    sign += 2;
-
-    for(skip = critical; skip < 0; skip++) {
-      bstr[sign] = '0';
-      sign++;
-    }
-
-    bstr[sign] = 0;
-    strcat(bstr, out);
-
-    outsv = newSVpv(bstr, 0);
-    Safefree(out);
-    Safefree(bstr);
-    return outsv;
-
-  }
-
-  if(critical < ceil(3.010299956639812e-1 * bits) + 1) {
-    if(sign) {
-      for(skip = k_index; skip > 0; skip--) out[skip] = out[skip - 1];
-      out[0] = '-';
-      out[k_index + 1] = 0;
-    }
-
-   if(k >= 0) {
-      /* out = concatenate out . ('0' x k); */
-      for(skip = 0; skip < k; skip++) out[k_index + skip + sign] = '0';
-      out[k_index + k + sign] = '.';
-      out[k_index + k + sign + 1] = '0';
-      out[k_index + k + sign + 2] = 0;
-
-      outsv = newSVpv(out, 0);
-      Safefree(out);
-      return outsv;
-
-    }
-
-    /* insert decimal point; */
-    for(skip = k_index + sign; skip > k_index + k + sign; skip--) out[skip] = out[skip - 1];
-    out[k_index + k + sign] = '.';
-    out[k_index + sign + 1] = 0;
-
-    outsv = newSVpv(out, 0);
-    Safefree(out);
-    return outsv;
-
-  }
-
-  if( k_index > 1) {
-    /* insert decimal point */
-    for(skip = k_index + sign; skip > 1 + sign; skip--) {
-      out[skip] = out[skip - 1 - sign];
-    }
-
-    out[1 + sign] = '.';
-    out[k_index + 1 + sign] = 0;
-  }
-
-  if(sign) {
-    out[1] = out[0];
-    out[0] = '-';
-  }
-
-  sprintf(str, "e+%d", critical - 1);
-  strcat(out, str);
-
-  outsv = newSVpv(out, 0);
-  Safefree(out);
-  return outsv;
-
+  return _fmt_flt(aTHX_ out, k, sign, ceil(3.010299956639812e-1 * mpfr_get_prec(*pnv)) + 1, 1);
 }
 
 /****************************
@@ -8911,15 +8833,15 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
   dXSARGS;
 
   double v = SvNV(sv);
-  int d_exp, len, success, decimals, i, ret;
-  uint64_t u64 = CAST_U64(v);
+  int d_exp, len, success, decimals, i, ret, sign = 1;
+  uint64_t u64;
 
   char dst [] = {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
                  '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'};
 
   char *s2 = dst;
 
-  int sign = items > 1 ? 0 : 1; /* A true value for sign implies that nvtoa(aTHX) will be used  *
+  int fallback = items > 1 ? 0 : 1; /* A true value for sign implies that nvtoa(aTHX) will be used  *
                                  * if grisu3() fails to produce a result. Else sprintf()    *
                                  * will be used when grisu3() fails. See pod documentation. */
 #ifdef DTOA_ASSERT
@@ -8927,19 +8849,18 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
   /* assert(dst); */
 #endif
 
+  if(v < 0) {
+    v = -v;
+    sign = -1;
+  }
+
+  u64 = CAST_U64(v);
+
   /* Prehandle NaNs */
   if((u64 << 1) > 0xFFE0000000000000ULL) {
     sprintf(dst, "NaN");
     return newSVpv(dst, 0);
   }
-
-  /* Prehandle negative values. */
-  if((u64 & D64_SIGN) != 0) {
-    *s2++ = '-';
-    v = -v;
-    u64 ^= D64_SIGN;
-    if(sign) sign = -1; /* If sign is true, then any fallback will go to nvtoa(aTHX) */
- }
 
   /* Prehandle zero. */
   if(!u64) {
@@ -8952,6 +8873,7 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
 
   /* Prehandle infinity. */
   if(u64 == D64_EXP_MASK) {
+    if(sign < 0) *s2++ = '-';
     *s2++ = 'I';
     *s2++ = 'n';
     *s2++ = 'f';
@@ -8970,82 +8892,18 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
     set_fallback_flag(aTHX);
 #endif
 
-    if(sign) return nvtoa(aTHX_ v * sign);
+    if(fallback) return nvtoa(aTHX_ v * sign);
 
-    sprintf(s2, "%.16e", v);
+    sprintf(s2, "%.16e", (v * sign));
     return newSVpv(dst, 0);
   }
 
   /* We have an integer string of form "151324135" and a base-10 exponent for that number. */
   /* Now, we just need to format it ...                                                    */
 
-  decimals = GRISU3_MIN(-d_exp, GRISU3_MAX(1, len-1));
+  /* printf("# doubletoa: %s %d\n", dst, d_exp + strlen(dst)); */
 
-  /* Add decimal point for numbers of form 0.000x where appropriate ? */
-  if(len + d_exp <= 0 && len + d_exp >= -3) {
-
-    for(i = len - 1; i >= 0; i--) s2[i - (len + d_exp) + 2] = s2[i];
-    s2[0] = '0';
-    s2[1] = '.';
-    for(i = 2; i < 2 - (len + d_exp); ++i) s2[i] = '0';
-    len += 2 - (len + d_exp); /* len + d_exp is less than or equal to 0 */
-  }
-
-  /* Add decimal point? */
-  else if (d_exp < 0 && len > 1) {
-
-    for(i = 0; i < decimals; ++i) s2[len-i] = s2[len-i-1];
-    s2[len++ - decimals] = '.';
-    d_exp += decimals;
-
-    /* Need scientific notation as well? */
-    if(d_exp != 0) {
-      s2[len++] = 'e';
-      len += i_to_str(d_exp, s2+len);
-    }
-  }
-
-  /* Add scientific notation? */
-  else if(d_exp < 0) {
-
-    s2[len++] = 'e';
-    len += i_to_str(d_exp, s2+len);
-  }
-
-
-  /* Add zeros ? Add scientific notation? */
-  else if(d_exp >= 0) {
-
-    if(len + d_exp < 17) {
-      while(d_exp-- > 0) s2[len++] = '0';
-      s2[len++] = '.';
-      s2[len++] = '0';
-    }
-    else {
-      if(len > 1) {
-        for(i = len; i > 1; i--) s2[i] = s2[i - 1];
-        s2[1] = '.';
-        len++;
-        s2[len++] = 'e';
-        d_exp += len - 3;
-      }
-      else {
-        s2[len++] = 'e';
-        d_exp += len - 2;
-      }
-
-      len += i_to_str(d_exp, s2+len);
-    }
-  }
-
-  if(len > 24) {
-    warn ("Length of output (%d bytes) for %.16e exceeds possible range.\n", len, v);
-    croak("Please file a bug report about this.");
-  }
-
-  /* s2[len] = '\0'; *//* Should not be needed as dst is initialized with NULLs */
-
-  return newSVpv(dst, 0);
+  return _fmt_flt(aTHX_ dst, d_exp + strlen(dst), sign < 0 ? 1 : 0, MATH_MPFR_MAX_DIG, 0);
 
 #else
   croak("The doubletoa function is unavailable - it requires that $Config{nvsize} == 8");
@@ -9243,6 +9101,17 @@ OUTPUT:  RETVAL
 int
 _win32_infnanstring (s)
 	char *	s
+
+SV *
+_fmt_flt (out, k, sign, max_decimal_prec, sf)
+	char *	out
+	int	k
+	int	sign
+	int	max_decimal_prec
+	int	sf
+CODE:
+  RETVAL = _fmt_flt (aTHX_ out, k, sign, max_decimal_prec, sf);
+OUTPUT:  RETVAL
 
 void
 Rmpfr_set_default_rounding_mode (round)
