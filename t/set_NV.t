@@ -71,16 +71,11 @@ if($Config{nvtype} eq '__float128') {
   cmp_ok(Rmpfr_cmp_NV($small_neg, $nv_small_neg), '==', 0, 'Rmpfr_cmp_NV again agrees with overloaded "=="');
 }
 
-# The following tests don't really prove anything.
-# All they demonstrate is that Rmpfr_set_NV, Rmpfr_init_set_NV
-# and Rmpfr_cmp_NV call the mpfr functions that we expect them
-# to - which is something that *should not* even need to be
-# checked.
-
-
 # We'll now check some more values - even ones that are not NVs.
-# In all cases Rmpfr_set_NV should agree with both MPFR_SET_NV()
-# and MPFR_INIT_SET_NV().
+# If the value is an NV, Rmpfr_set_NV should agree with both
+# MPFR_SET_NV() and MPFR_INIT_SET_NV().
+# If the value is not an NV, then Rmpfr_set_NV should croak
+# with expected error message that value is "not an NV".
 
 my $bits = $Math::MPFR::NV_properties{bits};
 
@@ -106,7 +101,7 @@ my $z = -1;
 
 my @in = (0, 'inf', '-inf', 'nan', '-nan', 'hello', ~0, -1, sqrt(2), Math::MPFR->new(),
     Math::MPFR->new(-11), $x, \$x, "$y", "$z", 2 ** 32, 2 ** 64, 2 ** -1069, 2 ** -16300,
-    ~0 * 2, ~0 * -2);
+    ~0 * 2, ~0 * -2, 'nan' + 0, 'inf' + 0, '-inf' + 0, '-nan' + 0);
 
 for(@in) {
 
@@ -114,7 +109,7 @@ for(@in) {
 
   # Create copies of $_ - and use each copy only once
   # as perl might change the flags.
-  my($c1, $c2, $c3, $c4, $c5, $c6) = ($_, $_, $_, $_, $_, $_);
+  my($c1, $c2, $c3, $c4) = ($_, $_, $_, $_);
 
   my $rnd = int(rand(4));
   my($rop1, $inex1);
@@ -139,7 +134,7 @@ for(@in) {
   cmp_ok($inex1, '==', $inex4, "$rnd: $_: \$inex1 == \$inex4");
 
   next if(Rmpfr_nan_p($rop1) && Rmpfr_nan_p($rop2) &&
-          Rmpfr_nan_p($rop3) && Rmpfr_nan_p($rop4));
+       Rmpfr_nan_p($rop3) && Rmpfr_nan_p($rop4));
 
   cmp_ok($rop1, '==', $rop2, "$rnd: $_: \$rop1 == \$rop2");
   cmp_ok($rop1, '==', $rop3, "$rnd: $_: \$rop1 == \$rop3");
@@ -148,7 +143,8 @@ for(@in) {
 
 # We'll now run similar checks on Rmpfr_cmp_NV, using the
 # values (in @in) that we've already used to check Rmpfr_set_NV.
-# In all cases Rmpfr_cmp_NV should agree with MPFR_CMP_NV().
+# In all cases where the value is an NV, Rmpfr_cmp_NV should
+# agree with MPFR_CMP_NV().
 
 for(@in) {
 
@@ -156,22 +152,21 @@ for(@in) {
 
   # Create copies of $_ - and use each copy only once
   # as perl might change the flags.
-  my($c1, $c2, $c3, $c4, $c5, $c6) = ($_, $_, $_, $_, $_, $_);
-
-  my $rnd = int(rand(4));
+  my($c1, $c2, $c3,) = ($_, $_, $_);
 
   my $rop1  = Math::MPFR->new(10);
 
-  next if Rmpfr_nan_p($rop1) || !NOK_flag($c1);
-
-  if(Rmpfr_cmp_NV($rop1, $c1) < 0) {
-    cmp_ok(MPFR_CMP_NV($rop1, $c6), '<', 0, "$rnd: $_: comparisons concur");
+  if(!NOK_flag($c1)) {
+    like($@, qr/not an NV/, '$@ set as expected');
+  }
+  elsif(Rmpfr_cmp_NV($rop1, $c1) < 0) {
+    cmp_ok(MPFR_CMP_NV($rop1, $c3), '<', 0, "$_: comparisons concur");
   }
   elsif(Rmpfr_cmp_NV($rop1, $c2) == 0) {
-    cmp_ok(MPFR_CMP_NV($rop1, $c6), '==', 0, "$rnd: $_: comparisons concur");
+    cmp_ok(MPFR_CMP_NV($rop1, $c3), '==', 0, "$_: comparisons concur");
   }
   else {
-    cmp_ok(MPFR_CMP_NV($rop1, $c6), '>', 0, "$rnd: $_: comparisons concur");
+    cmp_ok(MPFR_CMP_NV($rop1, $c3), '>', 0, "$_: comparisons concur");
   }
 }
 
