@@ -181,7 +181,7 @@ fr_cmp_q_rounded mpfr_max_orig_len mpfr_min_inter_prec mpfrtoa numtoa nvtoa prec
 q_add_fr q_cmp_fr q_div_fr q_mul_fr q_sub_fr rndna
 );
 
-    our $VERSION = '4.18';
+    our $VERSION = '4.19';
     #$VERSION = eval $VERSION;
 
     Math::MPFR->DynaLoader::bootstrap($VERSION);
