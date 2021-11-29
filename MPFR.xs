@@ -629,7 +629,7 @@ void Rmpfr_deref2(pTHX_ mpfr_t * p, SV * base, SV * n_digits, SV * round) {
 
      if(out == NULL) croak("An error occurred in memory allocation in mpfr_get_str\n");
 
-     ST(0) = sv_2mortal(newSVpv(out, 0));
+     ST(0) = MORTALIZED_PV(out);    /* defined in math_mpfr_include.h */
      mpfr_free_str(out);
      ST(1) = sv_2mortal(newSViv(ptr));
      XSRETURN(2);
@@ -8961,7 +8961,7 @@ void decimalize(pTHX_ SV * a, ...) {
     }
     Newxz(buff, 8, char);
     mpfr_sprintf(buff, "%Rg", *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))));
-    ST(0) = sv_2mortal(newSVpv(buff, 0));
+    ST(0) = MORTALIZED_PV(buff);    /* defined in math_mpfr_include.h */
     Safefree(buff);
     XSRETURN(1);
   }
@@ -9052,7 +9052,7 @@ void decimalize(pTHX_ SV * a, ...) {
           digits + 30.0);
 
   mpfr_sprintf(dec_buff, "%.*Rg", (int)digits, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))));
-  ST(0) = sv_2mortal(newSVpv(dec_buff, 0));
+  ST(0) = MORTALIZED_PV(dec_buff);    /* defined in math_mpfr_include.h */
   Safefree(dec_buff);
   XSRETURN(1);
 
@@ -9073,6 +9073,11 @@ int NOK_flag(SV * sv) {
   if(SvNOK(sv)) return 1;
   return 0;
 }
+
+int _sis_perl_version(void) {
+    return SIS_PERL_VERSION;
+}
+
 
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
@@ -13936,4 +13941,8 @@ POK_flag (sv)
 int
 NOK_flag (sv)
 	SV *	sv
+
+int
+_sis_perl_version ()
+
 
