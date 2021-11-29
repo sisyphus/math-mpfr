@@ -1,4 +1,6 @@
 4.19
+ - Replace sv_2mortal(newSVpv()) with more efficient newSVpvn_flags() where
+   applicable. This is done via the MORTALIZED_PV() macro in math_mpfr_include.h
 
 4.18
  - Allow anytoa() to (optionally) take just one (Math::MPFR object) arg, instead of
