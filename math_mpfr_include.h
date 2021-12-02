@@ -161,9 +161,7 @@ FALLBACK_NOTIFY          : If defined, $Math::MPFR::doubletoa_fallback
 #include <stdio.h>
 
 #if defined(MATH_MPFR_NEED_LONG_LONG_INT)
-#ifndef _MSC_VER
 #include <inttypes.h>
-#endif
 #endif
 
 /*
@@ -347,11 +345,11 @@ typedef _Decimal128 D128;
 #define DEAL_WITH_NANFLAG_BUG_OVERLOADED
 #endif
 
-/* Squash some annoying compiler warnings (Microsoft compilers only). */
-
+/*
 #ifdef _MSC_VER
 #pragma warning(disable:4700 4715 4716)
 #endif
+*/
 
 #ifdef OLDPERL
 #define SvUOK SvIsUV
