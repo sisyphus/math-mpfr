@@ -1,4 +1,5 @@
 4.19
+ - Remove references to _MSCVER
  - Replace sv_2mortal(newSVpv()) with more efficient newSVpvn_flags() where
    applicable. This is done via the MORTALIZED_PV() macro in math_mpfr_include.h
 
