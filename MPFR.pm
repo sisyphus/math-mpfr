@@ -588,6 +588,8 @@ sub GMP_NAIL_BITS           () {return _GMP_NAIL_BITS()}
 
 sub atonum {
     if(MPFR_3_1_6_OR_LATER) {
+      return atonv($_[0])
+        if $_[0] =~ /^[\-\+]?inf|^[\-\+]?nan/i; # buggy perls can numify infnan strings to 0.
       my $copy = $_[0];               # Don't mess with $_[0] flags
       my $ret = "$copy" + 0;
       return $ret if _itsa($ret) < 3; # IV
