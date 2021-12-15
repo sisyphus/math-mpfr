@@ -1,5 +1,6 @@
 4.19
- - Remove references to _MSCVER
+ - Fix doubletoa() handling of negative zero. (Was hanging.)
+ - Remove references to _MSC_VER
  - Replace sv_2mortal(newSVpv()) with more efficient newSVpvn_flags() where
    applicable. This is done via the MORTALIZED_PV() macro in math_mpfr_include.h
 
