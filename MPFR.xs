@@ -8724,7 +8724,8 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
   }
 
   /* Prehandle zero. */
-  if(!u64) {
+  if(v == 0) {
+    if(u64) *s2++ = '-';
     *s2++ = '0';
     *s2++ = '.';
     *s2++ = '0';
