@@ -1,4 +1,5 @@
 4.19
+ - Replace four instances of mpz_cmp_ui(z, 0) with less expensive mpz_sgn(z)
  - Fix doubletoa() handling of negative zero. (Was hanging.)
  - Remove references to _MSC_VER
  - Replace sv_2mortal(newSVpv()) with more efficient newSVpvn_flags() where
