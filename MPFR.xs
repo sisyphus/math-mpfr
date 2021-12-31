@@ -3165,7 +3165,7 @@ int Rmpfr_q_div(mpfr_t * rop, mpq_t * q, mpfr_t * fr, int round) {
 
     /* Handle Inf, NaN and zero values of *fr */
     if(!mpfr_regular_p(*fr)) {
-      ret = mpfr_si_div(*rop, mpz_cmp_ui(mpq_numref(*q), 0), *fr, (mpfr_rnd_t)round);
+      ret = mpfr_si_div(*rop, mpz_sgn(mpq_numref(*q)), *fr, (mpfr_rnd_t)round);
       return ret;
     }
 
@@ -3184,7 +3184,7 @@ int Rmpfr_z_div(mpfr_t * rop, mpz_t * z, mpfr_t * fr, int round) {
 
     /* Handle Inf, NaN and zero values of *fr */
     if(!mpfr_regular_p(*fr)) {
-      ret = mpfr_si_div(*rop, mpz_cmp_ui(*z, 0), *fr, (mpfr_rnd_t)round);
+      ret = mpfr_si_div(*rop, mpz_sgn(*z), *fr, (mpfr_rnd_t)round);
       return ret;
     }
 
@@ -8193,7 +8193,7 @@ SV * nvtoa(pTHX_ NV pnv) {
   lsb = mpz_tstbit(R, 0); /* Set lsb to the value of R's least significant bit */
   mpz_set(TMP, R);
 
-  if(mpz_cmp_ui(R, 0) < 1) croak("Negative value in nvtoa XSub is not allowed");
+  if(mpz_sgn(R) < 1) croak("Negative value in nvtoa XSub is not allowed");
   mpz_set_ui(S, 1);
 
   shift2 = e - bits;
@@ -8477,7 +8477,7 @@ SV * mpfrtoa(pTHX_ mpfr_t * pnv) {
   lsb = mpz_tstbit(R, 0); /* Set lsb to the value of R's least significant bit */
   mpz_set(TMP, R);
 
-  if(mpz_cmp_ui(R, 0) < 1) croak("Negative value in mpfrtoa XSub is not allowed");
+  if(mpz_sgn(R) < 1) croak("Negative value in mpfrtoa XSub is not allowed");
   mpz_set_ui(S, 1);
 
   shift2 = e - bits;
