@@ -3021,11 +3021,12 @@ SV * Rmpfr_cot(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
 }
 
 SV * Rmpfr_root(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
-     CHECK_ROUNDING_VALUE
 #if MPFR_VERSION_MAJOR >= 4
-     warn("Rmpfr_root is deprecated - use Rmpfr_rootn_ui instead");
-#endif
+     croak("Rmpfr_root is deprecated, and now removed - use Rmpfr_rootn_ui instead");
+#else
+     CHECK_ROUNDING_VALUE
      return newSViv(mpfr_root(*a, *b, (unsigned long)SvUV(c), (mpfr_rnd_t)SvUV(round)));
+#endif
 }
 
 SV * Rmpfr_eint(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
@@ -5947,12 +5948,11 @@ SV * Rmpfr_z_sub(pTHX_ mpfr_t * rop, mpz_t * op1, mpfr_t * op2, SV * round) {
 
 SV * Rmpfr_grandom(pTHX_ mpfr_t * rop1, mpfr_t * rop2, gmp_randstate_t * state, SV * round) {
 #if MPFR_VERSION_MAJOR >= 4
-     warn("Rmpfr_grandom is deprecated - use Rmpfr_nrandom instead");
-#endif
-#if (MPFR_VERSION_MAJOR == 3 && MPFR_VERSION_MINOR >= 1) || MPFR_VERSION_MAJOR > 3
+     croak("Rmpfr_grandom is deprecated, and now removed - use Rmpfr_nrandom instead");
+#elif (MPFR_VERSION_MAJOR == 3 && MPFR_VERSION_MINOR >= 1) || MPFR_VERSION_MAJOR > 3
      return newSViv(mpfr_grandom(*rop1, *rop2, *state, (mpfr_rnd_t)SvUV(round)));
 #else
-     croak("Rmpfr_grandom not implemented with this version of the mpfr library - we have %s but need at least 3.1.0", MPFR_VERSION_STRING);
+     croak("Rmpfr_grandom was not introduced until mpfr-3.1.0 and was then deprecated & replaced by Rmpfr_nrandom as of mpfr-4.0.0");
 #endif
 }
 
