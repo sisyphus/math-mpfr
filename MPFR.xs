@@ -8162,8 +8162,7 @@ SV * nvtoa(pTHX_ NV pnv) {
  ********************************/
 
 #ifdef NVTOA_DEBUG
-
-   warn(" f is %s\n exponent is %d\n precision is %d\n", f, (int)e, bits);
+  warn(" f is %s\n exponent is %d\n precision is %d\n", f, (int)e, bits);
 
 /******************************************************************************
  * eg (for nvtype of double):                                                 *
@@ -8237,9 +8236,11 @@ SV * nvtoa(pTHX_ NV pnv) {
     if(k) k--;    /* Do not decrement if k is zero */
     mpz_ui_pow_ui(TMP, 10, k);
     k *= -1;
+
 #ifdef NVTOA_DEBUG
     warn(" k init: %d\n", k);
 #endif
+
     mpz_mul(R, R, TMP);
     mpz_mul(M_minus, M_minus, TMP);
     mpz_mul(M_plus, M_plus, TMP);
@@ -8250,15 +8251,22 @@ SV * nvtoa(pTHX_ NV pnv) {
 
   if(!skip) {
     while(1) {
+
+#ifdef NVTOA_DEBUG
+      warn("In first loop\n");
+#endif
+
       if(mpz_cmp(LHS, R) <= 0) break;
       k--;
       mpz_mul_ui(R, R, 10);
       mpz_mul_ui(M_minus, M_minus, 10);
       mpz_mul_ui(M_plus, M_plus, 10);
     }                                   /* close first while loop */
+
 #ifdef NVTOA_DEBUG
     warn(" k post 1st loop: %d\n", k);
 #endif
+
   }
 
   mpz_mul_2exp(LHS, R, 1);
@@ -8266,8 +8274,17 @@ SV * nvtoa(pTHX_ NV pnv) {
   mpz_mul_2exp(TMP, S, 1);
 
   if(mpz_cmp(LHS, TMP) >= 0) {
+
+#ifdef NVTOA_DEBUG
+    gmp_printf("LHS: %Zd\nTMP: %Zd\n", LHS, TMP);
+#endif
+
     skip = 0;
     mpz_div(TMP, LHS, TMP);
+
+#ifdef NVTOA_DEBUG
+    gmp_printf("TMP (= LHS / TMP): %Zd\n", TMP);
+#endif
 
     /* Set u to be close to, but not greater than, the number of     *
      * decimal digits needed to represent the value of TMP. This     *
@@ -8279,9 +8296,12 @@ SV * nvtoa(pTHX_ NV pnv) {
     /* if(u) u--; *//* Decrement not needed here, AFAIK. */
     mpz_ui_pow_ui(TMP, 10, u);
     k += u;
+
 #ifdef NVTOA_DEBUG
+    gmp_printf("TMP (= 10 ** %d): %Zd\n", u, TMP);
     warn(" u init: %d\n k set to: %d\n", u, k);
 #endif
+
     mpz_mul(S, S, TMP);
   }
   else {
@@ -8290,6 +8310,11 @@ SV * nvtoa(pTHX_ NV pnv) {
 
   if(!skip) {
     while(1) {
+
+#ifdef NVTOA_DEBUG
+      warn("In second loop\n");
+#endif
+
       mpz_mul_2exp(TMP, S, 1);
 
       if(mpz_cmp(LHS, TMP) < 0) break;
@@ -8297,9 +8322,11 @@ SV * nvtoa(pTHX_ NV pnv) {
       mpz_mul_ui(S, S, 10);
       k++;
     }                                 /* close second while loop */
+
 #ifdef NVTOA_DEBUG
     warn(" k post 2nd loop: %d\n", k);
 #endif
+
   }
 
   /*********************** finish simple fixup **********************/
