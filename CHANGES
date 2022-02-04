@@ -1,4 +1,6 @@
 4.19
+ - Fix https://github.com/sisyphus/math-decimal64/pull/1 (also aplies to Math::MPFR)
+   Thanks to @hiratara
  - Deal with deprecations of mpfr_root() and mpfr_grandom(). These 2 functions
    will now croak() if Math::MPFR has been built against mpfr-4.0.0 or later.
  - Replace four instances of mpz_cmp_ui(z, 0) with less expensive mpz_sgn(z)
