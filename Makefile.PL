@@ -8,7 +8,7 @@ use ExtUtils::MakeMaker;
 our %args = map { split /\s*=\s*/ } @ARGV;
 our $LIBS = $args{ LIBS } || "-lmpfr -lgmp";
 our $INC = $args{ INC };
-our $defines = '';
+#our $DEFS = '';
 
 my $use_64_bit_int  = 0; # Let perl decide whether to include 64-bit 'long long' support
 my $use_long_double = 0; # Let perl decide whether to include 'long double' support
@@ -206,6 +206,7 @@ if(!defined($have_float128)) { # __float128 support still undetermined
   }
 }
 
+close $SAVE or warn "Couldn't close save_config.txt";
 
 my $float128_message = $have_float128 ? "Attempting to build with Math::Float128 support\n"
                                       : "Building without Math::Float128 support\n";
@@ -255,9 +256,7 @@ if($f =~ /SVf_POK/) {
 
 ####################################
 
-close $SAVE or warn "Couldn't close save_config.txt";
-
-$defines = $] < 5.008 ? "-DOLDPERL" : "-DNEWPERL";
+my $defines = $] < 5.008 ? "-DOLDPERL" : "-DNEWPERL";
 
 unless($Config{ivsize} < 8 || $Config{ivtype} eq 'long') {
   $defines .= " -DMATH_MPFR_NEED_LONG_LONG_INT -DIVSIZE_BITS=" . (8 * $Config{ivsize});
@@ -272,7 +271,7 @@ $defines .= " -DMPFR_WANT_DECIMAL_FLOATS" if ($have_decimal64 || $have_decimal12
 $defines .= " -DMPFR_WANT_DECIMAL64"  if $have_decimal64;
 $defines .= " -DMPFR_WANT_DECIMAL128" if $have_decimal128;
 $defines .= " -DMPFR_WANT_FLOAT128"   if $have_float128;
-$defines .= " -DMPFR_PV_NV_BUG"       if $pv_nv_bug;
+
 
 print "\nThis module requires the following C libraries:\n";
 print " gmp-4.2.0 (or later)\n mpfr-3.0.0 (or later)\n\n";
@@ -329,6 +328,14 @@ if($Config{nvsize} == 8) {
     print "\ndoubletoa() fallback notification ENABLED (default)\n\n";
   }
   else { print "\ndoubletoa() fallback notification DISABLED\n\n" }
+}
+
+if($pv_nv_bug) {
+  $defines .= " -DMPFR_PV_NV_BUG";
+  print "Defining MPFR_PV_NV_BUG\n\n";
+}
+else {
+  print "Not defining MPFR_PV_NV_BUG\n\n";
 }
 
 # The following defines serve as debugging
