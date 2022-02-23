@@ -4,13 +4,14 @@
 use strict;
 use warnings;
 
-warn "\n The string 'nan' apparently numifies to zero\n"
-  if 'nan' + 0 == 0;
-
 use Math::MPFR qw(:mpfr);
 *_ITSA = \&Math::MPFR::_itsa;
 
 use Test::More;
+
+warn "\n MPFR_PV_NV_BUG set to ", MPFR_PV_NV_BUG, "\n";
+warn " The string 'nan' apparently numifies to zero\n"
+  if 'nan' + 0 == 0;
 
 # Check that both the perl environment and the XS
 # environment agree on whether the problem is present.
