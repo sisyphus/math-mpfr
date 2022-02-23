@@ -43,7 +43,6 @@ if('nan' + 0 != 'nan' + 0) { # Skip if numification of
   if($pv_nan != 42) { # True
     # On perl-5.8.8 any string which numifies to an integer value
     # (including 0) will have its IOK flag set. Brilliant !!
-    print "_ITSA: ", _ITSA($pv_nan), "\n";
     my $fr = Math::MPFR->new($pv_nan);
     cmp_ok(Rmpfr_nan_p($fr), '!=', 0,
            "NaN Math::MPFR object was created");           # Test 5
