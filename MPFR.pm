@@ -471,7 +471,7 @@ sub new {
         if(_SvPOK($arg1)) {
           set_nok_pok(nok_pokflag() + 1);
           if($Math::MPFR::NOK_POK) {
-            warn "Scalar passed to new() is both NV and PV. Using PV (string) value";
+            warn "Scalar passed to new() is both NV and PV. Using NV (numeric) value";
           }
         }
       }
