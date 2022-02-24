@@ -8,7 +8,7 @@ use ExtUtils::MakeMaker;
 our %args = map { split /\s*=\s*/ } @ARGV;
 our $LIBS = $args{ LIBS } || "-lmpfr -lgmp";
 our $INC = $args{ INC };
-#our $DEFS = '';
+our $DEFS = '';
 
 my $use_64_bit_int  = 0; # Let perl decide whether to include 64-bit 'long long' support
 my $use_long_double = 0; # Let perl decide whether to include 'long double' support
@@ -332,6 +332,7 @@ if($Config{nvsize} == 8) {
 
 if($pv_nv_bug) {
   $defines .= " -DMPFR_PV_NV_BUG";
+  $DEFS    .= " -DMPFR_PV_NV_BUG";
   print "Defining MPFR_PV_NV_BUG\n\n";
 }
 else {
