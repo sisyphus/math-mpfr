@@ -3,6 +3,7 @@ use warnings;
 use ExtUtils::MakeMaker;
 
 our $LIBS;
+our $DEFS;
 
 my %options = %{
 {
@@ -10,6 +11,7 @@ my %options = %{
   'NAME'     => 'Math::MPFR::Random',
   'LIBS'     => $LIBS,
   'INC'      => $INC,
+  'DEFINE'   => $DEFS,
   'VERSION_FROM' => 'Random.pm',
 }
 };
