@@ -13,6 +13,8 @@ warn "\n MPFR_PV_NV_BUG set to ", MPFR_PV_NV_BUG, "\n";
 warn " The string 'nan' apparently numifies to zero\n"
   if 'nan' + 0 == 0;
 
+Rmpfr_set_default_prec($Math::MPFR::NV_properties{bits});
+
 # Check that both the perl environment and the XS
 # environment agree on whether the problem is present.
 cmp_ok(MPFR_PV_NV_BUG, '==', Math::MPFR::_has_pv_nv_bug(),
@@ -76,5 +78,23 @@ if($str > 0) {
   cmp_ok(_ITSA($perl_sqrt), '==', 3,
          "Correctly designated as an NV");                 # Test 9
 }
+
+my $nv_sqrt = sqrt(2);
+my $str_sqrt = "$nv_sqrt";
+
+# The next 4 tests should fail if the value
+# in the PV slot of $nv_sqrt is used.
+
+cmp_ok(Math::MPFR->new(1) * $nv_sqrt, '==', sqrt(2),
+       "overload_mul() uses value in NV slot");            # Test 10
+
+cmp_ok(Math::MPFR->new(0) + $nv_sqrt, '==', sqrt(2),
+       "overload_add() uses value in NV slot");            # Test 11
+
+cmp_ok(Math::MPFR->new(0) - $nv_sqrt, '==', -(sqrt(2)),
+       "overload_sub() uses value in NV slot");            # Test 12
+
+cmp_ok(Math::MPFR->new(sqrt 2) / $nv_sqrt, '==', 1.0,
+       "overload_div() uses value in NV slot");            # Test 13
 
 done_testing();
