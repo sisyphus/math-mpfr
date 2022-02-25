@@ -3240,7 +3240,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
@@ -3376,7 +3376,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
@@ -3514,7 +3514,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
@@ -3658,7 +3658,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
@@ -3822,7 +3822,7 @@ SV * overload_gt(pTHX_ mpfr_t * a, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
@@ -3931,7 +3931,7 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
@@ -4040,7 +4040,7 @@ SV * overload_lt(pTHX_ mpfr_t * a, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
@@ -4149,7 +4149,7 @@ SV * overload_lte(pTHX_ mpfr_t * a, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
@@ -4258,7 +4258,7 @@ SV * overload_spaceship(pTHX_ mpfr_t * a, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
@@ -4364,7 +4364,7 @@ SV * overload_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
@@ -4468,7 +4468,7 @@ SV * overload_not_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
@@ -4628,7 +4628,7 @@ SV * overload_pow(pTHX_ SV * p, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
@@ -4850,7 +4850,7 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
@@ -5086,7 +5086,7 @@ SV * overload_pow_eq(pTHX_ SV * p, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
@@ -5206,7 +5206,7 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
@@ -5337,7 +5337,7 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
@@ -5461,7 +5461,7 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
@@ -5584,7 +5584,7 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
 #if defined(MPFR_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
-         (SV_IS_POK(b) && SV_IS_NOK(b) && !SvIOKp(b)) ) {
+         (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
 #else
      if(SV_IS_POK(b)) {
 #endif
