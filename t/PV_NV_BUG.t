@@ -13,8 +13,6 @@ warn "\n MPFR_PV_NV_BUG set to ", MPFR_PV_NV_BUG, "\n";
 warn " The string 'nan' apparently numifies to zero\n"
   if 'nan' + 0 == 0;
 
-Rmpfr_set_default_prec($Math::MPFR::NV_properties{bits});
-
 # Check that both the perl environment and the XS
 # environment agree on whether the problem is present.
 cmp_ok(MPFR_PV_NV_BUG, '==', Math::MPFR::_has_pv_nv_bug(),
