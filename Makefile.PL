@@ -175,11 +175,16 @@ for(@ARGV) {
    $have_float128 = 0 if $_ eq 'F128=0';
 }
 
-if(!defined($have_float128)) { # __float128 support still undetermined
+if(!defined($have_float128)) { # __float128 support, having not yet been
+                               # specified by the user, is still undetermined
 
   print $SAVE "\n\n" if $save;
 
   my $mylibs = $mklib . " " . $mylibpth . " -lquadmath";
+
+  # First up, build have_f128.exe from have_f128.c.
+  # This simply establishes whether the __float128 type is available.
+  # The gmp and mpfr libraries are not needed for this'
 
   my $out = `$mycc -o have_f128.exe -x c have_f128.in 2>&1`;
 
@@ -188,10 +193,33 @@ if(!defined($have_float128)) { # __float128 support still undetermined
     if($save) {print $SAVE "have_f128 build: $out\n"}
   }
 
+  # If have_f128.exe does not exist, we assume that the __float128
+  # type is unavailable, and that __float128  supportis therefore
+  # impossible. The messages written to 'save_config.txt' should
+  # confirm the correctness of this assessment.
+
   unless(-e 'have_f128.exe') {$have_float128 = 0}
 
+  # But if have_f128.exe exists then we need to establish whether
+  # the mpfr library has been built with support for the __float128
+  # type. For this we attempt to build try_flt128.exe from
+  # try_flt128.in. This build *does* require the gmp and mpfr headers
+  # and libraries.
+  # If the execution of try_flt128.exe produces output of 42, then
+  # we know that the mpfr library has been built with --enable-float128,
+  # we set $have_float128 to 1, and Math::MPFR will then be built to
+  # utilise that __float128 support.
+  # Otherwise we leave $have_float128 as undef, and no __float128
+  # support will be built into Math::MPFR.
+
   else {
-    my $out = `$mycc -o try_flt128.exe -x c try_flt128.in $mkinc $mylibs 2>&1`;
+    # $Config{ccflags} might include the '-I' switch needed to
+    # locate the gmp and mpfr header files. We therefore include
+    # those ccflags inthe command:
+
+    my $ccflags = $Config{ccflags};
+
+    my $out = `$mycc $ccflags -o try_flt128.exe -x c try_flt128.in $mkinc $mylibs 2>&1`;
 
     if($out) {
       print "$out\n";
