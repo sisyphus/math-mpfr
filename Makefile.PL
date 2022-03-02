@@ -19,6 +19,8 @@ my $have_float128   = undef; # Default value
 my $want_float128   = undef; # Default value
 my $checklib        = 1;     # Check for availability of mpfr and gmp libraries.
 
+print " Running some (possibly noisy) pre-build checks\n to see what's available ....\n";
+
 my $SAVE;
 my $save = open $SAVE, '>', 'save_config.txt';
 
@@ -236,8 +238,11 @@ if(!defined($have_float128)) { # __float128 support, having not yet been
 
 close $SAVE or warn "Couldn't close save_config.txt";
 
+print "Pre-build checks completed\n";
+
 my $float128_message = $have_float128 ? "Attempting to build with Math::Float128 support\n"
                                       : "Building without Math::Float128 support\n";
+
 ####################################
 # Next, we check to see whether there's some unhelpful beaviour regarding
 # the setting of the POK flag.
