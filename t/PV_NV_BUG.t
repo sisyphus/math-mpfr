@@ -42,8 +42,6 @@ if('nan' + 0 != 'nan' + 0) { # Skip if numification of
   my $pv_nan = 'nan';
 
   if($pv_nan != 42) { # True
-    # On perl-5.8.8 any string which numifies to an integer value
-    # (including 0) will have its IOK flag set. Brilliant !!
     my $fr = Math::MPFR->new($pv_nan);
     cmp_ok(Rmpfr_nan_p($fr), '!=', 0,
            "NaN Math::MPFR object was created");           # Test 5
@@ -53,16 +51,30 @@ else { # Instead verify that 'nan' numifies to zero
   cmp_ok('nan' + 0, '==', 0, "'nan' numifies to zero");    # Test 5 alt.
 }
 
+if('inf' + 0 > 0) { # Skip if numification of
+                              # 'inf' fails to DWIM
+  my $pv_inf = 'inf';
+
+  if($pv_inf > 0) { # True
+    my $fr = Math::MPFR->new($pv_inf);
+    cmp_ok(Rmpfr_inf_p($fr), '!=', 0,
+           "Inf Math::MPFR object was created");           # Test 6
+  }
+}
+else { # Instead verify that 'inf' numifies to zero
+  cmp_ok('inf' + 0, '==', 0, "'inf' numifies to zero");    # Test 6 alt.
+}
+
 my $nv_inf = Rmpfr_get_NV(Math::MPFR->new('Inf'), MPFR_RNDN);
 $s = "$nv_inf";
 
 cmp_ok(Rmpfr_inf_p(Math::MPFR->new($nv_inf)), '!=', 0,
-       "Inf Math::MPFR object was created");               # Test 6
+       "Inf Math::MPFR object was created");               # Test 7
 
 my $nv_nan = Rmpfr_get_NV(Math::MPFR->new(), MPFR_RNDN);
 $s = "$nv_nan";
   cmp_ok(Rmpfr_nan_p(Math::MPFR->new($nv_nan)), '!=', 0,
-         "NaN Math::MPFR object was created");             # Test 7
+         "NaN Math::MPFR object was created");             # Test 8
 
 Rmpfr_set_default_prec($Math::MPFR::NV_properties{bits});
 my $mpfr_sqrt = sqrt(Math::MPFR->new(2));
@@ -72,9 +84,9 @@ my $str = "$perl_sqrt"; # sqrt(2) as decimal string, rounded twice.
 
 if($str > 0) {
   cmp_ok(_ITSA($str), '==', 4,
-         "Correctly designated a PV");                     # Test 8
+         "Correctly designated a PV");                     # Test 9
   cmp_ok(_ITSA($perl_sqrt), '==', 3,
-         "Correctly designated as an NV");                 # Test 9
+         "Correctly designated as an NV");                 # Test 10
 }
 
 my $nv_sqrt = sqrt(2);
@@ -84,15 +96,15 @@ my $str_sqrt = "$nv_sqrt";
 # in the PV slot of $nv_sqrt is used.
 
 cmp_ok(Math::MPFR->new(1) * $nv_sqrt, '==', sqrt(2),
-       "overload_mul() uses value in NV slot");            # Test 10
+       "overload_mul() uses value in NV slot");            # Test 11
 
 cmp_ok(Math::MPFR->new(0) + $nv_sqrt, '==', sqrt(2),
-       "overload_add() uses value in NV slot");            # Test 11
+       "overload_add() uses value in NV slot");            # Test 12
 
 cmp_ok(Math::MPFR->new(0) - $nv_sqrt, '==', -(sqrt(2)),
-       "overload_sub() uses value in NV slot");            # Test 12
+       "overload_sub() uses value in NV slot");            # Test 13
 
 cmp_ok(Math::MPFR->new(sqrt 2) / $nv_sqrt, '==', 1.0,
-       "overload_div() uses value in NV slot");            # Test 13
+       "overload_div() uses value in NV slot");            # Test 14
 
 done_testing();
