@@ -1,3 +1,5 @@
+4.23
+
 4.22
  - Add overloading of '<<' and '>>'. (Left shifts and right shifts don't make a lot of
    sense in floating-point environments. These overloads simply call mul_2ui or mul_2si
