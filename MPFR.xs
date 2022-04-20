@@ -4328,6 +4328,10 @@ SV * overload_spaceship(pTHX_ mpfr_t * a, SV * b, SV * third) {
        const char* h = HvNAME(SvSTASH(SvRV(b)));
 
        if(strEQ(h, "Math::MPFR")) {
+         if( mpfr_nan_p( *(INT2PTR(mpfr_t *, SvIVX(SvRV(b))))) ) {
+           mpfr_set_erangeflag();
+           return &PL_sv_undef;
+         }
          return newSViv(mpfr_cmp(*a, *(INT2PTR(mpfr_t *, SvIVX(SvRV(b))))));
        }
 
