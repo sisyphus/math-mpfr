@@ -6172,11 +6172,11 @@ SV * overload_inc(pTHX_ SV * a, SV * b, SV * third) {
      return a;
 }
 
-SV * overload_dec(pTHX_ SV * p, SV * b, SV * third) {
+SV * overload_dec(pTHX_ SV * a, SV * b, SV * third) {
      DEAL_WITH_NANFLAG_BUG_OVERLOADED
-     SvREFCNT_inc(p);
-     mpfr_sub_ui(*(INT2PTR(mpfr_t *, SvIVX(SvRV(p)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(p)))), 1, __gmpfr_default_rounding_mode);
-     return p;
+     SvREFCNT_inc(a);
+     mpfr_sub_ui(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), 1, __gmpfr_default_rounding_mode);
+     return a;
 }
 
 SV * overload_mul_2exp(pTHX_ SV * a, SV * b, SV * third) {
