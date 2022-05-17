@@ -1,3 +1,7 @@
+Revision history for Perl module Math::MPFR
+
+4.24
+
 4.23
  - Fix bug in overload_spaceship() handling of NaN. If the first arg was non-nan
    and thesecond arg was a Math::MPFR nan object, then the spaceship operator
