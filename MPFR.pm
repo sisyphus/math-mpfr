@@ -40,7 +40,7 @@
     use constant MPFR_3_1_6_OR_LATER    => Math::MPFR::Random::_MPFR_VERSION() > 196869 ? 1 : 0;
     use constant MPFR_PV_NV_BUG         => Math::MPFR::Random::_has_pv_nv_bug();
 
-    # Inspired by https://github.com/Perl/perl5/issues/19550:
+    # Inspired by https://github.com/Perl/perl5/issues/19550, which affects only perl-5.35.10:
     use constant ISSUE_19550    => Math::MPFR::Random::_issue_19550();
 
     use subs qw(MPFR_VERSION MPFR_VERSION_MAJOR MPFR_VERSION_MINOR
@@ -189,7 +189,7 @@ fr_cmp_q_rounded mpfr_max_orig_len mpfr_min_inter_prec mpfrtoa numtoa nvtoa prec
 q_add_fr q_cmp_fr q_div_fr q_mul_fr q_sub_fr rndna
 );
 
-    our $VERSION = '4.23';
+    our $VERSION = '4.24';
     #$VERSION = eval $VERSION;
 
     Math::MPFR->DynaLoader::bootstrap($VERSION);
@@ -425,7 +425,7 @@ sub new {
     if(!ref($_[0]) && $_[0] eq "Math::MPFR") {
       shift;
       if(!@_) {return Rmpfr_init()}
-      }
+    }
 
     # @_ can now contain a maximum of 2 args - the value, and if the value is
     # a string, (optionally) the base of the numeric string.
