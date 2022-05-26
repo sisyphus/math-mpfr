@@ -1,6 +1,9 @@
 Revision history for Perl module Math::MPFR
 
 4.24
+ - mpfrtoa() now takes a second optional arg that specifies the minimum normal precision.
+   If the precision of the Math::MPFR object is less than the specified value, then the
+   the object is deemed to hold a subnormalized value.
 
 4.23
  - Fix bug in overload_spaceship() handling of NaN. If the first arg was non-nan
