@@ -8666,8 +8666,11 @@ SV * nvtoa(pTHX_ NV pnv) {
  * "How to Print Floating-Point Numbers Accurately" *
  * by Guy L. Steele Jr and Jon L. White             */
 
-SV * mpfrtoa(pTHX_ mpfr_t * pnv) {
-  int k = 0, k_index, lsb, skip = 0, sign = 0;
+SV * _mpfrtoa(pTHX_ mpfr_t * pnv, int min_normal_prec) {
+
+  /* is_subnormal was added in 4.24 when   *
+   * the need for it was finally detected. */
+  int k = 0, k_index, lsb, skip = 0, sign = 0, is_subnormal = 0;
   int bits, shift1, shift2, low, high, cmp, u;
   mpfr_exp_t e;
   mpz_t R, S, M_plus, M_minus, LHS, TMP;
@@ -8722,6 +8725,11 @@ SV * mpfrtoa(pTHX_ mpfr_t * pnv) {
    warn(" f is %s\n exponent is %d\n precision is %d\n", f, (int)e, bits);
 #endif
 
+ /* is_subnormal was added in 4.24, when it *       *
+  *  became apparent that this was needed.  */
+
+  if(bits < min_normal_prec) is_subnormal = 1; /* min_normal_prec is provided as an argument. *
+                                                * See mpfrtoa() documentation for details.    */
   if(sign) f++;
 
   mpz_set_str(R, f, 2);
@@ -8749,12 +8757,14 @@ SV * mpfrtoa(pTHX_ mpfr_t * pnv) {
 
   /*************** start simple fixup **************/
 
-  mpz_set_ui(LHS, 1);
-  mpz_mul_2exp(LHS, LHS, bits - 1);
-  if(!mpz_cmp(LHS, TMP)) {
-    mpz_mul_2exp(M_plus, M_plus, 1);
-    mpz_mul_2exp(R,      R,      1);
-    mpz_mul_2exp(S,      S,      1);
+  if(!is_subnormal) { /* This condition added in 4.24 */
+    mpz_set_ui(LHS, 1);
+    mpz_mul_2exp(LHS, LHS, bits - 1);
+    if(!mpz_cmp(LHS, TMP)) {
+      mpz_mul_2exp(M_plus, M_plus, 1);
+      mpz_mul_2exp(R,      R,      1);
+      mpz_mul_2exp(S,      S,      1);
+    }
   }
 
   k = 0;	/* used above, so we reset to zero */
@@ -13274,12 +13284,12 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
-overload_dec (p, b, third)
-	SV *	p
+overload_dec (a, b, third)
+	SV *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = overload_dec (aTHX_ p, b, third);
+  RETVAL = overload_dec (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
@@ -14030,10 +14040,11 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
-mpfrtoa (pnv)
+_mpfrtoa (pnv, min_normal_prec)
 	mpfr_t *	pnv
+	int	min_normal_prec
 CODE:
-  RETVAL = mpfrtoa (aTHX_ pnv);
+  RETVAL = _mpfrtoa (aTHX_ pnv, min_normal_prec);
 OUTPUT:  RETVAL
 
 void
