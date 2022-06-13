@@ -1,6 +1,7 @@
 Revision history for Perl module Math::MPFR
 
 4.24
+ - add nvtoa_test() to facilitate validation of results returned by nvtoa() and mpfrtoa().
  - mpfrtoa() now takes a second optional arg that specifies the minimum normal precision.
    If the precision of the Math::MPFR object is less than the specified value, then the
    the object is deemed to hold a subnormalized value.
