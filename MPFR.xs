@@ -76,7 +76,7 @@ int _win32_infnanstring(char * s) { /* MS Windows only - detect 1.#INF and 1.#IN
 #endif
 }
 
-/* _fmt_flt is used by nvtoa, doubletoa and mpfrtoa to format numeric strings */
+/* _fmt_flt is used by nvtoa, doubletoa and _mpfrtoa to format numeric strings */
 
 SV * _fmt_flt(pTHX_ char * out, int k, int sign, int max_decimal_prec, int sf) {
 /*
@@ -8659,10 +8659,10 @@ SV * nvtoa(pTHX_ NV pnv) {
  ****************************/
 
 /****************************
- * BEGIN mpfrtoa            *
+ * BEGIN _mpfrtoa            *
  ****************************/
 
-/* mpfrtoa is, like nvtoa, adapted from p120 of     *
+/* _mpfrtoa is, like nvtoa, adapted from p120 of     *
  * "How to Print Floating-Point Numbers Accurately" *
  * by Guy L. Steele Jr and Jon L. White             */
 
@@ -8712,7 +8712,7 @@ SV * _mpfrtoa(pTHX_ mpfr_t * pnv, int min_normal_prec) {
   bits = mpfr_get_prec(*pnv);
 
   Newxz(f, bits + 8, char);
-  if(f == NULL) croak("Failed to allocate memory for string buffer in mpfrtoa XSub");
+  if(f == NULL) croak("Failed to allocate memory for string buffer in _mpfrtoa XSub");
 
   mpfr_get_str(f, &e, 2, bits, *pnv, GMP_RNDN);
 
@@ -8740,7 +8740,7 @@ SV * _mpfrtoa(pTHX_ mpfr_t * pnv, int min_normal_prec) {
   lsb = mpz_tstbit(R, 0); /* Set lsb to the value of R's least significant bit */
   mpz_set(TMP, R);
 
-  if(mpz_sgn(R) < 1) croak("Negative value in mpfrtoa XSub is not allowed");
+  if(mpz_sgn(R) < 1) croak("Negative value in _mpfrtoa XSub is not allowed");
   mpz_set_ui(S, 1);
 
   shift2 = e - bits;
@@ -8856,7 +8856,7 @@ SV * _mpfrtoa(pTHX_ mpfr_t * pnv, int min_normal_prec) {
   Newxz(out, (int)(12 + ceil(0.30103 * bits)), char); /* 1 + ceil(log(2) / log(10) * bits), but  *
                                                        * allow a few extra for exponent and sign */
 
-  if(out == NULL) croak("Failed to allocate memory for output string in mpfrtoa XSub");
+  if(out == NULL) croak("Failed to allocate memory for output string in _mpfrtoa XSub");
 
   /* Each iteration of the following while() loop outputs, one at a time, the *
    * digits of the final mantissa - except for the final (least significant)  *
@@ -8936,7 +8936,7 @@ SV * _mpfrtoa(pTHX_ mpfr_t * pnv, int min_normal_prec) {
 }
 
 /****************************
- * END mpfrtoa              *
+ * END _mpfrtoa              *
  ****************************/
 
 /****************************
