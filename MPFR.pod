@@ -1930,6 +1930,34 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
      3) the precision of $op is 2098 bits.
 
+   $mask = nvtoa_test($str, $arg, $debug); # $debug can be omitted.
+    $arg can be either an NV or a Math::MPFR object.
+    If $arg is an NV, then $str is the string returned by nvtoa($arg).
+    Else $str is the string returned by mpfrtoa($arg).
+    The nvtoa_test function checks that $str is the correct string
+    for the given $arg.
+    $mask is initially set to zero.
+    If $str assigns to $arg (as it should) then $mask set to 1.
+    Secondly, we chop the least significant digit off the mantissa of
+    $str and add 2 to $mask if this chopped $str assigns to a value
+    less than $arg.
+    Thirdly, we increment the least siginificant mantissa digit of this
+    chopped $str, and add 4 to $mask if this chopped-and-incremented
+    $str assigns to a value greater than $arg.
+    $mask is then returned. If all is correct, it's value will be 7.
+    If the value of the returned $mask is not 7, then we can determine
+    which part(s) of the test has failed by examining $mask's three
+    lowest bits.
+
+    If a third (debug) arg is provided and is TRUE, then some debug
+    info is provided during the runnng of nvtoa_test().
+
+    For inf, nan, and zero, we do only the initial test and return 7 if
+    that test has passed, or 0 if that test has failed. (The other 2
+    tests don't really apply.)
+
+
+
    $str = numtoa($sv);
     As for nvtoa() but prints out UVs and IVs in integer format.
     (If UV-precision is greater than NV-precision then nvtoa()
