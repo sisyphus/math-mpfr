@@ -39,6 +39,7 @@
     use constant MM_HP                  => LITTLE_ENDIAN ? 'h*' : 'H*';
     use constant MPFR_3_1_6_OR_LATER    => Math::MPFR::Random::_MPFR_VERSION() > 196869 ? 1 : 0;
     use constant MPFR_PV_NV_BUG         => Math::MPFR::Random::_has_pv_nv_bug();
+    use constant NV_IS_DOUBLEDOUBLE     => 1 + (2 ** -200) > 1 ? 1 : 0;
 
     # Inspired by https://github.com/Perl/perl5/issues/19550, which affects only perl-5.35.10:
     use constant ISSUE_19550    => Math::MPFR::Random::_issue_19550();
@@ -1062,16 +1063,17 @@ sub nvtoa_test {
     my @mantissa = split /\./, $r[0];
     my $point_pos = -(length($mantissa[1]));
     my $t = $mantissa[0] . $mantissa[1];
+    print "Man (if):\n$t\n" if $debug == 2;
     $t++ for 1..10;
+    print "Man++ (if):\n$t\n" if $debug == 2;
     substr($t, $point_pos, 0, '.');
     $r[0] = $t;
   }
   else {
+    print "R0 (else):\n$r[0]\n" if $debug == 2;
     $r[0]++ for 1..10;
+    print "R0++ (else):\n$r[0]\n" if $debug == 2;
   }
-
-  my $substitute = substr($r[0], -1, 1) + 1;
-  substr($r[0], -1, 1, "$substitute");
 
   my $incremented = defined($r[1]) ? $r[0] . 'e' . $r[1]
                                    : $r[0];
@@ -1129,6 +1131,25 @@ sub _get_exp {
 *Rmpfr_randinit_mt           = \&Math::MPFR::Random::Rmpfr_randinit_mt;
 *Rmpfr_randinit_lc_2exp      = \&Math::MPFR::Random::Rmpfr_randinit_lc_2exp;
 *Rmpfr_randinit_lc_2exp_size = \&Math::MPFR::Random::Rmpfr_randinit_lc_2exp_size;
+
+
+sub nvtoa {  # Special handling required for DoubleDouble
+  if(NV_IS_DOUBLEDOUBLE) {
+    return _nvtoa(shift);
+  }
+  else {
+    return _nvtoa(shift);
+  }
+}
+
+sub numtoa { # Special handling required for DoubleDouble
+  if(NV_IS_DOUBLEDOUBLE) {
+    return _numtoa(shift);
+  }
+  else {
+    return _numtoa(shift);
+  }
+}
 
 1;
 
