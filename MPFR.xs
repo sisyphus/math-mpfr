@@ -76,7 +76,7 @@ int _win32_infnanstring(char * s) { /* MS Windows only - detect 1.#INF and 1.#IN
 #endif
 }
 
-/* _fmt_flt is used by nvtoa, doubletoa and _mpfrtoa to format numeric strings */
+/* _fmt_flt is used by _nvtoa, doubletoa and _mpfrtoa to format numeric strings */
 
 SV * _fmt_flt(pTHX_ char * out, int k, int sign, int max_decimal_prec, int sf) {
 /*
@@ -7928,7 +7928,7 @@ SV * Rmpfr_dot(pTHX_ mpfr_t * rop, SV * avref_A, SV * avref_B, SV * len, SV * ro
 }
 
 /********************************************************
- * Set exponent and precision for nvtoa to utilize. *
+ * Set exponent and precision for _nvtoa to utilize. *
  *******************************************************/
 
 void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
@@ -8207,10 +8207,10 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
 
 
-/* nvtoa function is adapted from p120 of  "How to Print Floating-Point Numbers Accurately" */
+/* _nvtoa function is adapted from p120 of  "How to Print Floating-Point Numbers Accurately" */
 /* by Guy L. Steele Jr and Jon L. White                                                     */
 
-SV * nvtoa(pTHX_ NV pnv) {
+SV * _nvtoa(pTHX_ NV pnv) {
   int k = 0, k_index, lsb, skip = 0, sign = 0;
   int bits = NVSIZE_BITS, is_subnormal = 0, shift1, shift2, low, high, cmp, u;
   mpfr_exp_t e;    /* Change to 'int' when mpfr dependency for doubledouble is removed */
@@ -8300,7 +8300,8 @@ SV * nvtoa(pTHX_ NV pnv) {
 
 #if REQUIRED_LDBL_MANT_DIG == 2098 && defined(USE_LONG_DOUBLE)
 
-  if(bits < 53) is_subnormal = 1;
+  if((bits < 728 && nv <= 0x1p-348) || bits < 53)
+    is_subnormal = 1;
 
 #else
 
@@ -8315,7 +8316,7 @@ SV * nvtoa(pTHX_ NV pnv) {
   if(bits == 1) {
 #if defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098			/* doubledouble */
     Newxz(f, 4, char);
-    if(f == NULL) croak("Failed to allocate memory for string buffer in nvtoa XSub");
+    if(f == NULL) croak("Failed to allocate memory for string buffer in _nvtoa XSub");
 #endif
     f[0] = c[1];
   }
@@ -8346,7 +8347,7 @@ SV * nvtoa(pTHX_ NV pnv) {
     mpfr_set_ld(ws, nv, GMP_RNDN);
 
     Newxz(f, bits + 8, char);
-    if(f == NULL) croak("Failed to allocate memory for string buffer in nvtoa XSub");
+    if(f == NULL) croak("Failed to allocate memory for string buffer in _nvtoa XSub");
 
     mpfr_get_str(f, &e, 2, bits, ws, GMP_RNDN);		/* using mpfr to set both f and e */
     mpfr_clear(ws);
@@ -8420,7 +8421,7 @@ SV * nvtoa(pTHX_ NV pnv) {
   lsb = mpz_tstbit(R, 0); /* Set lsb to the value of R's least significant bit */
   mpz_set(TMP, R);
 
-  if(mpz_sgn(R) < 1) croak("Negative value in nvtoa XSub is not allowed");
+  if(mpz_sgn(R) < 1) croak("Negative value in _nvtoa XSub is not allowed");
   mpz_set_ui(S, 1);
 
   shift2 = e - bits;
@@ -8564,7 +8565,7 @@ SV * nvtoa(pTHX_ NV pnv) {
   Newxz(out, (int)(12 + ceil(0.30103 * bits)), char); /* 1 + ceil(log(2) / log(10) * bits), but allow a few extra for
                                                        exponent and sign */
 
-  if(out == NULL) croak("Failed to allocate memory for output string in nvtoa XSub");
+  if(out == NULL) croak("Failed to allocate memory for output string in _nvtoa XSub");
 
   /* Each iteration of the following while() loop outputs, one at a time, the *
    * digits of the final mantissa - except for the final (least significant)  *
@@ -8662,7 +8663,7 @@ SV * nvtoa(pTHX_ NV pnv) {
  * BEGIN _mpfrtoa            *
  ****************************/
 
-/* _mpfrtoa is, like nvtoa, adapted from p120 of     *
+/* _mpfrtoa is, like _nvtoa, adapted from p120 of     *
  * "How to Print Floating-Point Numbers Accurately" *
  * by Guy L. Steele Jr and Jon L. White             */
 
@@ -8967,7 +8968,7 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
 
   char *s2 = dst;
 
-  int fallback = items > 1 ? 0 : 1; /* A true value for sign implies that nvtoa(aTHX) will be used  *
+  int fallback = items > 1 ? 0 : 1; /* A true value for sign implies that nvtoa() will be used  *
                                  * if grisu3() fails to produce a result. Else sprintf()    *
                                  * will be used when grisu3() fails. See pod documentation. */
 #ifdef DTOA_ASSERT
@@ -9019,7 +9020,7 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
     set_fallback_flag(aTHX);
 #endif
 
-    if(fallback) return nvtoa(aTHX_ v * sign);
+    if(fallback) return _nvtoa(aTHX_ v * sign);
 
     sprintf(s2, "%.16e", (v * sign));
     return newSVpv(dst, 0);
@@ -9050,7 +9051,7 @@ int _fallback_notify(void) {
 #endif
 }
 
-SV * numtoa(pTHX_ SV * in) {
+SV * _numtoa(pTHX_ SV * in) {
   char buffer[IVSIZE * 3];
 
   if(!SvOK(in) || SvUOK(in)) {
@@ -9064,10 +9065,10 @@ SV * numtoa(pTHX_ SV * in) {
   }
 
   if(SV_IS_NOK(in)) {
-    return nvtoa(aTHX_ SvNV(in));
+    return _nvtoa(aTHX_ SvNV(in));
   }
 
-  croak("Not a numeric argument given to numtoa function");
+  croak("Not a numeric argument given to _numtoa function");
 }
 
 void decimalize(pTHX_ SV * a, ...) {
@@ -14033,10 +14034,10 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
-nvtoa (pnv)
+_nvtoa (pnv)
 	NV	pnv
 CODE:
-  RETVAL = nvtoa (aTHX_ pnv);
+  RETVAL = _nvtoa (aTHX_ pnv);
 OUTPUT:  RETVAL
 
 SV *
@@ -14080,10 +14081,10 @@ _fallback_notify ()
 
 
 SV *
-numtoa (in)
+_numtoa (in)
 	SV *	in
 CODE:
-  RETVAL = numtoa (aTHX_ in);
+  RETVAL = _numtoa (aTHX_ in);
 OUTPUT:  RETVAL
 
 void
