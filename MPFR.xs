@@ -7967,7 +7967,7 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
   if(!subnormal_prec_adjustment) (*exp)--;
 
-#elif defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64	/* 64 bit prec */
+#elif defined(USE_LONG_DOUBLE)	/* 64 bit prec. (DoubleDouble builds don't call this function.) */
 
   int i = LDIND_2;				/* big endian: 2, little endian: 7 */
 
