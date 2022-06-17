@@ -1318,7 +1318,7 @@ sub nvtoa {
 sub numtoa { # Special handling required for DoubleDouble
   if(NV_IS_DOUBLEDOUBLE) {
     my $arg = shift;
-    return nvto($arg) if _SvNOK($arg);
+    return nvtoa($arg) if _SvNOK($arg);
     return _numtoa($arg);
   }
   else {
