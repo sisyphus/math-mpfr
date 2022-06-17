@@ -8063,10 +8063,6 @@ SV * _nvtoa(pTHX_ NV pnv) {
   char f[] = {'\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0',
               '\0','\0','\0','\0'};
 
-#elif REQUIRED_LDBL_MANT_DIG == 2098 && defined(USE_LONG_DOUBLE)
-  char *f;
-  mpfr_t ws;
-
 #else
   char f[] = {'\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0',
               '\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0'};
@@ -8078,6 +8074,11 @@ SV * _nvtoa(pTHX_ NV pnv) {
   char *out;
 
   nv = pnv; /* Don't fiddle with pnv - instead fiddle with a copy */
+
+#if defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098
+  croak("_nvtoa function is unsuitable for DoubleDouble");
+
+#else
 
 #if defined(MPFR_HAVE_BENDIAN)
 
@@ -8455,6 +8456,8 @@ SV * _nvtoa(pTHX_ NV pnv) {
   /* printf("# nvtoa: %s %d\n", out, k); */
 
   return _fmt_flt(aTHX_ out, k, sign, MATH_MPFR_MAX_DIG, 1);
+
+#endif /* defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098 ... from near the start */
 
 }
 
