@@ -8164,7 +8164,7 @@ SV * _nvtoa(pTHX_ NV pnv) {
       k += 2;
     }
 
-#elif defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64	/* 64 bit prec */
+#elif defined(USE_LONG_DOUBLE)	/* 64 bit prec. This function not called forDoubleDoubles. */
 
     for(skip = LDIND_2; LD_CONDITION_1(skip); INC_OR_DEC(skip)) { /* big endian:             *
                                                                    *   skip=2;skip<=9;skip++ */
