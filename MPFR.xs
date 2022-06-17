@@ -7967,166 +7967,6 @@ void _get_exp_and_bits(mpfr_exp_t * exp, int * bits, NV nv_in) {
 
   if(!subnormal_prec_adjustment) (*exp)--;
 
-/*********************
- * START DOUBLEDOUBLE*
- *********************/
-
-#elif defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098	/* double-double */
-
-  /***********************************************************************
-   * This all works well enough (AFAIK), but needs reviewing with an eye *
-   * towards tidying up and refactoring.                                 *
-   * We don't need to determine the correct value of *exp as that value  *
-   * is calculated after this sub returns - except for the case that     *
-   * *bits == 1. Otherwise, all we need here is a correct evaluation of  *
-   * *bits - for which we do need to look at the exponents of both       *
-   * doubles.                                                            *
-   * In the event that it might be useful at some point in the future,   *
-   * I'm including the additional code (albeit, commented out) that also *
-   * derives the correct value of *exp when *bits != 1.                  *
-   ***********************************************************************/
-
-  int msd_exp, lsd_exp, t, lsd_is_zero = 0;
-  /**************************************************************************************************
-   * Include next line for accurate calculation of *exp:                                            *
-   *                                                                                                *
-   * int lsd_is_negative_reduction = 0;                                                             *
-   **************************************************************************************************/
-
-  /*******************************************************
-   * Determine if the least siginificant double is zero. *
-   * If so, set lsd_is_zero to 1 and set *bits to 53.    *
-   *******************************************************/
-
-  if( (128 == ((unsigned char *)nvptr)[LSD_IND_0] || 0 == ((unsigned char *)nvptr)[LSD_IND_0])  &&
-         0 == ((unsigned char *)nvptr)[LSD_IND_1] && 0 == ((unsigned char *)nvptr)[LSD_IND_2]   &&
-         0 == ((unsigned char *)nvptr)[LSD_IND_3] && 0 == ((unsigned char *)nvptr)[LSD_IND_4]   &&
-         0 == ((unsigned char *)nvptr)[LSD_IND_5] && 0 == ((unsigned char *)nvptr)[LSD_IND_6]   &&
-         0 == ((unsigned char *)nvptr)[LSD_IND_7]
-      ) {
-    lsd_is_zero = 1;
-    *bits = 53;
-  }
-
-  /* else *bits is currently still set at its initial value of 2098 */
-
-  int i = MSD_IND_1;
-
-  if(*bits == 53) { /* if the NV is subnormal, *bits need to be reduced accordingly */
-    *exp = ((unsigned char *)nvptr)[MSD_IND_0];
-    *exp <<= 4;
-    tmp = ((unsigned char *)nvptr)[MSD_IND_1];
-    *exp += (tmp >> 4) - 1022;
-
-    if(*exp == -1022) {
-
-      while(DD_CONDITION_1(i)) {			/* big endian:    (i <= 7) */
-						/* little endian: (i >= 0) */
-
-        tmp = ((unsigned char *)nvptr)[i];
-        if(tmp) {
-          if(i == MSD_IND_1) {
-            BITSEARCH_4				/* defined in math_mpfr_include.h */
-            break;
-          }
-          else {
-            BITSEARCH_8				/* defined in math_mpfr_include.h */
-            break;
-          }
-        }
-
-        if(i == MSD_IND_1) subnormal_prec_adjustment += 4;
-        else subnormal_prec_adjustment += 8;
-
-        INC_OR_DEC(i);				/* big endian:    i++ */
-						/* little endian: i-- */
-      }
-    }
-
-    if(!subnormal_prec_adjustment){
-
-      (*exp)--;
-
-      if(*exp > 53) *bits = *exp;
-      else if(*exp < 53) *bits += 1022 + *exp;
-/****************************************************************************************************
- * Include next line for accurate calculation of *exp:                                              *
- *                                                                                                  *
- *     *exp += lsd_is_zero;                                                                         *
- ****************************************************************************************************/
-    }
-    else {
-      *bits =  53 - subnormal_prec_adjustment;
-      *exp  -= subnormal_prec_adjustment - 1; /* This line is currently needed when *bits == 1 */
-    }
-
-  }
-
-  else {
-    msd_exp = ((unsigned char *)nvptr)[MSD_IND_0];
-    msd_exp <<= 4;
-    tmp = ((unsigned char *)nvptr)[MSD_IND_1];
-    msd_exp += (tmp >> 4) - 1022;
-
-    lsd_exp = ((unsigned char *)nvptr)[LSD_IND_0];
-
-
-    lsd_exp <<= 4;
-    tmp = ((unsigned char *)nvptr)[LSD_IND_1];
-    lsd_exp += tmp >> 4;
-    if(lsd_exp > 2047) {
-      lsd_exp -= 2048;
-/****************************************************************************************************
- * Include next line for accurate calculation of *exp:                                              *
- *                                                                                                  *
- *     if(!lsd_is_zero) lsd_is_negative_reduction = 1;                                              *
- ****************************************************************************************************/
-    }
-    lsd_exp -= 1022;
-
-    if(lsd_is_zero) *bits = 53;
-    else *bits = 53 + msd_exp - lsd_exp;
-/*****************************************************************************************************
- * Include this slab of code to correctly calculate *exp                                             *
- *                                                                                                   *
- *   if(lsd_is_negative_reduction) {		*//* lsd is negative and not zero *//*               *
- *     if(msd_exp - lsd_exp > 53) {		*//* need to check that msd is not a power of 2 *//* *
- *                                                                                                   *
- *       for(DD_CONDITION_2(i)) {			*//* big endian:    (i=2 ;i<8;i++) *//*              *
- *						*//* little endian: (i=13;i>7;i--) *//*              *
- *                                                                                                   *
- *         t = ((unsigned char *)nvptr)[i];                                                          *
- *         if(t != 0) {                                                                              *
- *           lsd_is_negative_reduction = 0;                                                          *
- *           break;                                                                                  *
- *         }                                                                                         *
- *       }                                                                                           *
- *                                                                                                   *
- *       if(lsd_is_negative_reduction) {                                                             *
- *         t = ((unsigned char *)nvptr)[MSD_IND_1];                                                      *
- *         if(t & 15) {                                                                              *
- *           lsd_is_negative_reduction = 0;                                                          *
- *         }                                                                                         *
- *       }                                                                                           *
- *     }                                                                                             *
- *     else lsd_is_negative_reduction = 0;                                                           *
- *   }                                                                                               *
- *****************************************************************************************************/
-    if(lsd_exp < -1022) *bits += (lsd_exp + 1022);
-    if(lsd_exp == -1022) *bits -= 1;
-
-/****************************************************************************************************
- * Include next line for accurate calculation of *exp:                                              *
- *                                                                                                  *
- * *exp = msd_exp - lsd_is_negative_reduction;                                                      *
- ****************************************************************************************************/
-
-  }
-
-/*******************
- * END DOUBLEDOUBLE*
- *******************/
-
 #elif defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64	/* 64 bit prec */
 
   int i = LDIND_2;				/* big endian: 2, little endian: 7 */
@@ -8298,26 +8138,13 @@ SV * _nvtoa(pTHX_ NV pnv) {
  ***********************************************************************************/
   _get_exp_and_bits( &e, &bits, nv);
 
-#if REQUIRED_LDBL_MANT_DIG == 2098 && defined(USE_LONG_DOUBLE)
-
-  if((bits < 728 && nv <= 0x1p-348) || bits < 53)
-    is_subnormal = 1;
-
-#else
-
   if(bits < NVSIZE_BITS) is_subnormal = 1; /* NVSIZE_BITS == precision of NV's mantissa */
-
-#endif
 
 /***************
  * Assign to f *
  ***************/
 
   if(bits == 1) {
-#if defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098			/* doubledouble */
-    Newxz(f, 4, char);
-    if(f == NULL) croak("Failed to allocate memory for string buffer in _nvtoa XSub");
-#endif
     f[0] = c[1];
   }
   else {
@@ -8336,21 +8163,6 @@ SV * _nvtoa(pTHX_ NV pnv) {
       f[k + 1] = c[low & 15];
       k += 2;
     }
-
-#elif defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098			/* doubledouble */
-
-    /*********************************************
-     * TODO: Remove the mpfr dependency entirely *
-     ********************************************/
-
-    mpfr_init2(ws, bits);
-    mpfr_set_ld(ws, nv, GMP_RNDN);
-
-    Newxz(f, bits + 8, char);
-    if(f == NULL) croak("Failed to allocate memory for string buffer in _nvtoa XSub");
-
-    mpfr_get_str(f, &e, 2, bits, ws, GMP_RNDN);		/* using mpfr to set both f and e */
-    mpfr_clear(ws);
 
 #elif defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 64	/* 64 bit prec */
 
@@ -8407,16 +8219,7 @@ SV * _nvtoa(pTHX_ NV pnv) {
 
 #endif
 
-#if defined(USE_LONG_DOUBLE) && REQUIRED_LDBL_MANT_DIG == 2098			/* doubledouble */
-
-  mpz_set_str(R, f, 2);
-  Safefree(f);
-
-#else
-
   mpz_set_str(R, f, 16);
-
-#endif
 
   lsb = mpz_tstbit(R, 0); /* Set lsb to the value of R's least significant bit */
   mpz_set(TMP, R);
