@@ -1010,8 +1010,6 @@ sub nvtoa_test {
    return 0 if $n/$n != $n/$n;
 
    $ret++ if $check == $n; # round trip successful
-   ##############
-   ##############
 
   my @r = split /e/i, $s;
 
@@ -1197,8 +1195,7 @@ sub nvtoa {
       return '-' . mpfrtoa($mpfr, 728) if $neg;
       return mpfrtoa($mpfr, 728);
     } # close $lsd == 0
-###########################################
-###########################################
+
     my $m_msd = Rmpfr_init2(53);
     my $m_lsd = Rmpfr_init2(53);
 
@@ -1307,8 +1304,6 @@ sub nvtoa {
     } # close same signs
 
   }
-###########################################
-###########################################
   else {
     # Not a doubledouble - simply use the _nvtoa XSub
     return _nvtoa(shift);
@@ -1355,7 +1350,13 @@ sub _chop_test {
 
   return 'ok' if length($r[0]) < 2; # chop test inapplicable.
 
-  chop $r[0];
+  #chop $r[0];
+  substr($r[0], -1, 1, '0');
+
+#  my $chop = chop($r[0]);
+#  $r[1]++ unless $chop =~ /\./;
+#  $chop =~ s/\.$/.0/;
+
   my $chopped = $r[1] ? $r[0] . 'e' . $r[1]
                       : $r[0];
 
@@ -1367,18 +1368,35 @@ sub _chop_test {
 
   # We are not interested in the chop test - the "chop" was
   # done only as the first step in the incrementation, and
-  # it's the result of the incrementation that interests us.
+  # it's the result of the following  incrementation that
+  # interests us. Now we want, in effect, to do:
+  #  chop $r[0];
+  #  ++$r[0];
+  # This value should then assign to a  DoubleDouble value
+  # that is greater than the given $op.
 
-  my $substitute = substr($r[0], -1, 1);
-  if($substitute < 9) {
-    $substitute++;
-    substr($r[0], -1, 1, "$substitute");
-    my $incremented = $r[1] ? $r[0] . 'e' . $r[1]
-                            : $r[0];
-
-    return $incremented if atonv($incremented) == abs($op);
+  if($r[0] =~ /\./) {
+    # We must remove the '.', do the string increment,
+    # and then reinsert the '.' in the appropriate place.
+    my @mantissa = split /\./, $r[0];
+    my $point_pos = -(length($mantissa[1]));
+    my $t = $mantissa[0] . $mantissa[1];
+    $t++ for 1..10;
+    substr($t, $point_pos, 0, '.');
+    $r[0] = $t;
+  }
+  else {
+    $r[0]++ for 1..10;
+    $r[1]++ while $r[0] =~ s/0$//;
   }
 
+  my $substitute = substr($r[0], -1, 1) + 1;
+  substr($r[0], -1, 1, "$substitute");
+
+  my $incremented = $r[1] ? $r[0] . 'e' . $r[1]
+                                   : $r[0];
+
+  return $incremented if atonv($incremented) == abs($op);
   return 'ok';
 }
 
@@ -1388,7 +1406,10 @@ sub _decrement {
 
   # Remove all trailing zeroes from $r[0];
 
-  chop($r[0]) while $r[0] =~ /0$/;
+  if($r[0] =~ /\./) {
+    chop($r[0]) while $r[0] =~ /0$/;
+  }
+
   $r[0] =~ s/\.$//;
   $r[1] = defined $r[1] ? $r[1] : 0;
   while($r[0] =~ /0$/) {
