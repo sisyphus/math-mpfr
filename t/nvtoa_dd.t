@@ -95,7 +95,7 @@ cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "@in0 + @in1");
 @in0 = qw(1 8);
 @in1 = qw(0 11);
 $ret = my_assign(\@in0, \@in1, '*');
-cmp_ok(nvtoa_test(nvtoa($ret), $ret, 2), '==', 7, "@in0 * @in1");
+cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "@in0 * @in1");
 
 #   Failed test '[8 -18] / [13 -1] repro ok'
 #   at t/sparse.t line 64.
@@ -114,6 +114,13 @@ cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "@in0 / @in1");
 $ret = my_assign(\@in0, \@in1, '/');
 cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "@in0 / @in1");
 
+# [13 -8] + [12 -6]
+
+@in0 = qw(13 -8);
+@in1 = qw(12 -6);
+$ret = my_assign(\@in0, \@in1, '+');
+cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "@in0 + @in1");
+
 # 0.66029111258694e-111 fails chop test.
 $ret = atonv('0.66029111258694e-111');
 cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "0.66029111258694e-111");
@@ -131,11 +138,92 @@ cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "0.876771194648327e219");
 @in0 = qw(11 -14);
 $ret = (2 ** $pows[11]) - (2 ** -$pows[14]);
 cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "(2 ** $pows[11]) - (2 ** -$pows[14])");
-done_testing();
+
+$ret = atonv(2 ** 550) + nvtoa(2 ** -300);
+cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "(2 ** 550) + (2 ** -300)");
+
+$ret = atonv(2 ** 1000);
+cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "(2 ** 1000)");
+
+$ret = atonv(2 ** -550) + nvtoa(2 ** -552) + nvtoa(2 ** -600);
+cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "(2 ** -550) + (2 ** -552)");
+
+$ret = atonv(2 ** 550) - nvtoa(2 ** -300);
+cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "(2 ** 550) - (2 ** -300)");
+
+$ret = atonv(2 ** -550);
+cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "(2 ** -550)");
+
+# [0x1p+950 -0x1p+800]
+$ret = atonv(2 ** 950) - nvtoa(2 ** 800);
+cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "(2 ** 950) - (2 ** 800)");
+
+# [0x1p+900 -0x1p+750]
+$ret = atonv(2 ** 900) - nvtoa(2 ** 750);
+cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "(2**900) - (2** 50)");
+
+#[0x1p-550 -0x1p-1050]
+$ret = atonv(2 ** -550) - nvtoa(2 ** -1050);
+cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "(2**-550) - (2**-1050)");
+
+#[-0x1p+950 0x1p+800]
+$ret = atonv(-(2 ** 950)) + nvtoa(2 ** 800);
+cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "-(2**950) + (2**800)");
+
+$ret = atonv(2 ** 700) + nvtoa(2 ** 650) - nvtoa(2 **-350);
+cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "(2**700) + (2**650) - (2**-350)");
+
+# [-0x1.ffffffffffff8p+849 0x1p-350]
+$ret = atonv(2 ** 800) - nvtoa(2 ** 850) - nvtoa(2 **-350);
+cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "(2**800) - (2**850) - (2**-350)");
+
+#[0x1p+200 0x1p-549]
+$ret = atonv(2 ** 200) + nvtoa(2 ** -549);
+cmp_ok(nvtoa_test(nvtoa($ret), $ret), '==', 7, "(2 ** 950) - (2 ** 800)");
+
+my(@big, @little);
+my @p = @pows;
+
+for(0..19) {
+  push(@big, 2 ** $p[$_]);
+  push(@little, 2 ** -($p[$_]));
+}
+
+for(0..19) {
+  my $xb = int(rand(20));
+  my $xl = int(rand(20));
+  my $yb = int(rand(20));
+  my $yl = int(rand(20));
+  my $ub = int(rand(20));
+  my $ul = int(rand(20));
+  my $vb = int(rand(20));
+  my $vl = int(rand(20));
+
+  my $x = atonv( $big[$xb] ) + atonv( $little[$xl] );
+     $x += ( atonv($big[$xb]   ) / 2 ** (int(rand(30))) )
+            +
+           ( atonv($little[$xl]) * 2 ** (int(rand(30))) );
+  my $y = atonv( $big[$yb] ) + atonv( $little[$yl] );
+
+  my $u = atonv( $big[$ub] ) - atonv( $little[$ul] );
+     $u += ( atonv($big[$xb]   ) / 2 ** (int(rand(30))) )
+            -
+           ( atonv($little[$xl]) * 2 ** (int(rand(30))) );
+  my $v = atonv( $big[$vb] ) - atonv( $little[$vl] );
+
+sparse_test($x, $y);
+sparse_test($u, $v);
+sparse_test($x, $v);
+sparse_test($u, $y);
+sparse_test($x, $u);
+sparse_test($y, $v);
+}
 
 ##############################################################
 ##############################################################
 ##############################################################
+
+done_testing();
 
 sub my_assign {
 
@@ -160,4 +248,23 @@ my @p = (50, 100, 150, 200, 250, 300, 350, 400, 450, 500,
   return $x - $y if($op eq '-') ;
 
   die "Error in my_assign();"
+}
+
+sub sparse_test {
+  my ($op1, $op2)     = (shift, shift);
+
+  cmp_ok(nvtoa_test(nvtoa($op1), $op1), '==', 7, "X" . unpack("H*", pack("D>", $op1)));
+  cmp_ok(nvtoa_test(nvtoa($op2), $op2), '==', 7, "X" . unpack("H*", pack("D>", $op2)));
+
+  my $mul = $op1 * $op2;
+  cmp_ok(nvtoa_test(nvtoa($mul), $mul), '==', 7, "X" . unpack("H*", pack("D>", $mul)));
+
+  my $add = $op1 + $op2;
+  cmp_ok(nvtoa_test(nvtoa($add), $add), '==', 7, "X" . unpack("H*", pack("D>", $add)));
+
+  my $div = $op1 / $op2;
+  cmp_ok(nvtoa_test(nvtoa($div), $div), '==', 7, "X" . unpack("H*", pack("D>", $div)));
+
+  my $sub = $op1 - $op2;
+  cmp_ok(nvtoa_test(nvtoa($sub), $sub), '==', 7, "X" . unpack("H*", pack("D>", $sub)));
 }
