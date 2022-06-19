@@ -93,7 +93,6 @@
     *import = \&Exporter::import;
     require DynaLoader;
 
-#    @Math::MPFR::EXPORT_OK = qw(
     my @tags = qw(
 GMP_RNDD GMP_RNDN GMP_RNDU GMP_RNDZ
 IOK_flag NOK_flag POK_flag
@@ -191,7 +190,7 @@ fr_cmp_q_rounded mpfr_max_orig_len mpfr_min_inter_prec mpfrtoa numtoa nvtoa nvto
 prec_cast q_add_fr q_cmp_fr q_div_fr q_mul_fr q_sub_fr rndna
 );
 
-    @Math::MPFR::EXPORT_OK = (@tags,'bytes');
+    @Math::MPFR::EXPORT_OK = (@tags, 'bytes');
 
     our $VERSION = '4.25';
     #$VERSION = eval $VERSION;
@@ -990,7 +989,7 @@ sub nvtoa_test {
    # are the same. No further testing required.
 
    if($check == 0) {
-     return 7 if $n == 0;
+     return 15 if $n == 0;
      return 0;
    }
    return 0 if $n == 0;
@@ -998,13 +997,13 @@ sub nvtoa_test {
    my $new = Math::MPFR->new($check);
 
    if(Rmpfr_nan_p($new)) {
-     return 7 if $n != $n;
+     return 15 if $n != $n;
      return 0;
    }
    return 0 if $n != $n;
 
    if(Rmpfr_inf_p($new)) {
-     return 7 if $new == $n;
+     return 15 if $new == $n;
      return 0;
    }
    return 0 if $n/$n != $n/$n;
@@ -1019,6 +1018,17 @@ sub nvtoa_test {
     else { print " no exponent\n" }
   }
 
+  # Increment $ret by 8 if and only if there are no errant trailing
+  # zeroes in $r[0] .
+
+  if(!defined($r[1])) {
+    $ret += 8 if ($r[0] =~ /\.0$/ || $r[0] !~ /0$/);
+    $r[1] = 0;       # define $r[1] by setting it to zero.
+  }
+  else {
+   $ret += 8 unless $r[0] =~ /0$/;
+  }
+
   # We remove from $s any trailing mantissa zeroes, and then
   # replace the least significant digit with zero.
   # IOW, we effectively chop off the least siginificant digit, thereby
@@ -1027,7 +1037,6 @@ sub nvtoa_test {
 
   chop($r[0]) while $r[0] =~ /0$/;
   $r[0] =~ s/\.$//;
-  $r[1] = defined $r[1] ? $r[1] : 0;
   while($r[0] =~ /0$/) {
     chop $r[0];
     $r[1]++;
@@ -1350,18 +1359,19 @@ sub _chop_test {
 
   return 'ok' if length($r[0]) < 2; # chop test inapplicable.
 
-  #chop $r[0];
-  substr($r[0], -1, 1, '0');
+  substr($r[0], -1, 1, '');
 
-#  my $chop = chop($r[0]);
-#  $r[1]++ unless $chop =~ /\./;
-#  $chop =~ s/\.$/.0/;
-
-  my $chopped = $r[1] ? $r[0] . 'e' . $r[1]
-                      : $r[0];
+  $r[1]++ unless $r[0] =~ /\./;
+  $r[0] =~ s/\.$/.0/
+    unless $r[1];
+  $r[0] =~ s/\.$//;
 
   if(!$do_increment) {
     # We are interested only in the chop test
+
+    my $chopped = $r[1] ? $r[0] . 'e' . $r[1]
+                        : $r[0];
+
     return 'ok' if atonv($chopped) < abs($op); # chop test ok.
     return $chopped;
   }
@@ -1370,7 +1380,6 @@ sub _chop_test {
   # done only as the first step in the incrementation, and
   # it's the result of the following  incrementation that
   # interests us. Now we want, in effect, to do:
-  #  chop $r[0];
   #  ++$r[0];
   # This value should then assign to a  DoubleDouble value
   # that is greater than the given $op.
@@ -1381,20 +1390,18 @@ sub _chop_test {
     my @mantissa = split /\./, $r[0];
     my $point_pos = -(length($mantissa[1]));
     my $t = $mantissa[0] . $mantissa[1];
-    $t++ for 1..10;
+    $t++;
     substr($t, $point_pos, 0, '.');
     $r[0] = $t;
   }
   else {
-    $r[0]++ for 1..10;
+    $r[0]++;
     $r[1]++ while $r[0] =~ s/0$//;
   }
 
-  my $substitute = substr($r[0], -1, 1) + 1;
-  substr($r[0], -1, 1, "$substitute");
 
   my $incremented = $r[1] ? $r[0] . 'e' . $r[1]
-                                   : $r[0];
+                          : $r[0];
 
   return $incremented if atonv($incremented) == abs($op);
   return 'ok';
@@ -1427,6 +1434,22 @@ sub _decrement {
 
   return $ret;
 }
+
+#sub tz_test {
+#  # Detect any unwanted trailing zeroes
+#  # in values returned by nvtoa().
+#
+#  my $s = shift;
+#  my @r = split /e/i, $s;
+#
+#  if(!defined($r[1])) {
+#    return 1 if $r[0] =~ /\.0$/; # pass
+#    return 0 if $r[0] =~ /0$/;   # fail
+#  }
+#
+#  return 0 if $r[0] =~ /0$/;     # fail (for our formatting convention)
+#  return 1;                      # pass
+#}
 
 1;
 
