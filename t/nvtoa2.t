@@ -138,7 +138,7 @@ while(1) {
 
   my $nvtoa = nvtoa($nv);
 
-  ok(nvtoa_test($nvtoa, $nv) == 7, "$str");
+  ok(nvtoa_test($nvtoa, $nv) == 15, "$str");
 
 }
 
