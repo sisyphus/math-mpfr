@@ -1,5 +1,11 @@
+# This test script was written for the DoubleDouble NV type.
+# But I figure we might as well run it, no matter what NV we have.
+# However, there can be an issue with the SvNOK flag on old perls,
+# so we avoid anything older than perl-5.12.
+
 use strict;
 use warnings;
+use 5.012;
 use Math::MPFR qw(:mpfr);
 
 use Test::More;
@@ -253,18 +259,18 @@ my @p = (50, 100, 150, 200, 250, 300, 350, 400, 450, 500,
 sub sparse_test {
   my ($op1, $op2)     = (shift, shift);
 
-  cmp_ok(nvtoa_test(nvtoa($op1), $op1), '==', 15, "X" . unpack("H*", pack("D>", $op1)));
-  cmp_ok(nvtoa_test(nvtoa($op2), $op2), '==', 15, "X" . unpack("H*", pack("D>", $op2)));
+  cmp_ok(nvtoa_test(nvtoa($op1), $op1), '==', 15, "X" . unpack("H*", pack("F>", $op1)));
+  cmp_ok(nvtoa_test(nvtoa($op2), $op2), '==', 15, "X" . unpack("H*", pack("F>", $op2)));
 
   my $mul = $op1 * $op2;
-  cmp_ok(nvtoa_test(nvtoa($mul), $mul), '==', 15, "X" . unpack("H*", pack("D>", $mul)));
+  cmp_ok(nvtoa_test(nvtoa($mul), $mul), '==', 15, "X" . unpack("H*", pack("F>", $mul)));
 
   my $add = $op1 + $op2;
-  cmp_ok(nvtoa_test(nvtoa($add), $add), '==', 15, "X" . unpack("H*", pack("D>", $add)));
+  cmp_ok(nvtoa_test(nvtoa($add), $add), '==', 15, "X" . unpack("H*", pack("F>", $add)));
 
   my $div = $op1 / $op2;
-  cmp_ok(nvtoa_test(nvtoa($div), $div), '==', 15, "X" . unpack("H*", pack("D>", $div)));
+  cmp_ok(nvtoa_test(nvtoa($div), $div), '==', 15, "X" . unpack("H*", pack("F>", $div)));
 
   my $sub = $op1 - $op2;
-  cmp_ok(nvtoa_test(nvtoa($sub), $sub), '==', 15, "X" . unpack("H*", pack("D>", $sub)));
+  cmp_ok(nvtoa_test(nvtoa($sub), $sub), '==', 15, "X" . unpack("H*", pack("F>", $sub)));
 }
