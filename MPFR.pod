@@ -595,7 +595,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Math::MPFR has been built against mpfr-3.0.0 or later, (0,2..62),
     rounded in direction $rnd to the precision of $rop.
     The exponent is read in decimal.  This function returns 0 if
-    the entire string is a valid number in base $base. otherwise
+    the entire string is a valid number in base $base. Otherwise
     it returns -1.
     If -1 is returned:
       1) the non-numeric flag (which was initialised to 0) will be
@@ -1091,7 +1091,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $si = Rmpfr_compound_si($rop, $op, $si, $rnd);
     $rop = ($op + 1) ** $si, rounded according to $rnd, to the
-    precsion of $rop.
+    precision of $rop.
     When $si is 0 and $op is NaN or is >= -1, $rop is set to 1.
 
    $si = Rmpfr_neg($rop, $op, $rnd);
@@ -1197,7 +1197,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $bool = Rmpfr_eq($op1, $op2, $ui);
     The mpfr library function mpfr_eq may change in future
     releases of the mpfr library (post 2.4.0). If that happens,
-    the change will also be relected in Rmpfr_eq.
+    the change will also be reflected in Rmpfr_eq.
     Return non-zero if the first $ui bits of $op1 and $op2 are
     equal, zero otherwise.  I.e., tests if $op1 and $op2 are
     approximately equal.
@@ -1408,7 +1408,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_exp2m1 ($rop, $op, $rnd);
    $si = Rmpfr_exp10m1($rop, $op, $rnd);
     In Rmpfr_expm1, set $rop to the exponential of $op followed
-    by a subraction of 1. $rop = (e  ** $op) - 1.
+    by a subtraction of 1. $rop = (e  ** $op) - 1.
     In Rmpfr_exp2p1,  set $rop = (2  ** $op) - 1.
     In Rmpfr_exp10p1, set $rop = (10 ** $op) - 1.
     For all three, the result is rounded to the direction $rnd
@@ -1609,7 +1609,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     @op2, whose common size is $ui (== scalar @op1), correctly
     rounded in the direction $rnd.
     This function is experimental, and does not yet handle
-    intermediate overflows and underflows
+    intermediate overflows and underflows.
 
    #############
 
@@ -1851,11 +1851,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     is true.
     NOTE 1: Except for perls whose nvtype is __float128:
              1) perl versions prior to 5.30.0 are buggy in their
-                assignemt of values to the NV;
+                assignment of values to the NV;
              2) perl versions from 5.30.0 on that don't define
                 $Config{d_strtod} (or respectively $Config{d_strtold}
                 for -Duselongdouble builds) are also buggy in their
-                assignmentof values to the NV.
+                assignment of values to the NV.
             The nvtoa() function looks only at the value that was
             passed to it - which, with such buggy perls, may differ
             from the intended value by a few ULPs.
@@ -1941,7 +1941,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Also, we chop the least significant digit off the mantissa of
     a copy of $str, and add 2 to $mask if this chopped $str assigns to
     a value less than $arg.
-    Also, we increment the least siginificant mantissa digit of this
+    Also, we increment the least significant mantissa digit of this
     chopped copy of $str, and add 4 to $mask if this chopped-and-incremented
     $str assigns to a value greater than $arg.
     Also, we check that the mantissa portion of $str contains no
@@ -1952,7 +1952,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     lowest bits.
 
     If a third (debug) arg is provided and is TRUE, then some debug
-    info is provided during the runnng of nvtoa_test().
+    info is provided during the running of nvtoa_test().
 
     For inf, nan, and zero, we do only the initial test and return 15 if
     that test has passed, or 0 if that test has failed. (The other 3
@@ -1994,7 +1994,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     string representation of the value held in $op.
     Else, instead return the number of decimal digits (not counting
     leading zeros) contained in the significand of that "exact base 10
-    representation", as estmated by decimalize(). This value could be
+    representation", as estimated by decimalize(). This value could be
     one greater than the actual number of those significand digits.
     If a second arg is supplied && $op is Inf or NaN or Zero, then
     the returned value will be zero.
@@ -2198,7 +2198,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $IV = Math::MPFR::nnumflag(); # not exported
     Returns the value of the non-numeric flag. This flag is
-    initialized to zero, but incemented by 1 whenever the
+    initialized to zero, but incremented by 1 whenever the
     a string containing non-numeric characters is passed to an
     mpfr function. The value of the flag therefore tells us how
     many times such strings were passed to mpfr functions . The
@@ -2206,7 +2206,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $IV = Math::MPFR::nok_pokflag(); # not exported
     Returns the value of the nok_pok flag. This flag is
-    initialized to zero, but incemented by 1 whenever a
+    initialized to zero, but incremented by 1 whenever a
     scalar that is both a float (NOK) and string (POK) is passed
     to new() or to an overloaded operator. The value of the flag
     therefore tells us how many times such events occurred . The
@@ -2237,11 +2237,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     If $bits is 53, $bytes will display the byte structure (in
     hex) of the standard 8-byte double, $val.
     If $bits is 64, the structure returned will be that of $val
-    as an extended precison 10-byte long double.
+    as an extended precision 10-byte long double.
     If $bits is 2098, the structure returned will be that of $val
     as the 16-byte IBM doubledouble.
     If $bits is 113, the structure returned will be that of $val
-    as the quad precison 16-byte IEEE long double (or __float128,
+    as the quad precision 16-byte IEEE long double (or __float128,
     which is identical in byte structure).
 
     eg:
@@ -2353,7 +2353,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     X = ($a * X + $c) % 2 ** $m2exp
     The low bits in X are not very random - for this reason
     only the high half of each X is actually used.
-    $c and $m2exp sre both unsigned longs.
+    $c and $m2exp are both unsigned longs.
     $a can be any one of Math::GMP, or Math::GMPz objects.
     Or it can be a string.
     If it is a string of hex digits it must be prefixed with
@@ -2363,11 +2363,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $state = Rmpfr_randinit_lc_2exp_size($ui);
     Initialise state as per Rmpfr_randinit_lc_2exp. The values
-    for $a, $c. and $m2exp are selected from a table, chosen
+    for $a, $c and $m2exp are selected from a table, chosen
     so that $ui bits (or more) of each X will be used.
 
    Rmpfr_randseed($state, $seed);
-    $state is a reference to a gmp_randstate_t strucure (the
+    $state is a reference to a gmp_randstate_t structure (the
     return value of one of the Rmpfr_randinit functions).
     $seed is the seed. It can be any one of Math::GMP,
     or Math::GMPz objects. Or it can be a string of digits.
@@ -2377,7 +2377,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     integer. No other bases are allowed.
 
    Rmpfr_randseed_ui($state, $ui);
-    $state is a reference to a gmp_randstate_t strucure (the
+    $state is a reference to a gmp_randstate_t structure (the
     return value of one of the Rmpfr_randinit functions).
     $ui is the seed.
 
