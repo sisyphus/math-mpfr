@@ -111,11 +111,11 @@ for(;;) {
   Rmpfr_set_q($e_second_fr, $e_second, MPFR_RNDN);
 
 #########################################################
-# Exit the loop when $e_first_fr == $e_second_fr	#
-# as this equivalence indicates that both variables	#
-# contain the euler number, correct to $bits bits.	#
+# Exit the loop when $e_first_fr == $e_second_fr        #
+# as this equivalence indicates that both variables     #
+# contain the euler number, correct to $bits bits.      #
 #########################################################
-  last if Rmpfr_equal_p($e_first_fr, $e_second_fr);	#
+  last if Rmpfr_equal_p($e_first_fr, $e_second_fr);     #
 #########################################################
 
   Rmpz_set($first, $second);
