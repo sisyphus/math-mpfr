@@ -39,6 +39,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y libgmp-dev libmpfr-dev
+        cpanm --notest Math::GMPz Math::LongDouble Math::GMPq Test::Pod
 
     - name: Install Modules
       run: |
