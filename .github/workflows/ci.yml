@@ -39,12 +39,15 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y libgmp-dev libmpfr-dev
-        cpanm --notest Math::GMPz Math::LongDouble Math::GMPq Test::Pod
 
     - name: Install Modules
       run: |
         cpanm -v
         cpanm --installdeps --notest .
+
+    - name: Install Extra Modules needed for testing
+      run: |
+        cpanm --notest Math::GMPz Math::LongDouble Math::GMPq Math::Decimal64 Math::Float128 Test::Pod
 
     - name: Show Errors on Windows
       if:  ${{ failure() && startsWith( matrix.runner, 'windows-')}}
