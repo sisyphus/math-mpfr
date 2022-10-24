@@ -46,6 +46,7 @@ jobs:
         cpanm --installdeps --notest .
 
     - name: Install Extra Modules needed for testing
+      if:  ${{ matrix.runner == 'ubuntu-latest' || matrix.runner == 'windows-latest' }}
       run: |
         cpanm --notest Math::GMPz Math::LongDouble Math::GMPq Math::Decimal64 Math::Float128 Test::Pod
 
