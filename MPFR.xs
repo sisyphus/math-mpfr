@@ -7487,12 +7487,10 @@ SV * _lsb(pTHX_ mpfr_t * a) {
   mpfr_exp_t exponent;
   mpfr_prec_t p = mpfr_get_prec(*a);
 
-  if(mpfr_nan_p(*a)) {
-    mpfr_set_nanflag();
+  if(!mpfr_regular_p(*a)) {
+    if(mpfr_nan_p(*a)) mpfr_set_nanflag();
     return newSVuv(0);
   }
-
-  if(mpfr_inf_p(*a)) return newSVuv(0);
 
   Newxz(buffer, p + 2, char);
   if(buffer == NULL) croak("Failed to allocate memory in _lsb function");
