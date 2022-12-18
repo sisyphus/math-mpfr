@@ -6945,6 +6945,7 @@ SV * _bytes_fr(pTHX_ mpfr_t * str, unsigned int bits) {
     sv_setpvn(sv, (char *) &ld, 16);
     return sv;
   }
+  croak("Invalid value (%u) provided as 2nd argument to internal _bytes_fr XSub", bits);
 }
 
 SV * _dd_bytes(pTHX_ SV * str) {
