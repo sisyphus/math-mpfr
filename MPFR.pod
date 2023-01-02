@@ -223,11 +223,16 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
     1) Build perl (5.21.4 or later) with -Dusequadmath; build the
     mpfr-4.0.0 (or later) library with the configure option
-    --enable-float128, and then build Math::MPFR by providing the
+    --enable-float128. Then build Math::MPFR in the usual way.
+    If the build process does not then result in a Math::MPFR
+    module that supports the __float128 NV try providing the
     "F128=1" arg to the Makefile.PL (which will define the symbol
     MPFR_WANT_FLOAT128):
 
       perl Makefile.PL F128=1
+
+    (And please file a bug report, because the aim is that you
+    should not need to specify F128=1 here.)
 
     Then you can pass your perl's __float128 NV values directly
     to/from Math::MPFR using:
@@ -242,8 +247,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
     NOTE:
       If you have built perl with -Dusequadmath, but the mpfr
-      library was not built with --enable-float128 (or the F128=1
-      arg was not given to the Makefile.PL) , then both
+      library was not built with float128 support , then both
       Rmpfr_set_NV() and Rmpfr_get_NV() will still set/get
       __float128 values.
       Also, overloaded operations that receive an NV will still
@@ -251,9 +255,10 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
       It's only Rmpfr_set_float128() and Rmpfr_get_float128() that
       will not be available.
 
-    2) Install Math::Float128, build the mpfr-4.0.0 (or later)
-    library with the configure option --enable-float128, and build
-    Math::MPFR by providing the "F128=1" arg to the Makefile.pl:
+    2) On a perl that was not built with -Dusequadmath, install
+    Math::Float128, build the mpfr-4.0.0 (or later) library with
+    the configure option --enable-float128, and build Math::MPFR
+    by providing the "F128=1" arg to the Makefile.pl:
 
       perl Makefile.PL F128=1
 
@@ -762,8 +767,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    ($rop, $si) = Rmpfr_init_set_q_nobless($q, $rnd);# $q is a mpq object
    ($rop, $si) = Rmpfr_init_set_IV        ($IV,$rnd);# $IV is $Config{ivtype}
    ($rop, $si) = Rmpfr_init_set_IV_nobless($IV,$rnd);# $IV is $Config{ivtype}
-   ($rop, $si) = Rmpfr_init_set_IV        ($NV,$rnd);# $NV is $Config{nvtype}
-   ($rop, $si) = Rmpfr_init_set_IV_nobless($NV,$rnd);# $NV is $Config{nvtype}
+   ($rop, $si) = Rmpfr_init_set_NV        ($NV,$rnd);# $NV is $Config{nvtype}
+   ($rop, $si) = Rmpfr_init_set_NV_nobless($NV,$rnd);# $NV is $Config{nvtype}
 
     Initialize $rop and set its value from the 1st arg, rounded to
     direction $rnd. The precision of $rop will be taken from the
@@ -857,9 +862,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $f128   = Rmpfr_get_float128($op, $rnd);# nvtype is __float128
                                            # && mpfr-4.0.0 or later
                                            # && mpfr lib built with
-                                           # --enable-float128 &&
-                                           # F128=1 cmd line arg
-                                           # given to Makefile.PL
+                                           # --enable-float128.
    $NV     = Rmpfr_get_NV($op, $rnd);    # double/long double/__float128
    $float  = Rmpfr_get_flt($op, $rnd);   # mpfr-3.0.0 and later
    Rmpfr_get_LD($LD, $op, $rnd);         # $LD is a Math::LongDouble object.
@@ -870,9 +873,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
                                          # Makefile.PL. $D64 is a
                                          # Math::Decimal64 object
    Rmpfr_get_FLOAT128($F128, $op, $rnd);# mpfr-4.0.0 and later &&
-                                        # mpfrlib built with
-                                        # --enable-float128 && F128=1
-                                        # arg given to Makefile.PL.
+                                        # mpfr library built with
+                                        # --enable-float128.
                                         # $F128 is a Math::Float128
                                         # object.
     Convert $op to a 'double', a 'long double', a __float128, an 'NV',
@@ -1159,13 +1161,15 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     return zero and set the erange flag.
 
     NOTE:
-         Rmpfr_cmp_IV() requires that the 2nd argument has its IOK
-         flag set, and Rmpfr_cmp_NV() requires that the 2nd
+         1) Rmpfr_cmp_IV() requires that the 2nd argument has its
+         IOK flag set, and Rmpfr_cmp_NV() requires that the 2nd
          argument has its NOK flag set.
          Otherwise these functions croak.
          Suggestion: first check the status of the flag using
          IOK_flag($iv) or NOK_flag($nv),which return a non-zero
          value if and only if the flag in question is set.
+
+         2) Rmpfr_cmp_IV handles both signed and unsigned IV args.
 
    $si = fr_cmp_q_rounded($op, $q, $rnd); # $q is a mpq object
     Convert $q to an mpfr object of current default precision,
