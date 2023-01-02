@@ -796,7 +796,7 @@ void Rmpfr_init_set_NV_nobless(pTHX_ SV * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     NEW_MATH_MPFR_OBJECT("NULL",Rmpfr_init_set_NV_nobless) /* defined in math_mpfr_include.h */
+     NEW_MATH_MPFR_OBJECT(NULL,Rmpfr_init_set_NV_nobless) /* defined in math_mpfr_include.h */
 
      mpfr_init(*mpfr_t_obj);
      sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
@@ -2624,7 +2624,7 @@ void Rmpfr_init_set_IV_nobless(pTHX_ SV * q, SV * round) {
 
      CHECK_ROUNDING_VALUE
 
-     NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init_set_IV_nobless) /* defined in math_mpfr_include.h */
+     NEW_MATH_MPFR_OBJECT(NULL,Rmpfr_init_set_IV_nobless) /* defined in math_mpfr_include.h */
 
      mpfr_init(*mpfr_t_obj);
      sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
