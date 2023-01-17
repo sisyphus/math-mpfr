@@ -838,7 +838,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $bool = Rmpfr_fits_slong_p($op, $rnd);   # fits in signed long
    $bool = Rmpfr_fits_uintmax_p($op, $rnd); # fits in uintmax_t
    $bool = Rmpfr_fits_intmax_p($op, $rnd);  # fits in intmax_t
-   $bool = Rmpfr_fits_IV_p($op, $rnd);      # fits in perl IV
+   $bool = Rmpfr_fits_IV_p($op, $rnd);      # fits in perl IV or UV
     Return non-zero if $op would fit in the respective data
     type, when rounded to an integer in the direction $rnd.
 
@@ -894,21 +894,19 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Convert $op to an mpz object ($z), after rounding it with respect
     to RND. If built against mpfr-3.0.0 or later, return the usual
     ternary value. (The function returns undef when using mpfr-2.x.x.)
-    If $op is NaN or Inf, the result is undefined.
+    Croak with appropriate error message if $op is NaN or Inf.
 
    $inex = Rmpfr_get_f ($f, $op, $rnd); # $f is a Math::GMPf object.
     Convert $op to a 'mpf_t', after rounding it with respect to $rnd.
     When built against mpfr-3.0.0 or later, this function returns the
-    usual ternary value. (If $op is NaN or Inf, then the erange flag
-    will be set.) When built against earlier versions of mpfr,
-    return zero if no error occurred. In particular a non-zero value
-    is returned if $op is NaN or Inf. which do not exist in 'mpf'.
+    usual ternary value. When built against earlier versions of mpfr,
+    return zero if no error occurred.
+    Croak with appropriate error message if $op is NaN or Inf.
 
    Rmpfr_get_q ($q, $op); # $q is a Math::GMPq object.
     Convert $op to a rational value. $q will be set to the exact
     value contained in $op - hence no need for a rounding argument.
-    If $op is NaN or Inf, then $q is set to zero and the erange flag
-    will be set.
+    Croak with appropriate error message if $op is NaN or Inf.
 
    $d = Rmpfr_get_d_2exp ($exp, $op, $rnd); # $d is NV (double)
    $d = Rmpfr_get_ld_2exp ($exp, $op, $rnd); # $d is NV (long double)
