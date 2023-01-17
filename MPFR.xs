@@ -1117,21 +1117,18 @@ void Rmpfr_get_q(mpq_t * a, mpfr_t * b) {
 
 #if defined(MPFR_VERSION_MAJOR) && MPFR_VERSION_MAJOR >= 4
 
+     if(!mpfr_number_p(*b)) croak("In Rmpfr_get_q: Cannot coerce an 'Inf' or 'NaN' to a Math::GMPq object");
      mpfr_get_q(*a, *b);
 
 #else
      mpf_t temp;
 
-     if(!mpfr_number_p(*b)) {
-       mpq_set_ui(*a, 0, 1);
-       mpfr_set_erangeflag();
-     }
-     else {
-       mpf_init2 (temp, (mp_bitcnt_t)mpfr_get_prec(*b));
-       mpfr_get_f(temp, *b, GMP_RNDN);
-       mpq_set_f (*a, temp);
-       mpf_clear(temp);
-     }
+     if(!mpfr_number_p(*b)) croak("In Rmpfr_get_q: Cannot coerce an 'Inf' or 'NaN' to a Math::GMPq object");
+     mpf_init2 (temp, (mp_bitcnt_t)mpfr_get_prec(*b));
+     mpfr_get_f(temp, *b, GMP_RNDN);
+     mpq_set_f (*a, temp);
+     mpf_clear(temp);
+   }
 #endif
 }
 
@@ -2369,6 +2366,7 @@ SV * Rmpfr_set_sj_2exp(pTHX_ mpfr_t * a, SV * b, SV * c, SV * round) {
 }
 
 SV * Rmpfr_get_z(pTHX_ mpz_t * a, mpfr_t * b, SV * round) {
+     if(!mpfr_number_p(*b)) croak("In Rmpfr_get_z: Cannot coerce an 'Inf' or 'NaN' to a Math::GMPz object");
 #if MPFR_VERSION_MAJOR < 3
      CHECK_ROUNDING_VALUE
      mpfr_get_z(*a, *b, (mpfr_rnd_t)SvUV(round));
@@ -3041,6 +3039,7 @@ SV * Rmpfr_li2(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
 
 SV * Rmpfr_get_f(pTHX_ mpf_t * a, mpfr_t * b, SV * round) {
      CHECK_ROUNDING_VALUE
+     if(!mpfr_number_p(*b)) croak("In Rmpfr_get_f: Cannot coerce an 'Inf' or 'NaN' to a Math::GMPf object");
      return newSViv(mpfr_get_f(*a, *b, (mpfr_rnd_t)SvUV(round)));
 }
 
