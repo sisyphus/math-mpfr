@@ -1,5 +1,7 @@
 Revision history for Perl module Math::MPFR
 
+4.26
+
 4.25
  - work on fixing bugs in nvtoa() for DoubleDoubles. (Use _mpfrtoa instead of _nvtoa.)
  - Fix typos in pod. Thanks Vincent Lefevre - https://github.com/sisyphus/math-mpfr/pull/6.
