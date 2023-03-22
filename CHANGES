@@ -1,5 +1,7 @@
 Revision history for Perl module Math::MPFR
 
+4.27
+
 4.26
  - Alter t/out_str.t and t/printf.t to accommodate sisyphus' MSVC-built perls.
 
