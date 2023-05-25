@@ -1128,7 +1128,6 @@ void Rmpfr_get_q(mpq_t * a, mpfr_t * b) {
      mpfr_get_f(temp, *b, GMP_RNDN);
      mpq_set_f (*a, temp);
      mpf_clear(temp);
-   }
 #endif
 }
 
