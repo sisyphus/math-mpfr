@@ -9013,6 +9013,13 @@ int _has_pv_nv_bug(void) {
 #endif
 }
 
+int _sizeof_exp(void) {
+    return sizeof(mpfr_exp_t);
+}
+
+int _sizeof_prec(void) {
+    return sizeof(mpfr_prec_t);
+}
 
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
@@ -13938,5 +13945,13 @@ _sis_perl_version ()
 
 int
 _has_pv_nv_bug ()
+
+
+int
+_sizeof_exp ()
+
+
+int
+_sizeof_prec ()
 
 
