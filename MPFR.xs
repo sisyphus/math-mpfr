@@ -1540,21 +1540,16 @@ int Rmpfr_cmp_sj(pTHX_ mpfr_t * a, IV b) {
 
 int Rmpfr_cmp_IV(pTHX_ mpfr_t *a, SV * b) {
 
-    int call_uv = 0;
-
-    if(SV_IS_IOK(b)) {
-      if(SvUOK(b)) call_uv = 1;
-    }
-    else
+    if(!SV_IS_IOK(b))
       croak("Arg provided to Rmpfr_cmp_IV is not an IV");
 
 #if defined(MATH_MPFR_NEED_LONG_LONG_INT)
-    if(call_uv) {
+    if(SvUOK(b)) {
       return Rmpfr_cmp_uj(aTHX_ a, SvUV(b));
     }
     return Rmpfr_cmp_sj(aTHX_ a, SvIV(b));
 #else
-    if(call_uv) {
+    if(SvUOK(b)) {
       return mpfr_cmp_ui(*a, SvUV(b));
     }
     return mpfr_cmp_si(*a, SvIV(b));
