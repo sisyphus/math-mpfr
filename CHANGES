@@ -2,6 +2,7 @@ Revision history for Perl module Math::MPFR
 
 4.28
  - Correct the testing for the presence of the Windows subnormal bug in t/nvtoa2.t.
+ - Small tweak to Rmpfr_cmp_IV.
 
 4.27
  - Remove stray '}' from Rmpfr_add_z
