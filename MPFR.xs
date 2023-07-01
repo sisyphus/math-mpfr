@@ -2567,23 +2567,20 @@ SV * Rmpfr_get_IV(pTHX_ mpfr_t * x, SV * round) {
 }
 
 int Rmpfr_set_IV(pTHX_ mpfr_t * x, SV * sv,  SV * round) {
-     int call_uv = 0;
 
      CHECK_ROUNDING_VALUE
 
-     if(SV_IS_IOK(sv)) {
-       if(SvUOK(sv)) call_uv = 1;
-     }
-     else croak("Arg provided to Rmpfr_set_IV is not an IV");
+     if(!SV_IS_IOK(sv))
+       croak("Arg provided to Rmpfr_set_IV is not an IV");
 
 #if defined MATH_MPFR_NEED_LONG_LONG_INT
-     if(call_uv)
+     if(SvUOK(sv))
        return mpfr_set_uj(*x, SvUV(sv), (mpfr_rnd_t)SvNV(round));
 
      return mpfr_set_sj(*x, SvIV(sv), (mpfr_rnd_t)SvNV(round));
 
 #else
-     if(call_uv)
+     if(SvUOK(sv))
        return mpfr_set_ui(*x, SvUV(sv), (mpfr_rnd_t)SvNV(round));
 
      return mpfr_set_si(*x, SvIV(sv), (mpfr_rnd_t)SvNV(round));
