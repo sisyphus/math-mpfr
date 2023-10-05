@@ -8762,6 +8762,7 @@ void set_fallback_flag(pTHX) {
 
  PUSHMARK(SP);
  call_pv("Math::MPFR::perl_set_fallback_flag", G_DISCARD|G_NOARGS);
+ PL_markstack_ptr++;
 }
 
 SV * doubletoa(pTHX_ SV * sv, ...) {
@@ -8799,6 +8800,7 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
   /* Prehandle NaNs */
   if((u64 << 1) > 0xFFE0000000000000ULL) {
     sprintf(dst, "NaN");
+    PL_markstack_ptr++;
     return newSVpv(dst, 0);
   }
 
@@ -8809,6 +8811,7 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
     *s2++ = '.';
     *s2++ = '0';
     *s2 = '\0';
+    PL_markstack_ptr++;
     return newSVpv(dst, 0);
   }
 
@@ -8819,6 +8822,7 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
     *s2++ = 'n';
     *s2++ = 'f';
     *s2 = '\0';
+    PL_markstack_ptr++;
     return newSVpv(dst, 0);
   }
 
@@ -8833,9 +8837,13 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
     set_fallback_flag(aTHX);
 #endif
 
-    if(fallback) return _nvtoa(aTHX_ v * sign);
+    if(fallback) {
+      PL_markstack_ptr++;
+      return _nvtoa(aTHX_ v * sign);
+    }
 
     sprintf(s2, "%.16e", (v * sign));
+    PL_markstack_ptr++;
     return newSVpv(dst, 0);
   }
 
@@ -8843,7 +8851,7 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
   /* Now, we just need to format it ...                                                    */
 
   /* printf("# doubletoa: %s %d\n", dst, d_exp + strlen(dst)); */
-
+  PL_markstack_ptr++;
   return _fmt_flt(aTHX_ dst, (int)(d_exp + strlen(dst)), sign < 0 ? 1 : 0, MATH_MPFR_MAX_DIG, 0);
 
 #else
@@ -8898,12 +8906,14 @@ void decimalize(pTHX_ SV * a, ...) {
   if(!mpfr_regular_p(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))))) {
     if(items > 1) {
       ST(0) = sv_2mortal(newSViv(0));
+      PL_markstack_ptr++;
       XSRETURN(1);
     }
     Newxz(buff, 8, char);
     mpfr_sprintf(buff, "%Rg", *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))));
     ST(0) = MORTALIZED_PV(buff);    /* defined in math_mpfr_include.h */
     Safefree(buff);
+    PL_markstack_ptr++;
     XSRETURN(1);
   }
 
@@ -8982,6 +8992,7 @@ void decimalize(pTHX_ SV * a, ...) {
 
   if(items > 1) {
     ST(0) = sv_2mortal(newSViv((IV)digits));
+    PL_markstack_ptr++;
     XSRETURN(1);
   }
 
@@ -8995,6 +9006,7 @@ void decimalize(pTHX_ SV * a, ...) {
   mpfr_sprintf(dec_buff, "%.*Rg", (int)digits, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))));
   ST(0) = MORTALIZED_PV(dec_buff);    /* defined in math_mpfr_include.h */
   Safefree(dec_buff);
+  PL_markstack_ptr++;
   XSRETURN(1);
 
 }
@@ -13095,14 +13107,9 @@ set_fallback_flag ()
 SV *
 doubletoa (sv, ...)
 	SV *	sv
-        PREINIT:
-        I32* temp;
         CODE:
-        temp = PL_markstack_ptr++;
-        RETVAL = doubletoa(aTHX_ sv);
-        PL_markstack_ptr = temp;
-        OUTPUT:
-        RETVAL
+          RETVAL = doubletoa(aTHX_ sv);
+        OUTPUT:  RETVAL
 
 int
 _fallback_notify ()
@@ -13118,17 +13125,8 @@ OUTPUT:  RETVAL
 void
 decimalize (a, ...)
 	SV *	a
-        PREINIT:
-        I32* temp;
-        PPCODE:
-        temp = PL_markstack_ptr++;
+        CODE:
         decimalize(aTHX_ a);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
         return; /* assume stack size is correct */
 
 int
