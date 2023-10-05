@@ -3,8 +3,7 @@ Revision history for Perl module Math::MPFR
 4.28
  - Correct the testing for the presence of the Windows subnormal bug in t/nvtoa2.t.
  - Small tweaks to Rmpfr_cmp_IV and Rmpfr_set_IV.
- - Avoid monitoring PL_markstack_ptr in MPFR.xs - except for (TODO) decimalize() and
-   doubletoa().
+ - Avoid monitoring PL_markstack_ptr in MPFR.xs.
 
 4.27
  - Remove stray '}' from Rmpfr_add_z
