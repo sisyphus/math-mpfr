@@ -8906,14 +8906,12 @@ void decimalize(pTHX_ SV * a, ...) {
   if(!mpfr_regular_p(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))))) {
     if(items > 1) {
       ST(0) = sv_2mortal(newSViv(0));
-      PL_markstack_ptr++;
       XSRETURN(1);
     }
     Newxz(buff, 8, char);
     mpfr_sprintf(buff, "%Rg", *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))));
     ST(0) = MORTALIZED_PV(buff);    /* defined in math_mpfr_include.h */
     Safefree(buff);
-    PL_markstack_ptr++;
     XSRETURN(1);
   }
 
@@ -8992,7 +8990,6 @@ void decimalize(pTHX_ SV * a, ...) {
 
   if(items > 1) {
     ST(0) = sv_2mortal(newSViv((IV)digits));
-    PL_markstack_ptr++;
     XSRETURN(1);
   }
 
@@ -9006,7 +9003,6 @@ void decimalize(pTHX_ SV * a, ...) {
   mpfr_sprintf(dec_buff, "%.*Rg", (int)digits, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))));
   ST(0) = MORTALIZED_PV(dec_buff);    /* defined in math_mpfr_include.h */
   Safefree(dec_buff);
-  PL_markstack_ptr++;
   XSRETURN(1);
 
 }
@@ -9138,6 +9134,7 @@ void
 Rmpfr_clears (p, ...)
 	SV *	p
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_clears(aTHX_ p);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -10823,6 +10820,7 @@ void
 Rmpfr_urandomb (x, ...)
 	SV *	x
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_urandomb(aTHX_ x);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -13126,6 +13124,7 @@ void
 decimalize (a, ...)
 	SV *	a
         CODE:
+        PL_markstack_ptr++;
         decimalize(aTHX_ a);
         return; /* assume stack size is correct */
 
