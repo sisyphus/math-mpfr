@@ -91,6 +91,7 @@ t/pod.t
 t/printf.t
 t/PV_NV_BUG.t
 t/q_arith.t
+t/random2.t
 t/remainder.t
 t/Rmpfr_asinu.t
 t/Rmpfr_fmod_ui.t
@@ -122,3 +123,5 @@ t/use64bitint.t
 t/uselongdouble.t
 t/view_config.t
 typemap
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)
