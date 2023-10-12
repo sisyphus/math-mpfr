@@ -17,7 +17,7 @@ package Number {
         Number->new($$self + $$n);
     }
 
-    my $srand = srand();
+    my $srand = 1352406084;
     my $state = Math::MPFR::Rmpfr_randinit_mt();
     Math::MPFR::Rmpfr_randseed_ui($state, $srand);
 
