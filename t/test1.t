@@ -453,7 +453,6 @@ my ($t2, $s2) = Rmpfr_init_set_d($double, GMP_RNDN);
 
 if(Rmpfr_eq($t1, $t2, 50)) {print "ok 43\n"}
 else {print "not ok 43\n"}
-
 my ($t3, $s33) = Rmpfr_init_set_ui(int($double), GMP_RNDN);
 my ($t4, $s44) = Rmpfr_init_set_si(int($double) + 1, GMP_RNDN);
 
@@ -463,7 +462,7 @@ if(Rmpfr_cmp($t3, $t2) < 0
 else {print "not ok 44\n"}
 
 if($have_mpz) {
-   eval {my $t = Rmpfr_init_set_z($z, GMP_RNDN)};
+   eval {my ($t, $inex) = Rmpfr_init_set_z($z, GMP_RNDN)};
    if(!$@) {print "ok 45\n"}
    else {print "not ok 45\n"}
    }
@@ -473,7 +472,7 @@ else {
 }
 
 if($have_mpq) {
-   eval {my $t = Rmpfr_init_set_q($q, GMP_RNDN)};
+   eval {my ($t, $inex) = Rmpfr_init_set_q($q, GMP_RNDN)};
    if(!$@) {print "ok 46\n"}
    else {print "not ok 46\n"}
    }
@@ -483,7 +482,7 @@ else {
 }
 
 if($have_mpf) {
-   eval {my $t = Rmpfr_init_set_f($f, GMP_RNDN)};
+   eval {my ($t, $inex) = Rmpfr_init_set_f($f, GMP_RNDN)};
    if(!$@) {print "ok 47\n"}
    else {print "not ok 47\n"}
    }
