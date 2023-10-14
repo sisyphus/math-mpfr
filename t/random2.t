@@ -1,7 +1,6 @@
 # Based on a demo script provided provided by Trizen.
 # See https://github.com/sisyphus/math-gmpz/issues/5
 
-use 5.010;
 use Math::MPFR;
 use Test::More;
 
