@@ -314,7 +314,6 @@ void Rmpfr_init_set(pTHX_ mpfr_t * q, SV * round) {
      ret = mpfr_init_set(*mpfr_t_obj, *q, (mpfr_rnd_t)SvUV(round));
 
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -330,7 +329,6 @@ void Rmpfr_init_set_ui(pTHX_ SV * q, SV * round) {
      ret = mpfr_init_set_ui(*mpfr_t_obj, (unsigned long)SvUV(q), (mpfr_rnd_t)SvUV(round));
 
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -346,7 +344,6 @@ void Rmpfr_init_set_si(pTHX_ SV * q, SV * round) {
      ret = mpfr_init_set_si(*mpfr_t_obj, (long)SvIV(q), (mpfr_rnd_t)SvUV(round));
 
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -362,7 +359,6 @@ void Rmpfr_init_set_d(pTHX_ SV * q, SV * round) {
      ret = mpfr_init_set_d(*mpfr_t_obj, (double)SvNV(q), (mpfr_rnd_t)SvUV(round));
 
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -378,7 +374,6 @@ void Rmpfr_init_set_ld(pTHX_ SV * q, SV * round) {
      NEW_MATH_MPFR_OBJECT("Math::MPFR",Rmpfr_init_set_ld) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set_ld(*mpfr_t_obj, (long double)SvNV(q), (mpfr_rnd_t)SvUV(round));
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 #else
      croak("Rmpfr_init_set_ld not implemented on this build of perl");
@@ -397,7 +392,6 @@ void Rmpfr_init_set_f(pTHX_ mpf_t * q, SV * round) {
      ret = mpfr_init_set_f(*mpfr_t_obj, *q, (mpfr_rnd_t)SvUV(round));
 
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -413,7 +407,6 @@ void Rmpfr_init_set_z(pTHX_ mpz_t * q, SV * round) {
      ret = mpfr_init_set_z(*mpfr_t_obj, *q, (mpfr_rnd_t)SvUV(round));
 
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -429,7 +422,6 @@ void Rmpfr_init_set_q(pTHX_ mpq_t * q, SV * round) {
      ret = mpfr_init_set_q(*mpfr_t_obj, *q, (mpfr_rnd_t)SvUV(round));
 
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -466,7 +458,6 @@ void Rmpfr_init_set_str(pTHX_ SV * q, SV * base, SV * round) {
 #endif
 
      NON_NUMERIC_CHAR_CHECK, "Rmpfr_init_set_str");}
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -482,7 +473,6 @@ void Rmpfr_init_set_nobless(pTHX_ mpfr_t * q, SV * round) {
      ret = mpfr_init_set(*mpfr_t_obj, *q, (mpfr_rnd_t)SvUV(round));
 
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -498,7 +488,6 @@ void Rmpfr_init_set_ui_nobless(pTHX_ SV * q, SV * round) {
      ret = mpfr_init_set_ui(*mpfr_t_obj, (unsigned long)SvUV(q), (mpfr_rnd_t)SvUV(round));
 
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -514,7 +503,6 @@ void Rmpfr_init_set_si_nobless(pTHX_ SV * q, SV * round) {
      ret = mpfr_init_set_si(*mpfr_t_obj, (long)SvIV(q), (mpfr_rnd_t)SvUV(round));
 
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -530,7 +518,6 @@ void Rmpfr_init_set_d_nobless(pTHX_ SV * q, SV * round) {
      ret = mpfr_init_set_d(*mpfr_t_obj, (double)SvNV(q), (mpfr_rnd_t)SvUV(round));
 
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -546,7 +533,6 @@ void Rmpfr_init_set_ld_nobless(pTHX_ SV * q, SV * round) {
      NEW_MATH_MPFR_OBJECT(NULL,Rmpfr_init_set_ld_nobless) /* defined in math_mpfr_include.h */
      ret = mpfr_init_set_ld(*mpfr_t_obj, (long double)SvNV(q), (mpfr_rnd_t)SvUV(round));
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 
 #else
@@ -567,7 +553,6 @@ void Rmpfr_init_set_f_nobless(pTHX_ mpf_t * q, SV * round) {
      ret = mpfr_init_set_f(*mpfr_t_obj, *q, (mpfr_rnd_t)SvUV(round));
 
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -583,7 +568,6 @@ void Rmpfr_init_set_z_nobless(pTHX_ mpz_t * q, SV * round) {
      ret = mpfr_init_set_z(*mpfr_t_obj, *q, (mpfr_rnd_t)SvUV(round));
 
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -599,7 +583,6 @@ void Rmpfr_init_set_q_nobless(pTHX_ mpq_t * q, SV * round) {
      ret = mpfr_init_set_q(*mpfr_t_obj, *q, (mpfr_rnd_t)SvUV(round));
 
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -619,7 +602,6 @@ void Rmpfr_init_set_str_nobless(pTHX_ SV * q, SV * base, SV * round) {
      ret = mpfr_init_set_str(*mpfr_t_obj, SvPV_nolen(q), (int)SvIV(base), (mpfr_rnd_t)SvUV(round));
 
      NON_NUMERIC_CHAR_CHECK, "Rmpfr_init_set_str_nobless");}
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -640,7 +622,6 @@ void Rmpfr_deref2(pTHX_ mpfr_t * p, SV * base, SV * n_digits, SV * round) {
      ST(0) = MORTALIZED_PV(out);    /* defined in math_mpfr_include.h */
      mpfr_free_str(out);
      ST(1) = sv_2mortal(newSViv(ptr));
-     PL_markstack_ptr++;
      XSRETURN(2);
 }
 
@@ -804,7 +785,6 @@ void Rmpfr_init_set_NV(pTHX_ SV * q, SV * round) {
      sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
      ret = Rmpfr_set_NV(aTHX_ mpfr_t_obj, q, (mpfr_rnd_t)SvUV(round));
      SvREADONLY_on(obj);
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -822,7 +802,6 @@ void Rmpfr_init_set_NV_nobless(pTHX_ SV * q, SV * round) {
      sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
      ret = Rmpfr_set_NV(aTHX_ mpfr_t_obj, q, (mpfr_rnd_t)SvUV(round));
      SvREADONLY_on(obj);
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -2623,7 +2602,6 @@ void Rmpfr_init_set_IV(pTHX_ SV * q, SV * round) {
      sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
      ret = Rmpfr_set_IV(aTHX_ mpfr_t_obj, q, round);
      SvREADONLY_on(obj);
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -2641,7 +2619,6 @@ void Rmpfr_init_set_IV_nobless(pTHX_ SV * q, SV * round) {
      sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
      ret = Rmpfr_set_IV(aTHX_ mpfr_t_obj, q, round);
      SvREADONLY_on(obj);
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
 
@@ -6492,7 +6469,6 @@ void _mp_sizes(void) {
      XPUSHs(sv_2mortal(newSVuv(sizeof(mpfr_exp_t))));
      XPUSHs(sv_2mortal(newSVuv(sizeof(mpfr_prec_t))));
      XPUSHs(sv_2mortal(newSVuv(sizeof(mpfr_rnd_t))));
-     PL_markstack_ptr++;
      XSRETURN(3);
 }
 
@@ -6679,7 +6655,6 @@ void Rmpfr_init_set_float128(pTHX_ SV * q, SV * round) {
      sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
      ret = mpfr_set_float128(*mpfr_t_obj, SvNV(q), (mpfr_rnd_t)SvUV(round));
      SvREADONLY_on(obj);
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 #else
 
@@ -6704,7 +6679,6 @@ void Rmpfr_init_set_float128_nobless(pTHX_ SV * q, SV * round) {
      sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
      ret = mpfr_set_float128(*mpfr_t_obj, SvNV(q), (mpfr_rnd_t)SvUV(round));
      SvREADONLY_on(obj);
-     PL_markstack_ptr++;
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 #else
 
@@ -9174,6 +9148,7 @@ Rmpfr_init_set (q, round)
 	mpfr_t *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -9182,6 +9157,7 @@ Rmpfr_init_set_ui (q, round)
 	SV *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_ui(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -9190,6 +9166,7 @@ Rmpfr_init_set_si (q, round)
 	SV *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_si(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -9198,6 +9175,7 @@ Rmpfr_init_set_d (q, round)
 	SV *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_d(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -9206,6 +9184,7 @@ Rmpfr_init_set_ld (q, round)
 	SV *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_ld(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -9214,6 +9193,7 @@ Rmpfr_init_set_f (q, round)
 	mpf_t *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_f(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -9222,6 +9202,7 @@ Rmpfr_init_set_z (q, round)
 	mpz_t *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_z(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -9230,6 +9211,7 @@ Rmpfr_init_set_q (q, round)
 	mpq_t *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_q(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -9239,6 +9221,7 @@ Rmpfr_init_set_str (q, base, round)
 	SV *	base
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_str(aTHX_ q, base, round);
         return; /* assume stack size is correct */
 
@@ -9247,6 +9230,7 @@ Rmpfr_init_set_nobless (q, round)
 	mpfr_t *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_nobless(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -9255,6 +9239,7 @@ Rmpfr_init_set_ui_nobless (q, round)
 	SV *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_ui_nobless(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -9263,6 +9248,7 @@ Rmpfr_init_set_si_nobless (q, round)
 	SV *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_si_nobless(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -9271,6 +9257,7 @@ Rmpfr_init_set_d_nobless (q, round)
 	SV *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_d_nobless(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -9279,6 +9266,7 @@ Rmpfr_init_set_ld_nobless (q, round)
 	SV *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_ld_nobless(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -9287,6 +9275,7 @@ Rmpfr_init_set_f_nobless (q, round)
 	mpf_t *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_f_nobless(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -9295,6 +9284,7 @@ Rmpfr_init_set_z_nobless (q, round)
 	mpz_t *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_z_nobless(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -9303,6 +9293,7 @@ Rmpfr_init_set_q_nobless (q, round)
 	mpq_t *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_q_nobless(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -9312,6 +9303,7 @@ Rmpfr_init_set_str_nobless (q, base, round)
 	SV *	base
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_str_nobless(aTHX_ q, base, round);
         return; /* assume stack size is correct */
 
@@ -9322,6 +9314,7 @@ Rmpfr_deref2 (p, base, n_digits, round)
 	SV *	n_digits
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_deref2(aTHX_ p, base, n_digits, round);
         return; /* assume stack size is correct */
 
@@ -9428,6 +9421,7 @@ Rmpfr_init_set_NV (q, round)
 	SV *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_NV(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -9436,6 +9430,7 @@ Rmpfr_init_set_NV_nobless (q, round)
 	SV *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_NV_nobless(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -11038,17 +11033,9 @@ Rmpfr_remquo (a, b, c, round)
 	mpfr_t *	b
 	mpfr_t *	c
 	SV *	round
-        PREINIT:
-        I32* temp;
-        PPCODE:
-        temp = PL_markstack_ptr++;
+        CODE:
+        PL_markstack_ptr++;
         Rmpfr_remquo(aTHX_ a, b, c, round);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
         return; /* assume stack size is correct */
 
 int
@@ -11464,6 +11451,7 @@ Rmpfr_init_set_IV (q, round)
 	SV *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_IV(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -11472,6 +11460,7 @@ Rmpfr_init_set_IV_nobless (q, round)
 	SV *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_IV_nobless(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -11828,17 +11817,9 @@ Rmpfr_lgamma (a, b, round)
 	mpfr_t *	a
 	mpfr_t *	b
 	SV *	round
-        PREINIT:
-        I32* temp;
-        PPCODE:
-        temp = PL_markstack_ptr++;
+        CODE:
+        PL_markstack_ptr++;
         Rmpfr_lgamma(aTHX_ a, b, round);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
         return; /* assume stack size is correct */
 
 SV *
@@ -12645,6 +12626,7 @@ void
 _mp_sizes ()
 
         CODE:
+        PL_markstack_ptr++;
         _mp_sizes();
         return; /* assume stack size is correct */
 
@@ -12744,6 +12726,7 @@ Rmpfr_init_set_float128 (q, round)
 	SV *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_float128(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -12752,6 +12735,7 @@ Rmpfr_init_set_float128_nobless (q, round)
 	SV *	q
 	SV *	round
         CODE:
+        PL_markstack_ptr++;
         Rmpfr_init_set_float128_nobless(aTHX_ q, round);
         return; /* assume stack size is correct */
 
@@ -12880,17 +12864,9 @@ Rmpfr_fmodquo (a, b, c, round)
 	mpfr_t *	b
 	mpfr_t *	c
 	SV *	round
-        PREINIT:
-        I32* temp;
-        PPCODE:
-        temp = PL_markstack_ptr++;
+        CODE:
+        PL_markstack_ptr++;
         Rmpfr_fmodquo(aTHX_ a, b, c, round);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
         return; /* assume stack size is correct */
 
 int
