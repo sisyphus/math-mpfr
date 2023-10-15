@@ -2275,7 +2275,6 @@ void Rmpfr_remquo(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
      ret = mpfr_remquo(*a, &q, *b, *c, (mpfr_rnd_t)SvUV(round));
      ST(0) = sv_2mortal(newSViv(q));
      ST(1) = sv_2mortal(newSViv(ret));
-     PL_markstack_ptr++;
      XSRETURN(2);
 }
 
@@ -3091,7 +3090,6 @@ void Rmpfr_lgamma(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
      ret = mpfr_lgamma(*a, &signp, *b, (mpfr_rnd_t)SvUV(round));
      ST(0) = sv_2mortal(newSViv(signp));
      ST(1) = sv_2mortal(newSViv(ret));
-     PL_markstack_ptr++;
      XSRETURN(2);
 }
 
@@ -7288,7 +7286,6 @@ void Rmpfr_fmodquo(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
      ret = mpfr_fmodquo(*a, &q, *b, *c, (mpfr_rnd_t)SvUV(round));
      ST(0) = sv_2mortal(newSViv(q));
      ST(1) = sv_2mortal(newSViv(ret));
-     PL_markstack_ptr++;
      XSRETURN(2);
 #else
      croak("Rmpfr_fmodquo not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
@@ -11041,8 +11038,17 @@ Rmpfr_remquo (a, b, c, round)
 	mpfr_t *	b
 	mpfr_t *	c
 	SV *	round
-        CODE:
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
         Rmpfr_remquo(aTHX_ a, b, c, round);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
         return; /* assume stack size is correct */
 
 int
@@ -11822,8 +11828,17 @@ Rmpfr_lgamma (a, b, round)
 	mpfr_t *	a
 	mpfr_t *	b
 	SV *	round
-        CODE:
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
         Rmpfr_lgamma(aTHX_ a, b, round);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
         return; /* assume stack size is correct */
 
 SV *
@@ -12865,8 +12880,17 @@ Rmpfr_fmodquo (a, b, c, round)
 	mpfr_t *	b
 	mpfr_t *	c
 	SV *	round
-        CODE:
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
         Rmpfr_fmodquo(aTHX_ a, b, c, round);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
         return; /* assume stack size is correct */
 
 int
