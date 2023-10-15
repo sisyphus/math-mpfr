@@ -4,12 +4,14 @@
 use Math::MPFR;
 use Test::More;
 
-if($] < 5.014) {
-  warn "Skipping all tests - version 5.14.0 or later required\n";
-  is(1, 1,);
-  done_testing();
-  exit 0;
-}
+BEGIN {
+  if($] < 5.014) {
+    warn "Skipping all tests - version 5.14.0 or later required\n";
+    is(1, 1,);
+    done_testing();
+    exit 0;
+  }
+};
 
 package Number {
 
