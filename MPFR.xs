@@ -8739,7 +8739,6 @@ void set_fallback_flag(pTHX) {
 
  PUSHMARK(SP);
  call_pv("Math::MPFR::perl_set_fallback_flag", G_DISCARD|G_NOARGS);
- PL_markstack_ptr++;
 }
 
 SV * doubletoa(pTHX_ SV * sv, ...) {
@@ -8777,7 +8776,6 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
   /* Prehandle NaNs */
   if((u64 << 1) > 0xFFE0000000000000ULL) {
     sprintf(dst, "NaN");
-    PL_markstack_ptr++;
     return newSVpv(dst, 0);
   }
 
@@ -8788,7 +8786,6 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
     *s2++ = '.';
     *s2++ = '0';
     *s2 = '\0';
-    PL_markstack_ptr++;
     return newSVpv(dst, 0);
   }
 
@@ -8799,7 +8796,6 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
     *s2++ = 'n';
     *s2++ = 'f';
     *s2 = '\0';
-    PL_markstack_ptr++;
     return newSVpv(dst, 0);
   }
 
@@ -8815,12 +8811,10 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
 #endif
 
     if(fallback) {
-      PL_markstack_ptr++;
       return _nvtoa(aTHX_ v * sign);
     }
 
     sprintf(s2, "%.16e", (v * sign));
-    PL_markstack_ptr++;
     return newSVpv(dst, 0);
   }
 
@@ -8828,7 +8822,6 @@ SV * doubletoa(pTHX_ SV * sv, ...) {
   /* Now, we just need to format it ...                                                    */
 
   /* printf("# doubletoa: %s %d\n", dst, d_exp + strlen(dst)); */
-  PL_markstack_ptr++;
   return _fmt_flt(aTHX_ dst, (int)(d_exp + strlen(dst)), sign < 0 ? 1 : 0, MATH_MPFR_MAX_DIG, 0);
 
 #else
@@ -13105,6 +13098,7 @@ void
 set_fallback_flag ()
 
         CODE:
+        PL_markstack_ptr++;
         set_fallback_flag(aTHX);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -13112,6 +13106,7 @@ SV *
 doubletoa (sv, ...)
 	SV *	sv
         CODE:
+          PL_markstack_ptr++;
           RETVAL = doubletoa(aTHX_ sv);
         OUTPUT:  RETVAL
 
