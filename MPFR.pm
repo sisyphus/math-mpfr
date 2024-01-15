@@ -192,7 +192,7 @@ prec_cast q_add_fr q_cmp_fr q_div_fr q_mul_fr q_sub_fr rndna
 
     @Math::MPFR::EXPORT_OK = (@tags, 'bytes');
 
-    our $VERSION = '4.28';
+    our $VERSION = '4.29';
     #$VERSION = eval $VERSION;
 
     Math::MPFR->DynaLoader::bootstrap($VERSION);
@@ -1446,22 +1446,6 @@ sub _decrement {
 
   return $ret;
 }
-
-#sub tz_test {
-#  # Detect any unwanted trailing zeroes
-#  # in values returned by nvtoa().
-#
-#  my $s = shift;
-#  my @r = split /e/i, $s;
-#
-#  if(!defined($r[1])) {
-#    return 1 if $r[0] =~ /\.0$/; # pass
-#    return 0 if $r[0] =~ /0$/;   # fail
-#  }
-#
-#  return 0 if $r[0] =~ /0$/;     # fail (for our formatting convention)
-#  return 1;                      # pass
-#}
 
 1;
 

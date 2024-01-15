@@ -1,5 +1,7 @@
 Revision history for Perl module Math::MPFR
 
+4.29
+
 4.28
  - Correct the testing for the presence of the Windows subnormal bug in t/nvtoa2.t.
  - Small tweaks to Rmpfr_cmp_IV and Rmpfr_set_IV.
