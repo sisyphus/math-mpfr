@@ -615,7 +615,7 @@ void Rmpfr_deref2(pTHX_ mpfr_t * p, SV * base, SV * n_digits, SV * round) {
      if( FAILS_CHECK_OUTPUT_BASE )
         croak("Second argument supplied to Rmpfr_get_str is not in acceptable range");
 
-     out = mpfr_get_str(0, &ptr, (int)SvIV(base), (unsigned long)SvUV(n_digits), *p, (mpfr_rnd_t)SvUV(round));
+     out = mpfr_get_str(NULL, &ptr, (int)SvIV(base), (unsigned long)SvUV(n_digits), *p, (mpfr_rnd_t)SvUV(round));
 
      if(out == NULL) croak("An error occurred in memory allocation in mpfr_get_str\n");
 
