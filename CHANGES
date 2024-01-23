@@ -1,6 +1,9 @@
 Revision history for Perl module Math::MPFR
 
 4.29
+  - In math_mpfr_include.h, re-specify MATH_MPFR_NV_MAX in hex, as 32-bit Windows
+    perl-5.39.7 (nvtype of 'double') was apparently unable to evaluate the decimal
+    form correctly.
 
 4.28
  - Correct the testing for the presence of the Windows subnormal bug in t/nvtoa2.t.
