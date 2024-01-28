@@ -5,6 +5,7 @@ MPFR.pod
 grisu3.c
 grisu3.h
 math_mpfr_include.h
+math_mpfr_unused.h
 MPFR.xs
 README
 CHANGES

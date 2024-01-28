@@ -13,6 +13,7 @@
 
 
 #include "math_mpfr_include.h"
+#include "math_mpfr_unused.h"
 
 #if NVSIZE == 8
 #  include "grisu3.h"
@@ -383,8 +384,7 @@ void Rmpfr_init_set_ld(pTHX_ SV * q, SV * round) {
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 #else
-     PERL_UNUSED_ARG(q);
-     PERL_UNUSED_ARG(round);
+     PERL_UNUSED_ARG2(q, round);
      croak("Rmpfr_init_set_ld not implemented on this build of perl");
 #endif
 }
@@ -553,8 +553,7 @@ void Rmpfr_init_set_ld_nobless(pTHX_ SV * q, SV * round) {
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 
 #else
-     PERL_UNUSED_ARG(q);
-     PERL_UNUSED_ARG(round);
+     PERL_UNUSED_ARG2(q, round);
      croak("Rmpfr_init_set_ld_nobless not implemented on this build of perl");
 
 #endif
@@ -898,8 +897,7 @@ int Rmpfr_cmp_float128(pTHX_ mpfr_t * a, SV * b) {
      return returned;
 
 #else
-     PERL_UNUSED_ARG(a);
-     PERL_UNUSED_ARG(b);
+     PERL_UNUSED_ARG2(a, b);
      croak("Rmpfr_cmp_float128 not available on this build of perl");
 
 #endif
@@ -931,6 +929,7 @@ SV * Rmpfr_set_ld(pTHX_ mpfr_t * p, SV * q, SV * round) {
      return newSViv(mpfr_set_ld(*p, (long double)SvNV(q), (mpfr_rnd_t)SvUV(round)));
 
 #else
+     PERL_UNUSED_ARG3(p, q, round);
      croak("Rmpfr_set_ld not implemented on this build of perl");
 
 #endif
@@ -1047,6 +1046,7 @@ SV * Rmpfr_get_ld_2exp(pTHX_ SV * exp, mpfr_t * p, SV * round){
      return newSVnv(ret);
 
 #else
+     PERL_UNUSED_ARG3(exp, p, round);
      croak("Rmpfr_get_ld_2exp not implemented on this build of perl");
 
 #endif
@@ -1093,6 +1093,7 @@ SV * Rmpfr_get_ld(pTHX_ mpfr_t * p, SV * round){
 #  endif
 
 #else
+     PERL_UNUSED_ARG2(p, round);
      croak("Rmpfr_get_ld not implemented on this build of perl");
 
 #endif
@@ -1593,6 +1594,7 @@ int Rmpfr_cmp_ld(pTHX_ mpfr_t * a, SV * b) {
      return mpfr_cmp_ld(*a, (long double)SvNV(b));
 
 #else
+     PERL_UNUSED_ARG2(a, b);
      croak("Rmpfr_cmp_ld not implemented on this build of perl");
 
 #endif
@@ -2062,9 +2064,7 @@ void Rmpfr_urandomb(pTHX_ SV * x, ...) {
 
 void Rmpfr_random2(pTHX_ mpfr_t * p, SV * s, SV * exp) {
 #if MPFR_VERSION_MAJOR > 2
-     PERL_UNUSED_ARG(p);
-     PERL_UNUSED_ARG(s);
-     PERL_UNUSED_ARG(exp);
+     PERL_UNUSED_ARG3(p, s, exp);
      croak("Rmpfr_random2 no longer implemented. Use Rmpfr_urandom or Rmpfr_urandomb");
 #else
      mpfr_random2(*p, (int)SvIV(s), (mpfr_exp_t)SvIV(exp));
@@ -3045,10 +3045,7 @@ SV * Rmpfr_cot(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
 
 SV * Rmpfr_root(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
 #if MPFR_VERSION_MAJOR >= 4
-     PERL_UNUSED_ARG(a);
-     PERL_UNUSED_ARG(b);
-     PERL_UNUSED_ARG(c);
-     PERL_UNUSED_ARG(round);
+     PERL_UNUSED_ARG4(a, b, c, round);
      croak("Rmpfr_root is deprecated, and now removed - use Rmpfr_rootn_ui instead");
 #else
      CHECK_ROUNDING_VALUE
@@ -3810,8 +3807,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 SV * overload_copy(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
-     PERL_UNUSED_ARG(b);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(b, third);
 
      NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_copy) /* defined in math_mpfr_include.h */
 
@@ -3824,8 +3820,7 @@ SV * overload_copy(pTHX_ mpfr_t * p, SV * b, SV * third) {
 SV * overload_abs(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
-     PERL_UNUSED_ARG(b);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(b, third);
 
      NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_abs) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
@@ -4594,16 +4589,14 @@ SV * overload_not_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
 }
 
 SV * overload_true(pTHX_ mpfr_t *a, SV *b, SV * third) {
-     PERL_UNUSED_ARG(b);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(b, third);
      if(mpfr_nan_p(*a)) return newSVuv(0);
      if(mpfr_cmp_ui(*a, 0)) return newSVuv(1);
      return newSVuv(0);
 }
 
 SV * overload_not(pTHX_ mpfr_t * a, SV * b, SV * third) {
-     PERL_UNUSED_ARG(b);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(b, third);
      if(mpfr_nan_p(*a)) return newSViv(1);
      if(mpfr_cmp_ui(*a, 0)) return newSViv(0);
      return newSViv(1);
@@ -4612,8 +4605,7 @@ SV * overload_not(pTHX_ mpfr_t * a, SV * b, SV * third) {
 SV * overload_sqrt(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
-     PERL_UNUSED_ARG(b);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(b, third);
 
      NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_sqrt) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
@@ -4777,8 +4769,7 @@ SV * overload_pow(pTHX_ SV * p, SV * b, SV * third) {
 SV * overload_log(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
-     PERL_UNUSED_ARG(b);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(b, third);
 
      NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_log) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
@@ -4791,8 +4782,7 @@ SV * overload_log(pTHX_ mpfr_t * p, SV * b, SV * third) {
 SV * overload_exp(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
-     PERL_UNUSED_ARG(b);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(b, third);
 
      NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_exp) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
@@ -4805,8 +4795,7 @@ SV * overload_exp(pTHX_ mpfr_t * p, SV * b, SV * third) {
 SV * overload_sin(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
-     PERL_UNUSED_ARG(b);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(b, third);
 
      NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_sin) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
@@ -4819,8 +4808,7 @@ SV * overload_sin(pTHX_ mpfr_t * p, SV * b, SV * third) {
 SV * overload_cos(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
-     PERL_UNUSED_ARG(b);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(b, third);
 
      NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_cos) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
@@ -4833,8 +4821,7 @@ SV * overload_cos(pTHX_ mpfr_t * p, SV * b, SV * third) {
 SV * overload_int(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
-     PERL_UNUSED_ARG(b);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(b, third);
 
      NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_int) /* defined in math_mpfr_include.h */
      mpfr_init(*mpfr_t_obj);
@@ -6178,18 +6165,12 @@ SV * Rmpfr_z_sub(pTHX_ mpfr_t * rop, mpz_t * op1, mpfr_t * op2, SV * round) {
 
 SV * Rmpfr_grandom(pTHX_ mpfr_t * rop1, mpfr_t * rop2, gmp_randstate_t * state, SV * round) {
 #if MPFR_VERSION_MAJOR >= 4
-     PERL_UNUSED_ARG(rop1);
-     PERL_UNUSED_ARG(rop2);
-     PERL_UNUSED_ARG(state);
-     PERL_UNUSED_ARG(round);
+     PERL_UNUSED_ARG4(rop1, rop2, state, round);
      croak("Rmpfr_grandom is deprecated, and now removed - use Rmpfr_nrandom instead");
 #elif (MPFR_VERSION_MAJOR == 3 && MPFR_VERSION_MINOR >= 1) || MPFR_VERSION_MAJOR > 3
      return newSViv(mpfr_grandom(*rop1, *rop2, *state, (mpfr_rnd_t)SvUV(round)));
 #else
-     PERL_UNUSED_ARG(rop1);
-     PERL_UNUSED_ARG(rop2);
-     PERL_UNUSED_ARG(state);
-     PERL_UNUSED_ARG(round);
+     PERL_UNUSED_ARG4(rop1, rop2, state, round);
      croak("Rmpfr_grandom was not introduced until mpfr-3.1.0 and was then deprecated & replaced by Rmpfr_nrandom as of mpfr-4.0.0");
 #endif
 }
@@ -6231,15 +6212,13 @@ SV * _get_xs_version(pTHX) {
 }
 
 void overload_inc(pTHX_ SV * a, SV * b, SV * third) {
-     PERL_UNUSED_ARG(b);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(b, third);
      DEAL_WITH_NANFLAG_BUG_OVERLOADED
      mpfr_add_ui(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), 1, __gmpfr_default_rounding_mode);
 }
 
 void overload_dec(pTHX_ SV * a, SV * b, SV * third) {
-     PERL_UNUSED_ARG(b);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(b, third);
      DEAL_WITH_NANFLAG_BUG_OVERLOADED
      mpfr_sub_ui(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), 1, __gmpfr_default_rounding_mode);
 }
@@ -6633,8 +6612,7 @@ SV * Rmpfr_get_float128(pTHX_ mpfr_t * op, SV * rnd) {
          croak("See \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
        }
 #  endif
-     PERL_UNUSED_ARG(op);
-     PERL_UNUSED_ARG(rnd);
+     PERL_UNUSED_ARG2(op, rnd);
      croak("Cannot use Rmpfr_get_float128 to return an NV - see \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
 #endif
 }
@@ -6719,9 +6697,7 @@ SV * Rmpfr_set_float128(pTHX_ mpfr_t * rop, SV * q, SV * rnd) {
          croak("See \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
        }
 #  endif
-     PERL_UNUSED_ARG(rop);
-     PERL_UNUSED_ARG(q);
-     PERL_UNUSED_ARG(rnd);
+     PERL_UNUSED_ARG3(rop, q, rnd);
      croak("Cannot use Rmpfr_set_float128 to set an NV - see \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
 #endif
 
@@ -6746,8 +6722,7 @@ void Rmpfr_init_set_float128(pTHX_ SV * q, SV * round) {
      SvREADONLY_on(obj);
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 #else
-     PERL_UNUSED_ARG(q);
-     PERL_UNUSED_ARG(round);
+     PERL_UNUSED_ARG2(q, round);
      croak("Cannot use Rmpfr_init_set_float128 to set an NV - see \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
 #endif
 
@@ -6772,8 +6747,7 @@ void Rmpfr_init_set_float128_nobless(pTHX_ SV * q, SV * round) {
      SvREADONLY_on(obj);
      RETURN_STACK_2  /*defined in math_mpfr_include.h */
 #else
-     PERL_UNUSED_ARG(q);
-     PERL_UNUSED_ARG(round);
+     PERL_UNUSED_ARG2(q, round);
      croak("Cannot use Rmpfr_init_set_float128_nobless to set an NV - see \"PASSING __float128 VALUES\" in the Math::MPFR documentation");
 #endif
 
@@ -7355,10 +7329,7 @@ void Rmpfr_fmodquo(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
      ST(1) = sv_2mortal(newSViv(ret));
      XSRETURN(2);
 #else
-     PERL_UNUSED_ARG(a);
-     PERL_UNUSED_ARG(b);
-     PERL_UNUSED_ARG(c);
-     PERL_UNUSED_ARG(round);
+     PERL_UNUSED_ARG4(a, b, c, round);
      croak("Rmpfr_fmodquo not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
