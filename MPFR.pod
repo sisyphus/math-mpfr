@@ -2462,7 +2462,10 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
           decimal string)
 
      << >> <<= >>= (These just increase/decrease the exponent by the
-                    value of the given "shift" argument)
+                    value of the given "shift" argument. Negative
+                    values for the 'shift' argument are allowed - in
+                    which case the shift value is multiplied by -1
+                    and the direction of the shift is reversed.)
 
      = (The copy has the same precision as the copied object.)
 

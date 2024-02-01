@@ -6233,8 +6233,19 @@ SV * overload_mul_2exp(pTHX_ SV * a, SV * b, SV * third) {
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
 
      if(SV_IS_IOK(b)) {
-       if(SvUOK(b)) mpfr_mul_2ui(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), SvUV(b), __gmpfr_default_rounding_mode);
-       else         mpfr_mul_2si(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), SvUV(b), __gmpfr_default_rounding_mode);
+       if(SvUOK(b)) {
+#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
+       croak ("In overloading of '<<' operator, the 'shift' operand overflows 'long int'");
+#else
+       mpfr_mul_2ui(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), SvUVX(b), __gmpfr_default_rounding_mode);
+#endif
+       }
+       else  {
+#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
+         if(SvIVX(b) > 2147483647 || SvIVX(b) < -2147483647) croak ("In overloading of '<<' operator, the 'shift' operand overflows 'long int'");
+#endif
+         mpfr_mul_2si(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), (long)SvIVX(b), __gmpfr_default_rounding_mode);
+       }
        return obj_ref;
      }
      croak ("In overloading of '<<' operator, the 'shift' operand must be a perl integer value (IV)");
@@ -6250,8 +6261,19 @@ SV * overload_div_2exp(pTHX_ SV * a, SV * b, SV * third) {
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
 
      if(SV_IS_IOK(b)) {
-       if(SvUOK(b)) mpfr_div_2ui(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), SvUV(b), __gmpfr_default_rounding_mode);
-       else         mpfr_div_2si(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), SvUV(b), __gmpfr_default_rounding_mode);
+       if(SvUOK(b)) {
+#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
+       croak ("In overloading of '>>' operator, the 'shift' operand overflows 'long int'");
+#else
+       mpfr_div_2ui(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), SvUVX(b), __gmpfr_default_rounding_mode);
+#endif
+       }
+       else  {
+#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
+         if(SvIVX(b) > 2147483647 || SvIVX(b) < -2147483647) croak ("In overloading of '>>' operator, the 'shift' operand overflows 'long int'");
+#endif
+         mpfr_div_2si(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), (long)SvIVX(b), __gmpfr_default_rounding_mode);
+       }
        return obj_ref;
      }
      croak ("In overloading of '>>' operator, the 'shift' operand must be a perl integer value (IV)");
@@ -6261,8 +6283,23 @@ SV * overload_mul_2exp_eq(pTHX_ SV * a, SV * b, SV * third) {
      PERL_UNUSED_ARG(third);
      SvREFCNT_inc(a);
      if(SV_IS_IOK(b)) {
-       if(SvUOK(b)) mpfr_mul_2ui(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), SvUVX(b), __gmpfr_default_rounding_mode);
-       else         mpfr_mul_2si(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), SvUVX(b), __gmpfr_default_rounding_mode);
+       if(SvUOK(b)) {
+#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
+       SvREFCNT_dec(a);
+       croak ("In overloading of '<<=' operator, the 'shift' operand overflows 'long int'");
+#else
+       mpfr_mul_2ui(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), SvUVX(b), __gmpfr_default_rounding_mode);
+#endif
+       }
+       else {
+#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
+         if(SvIVX(b) > 2147483647 || SvIVX(b) < -2147483647) {
+           SvREFCNT_dec(a);
+           croak ("In overloading of '<<=' operator, the 'shift' operand overflows 'long int'");
+         }
+#endif
+         mpfr_mul_2si(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), (long)SvIVX(b), __gmpfr_default_rounding_mode);
+       }
        return a;
      }
      SvREFCNT_dec(a);
@@ -6273,8 +6310,23 @@ SV * overload_div_2exp_eq(pTHX_ SV * a, SV * b, SV * third) {
      PERL_UNUSED_ARG(third);
      SvREFCNT_inc(a);
      if(SV_IS_IOK(b)) {
-       if(SvUOK(b)) mpfr_div_2ui(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), SvUVX(b), __gmpfr_default_rounding_mode);
-       else         mpfr_div_2si(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), SvUVX(b), __gmpfr_default_rounding_mode);
+       if(SvUOK(b)) {
+#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
+       SvREFCNT_dec(a);
+       croak ("In overloading of '>>=' operator, the 'shift' operand overflows 'long int'");
+#else
+       mpfr_div_2ui(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), SvUVX(b), __gmpfr_default_rounding_mode);
+#endif
+       }
+       else {
+#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
+         if(SvIVX(b) > 2147483647 || SvIVX(b) < -2147483647) {
+           SvREFCNT_dec(a);
+           croak ("In overloading of '>>=' operator, the 'shift' operand overflows 'long int'");
+         }
+#endif
+         mpfr_div_2si(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), (long)SvIVX(b), __gmpfr_default_rounding_mode);
+       }
        return a;
      }
      SvREFCNT_dec(a);
