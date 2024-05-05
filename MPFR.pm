@@ -118,7 +118,7 @@ Rmpfr_clear_nanflag Rmpfr_clear_overflow Rmpfr_clear_underflow Rmpfr_clears
 Rmpfr_cmp Rmpfr_cmp_IV Rmpfr_cmp_NV Rmpfr_cmp_d Rmpfr_cmp_f Rmpfr_cmp_float128 Rmpfr_cmp_ld
 Rmpfr_cmp_q Rmpfr_cmp_si Rmpfr_cmp_si_2exp Rmpfr_cmp_sj Rmpfr_cmp_ui Rmpfr_cmp_ui_2exp
 Rmpfr_cmp_uj Rmpfr_cmp_z Rmpfr_cmpabs Rmpfr_cmpabs_ui
-Rmpfr_compound_si
+Rmpfr_compound Rmpfr_compound_si
 Rmpfr_const_catalan Rmpfr_const_euler Rmpfr_const_log2 Rmpfr_const_pi
 Rmpfr_copysign
 Rmpfr_cos Rmpfr_cosh Rmpfr_cospi Rmpfr_cosu Rmpfr_cot Rmpfr_coth

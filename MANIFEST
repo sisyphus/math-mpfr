@@ -40,6 +40,7 @@ t/bessel.t
 t/buildopt.t
 t/bytes.t
 t/cmp_uj_sj.t
+t/compound.t
 t/constants.t
 t/D64_LD.t
 t/decimal64_conv.t
