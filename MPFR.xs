@@ -100,6 +100,21 @@ SV * _fmt_flt(pTHX_ char * out, int k, int sign, int max_decimal_prec, int sf) {
   char *bstr;
   char str[] = {'\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0'};
 
+/*******************************/
+/*  Include following to return *
+ *  the string as is - ie with  *
+ *  no reformatting             */
+/********************************
+*  int as_is = 1;
+*  if(as_is) {
+*    sprintf(str, "e%03d", k);
+*    strcat(out, str);
+*    outsv = newSVpv(out, 0);
+*    if(sf) Safefree(out);
+*    return outsv;
+*  }
+********************************/
+
   k_index = (int)strlen(out);
   critical = k; /* formatting is based around this value */
   k -= k_index;
@@ -1442,6 +1457,14 @@ SV * Rmpfr_compound_si(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
      return newSViv(mpfr_compound_si(*a, *b, (long)SvIV(c), (mpfr_rnd_t)SvUV(round)));
 #else
      croak("Rmpfr_compound_si function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
+SV * Rmpfr_compound(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
+#if MPFR_VERSION >= 262912
+     return newSViv(mpfr_compound(*a, *b, *c, (mpfr_rnd_t)SvUV(round)));
+#else
+     croak("Rmpfr_compound function not implemented until mpfr-4.3.0. (You have only version %s) ", MPFR_VERSION_STRING);
 #endif
 }
 
@@ -10132,6 +10155,16 @@ Rmpfr_compound_si (a, b, c, round)
 	SV *	round
 CODE:
   RETVAL = Rmpfr_compound_si (aTHX_ a, b, c, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_compound (a, b, c, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	mpfr_t *	c
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_compound (aTHX_ a, b, c, round);
 OUTPUT:  RETVAL
 
 SV *
