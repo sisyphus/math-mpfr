@@ -428,8 +428,8 @@ typedef _Decimal128 D128;
 #elif defined(USE_LONG_DOUBLE)
 #define MATH_MPFR_MAX_DIG 21
 #define NVSIZE_BITS 64
-#define MATH_MPFR_NV_MAX 1.18973149535723176502e4932L
-#define MATH_MPFR_NORMAL_MIN 3.36210314311209350626e-4932L
+#define MATH_MPFR_NV_MAX 0xf.fffffffffffffffp+16380L
+#define MATH_MPFR_NORMAL_MIN 0x8p-16385L
 
 # if defined(MPFR_HAVE_BENDIAN)                /* big endian architecture - defined by Makefile.PL */
 
@@ -456,8 +456,8 @@ typedef _Decimal128 D128;
 #else
 #define MATH_MPFR_MAX_DIG 36
 #define NVSIZE_BITS 113
-#define MATH_MPFR_NV_MAX 1.18973149535723176508575932662800702e+4932Q
-#define MATH_MPFR_NORMAL_MIN 3.3621031431120935062626778173217526e-4932Q
+#define MATH_MPFR_NV_MAX 0x1.ffffffffffffffffffffffffffffp+16383Q
+#define MATH_MPFR_NORMAL_MIN 0x1p-16382Q       /* == 0x8p-16385 */
 
 # if defined(MPFR_HAVE_BENDIAN)                /* big endian architecture - defined by Makefile.PL */
 

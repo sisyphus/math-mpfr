@@ -87,7 +87,7 @@ SV * _fmt_flt(pTHX_ char * out, int k, int sign, int max_decimal_prec, int sf) {
                     does not contain a radix point.
   k               : the exponent of the value.
   sign            : is 0 if the value is non-negative; else is non-zero.
-  max_decimal_prec: calculated as ceil(3.010299956639812e-1 * p) + 1, where p is the precision
+  max_decimal_prec: calculated as ceil(0x1.34413509f79ffp-2 * p) + 1, where p is the precision
                     in bits of the given floating point value.
   sf              : If non-zero, then Safefree(out) will be run prior to this function returning;
                     else Safefree(out) will not be run. The doubletoa function requires that
@@ -786,7 +786,7 @@ int Rmpfr_set_NV(pTHX_ mpfr_t * p, SV * q, unsigned int round) {
      ld = frexpq(ld, &exp); /* 0.5 <= returned value < 1.0 */
 
      /* Convert ld to an integer by right shifting it 113 bits */
-     ld *= 1.0384593717069655257060992658440192e34Q;      /* ld *= powq(2.0Q, 113); */
+     ld *= 0x1p+113Q;      /* ld *= powq(2.0Q, 113); */
 
      returned = quadmath_snprintf(buffer, 45, "%.0Qf", ld);
      if(returned < 0) croak("In Rmpfr_set_NV, encoding error in quadmath_snprintf function");
@@ -896,7 +896,7 @@ int Rmpfr_cmp_float128(pTHX_ mpfr_t * a, SV * b) {
      ld = frexpq(ld, &exp); /* 0.5 <= returned value < 1.0 */
 
      /* Convert ld to an integer by right shifting it 113 bits */
-     ld *= 1.0384593717069655257060992658440192e34Q;      /* ld *= powq(2.0Q, 113); */
+     ld *= 0x1p+113Q;      /* ld *= powq(2.0Q, 113); */
 
      returned = quadmath_snprintf(buffer, 45, "%.0Qf", ld);
      if(returned < 0) croak("In Rmpfr_set_NV, encoding error in quadmath_snprintf function");
@@ -2740,11 +2740,11 @@ SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
          mpfr_clear(t);
          if(c <= 0) {
            if(r == GMP_RNDN || r == GMP_RNDD || r == GMP_RNDZ) return newSVnv(0.0Q);
-           return newSVnv(6.475175119438025110924438958227646552e-4966Q);
+           return newSVnv(0x1p-16494Q);
          }
          else {
            if(r == GMP_RNDN || r == GMP_RNDU || r == MPFR_RNDA)
-             return newSVnv(6.475175119438025110924438958227646552e-4966Q);
+             return newSVnv(0x1p-16494Q);
            return newSVnv(0.0Q);
          }
        }
@@ -2754,11 +2754,11 @@ SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
          mpfr_clear(t);
          if(c >= 0) {
            if(r == GMP_RNDN || r == GMP_RNDU || r == GMP_RNDZ) return newSVnv(0.0Q);
-           return newSVnv(-6.475175119438025110924438958227646552e-4966Q);
+           return newSVnv(-0x1p-16494Q);
          }
          if(c < 0) {
            if(r == GMP_RNDN || r == GMP_RNDD || r == MPFR_RNDA)
-             return newSVnv(-6.475175119438025110924438958227646552e-4966Q);
+             return newSVnv(-0x1p-16494Q);
            return newSVnv(0.0Q);
          }
        }
@@ -8389,9 +8389,9 @@ SV * _nvtoa(pTHX_ NV pnv) {
      * decimal digits needed to represent the value of LHS. This     *
      * reduces the number of times that we need to loop through the  *
      * the next while{} loop.                                        *
-     * Note that 0.30102999566398118 is slightly less than log2(10). */
+     * Note that 0x1.34413509f79ffp-2 is slightly less than log2(10). */
 
-    k = (int)floor(mpz_sizeinbase(LHS, 2) * 0.30102999566398118);
+    k = (int)floor(mpz_sizeinbase(LHS, 2) * 0x1.34413509f79ffp-2);
     if(k) k--;    /* Do not decrement if k is zero */
     mpz_ui_pow_ui(TMP, 10, k);
     k *= -1;
@@ -8449,9 +8449,9 @@ SV * _nvtoa(pTHX_ NV pnv) {
      * decimal digits needed to represent the value of TMP. This     *
      * reduces the number of times that we need to loop through the  *
      * the next while{} loop.                                        *
-     * Note that 0.30102999566398118 is slightly less than log2(10). */
+     * Note that 0x1.34413509f79ffp-2 is slightly less than log2(10). */
 
-    u = (int)floor(mpz_sizeinbase(TMP, 2) * 0.30102999566398118);
+    u = (int)floor(mpz_sizeinbase(TMP, 2) * 0x1.34413509f79ffp-2);
     /* if(u) u--; *//* Decrement not needed here, AFAIK. */
     mpz_ui_pow_ui(TMP, 10, u);
     k += u;
@@ -8708,9 +8708,9 @@ SV * _mpfrtoa(pTHX_ mpfr_t * pnv, int min_normal_prec) {
      * decimal digits needed to represent the value of LHS. This     *
      * reduces the number of times that we need to loop through the  *
      * the next while{} loop.                                        *
-     * Note that 0.30102999566398118 is slightly less than log2(10). */
+     * Note that 0x1.34413509f79ffp-2 is slightly less than log2(10). */
 
-    k = (int)floor(mpz_sizeinbase(LHS, 2) * 0.30102999566398118);
+    k = (int)floor(mpz_sizeinbase(LHS, 2) * 0x1.34413509f79ffp-2);
     if(k) k--;    /* Do not decrement if k is zero */
     mpz_ui_pow_ui(TMP, 10, k);
     k *= -1;
@@ -8750,9 +8750,9 @@ SV * _mpfrtoa(pTHX_ mpfr_t * pnv, int min_normal_prec) {
      * decimal digits needed to represent the value of TMP. This     *
      * reduces the number of times that we need to loop through the  *
      * the next while{} loop.                                        *
-     * Note that 0.30102999566398118 is slightly less than log2(10). */
+     * Note that 0x1.34413509f79ffp-2 is slightly less than log2(10). */
 
-    u = (int)floor(mpz_sizeinbase(TMP, 2) * 0.30102999566398118);
+    u = (int)floor(mpz_sizeinbase(TMP, 2) * 0x1.34413509f79ffp-2);
     /* if(u) u--; *//* Decrement not needed here, AFAIK. */
     mpz_ui_pow_ui(TMP, 10, u);
     k += u;
@@ -8862,7 +8862,7 @@ SV * _mpfrtoa(pTHX_ mpfr_t * pnv, int min_normal_prec) {
    * Return the formatted the result *
    *********************/
 
-  return _fmt_flt(aTHX_ out, k, sign, (int)ceil(3.010299956639812e-1 * mpfr_get_prec(*pnv)) + 1, 1);
+  return _fmt_flt(aTHX_ out, k, sign, (int)ceil(0x1.34413509f79ffp-2 * mpfr_get_prec(*pnv)) + 1, 1);
 }
 
 /****************************
@@ -9010,8 +9010,8 @@ void decimalize(pTHX_ SV * a, ...) {
   char * dec_buff;
   int is_neg = 0;
   double digits = 0;
-  double div = 3.32192809488736;	/* log2(10) */
-  double mul = 0.698970004336019;	/* log10(5) */
+  double div = 0x1.a934f0979a371p+1;	/* log2(10) */
+  double mul = 0x1.65df657b04301p-1;	/* log10(5) */
 
   if(!mpfr_regular_p(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))))) {
     if(items > 1) {
