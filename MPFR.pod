@@ -2635,6 +2635,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
      Rmpfr_printf("hello world\n", 0);
     NOTE: The rounding argument $rnd can be provided *only* if $var is a
           Math::MPFR object. To do otherwise is a fatal error.
+          A better way (IMO) to specify the rounding arg is to include it
+          in the formatting spec. For example, instead of doing:
+            Rmpfr_printf("%.17R*g\n", MPFR_RNDU, $op);
+            do:
+            Rmpfr_printf("%.17RUg\n", $op);
     See the mpfr documentation for details re the formatting options:
     http://www.mpfr.org/mpfr-current/mpfr.html#Formatted-Output-Functions
 
@@ -2649,6 +2654,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
      Rmpfr_fprintf($fh, "hello world\n", 0);
     NOTE: The rounding argument $rnd can be provided *only* if $var is a
           Math::MPFR object. To do otherwise is a fatal error.
+          As for Rmpfr_printf (above), the rounding argument can be given
+          in the formatting spec, rather than as a separate argument.
     See the mpfr documentation for details re the formatting options:
     http://www.mpfr.org/mpfr-current/mpfr.html#Formatted-Output-Functions
 
@@ -2666,6 +2673,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
      Rmpfr_sprintf($buffer, "hello world", 0, $buflen);
     NOTE: The rounding argument $rnd can be provided *only* if $var is a
           Math::MPFR object. To do otherwise is a fatal error.
+          As for Rmpfr_printf (above), the rounding argument can be given
+          in the formatting spec, rather than as a separate argument.
     See the mpfr documentation for details re the formatting options:
     http://www.mpfr.org/mpfr-current/mpfr.html#Formatted-Output-Functions
 

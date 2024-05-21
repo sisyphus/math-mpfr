@@ -5830,6 +5830,24 @@ SV * wrap_mpfr_printf(pTHX_ SV * a, SV * b) {
          return newSViv(ret);
        }
 
+       if(strEQ(h, "Math::GMP") || strEQ(h, "Math::GMPz")){
+         ret = mpfr_printf(SvPV_nolen(a), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
+         fflush(stdout);
+         return newSViv(ret);
+       }
+
+       if(strEQ(h, "Math::GMPq")){
+         ret = mpfr_printf(SvPV_nolen(a), *(INT2PTR(mpq_t *, SvIVX(SvRV(b)))));
+         fflush(stdout);
+         return newSViv(ret);
+       }
+
+       if(strEQ(h, "Math::GMPf")){
+         ret = mpfr_printf(SvPV_nolen(a), *(INT2PTR(mpf_t *, SvIVX(SvRV(b)))));
+         fflush(stdout);
+         return newSViv(ret);
+       }
+
        croak("Unrecognised object supplied as argument to Rmpfr_printf");
      }
 
@@ -5872,6 +5890,24 @@ SV * wrap_mpfr_fprintf(pTHX_ FILE * stream, SV * a, SV * b) {
 
        if(strEQ(h, "Math::MPFR::Prec")) {
          ret = mpfr_fprintf(stream, SvPV_nolen(a), *(INT2PTR(mpfr_prec_t *, SvIVX(SvRV(b)))));
+         fflush(stream);
+         return newSViv(ret);
+       }
+
+       if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
+         ret = mpfr_fprintf(stream, SvPV_nolen(a), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
+         fflush(stream);
+         return newSViv(ret);
+       }
+
+       if(strEQ(h, "Math::GMPq")) {
+         ret = mpfr_fprintf(stream, SvPV_nolen(a), *(INT2PTR(mpq_t *, SvIVX(SvRV(b)))));
+         fflush(stream);
+         return newSViv(ret);
+       }
+
+       if(strEQ(h, "Math::GMPf")) {
+         ret = mpfr_fprintf(stream, SvPV_nolen(a), *(INT2PTR(mpf_t *, SvIVX(SvRV(b)))));
          fflush(stream);
          return newSViv(ret);
        }
@@ -5928,6 +5964,28 @@ SV * wrap_mpfr_sprintf(pTHX_ SV * s, SV * a, SV * b, int buflen) {
          return newSViv(ret);
        }
 
+       if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
+         ret = mpfr_sprintf(stream, SvPV_nolen(a), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
+         sv_setpv(s, stream);
+         Safefree(stream);
+         return newSViv(ret);
+       }
+
+       if(strEQ(h, "Math::GMPq")) {
+         ret = mpfr_sprintf(stream, SvPV_nolen(a), *(INT2PTR(mpq_t *, SvIVX(SvRV(b)))));
+         sv_setpv(s, stream);
+         Safefree(stream);
+         return newSViv(ret);
+       }
+
+       if(strEQ(h, "Math::GMPf")) {
+         ret = mpfr_sprintf(stream, SvPV_nolen(a), *(INT2PTR(mpf_t *, SvIVX(SvRV(b)))));
+         sv_setpv(s, stream);
+         Safefree(stream);
+         return newSViv(ret);
+       }
+
+       Safefree(stream); /* in case the ensuing croak() occurs inside eval{} */
        croak("Unrecognised object supplied as argument to Rmpfr_sprintf");
      }
 
@@ -5957,6 +6015,7 @@ SV * wrap_mpfr_sprintf(pTHX_ SV * s, SV * a, SV * b, int buflen) {
        return newSViv(ret);
      }
 
+     Safefree(stream); /* in case the ensuing croak() occurs inside eval{} */
      croak("Unrecognised type supplied as argument to Rmpfr_sprintf");
 }
 
@@ -5983,6 +6042,28 @@ SV * wrap_mpfr_snprintf(pTHX_ SV * s, SV * bytes, SV * a, SV * b, int buflen) {
          return newSViv(ret);
        }
 
+       if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
+         ret = mpfr_snprintf(stream, (size_t)SvUV(bytes), SvPV_nolen(a), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
+         sv_setpv(s, stream);
+         Safefree(stream);
+         return newSViv(ret);
+       }
+
+       if(strEQ(h, "Math::GMPq")) {
+         ret = mpfr_snprintf(stream, (size_t)SvUV(bytes), SvPV_nolen(a), *(INT2PTR(mpq_t *, SvIVX(SvRV(b)))));
+         sv_setpv(s, stream);
+         Safefree(stream);
+         return newSViv(ret);
+       }
+
+       if(strEQ(h, "Math::GMPf")) {
+         ret = mpfr_snprintf(stream, (size_t)SvUV(bytes), SvPV_nolen(a), *(INT2PTR(mpf_t *, SvIVX(SvRV(b)))));
+         sv_setpv(s, stream);
+         Safefree(stream);
+         return newSViv(ret);
+       }
+
+       Safefree(stream); /* in case the ensuing croak() occurs inside eval{} */
        croak("Unrecognised object supplied as argument to Rmpfr_snprintf");
      }
 
@@ -6012,6 +6093,7 @@ SV * wrap_mpfr_snprintf(pTHX_ SV * s, SV * bytes, SV * a, SV * b, int buflen) {
        return newSViv(ret);
      }
 
+     Safefree(stream); /* in case the ensuing croak() occurs inside eval{} */
      croak("Unrecognised type supplied as argument to Rmpfr_snprintf");
 }
 
