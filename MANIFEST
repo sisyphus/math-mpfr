@@ -111,6 +111,7 @@ t/set_NV.t
 t/set_str.t
 t/sign.t
 t/sizes.t
+t/snprintf.t
 t/sprintf.t
 t/subnormal_doubles.t
 t/sum.t

@@ -59,6 +59,9 @@ if($have_mpf) {
 
 my $fr = Math::MPFR->new($nv);
 
+Rmpfr_sprintf($buf, "%.14RUg", $fr, $buflen);
+cmp_ok($buf, 'eq', '1.4142135623731', "Math::MPFR: sqrt 2 ok");
+
 Rmpfr_sprintf($buf, "%.14RDg", $fr, $buflen);
 cmp_ok($buf, 'eq', '1.414213562373', "Math::MPFR: sqrt 2 ok");
 
