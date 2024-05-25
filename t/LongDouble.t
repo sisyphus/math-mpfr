@@ -13,26 +13,31 @@ eval {require Math::LongDouble;};
 if($@) {
   warn "Skipping all tests - Math::LongDouble not found\n";
   cmp_ok(1, '==', 1, 'dummy test');
+  done_testing();
   exit 0;
 }
 elsif($Math::LongDouble::VERSION < 0.20) {
   warn "Skipping all tests as Math::LongDouble is too old - update to at least version 0.20\n";
   cmp_ok(1, '==', 1, 'dummy test');
+  done_testing();
   exit 0;
 }
 elsif(!defined $Config{longdblkind} ) {
   warn "Skipping all tests - \$Config{longdblkind} is not defined\n";
   cmp_ok(1, '==', 1, 'dummy test');
+  done_testing();
   exit 0;
 }
 elsif($Config{longdblkind} < 0 ) {
   warn "Skipping all tests - unknown type of long double\n";
   cmp_ok(1, '==', 1, 'dummy test');
+  done_testing();
   exit 0;
 }
 elsif($Config{longdblkind} == 0 ) {
   warn "Skipping all tests - long double is actually double\n";
   cmp_ok(1, '==', 1, 'dummy test');
+  done_testing();
   exit 0;
 }
 
