@@ -2515,7 +2515,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
     Again, each of those operations returns a Math::MPFR object
     containing the result of the operation.
-    Each operation is conducted using current default rounding mode.
+    Each operation is conducted using default Math::MPFR rounding
+    mode and default Math::MPFR precision.
+    The precision of the returned Math::MPFR object will therefore
+    differ from the precision of $M unless the precision of $M is
+     the default.
 
     NOTE: In overloading a ** (power) operation that involves a
     Math::GMPq object, it is necessary to convert the Math::GMPq
@@ -2523,7 +2527,10 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Math::MPFR object). This conversion is done using current default
     precision and current default rounding mode.
 
-    The following is still NOT ALLOWED, and will cause a fatal error:
+    The following is allowed for Math::GMPq objects (if
+    $Math::GMPq::VERSION >= 0.54 && $Math::GMPq::RETYPE == 1) and
+    for Math::GMPz (if $Math::GMPz::VERSION >= 0.57 &&
+    $Math::GMPz::RETYPE == 1), but not for Math::GMPf :
 
      $G += $M;
      $G -= $M;
@@ -2531,12 +2538,14 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
      $G /= $M;
      $G **= $M;
 
-    In those situations where the overload subroutine operates on 2
-    perl variables, then obviously one of those perl variables is
-    a Math::MPFR object. To determine the value of the other variable
-    the subroutine works through the following steps (in order),
-    using the first value it finds, or croaking if it gets
-    to step 6:
+    When this usage is permitted, the result of the operation is
+    returned as a Math::MPFR object, calculated using Math::MPFR
+    default precision and Math::MPFR default rounding mode.
+
+    To determine the type and value of the second argument received
+    by the overloading subroutine, it works through the following
+    steps (in order), using the first value it finds, or croaking if
+    it gets to step 6:
 
     1. If the variable is a UV then that value is used. The variable
        is considered to be a UV if the IOK and IsUV flags are set.
