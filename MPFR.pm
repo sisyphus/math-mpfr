@@ -104,6 +104,7 @@ MPFR_RNDA MPFR_RNDD MPFR_RNDF MPFR_RNDN MPFR_RNDU MPFR_RNDZ MPFR_PV_NV_BUG
 MPFR_VERSION MPFR_VERSION_MAJOR MPFR_VERSION_MINOR MPFR_VERSION_PATCHLEVEL MPFR_VERSION_STRING
 RMPFR_PREC_MAX RMPFR_PREC_MIN RMPFR_VERSION_NUM
 
+log_2 log_10 sind cosd tand tangent
 Rmpfr_abs Rmpfr_acos Rmpfr_acosh Rmpfr_acospi Rmpfr_acosu
 Rmpfr_add Rmpfr_add_d Rmpfr_add_q Rmpfr_add_si Rmpfr_add_ui Rmpfr_add_z
 Rmpfr_agm Rmpfr_ai

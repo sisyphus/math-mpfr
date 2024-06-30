@@ -4802,6 +4802,30 @@ SV * overload_log(pTHX_ mpfr_t * p, SV * b, SV * third) {
      return obj_ref;
 }
 
+SV * log_2(pTHX_ mpfr_t * p) {
+     mpfr_t * mpfr_t_obj;
+     SV * obj_ref, * obj;
+
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",log_2) /* defined in math_mpfr_include.h */
+     mpfr_init(*mpfr_t_obj);
+
+     mpfr_log2(*mpfr_t_obj, *p, __gmpfr_default_rounding_mode);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
+     return obj_ref;
+}
+
+SV * log_10(pTHX_ mpfr_t * p) {
+     mpfr_t * mpfr_t_obj;
+     SV * obj_ref, * obj;
+
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",log_10) /* defined in math_mpfr_include.h */
+     mpfr_init(*mpfr_t_obj);
+
+     mpfr_log10(*mpfr_t_obj, *p, __gmpfr_default_rounding_mode);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
+     return obj_ref;
+}
+
 SV * overload_exp(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
@@ -4828,6 +4852,22 @@ SV * overload_sin(pTHX_ mpfr_t * p, SV * b, SV * third) {
      return obj_ref;
 }
 
+SV * sind(pTHX_ mpfr_t * p) {
+#if MPFR_VERSION >= 262656
+     mpfr_t * mpfr_t_obj;
+     SV * obj_ref, * obj;
+
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",sind) /* defined in math_mpfr_include.h */
+     mpfr_init(*mpfr_t_obj);
+
+     mpfr_sinu(*mpfr_t_obj, *p, 360, __gmpfr_default_rounding_mode);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
+     return obj_ref;
+#else
+     croak("sind function requires mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
 SV * overload_cos(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_t * mpfr_t_obj;
      SV * obj_ref, * obj;
@@ -4839,6 +4879,50 @@ SV * overload_cos(pTHX_ mpfr_t * p, SV * b, SV * third) {
      mpfr_cos(*mpfr_t_obj, *p, __gmpfr_default_rounding_mode);
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      return obj_ref;
+}
+
+SV * cosd(pTHX_ mpfr_t * p) {
+#if MPFR_VERSION >= 262656
+     mpfr_t * mpfr_t_obj;
+     SV * obj_ref, * obj;
+
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",cosd) /* defined in math_mpfr_include.h */
+     mpfr_init(*mpfr_t_obj);
+
+     mpfr_cosu(*mpfr_t_obj, *p, 360, __gmpfr_default_rounding_mode);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
+     return obj_ref;
+#else
+     croak("cosd function requires mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+}
+
+SV * tangent(pTHX_ mpfr_t * p) {
+     mpfr_t * mpfr_t_obj;
+     SV * obj_ref, * obj;
+
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",tangent) /* defined in math_mpfr_include.h */
+     mpfr_init(*mpfr_t_obj);
+
+     mpfr_tan(*mpfr_t_obj, *p, __gmpfr_default_rounding_mode);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
+     return obj_ref;
+}
+
+SV * tand(pTHX_ mpfr_t * p) {
+#if MPFR_VERSION >= 262656
+     mpfr_t * mpfr_t_obj;
+     SV * obj_ref, * obj;
+
+     NEW_MATH_MPFR_OBJECT("Math::MPFR",tand) /* defined in math_mpfr_include.h */
+     mpfr_init(*mpfr_t_obj);
+
+     mpfr_tanu(*mpfr_t_obj, *p, 360, __gmpfr_default_rounding_mode);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
+     return obj_ref;
+#else
+     croak("tand function requires mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
 }
 
 SV * overload_int(pTHX_ mpfr_t * p, SV * b, SV * third) {
@@ -12286,6 +12370,20 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
+log_2 (p)
+	mpfr_t *	p
+CODE:
+  RETVAL = log_2 (aTHX_ p);
+OUTPUT:  RETVAL
+
+SV *
+log_10 (p)
+	mpfr_t *	p
+CODE:
+  RETVAL = log_10 (aTHX_ p);
+OUTPUT:  RETVAL
+
+SV *
 overload_exp (p, b, third)
 	mpfr_t *	p
 	SV *	b
@@ -12304,12 +12402,40 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
+sind (p)
+	mpfr_t *	p
+CODE:
+  RETVAL = sind (aTHX_ p);
+OUTPUT:  RETVAL
+
+SV *
 overload_cos (p, b, third)
 	mpfr_t *	p
 	SV *	b
 	SV *	third
 CODE:
   RETVAL = overload_cos (aTHX_ p, b, third);
+OUTPUT:  RETVAL
+
+SV *
+cosd (p)
+	mpfr_t *	p
+CODE:
+  RETVAL = cosd (aTHX_ p);
+OUTPUT:  RETVAL
+
+SV *
+tangent (p)
+	mpfr_t *	p
+CODE:
+  RETVAL = tangent (aTHX_ p);
+OUTPUT:  RETVAL
+
+SV *
+tand (p)
+	mpfr_t *	p
+CODE:
+  RETVAL = tand (aTHX_ p);
 OUTPUT:  RETVAL
 
 SV *

@@ -88,6 +88,7 @@ t/overload_cross_class.t
 t/overload_float128.t
 t/overload_shift.t
 t/overload_switch.t
+t/overloadex.t
 t/P_specifier.t
 t/pod.t
 t/printf.t

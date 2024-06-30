@@ -1266,6 +1266,13 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    SPECIAL
 
+   $rop = log_2 ($op);
+   $rop = log_10($op);
+    Return log2 of $op (resp.log 10 of $op), set to default
+    precision and using default rounding mode.
+    These are the functions that log2 and log10 overloading would
+    call if log2 and log10 overloading was available.
+
    $inex = Rmpfr_log($rop, $op, $rnd);
    $inex = Rmpfr_log_ui($rop, $ui, $rnd); # mpfr-4.0.0 & later only
    $inex = Rmpfr_log2($rop, $op, $rnd);
@@ -1279,6 +1286,20 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $inex = Rmpfr_exp10($rop, $op, $rnd);
     Set rop to the exponential of op, to 2 power of op or to
     10 power of op, respectively, rounded in the direction rnd.
+
+   $rop = sind($op); # Value of $op is in degrees (not radians)
+   $rop = cosd($op); # Value of $op is in degrees (not radians)
+
+    Return (respectively) sin() and cos() of $op, where the
+    value of $op is expressed in degrees. The return value is
+    calculated using default precision and default rounding mode.
+    These are essentially the same as the overloaded sin and
+    cos functions except that the given argument is in degrees.
+
+   $rop = tand($op);    # $op is in degrees (not radians)
+   $rop = tangent($op); # $op is in radians
+    Return tan($op) calculated with default precision and
+    default rounding mode.
 
    $inex = Rmpfr_sin($rop $op, $rnd);
    $inex = Rmpfr_cos($rop, $op, $rnd);
@@ -1308,7 +1329,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     that the function is even.  For 'Rmpfr_sinu', when $op multiplied by
     2 and divided by $ui is an integer, the result is zero with the same
     sign as $op, following IEEE 754-2019 (sinPi), so that the function
-    is odd.  Similarly, the function 'Rmpfr_tanu' follows IEEE 754-2019
+    is odd.  Similarly, the function 'Rmpfr_tanu' follows IEEE 754-2019Rmp
     (tanPi).
 
    $inex = Rmpfr_acosu($rop, $op, $ui, $rnd); # mpfr-4.2.0 and later only
