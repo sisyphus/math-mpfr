@@ -4864,6 +4864,7 @@ SV * sind(pTHX_ mpfr_t * p) {
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      return obj_ref;
 #else
+     PERL_UNUSED_ARG(p);
      croak("sind function requires mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
 #endif
 }
@@ -4893,6 +4894,7 @@ SV * cosd(pTHX_ mpfr_t * p) {
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      return obj_ref;
 #else
+     PERL_UNUSED_ARG(p);
      croak("cosd function requires mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
 #endif
 }
@@ -4921,6 +4923,7 @@ SV * tand(pTHX_ mpfr_t * p) {
      OBJ_READONLY_ON /*defined in math_mpfr_include.h */
      return obj_ref;
 #else
+     PERL_UNUSED_ARG(p);
      croak("tand function requires mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
 #endif
 }
