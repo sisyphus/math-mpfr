@@ -61,6 +61,19 @@ if(Math::MPFR::MPFR_VERSION >= 262656) {
   my $tand = tand($input);
   cmp_ok($tand, '==', 1, "tand() ok");
   cmp_ok(Rmpfr_get_prec($tand), '==', 53, "tand() prec ok");
+
+  for(1 .. 10) {
+    my $v = rand(360);
+    cmp_ok(abs(sind(Math::MPFR->new("$v"))), '==', abs(sind(Math::MPFR->new("-$v"))), "abs(sind($v) == abs(sind(-$v)");
+    cmp_ok(abs(cosd(Math::MPFR->new("$v"))), '==', abs(cosd(Math::MPFR->new("-$v"))), "abs(cosd($v) == abs(cosd(-$v)");
+    cmp_ok(abs(tand(Math::MPFR->new("$v"))), '==', abs(tand(Math::MPFR->new("-$v"))), "abs(tand($v) == abs(tand(-$v)");
+  }
+
+  # Next 3 tests should pass only because "380.75" and "20.75" are exactly representable.
+  # Change the values to (say) "380.8" & "20.8", and the tests would fail.
+  cmp_ok(sind(Math::MPFR->new('380.75')), '==', sind(Math::MPFR->new('20.75')), 'sind(380.75) == sind(20.75)');
+  cmp_ok(cosd(Math::MPFR->new('380.75')), '==', cosd(Math::MPFR->new('20.75')), 'cosd(380.75) == cosd(20.75)');
+  cmp_ok(tand(Math::MPFR->new('380.75')), '==', tand(Math::MPFR->new('20.75')), 'tand(380.75) == tand(20.75)');
 }
 else {
   eval{my $tand = tand($input);};
