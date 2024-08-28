@@ -69,11 +69,21 @@ if(Math::MPFR::MPFR_VERSION >= 262656) {
     cmp_ok(abs(tand(Math::MPFR->new("$v"))), '==', abs(tand(Math::MPFR->new("-$v"))), "abs(tand($v) == abs(tand(-$v)");
   }
 
-  # Next 3 tests should pass only because "380.75" and "20.75" are exactly representable.
-  # Change the values to (say) "380.8" & "20.8", and the tests would fail.
+  # Next 3 tests should pass because "380.75" and "20.75" are exactly representable in base 2 and differ by
+  # exactly 360.0.
   cmp_ok(sind(Math::MPFR->new('380.75')), '==', sind(Math::MPFR->new('20.75')), 'sind(380.75) == sind(20.75)');
   cmp_ok(cosd(Math::MPFR->new('380.75')), '==', cosd(Math::MPFR->new('20.75')), 'cosd(380.75) == cosd(20.75)');
   cmp_ok(tand(Math::MPFR->new('380.75')), '==', tand(Math::MPFR->new('20.75')), 'tand(380.75) == tand(20.75)');
+
+  # The next 3 tests should pass because "404.8" & "44.8" are NOT exactly representable in base 2 and
+  # (more to the point) 404.8 - 44.8 is not sufficiently close to 360.0 as to allow the respective
+  # sind()/cosd()/tand() calculations to provide identical results.
+  my $big = '404.8';
+  my $small = '44.8';
+  cmp_ok(sind(Math::MPFR->new($big)), '!=', sind(Math::MPFR->new($small)), "sind($big) != sind($small)");
+  cmp_ok(cosd(Math::MPFR->new($big)), '!=', cosd(Math::MPFR->new($small)), "cosd($big) != cosd($small)");
+  cmp_ok(tand(Math::MPFR->new($big)), '!=', tand(Math::MPFR->new($small)), "tand($big) != tand($small)");
+
 }
 else {
   eval{my $tand = tand($input);};
