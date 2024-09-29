@@ -8,14 +8,16 @@ use Test::More;
 
 #print "1..10\n";
 
-warn "\n# Using Math::MPFR version ", $Math::MPFR::VERSION, "\n";
-warn "# MPFR_VERSION is ", MPFR_VERSION, "\n";
-warn "# Using mpfr library version ", MPFR_VERSION_STRING, "\n";
-warn "# Using gmp library version ", Math::MPFR::gmp_v(), "\n";
-warn "# GMP_LIMB_BITS is ", Math::MPFR::_GMP_LIMB_BITS, "\n" if defined Math::MPFR::_GMP_LIMB_BITS;
-warn "# GMP_NAIL_BITS is ", Math::MPFR::_GMP_NAIL_BITS, "\n" if defined Math::MPFR::_GMP_NAIL_BITS;
-warn "# sizeof mpfr_exp_t : ", Math::MPFR::_sizeof_exp(), " bytes\n";
-warn "# sizeof mpfr_prec_t: ", Math::MPFR::_sizeof_prec(), " bytes\n";
+warn "\n# Using Math::MPFR version     ", $Math::MPFR::VERSION, "\n";
+warn "# MPFR_VERSION is              ", MPFR_VERSION, "\n";
+warn "# Using mpfr library version   ", MPFR_VERSION_STRING, "\n";
+warn "# Using gmp library version    ", Math::MPFR::gmp_v(), "\n";
+warn "# GMP_LIMB_BITS is             ", Math::MPFR::_GMP_LIMB_BITS, "\n" if defined Math::MPFR::_GMP_LIMB_BITS;
+warn "# GMP_NAIL_BITS is             ", Math::MPFR::_GMP_NAIL_BITS, "\n" if defined Math::MPFR::_GMP_NAIL_BITS;
+warn "# sizeof mpfr_exp_t:           ", Math::MPFR::_sizeof_exp(), " bytes\n";
+warn "# sizeof mpfr_prec_t:          ", Math::MPFR::_sizeof_prec(), " bytes\n";
+warn "# has _WIN32_BIZARRE_INFNAN:   ", Math::MPFR::_has_bizarre_infnan(), "\n";
+warn "# has PERL_PV_NV_BUG:          ", Math::MPFR::_has_pv_nv_bug(), "\n";
 
 if   (pack("L", 305419897) eq pack("N", 305419897)) {warn "# Machine appears to be big-endian\n"}
 elsif(pack("L", 305419897) eq pack("V", 305419897)) {warn "# Machine appears to be little-endian\n"}

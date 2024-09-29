@@ -3287,7 +3287,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
 
 #endif
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -3323,7 +3323,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_mul");}
 #endif
 
@@ -3424,7 +3424,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
 
 #endif
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -3460,7 +3460,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_add");}
 #endif
 
@@ -3562,7 +3562,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
 
 #endif
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -3599,7 +3599,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_sub");}
 #endif
 
@@ -3706,7 +3706,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 
 #endif
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -3743,7 +3743,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_div");}
 #endif
 
@@ -3872,7 +3872,7 @@ SV * overload_gt(pTHX_ mpfr_t * a, SV * b, SV * third) {
        return newSViv(0);
      }
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -3924,7 +3924,7 @@ SV * overload_gt(pTHX_ mpfr_t * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_gt");}
 #endif
 
@@ -3981,7 +3981,7 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
        return newSViv(0);
      }
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -4033,7 +4033,7 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_gte");}
 #endif
 
@@ -4090,7 +4090,7 @@ SV * overload_lt(pTHX_ mpfr_t * a, SV * b, SV * third) {
        return newSViv(0);
      }
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -4142,7 +4142,7 @@ SV * overload_lt(pTHX_ mpfr_t * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_lt");}
 #endif
 
@@ -4199,7 +4199,7 @@ SV * overload_lte(pTHX_ mpfr_t * a, SV * b, SV * third) {
        return newSViv(0);
      }
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -4251,7 +4251,7 @@ SV * overload_lte(pTHX_ mpfr_t * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_lte(aTHX_ <=)");}
 #endif
 
@@ -4308,7 +4308,7 @@ SV * overload_spaceship(pTHX_ mpfr_t * a, SV * b, SV * third) {
        return newSViv(0);
      }
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -4361,7 +4361,7 @@ SV * overload_spaceship(pTHX_ mpfr_t * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_spaceship");}
 #endif
 
@@ -4419,7 +4419,7 @@ SV * overload_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
        return newSViv(0);
      }
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -4470,7 +4470,7 @@ SV * overload_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_equiv");}
 #endif
 
@@ -4524,7 +4524,7 @@ SV * overload_not_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
        return newSViv(0);
      }
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -4575,7 +4575,7 @@ SV * overload_not_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_not_equiv");}
 #endif
 
@@ -4687,7 +4687,7 @@ SV * overload_pow(pTHX_ SV * p, SV * b, SV * third) {
 
 #endif
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -4724,7 +4724,7 @@ SV * overload_pow(pTHX_ SV * p, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_pow");}
 #endif
 
@@ -5001,7 +5001,7 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
 
 #endif
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -5039,7 +5039,7 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_atan2");}
 #endif
 
@@ -5238,7 +5238,7 @@ SV * overload_pow_eq(pTHX_ SV * p, SV * b, SV * third) {
      }
 #endif
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -5274,7 +5274,7 @@ SV * overload_pow_eq(pTHX_ SV * p, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_pow_eq");}
 #endif
 
@@ -5359,7 +5359,7 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 #endif
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -5395,7 +5395,7 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_div_eq");}
 #endif
 
@@ -5490,7 +5490,7 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 #endif
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -5526,7 +5526,7 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_sub_eq");}
 #endif
 
@@ -5615,7 +5615,7 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 #endif
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -5651,7 +5651,7 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_add_eq(aTHX_ +=)");}
 #endif
 
@@ -5739,7 +5739,7 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 #endif
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
          (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -5775,7 +5775,7 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_mul_eq");}
 #endif
 
@@ -5835,7 +5835,7 @@ SV * _itsa(pTHX_ SV * a) {
        return newSVuv(2);
      }
      if(SV_IS_POK(a)) {
-#if defined(MPFR_PV_NV_BUG)        /* perl can set the POK flag when it should not */
+#if defined(PERL_PV_NV_BUG)        /* perl can set the POK flag when it should not */
        if(SvNOK(a) && !SvIOKp(a))
          return newSVuv(3);        /* designate it as NV */
 #endif
@@ -9307,7 +9307,7 @@ int _sis_perl_version(void) {
 }
 
 int _has_pv_nv_bug(void) {
-#if defined(MPFR_PV_NV_BUG)
+#if defined(PERL_PV_NV_BUG)
      return 1;
 #else
      return 0;
@@ -9320,6 +9320,14 @@ int _sizeof_exp(void) {
 
 int _sizeof_prec(void) {
     return sizeof(mpfr_prec_t);
+}
+
+int _has_bizarre_infnan(void) {
+#if defined(_WIN32_BIZARRE_INFNAN)
+     return 1;
+#else
+     return 0;
+#endif
 }
 
 
@@ -9364,7 +9372,7 @@ OUTPUT:  RETVAL
 void
 Rmpfr_set_default_rounding_mode (round)
 	SV *	round
-        CODE:
+        PPCODE:
         Rmpfr_set_default_rounding_mode(aTHX_ round);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -9384,35 +9392,35 @@ OUTPUT:  RETVAL
 void
 DESTROY (p)
 	mpfr_t *	p
-        CODE:
+        PPCODE:
         DESTROY(aTHX_ p);
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_clear (p)
 	mpfr_t *	p
-        CODE:
+        PPCODE:
         Rmpfr_clear(aTHX_ p);
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_clear_mpfr (p)
 	mpfr_t *	p
-        CODE:
+        PPCODE:
         Rmpfr_clear_mpfr(p);
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_clear_ptr (p)
 	mpfr_t *	p
-        CODE:
+        PPCODE:
         Rmpfr_clear_ptr(aTHX_ p);
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_clears (p, ...)
 	SV *	p
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_clears(aTHX_ p);
         XSRETURN_EMPTY; /* return empty stack */
@@ -9449,165 +9457,165 @@ void
 Rmpfr_init_set (q, round)
 	mpfr_t *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_ui (q, round)
 	SV *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_ui(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_si (q, round)
 	SV *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_si(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_d (q, round)
 	SV *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_d(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_ld (q, round)
 	SV *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_ld(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_f (q, round)
 	mpf_t *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_f(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_z (q, round)
 	mpz_t *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_z(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_q (q, round)
 	mpq_t *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_q(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_str (q, base, round)
 	SV *	q
 	SV *	base
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_str(aTHX_ q, base, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_nobless (q, round)
 	mpfr_t *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_nobless(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_ui_nobless (q, round)
 	SV *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_ui_nobless(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_si_nobless (q, round)
 	SV *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_si_nobless(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_d_nobless (q, round)
 	SV *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_d_nobless(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_ld_nobless (q, round)
 	SV *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_ld_nobless(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_f_nobless (q, round)
 	mpf_t *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_f_nobless(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_z_nobless (q, round)
 	mpz_t *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_z_nobless(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_q_nobless (q, round)
 	mpq_t *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_q_nobless(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_str_nobless (q, base, round)
 	SV *	q
 	SV *	base
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_str_nobless(aTHX_ q, base, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_deref2 (p, base, n_digits, round)
@@ -9615,15 +9623,15 @@ Rmpfr_deref2 (p, base, n_digits, round)
 	SV *	base
 	SV *	n_digits
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_deref2(aTHX_ p, base, n_digits, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_set_default_prec (prec)
 	SV *	prec
-        CODE:
+        PPCODE:
         Rmpfr_set_default_prec(aTHX_ prec);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -9645,7 +9653,7 @@ void
 Rmpfr_set_prec (p, prec)
 	mpfr_t *	p
 	SV *	prec
-        CODE:
+        PPCODE:
         Rmpfr_set_prec(aTHX_ p, prec);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -9653,7 +9661,7 @@ void
 Rmpfr_set_prec_raw (p, prec)
 	mpfr_t *	p
 	SV *	prec
-        CODE:
+        PPCODE:
         Rmpfr_set_prec_raw(aTHX_ p, prec);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -9722,19 +9730,19 @@ void
 Rmpfr_init_set_NV (q, round)
 	SV *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_NV(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_NV_nobless (q, round)
 	SV *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_NV_nobless(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 int
 Rmpfr_cmp_float128 (a, b)
@@ -9811,14 +9819,14 @@ void
 Rmpfr_set_inf (p, sign)
 	mpfr_t *	p
 	int	sign
-        CODE:
+        PPCODE:
         Rmpfr_set_inf(p, sign);
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_set_nan (p)
 	mpfr_t *	p
-        CODE:
+        PPCODE:
         Rmpfr_set_nan(p);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -9826,7 +9834,7 @@ void
 Rmpfr_swap (p, q)
 	mpfr_t *	p
 	mpfr_t *	q
-        CODE:
+        PPCODE:
         Rmpfr_swap(p, q);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -9930,7 +9938,7 @@ void
 Rmpfr_get_q (a, b)
 	mpq_t *	a
 	mpfr_t *	b
-        CODE:
+        PPCODE:
         Rmpfr_get_q(a, b);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -9949,7 +9957,7 @@ q_add_fr (a, b, c)
 	mpq_t *	a
 	mpq_t *	b
 	mpfr_t *	c
-        CODE:
+        PPCODE:
         q_add_fr(a, b, c);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -10008,7 +10016,7 @@ q_sub_fr (a, b, c)
 	mpq_t *	a
 	mpq_t *	b
 	mpfr_t *	c
-        CODE:
+        PPCODE:
         q_sub_fr(a, b, c);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -10087,7 +10095,7 @@ q_mul_fr (a, b, c)
 	mpq_t *	a
 	mpq_t *	b
 	mpfr_t *	c
-        CODE:
+        PPCODE:
         q_mul_fr(a, b, c);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -10156,7 +10164,7 @@ q_div_fr (a, b, c)
 	mpq_t *	a
 	mpq_t *	b
 	mpfr_t *	c
-        CODE:
+        PPCODE:
         q_div_fr(a, b, c);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -10523,7 +10531,7 @@ Rmpfr_reldiff (a, b, c, round)
 	mpfr_t *	b
 	mpfr_t *	c
 	SV *	round
-        CODE:
+        PPCODE:
         Rmpfr_reldiff(aTHX_ a, b, c, round);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -11042,35 +11050,35 @@ OUTPUT:  RETVAL
 void
 Rmpfr_clear_underflow ()
 
-        CODE:
+        PPCODE:
         Rmpfr_clear_underflow();
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_clear_overflow ()
 
-        CODE:
+        PPCODE:
         Rmpfr_clear_overflow();
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_clear_nanflag ()
 
-        CODE:
+        PPCODE:
         Rmpfr_clear_nanflag();
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_clear_inexflag ()
 
-        CODE:
+        PPCODE:
         Rmpfr_clear_inexflag();
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_clear_flags ()
 
-        CODE:
+        PPCODE:
         Rmpfr_clear_flags();
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -11129,7 +11137,7 @@ OUTPUT:  RETVAL
 void
 Rmpfr_urandomb (x, ...)
 	SV *	x
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_urandomb(aTHX_ x);
         XSRETURN_EMPTY; /* return empty stack */
@@ -11139,7 +11147,7 @@ Rmpfr_random2 (p, s, exp)
 	mpfr_t *	p
 	SV *	s
 	SV *	exp
-        CODE:
+        PPCODE:
         Rmpfr_random2(aTHX_ p, s, exp);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -11345,10 +11353,10 @@ Rmpfr_remquo (a, b, c, round)
 	mpfr_t *	b
 	mpfr_t *	c
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_remquo(aTHX_ a, b, c, round);
-        return; /* assume stack size is correct */
+        return;
 
 int
 Rmpfr_integer_p (p)
@@ -11358,21 +11366,21 @@ void
 Rmpfr_nexttoward (a, b)
 	mpfr_t *	a
 	mpfr_t *	b
-        CODE:
+        PPCODE:
         Rmpfr_nexttoward(a, b);
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_nextabove (p)
 	mpfr_t *	p
-        CODE:
+        PPCODE:
         Rmpfr_nextabove(p);
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_nextbelow (p)
 	mpfr_t *	p
-        CODE:
+        PPCODE:
         Rmpfr_nextbelow(p);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -11452,7 +11460,7 @@ OUTPUT:  RETVAL
 void
 Rmpfr_dump (a)
 	mpfr_t *	a
-        CODE:
+        PPCODE:
         Rmpfr_dump(a);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -11602,21 +11610,21 @@ Rmpfr_zero_p (a)
 void
 Rmpfr_free_cache ()
 
-        CODE:
+        PPCODE:
         Rmpfr_free_cache();
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_free_cache2 (way)
 	unsigned int	way
-        CODE:
+        PPCODE:
         Rmpfr_free_cache2(way);
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_free_pool ()
 
-        CODE:
+        PPCODE:
         Rmpfr_free_pool();
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -11665,7 +11673,7 @@ OUTPUT:  RETVAL
 void
 Rmpfr_clear_erangeflag ()
 
-        CODE:
+        PPCODE:
         Rmpfr_clear_erangeflag();
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -11762,19 +11770,19 @@ void
 Rmpfr_init_set_IV (q, round)
 	SV *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_IV(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_IV_nobless (q, round)
 	SV *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_IV_nobless(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 SV *
 Rmpfr_get_NV (x, round)
@@ -11869,35 +11877,35 @@ OUTPUT:  RETVAL
 void
 Rmpfr_set_erangeflag ()
 
-        CODE:
+        PPCODE:
         Rmpfr_set_erangeflag();
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_set_underflow ()
 
-        CODE:
+        PPCODE:
         Rmpfr_set_underflow();
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_set_overflow ()
 
-        CODE:
+        PPCODE:
         Rmpfr_set_overflow();
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_set_nanflag ()
 
-        CODE:
+        PPCODE:
         Rmpfr_set_nanflag();
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_set_inexflag ()
 
-        CODE:
+        PPCODE:
         Rmpfr_set_inexflag();
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -12129,10 +12137,10 @@ Rmpfr_lgamma (a, b, round)
 	mpfr_t *	a
 	mpfr_t *	b
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_lgamma(aTHX_ a, b, round);
-        return; /* assume stack size is correct */
+        return;
 
 SV *
 _MPFR_VERSION ()
@@ -12192,7 +12200,7 @@ void
 _fr_to_q (q, fr)
 	mpq_t *	q
 	mpfr_t *	fr
-        CODE:
+        PPCODE:
         _fr_to_q(q, fr);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -12492,7 +12500,7 @@ OUTPUT:  RETVAL
 void
 Rmpfr_randclear (p)
 	SV *	p
-        CODE:
+        PPCODE:
         Rmpfr_randclear(aTHX_ p);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -12500,7 +12508,7 @@ void
 Rmpfr_randseed (state, seed)
 	SV *	state
 	SV *	seed
-        CODE:
+        PPCODE:
         Rmpfr_randseed(aTHX_ state, seed);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -12508,7 +12516,7 @@ void
 Rmpfr_randseed_ui (state, seed)
 	SV *	state
 	SV *	seed
-        CODE:
+        PPCODE:
         Rmpfr_randseed_ui(aTHX_ state, seed);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -12701,7 +12709,7 @@ void
 Rmpfr_set_zero (a, sign)
 	mpfr_t *	a
 	SV *	sign
-        CODE:
+        PPCODE:
         Rmpfr_set_zero(aTHX_ a, sign);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -12799,14 +12807,14 @@ OUTPUT:  RETVAL
 void
 Rmpfr_clear_divby0 ()
 
-        CODE:
+        PPCODE:
         Rmpfr_clear_divby0(aTHX);
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_set_divby0 ()
 
-        CODE:
+        PPCODE:
         Rmpfr_set_divby0(aTHX);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -12836,7 +12844,7 @@ overload_inc (a, b, third)
 	SV *	a
 	SV *	b
 	SV *	third
-        CODE:
+        PPCODE:
         overload_inc(aTHX_ a, b, third);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -12845,7 +12853,7 @@ overload_dec (a, b, third)
 	SV *	a
 	SV *	b
 	SV *	third
-        CODE:
+        PPCODE:
         overload_dec(aTHX_ a, b, third);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -12924,7 +12932,7 @@ Rmpfr_get_LD (rop, op, rnd)
 	SV *	rop
 	mpfr_t *	op
 	SV *	rnd
-        CODE:
+        PPCODE:
         Rmpfr_get_LD(aTHX_ rop, op, rnd);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -12933,7 +12941,7 @@ Rmpfr_get_DECIMAL64 (rop, op, rnd)
 	SV *	rop
 	mpfr_t *	op
 	SV *	rnd
-        CODE:
+        PPCODE:
         Rmpfr_get_DECIMAL64(aTHX_ rop, op, rnd);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -12942,7 +12950,7 @@ Rmpfr_get_DECIMAL128 (rop, op, rnd)
 	SV *	rop
 	mpfr_t *	op
 	SV *	rnd
-        CODE:
+        PPCODE:
         Rmpfr_get_DECIMAL128(aTHX_ rop, op, rnd);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -12979,10 +12987,10 @@ OUTPUT:  RETVAL
 void
 _mp_sizes ()
 
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         _mp_sizes();
-        return; /* assume stack size is correct */
+        return;
 
 SV *
 _ivsize ()
@@ -13053,7 +13061,7 @@ Rmpfr_get_FLOAT128 (rop, op, rnd)
 	SV *	rop
 	mpfr_t *	op
 	SV *	rnd
-        CODE:
+        PPCODE:
         Rmpfr_get_FLOAT128(aTHX_ rop, op, rnd);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -13079,19 +13087,19 @@ void
 Rmpfr_init_set_float128 (q, round)
 	SV *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_float128(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 void
 Rmpfr_init_set_float128_nobless (q, round)
 	SV *	q
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_init_set_float128_nobless(aTHX_ q, round);
-        return; /* assume stack size is correct */
+        return;
 
 SV *
 _is_readonly (sv)
@@ -13103,14 +13111,14 @@ OUTPUT:  RETVAL
 void
 _readonly_on (sv)
 	SV *	sv
-        CODE:
+        PPCODE:
         _readonly_on(aTHX_ sv);
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 _readonly_off (sv)
 	SV *	sv
-        CODE:
+        PPCODE:
         _readonly_off(aTHX_ sv);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -13133,28 +13141,28 @@ nok_pokflag ()
 void
 clear_nnum ()
 
-        CODE:
+        PPCODE:
         clear_nnum();
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 clear_nok_pok ()
 
-        CODE:
+        PPCODE:
         clear_nok_pok();
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 set_nnum (x)
 	int	x
-        CODE:
+        PPCODE:
         set_nnum(x);
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 set_nok_pok (x)
 	int	x
-        CODE:
+        PPCODE:
         set_nok_pok(x);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -13218,10 +13226,10 @@ Rmpfr_fmodquo (a, b, c, round)
 	mpfr_t *	b
 	mpfr_t *	c
 	SV *	round
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         Rmpfr_fmodquo(aTHX_ a, b, c, round);
-        return; /* assume stack size is correct */
+        return;
 
 int
 Rmpfr_fpif_export (stream, op)
@@ -13242,14 +13250,14 @@ OUTPUT:  RETVAL
 void
 Rmpfr_flags_clear (mask)
 	unsigned int	mask
-        CODE:
+        PPCODE:
         Rmpfr_flags_clear(mask);
         XSRETURN_EMPTY; /* return empty stack */
 
 void
 Rmpfr_flags_set (mask)
 	unsigned int	mask
-        CODE:
+        PPCODE:
         Rmpfr_flags_set(mask);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -13265,7 +13273,7 @@ void
 Rmpfr_flags_restore (flags, mask)
 	unsigned int	flags
 	unsigned int	mask
-        CODE:
+        PPCODE:
         Rmpfr_flags_restore(flags, mask);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -13458,7 +13466,7 @@ OUTPUT:  RETVAL
 void
 set_fallback_flag ()
 
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         set_fallback_flag(aTHX);
         XSRETURN_EMPTY; /* return empty stack */
@@ -13485,10 +13493,10 @@ OUTPUT:  RETVAL
 void
 decimalize (a, ...)
 	SV *	a
-        CODE:
+        PPCODE:
         PL_markstack_ptr++;
         decimalize(aTHX_ a);
-        return; /* assume stack size is correct */
+        return;
 
 int
 IOK_flag (sv)
@@ -13516,5 +13524,9 @@ _sizeof_exp ()
 
 int
 _sizeof_prec ()
+
+
+int
+_has_bizarre_infnan ()
 
 
