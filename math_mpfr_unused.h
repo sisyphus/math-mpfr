@@ -10,5 +10,9 @@
 #define PERL_UNUSED_ARG4(a,b,c,d) PERL_UNUSED_ARG(a);PERL_UNUSED_ARG(b);\
                                   PERL_UNUSED_ARG(c);PERL_UNUSED_ARG(d);
 
+#define PERL_UNUSED_ARG5(a,b,c,d,e) PERL_UNUSED_ARG(a);PERL_UNUSED_ARG(b);\
+                                    PERL_UNUSED_ARG(c);PERL_UNUSED_ARG(d);\
+                                    PERL_UNUSED_ARG(e);
+
 #endif
 
