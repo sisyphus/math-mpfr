@@ -39,7 +39,7 @@
     use constant MM_HP                  => LITTLE_ENDIAN ? 'h*' : 'H*';
     use constant MPFR_3_1_6_OR_LATER    => Math::MPFR::Random::_MPFR_VERSION() >  196869 ? 1 : 0;
     use constant MPFR_4_0_2_OR_LATER    => Math::MPFR::Random::_MPFR_VERSION() >= 262146 ? 1 : 0;
-    use constant MPFR_PV_NV_BUG         => Math::MPFR::Random::_has_pv_nv_bug();
+    use constant PERL_PV_NV_BUG         => Math::MPFR::Random::_has_pv_nv_bug();
     use constant NV_IS_DOUBLEDOUBLE     => 1 + (2 ** -200) > 1 ? 1 : 0;
 
     # Inspired by https://github.com/Perl/perl5/issues/19550, which affects only perl-5.35.10:
@@ -100,7 +100,7 @@ MPFR_DBL_DIG MPFR_FLT128_DIG MPFR_LDBL_DIG
 MPFR_FLAGS_ALL MPFR_FLAGS_DIVBY0 MPFR_FLAGS_ERANGE MPFR_FLAGS_INEXACT MPFR_FLAGS_NAN
 MPFR_FLAGS_OVERFLOW MPFR_FLAGS_UNDERFLOW
 MPFR_FREE_LOCAL_CACHE MPFR_FREE_GLOBAL_CACHE
-MPFR_RNDA MPFR_RNDD MPFR_RNDF MPFR_RNDN MPFR_RNDU MPFR_RNDZ MPFR_PV_NV_BUG
+MPFR_RNDA MPFR_RNDD MPFR_RNDF MPFR_RNDN MPFR_RNDU MPFR_RNDZ PERL_PV_NV_BUG
 MPFR_VERSION MPFR_VERSION_MAJOR MPFR_VERSION_MINOR MPFR_VERSION_PATCHLEVEL MPFR_VERSION_STRING
 RMPFR_PREC_MAX RMPFR_PREC_MIN RMPFR_VERSION_NUM
 
@@ -390,7 +390,7 @@ sub new {
     if($type == _NOK_T) {
       if(@_ ) {die "Too many arguments supplied to new() - expected only one"}
 
-      if(MPFR_PV_NV_BUG) {
+      if(PERL_PV_NV_BUG) {
         if(_SvPOK($arg1)) {
           set_nok_pok(nok_pokflag() + 1);
           if($Math::MPFR::NOK_POK) {

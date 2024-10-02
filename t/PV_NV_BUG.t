@@ -9,13 +9,15 @@ use Math::MPFR qw(:mpfr);
 
 use Test::More;
 
-warn "\n MPFR_PV_NV_BUG set to ", MPFR_PV_NV_BUG, "\n";
+warn "\n PERL_PV_NV_BUG set to ", PERL_PV_NV_BUG, "\n";
 warn " The string 'nan' apparently numifies to zero\n"
   if 'nan' + 0 == 0;
 
 # Check that both the perl environment and the XS
 # environment agree on whether the problem is present.
-cmp_ok(MPFR_PV_NV_BUG, '==', Math::MPFR::_has_pv_nv_bug(),
+#print "MPFR.pm: ", PERL_PV_NV_BUG, "\n";
+#print "MPFR.xs: ", Math::MPFR::_has_pv_nv_bug(), "\n";
+cmp_ok(PERL_PV_NV_BUG, '==', Math::MPFR::_has_pv_nv_bug(),
        "Perl environment and XS environment agree");       # Test 1
 
 my $nv_1 = 1.3;
