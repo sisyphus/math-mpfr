@@ -14,5 +14,9 @@
                                     PERL_UNUSED_ARG(c);PERL_UNUSED_ARG(d);\
                                     PERL_UNUSED_ARG(e);
 
+#define PERL_UNUSED_ARG6(a,b,c,d,e,f) PERL_UNUSED_ARG(a);PERL_UNUSED_ARG(b);\
+                                      PERL_UNUSED_ARG(c);PERL_UNUSED_ARG(d);\
+                                      PERL_UNUSED_ARG(e);PERL_UNUSED_ARG(f);
+
 #endif
 
