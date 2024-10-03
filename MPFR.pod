@@ -1043,6 +1043,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     (See https://sympa.inria.fr/sympa/arc/mpfr/2016-12/msg00032.html)
 
     Set $rop to $op ** (-1 / $ui) rounded in the direction $rnd.
+    This function sets its $rop to the reciprocal of the $rop that
+    is set by Rmpfr_rootn_ui (below) for identical arguments.
 
     May not correctly handle overflow or underflow.
 
@@ -1268,7 +1270,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $rop = log_2 ($op);
    $rop = log_10($op);
-    Return log2 of $op (resp.log 10 of $op), set to default
+    Return log2 of $op (resp. log10 of $op), set to default
     precision and using default rounding mode.
     These are the functions that log2 and log10 overloading would
     call if log2 and log10 overloading was available.
