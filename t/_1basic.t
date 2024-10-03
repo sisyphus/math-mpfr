@@ -17,7 +17,7 @@ warn "# GMP_NAIL_BITS is             ", Math::MPFR::_GMP_NAIL_BITS, "\n" if defi
 warn "# sizeof mpfr_exp_t:           ", Math::MPFR::_sizeof_exp(), " bytes\n";
 warn "# sizeof mpfr_prec_t:          ", Math::MPFR::_sizeof_prec(), " bytes\n";
 warn "# has _WIN32_BIZARRE_INFNAN:   ", Math::MPFR::_has_bizarre_infnan(), "\n";
-warn "# has PERL_PV_NV_BUG:          ", Math::MPFR::_has_pv_nv_bug(), "\n";
+warn "# has MPFR_PV_NV_BUG:          ", Math::MPFR::_has_pv_nv_bug(), "\n";
 
 if   (pack("L", 305419897) eq pack("N", 305419897)) {warn "# Machine appears to be big-endian\n"}
 elsif(pack("L", 305419897) eq pack("V", 305419897)) {warn "# Machine appears to be little-endian\n"}

@@ -137,10 +137,10 @@ SV * _MPFR_VERSION(pTHX) {
 
 /* Provide a duplicate of Math::MPFR::_has_pv_nv_bug. *
  * This allows MPFR.pm to determine the value of      *
- * the constant PERL_PV_NV_BUG at compile time.       */
+ * the constant MPFR_PV_NV_BUG at compile time.       */
 
 int _has_pv_nv_bug(void) {
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   return 1;
 #else
   return 0;

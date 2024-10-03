@@ -3242,7 +3242,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
     return obj_ref;
   }
 #endif
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -3277,7 +3277,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
 
   if(SV_IS_NOK(b)) {
 
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
     NOK_POK_DUALVAR_CHECK , "overload_mul");}
 #endif
 #if defined(USE_QUADMATH)
@@ -3366,7 +3366,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
     return obj_ref;
   }
 #endif
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -3401,7 +3401,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
 
   if(SV_IS_NOK(b)) {
 
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
     NOK_POK_DUALVAR_CHECK , "overload_add");}
 #endif
 #if defined(USE_QUADMATH)
@@ -3491,7 +3491,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
     return obj_ref;
   }
 #endif
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
          ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -3525,7 +3525,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
 
   if(SV_IS_NOK(b)) {
 
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
     NOK_POK_DUALVAR_CHECK , "overload_sub");}
 #endif
 
@@ -3623,7 +3623,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
     return obj_ref;
   }
 #endif
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -3658,7 +3658,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 
   if(SV_IS_NOK(b)) {
 
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
     NOK_POK_DUALVAR_CHECK , "overload_div");}
 #endif
 #if defined(USE_QUADMATH)
@@ -3777,7 +3777,7 @@ SV * overload_gt(pTHX_ mpfr_t * a, SV * b, SV * third) {
     return newSViv(0);
   }
 
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -3827,7 +3827,7 @@ SV * overload_gt(pTHX_ mpfr_t * a, SV * b, SV * third) {
   }
 
   if(SV_IS_NOK(b)) {
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
     NOK_POK_DUALVAR_CHECK , "overload_gt");}
 #endif
     if(SvNVX(b) != SvNVX(b)) { /* it's a NaN */
@@ -3880,7 +3880,7 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
     if(ret >= 0) return newSViv(1);
     return newSViv(0);
   }
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -3930,7 +3930,7 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
   }
 
   if(SV_IS_NOK(b)) {
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
     NOK_POK_DUALVAR_CHECK , "overload_gte");}
 #endif
     if(SvNVX(b) != SvNVX(b)) { /* it's a NaN */
@@ -3984,7 +3984,7 @@ SV * overload_lt(pTHX_ mpfr_t * a, SV * b, SV * third) {
     if(ret < 0) return newSViv(1);
     return newSViv(0);
   }
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -4035,7 +4035,7 @@ SV * overload_lt(pTHX_ mpfr_t * a, SV * b, SV * third) {
   }
 
   if(SV_IS_NOK(b)) {
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
     NOK_POK_DUALVAR_CHECK , "overload_lt");}
 #endif
 
@@ -4090,7 +4090,7 @@ SV * overload_lte(pTHX_ mpfr_t * a, SV * b, SV * third) {
     if(ret <= 0) return newSViv(1);
     return newSViv(0);
   }
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -4139,7 +4139,7 @@ SV * overload_lte(pTHX_ mpfr_t * a, SV * b, SV * third) {
   }
 
   if(SV_IS_NOK(b)) {
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
     NOK_POK_DUALVAR_CHECK , "overload_lte(aTHX_ <=)");}
 #endif
 
@@ -4195,7 +4195,7 @@ SV * overload_spaceship(pTHX_ mpfr_t * a, SV * b, SV * third) {
     return newSViv(0);
   }
 
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -4246,7 +4246,7 @@ SV * overload_spaceship(pTHX_ mpfr_t * a, SV * b, SV * third) {
   }
 
   if(SV_IS_NOK(b)) {
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
     NOK_POK_DUALVAR_CHECK , "overload_spaceship");}
 #endif
     if(SvNVX(b) != SvNVX(b)) { /* it's a NaN */
@@ -4302,7 +4302,7 @@ SV * overload_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
     return newSViv(0);
   }
 
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -4351,7 +4351,7 @@ SV * overload_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
   }
 
    if(SV_IS_NOK(b)) {
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
     NOK_POK_DUALVAR_CHECK , "overload_equiv");}
 #endif
     if(SvNVX(b) != SvNVX(b)) { /* it's a NaN */
@@ -4403,7 +4403,7 @@ SV * overload_not_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
     return newSViv(0);
   }
 
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -4452,7 +4452,7 @@ SV * overload_not_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
   } /*close IS_POK*/
 
   if(SV_IS_NOK(b)) {
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
     NOK_POK_DUALVAR_CHECK , "overload_not_equiv");}
 #endif
     if(SvNVX(b) != SvNVX(b)) { /* it's a NaN */
@@ -4558,7 +4558,7 @@ SV * overload_pow(pTHX_ SV * p, SV * b, SV * third) {
     }
   }
 #endif
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
          ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -4591,7 +4591,7 @@ SV * overload_pow(pTHX_ SV * p, SV * b, SV * third) {
   }
 
   if(SV_IS_NOK(b)) {
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
     NOK_POK_DUALVAR_CHECK , "overload_pow");}
 #endif
 #if defined(USE_QUADMATH)
@@ -4855,7 +4855,7 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
     return obj_ref;
   }
 #endif
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -4891,7 +4891,7 @@ SV * overload_atan2(pTHX_ mpfr_t * a, SV * b, SV * third) {
 
   if(SV_IS_NOK(b)) {
 
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
     NOK_POK_DUALVAR_CHECK , "overload_atan2");}
 #endif
 #if defined(USE_QUADMATH)
@@ -5083,7 +5083,7 @@ SV * overload_pow_eq(pTHX_ SV * p, SV * b, SV * third) {
     return p;
   }
 #endif
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
          ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -5114,7 +5114,7 @@ SV * overload_pow_eq(pTHX_ SV * p, SV * b, SV * third) {
   }
 
   if(SV_IS_NOK(b)) {
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
     NOK_POK_DUALVAR_CHECK , "overload_pow_eq");}
 #endif
 #if defined(USE_QUADMATH)
@@ -5193,7 +5193,7 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
     return a;
   }
 #endif
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -5224,7 +5224,7 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
   }
 
   if(SV_IS_NOK(b)) {
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
     NOK_POK_DUALVAR_CHECK , "overload_div_eq");}
 #endif
 #if defined(USE_QUADMATH)
@@ -5307,7 +5307,7 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
     */
   }
 #endif
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -5338,7 +5338,7 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
   }
 
   if(SV_IS_NOK(b)) {
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
     NOK_POK_DUALVAR_CHECK , "overload_sub_eq");}
 #endif
 #if defined(USE_QUADMATH)
@@ -5415,7 +5415,7 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
     return a;
   }
 #endif
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
         ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -5446,7 +5446,7 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
   }
 
   if(SV_IS_NOK(b)) {
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
     NOK_POK_DUALVAR_CHECK , "overload_add_eq(aTHX_ +=)");}
 #endif
 #if defined(USE_QUADMATH)
@@ -5521,7 +5521,7 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
     return a;
   }
 #endif
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   if( (SV_IS_POK(b) && !SV_IS_NOK(b))
            ||
       (SV_IS_POK(b) && SV_IS_NOK(b) && SvIOKp(b)) ) {
@@ -5553,7 +5553,7 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
  }
 
   if(SV_IS_NOK(b)) {
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
        NOK_POK_DUALVAR_CHECK , "overload_mul_eq");}
 #endif
 #if defined(USE_QUADMATH)
@@ -5604,7 +5604,7 @@ SV * _itsa(pTHX_ SV * a) {
     return newSVuv(2);
   }
   if(SV_IS_POK(a)) {
-#if defined(PERL_PV_NV_BUG)        /* perl can set the POK flag when it should not */
+#if defined(MPFR_PV_NV_BUG)        /* perl can set the POK flag when it should not */
     if(SvNOK(a) && !SvIOKp(a))
       return newSVuv(3);        /* designate it as NV */
 #endif
@@ -9021,7 +9021,7 @@ int _sis_perl_version(void) {
 }
 
 int _has_pv_nv_bug(void) {
-#if defined(PERL_PV_NV_BUG)
+#if defined(MPFR_PV_NV_BUG)
   return 1;
 #else
   return 0;

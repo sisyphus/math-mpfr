@@ -4,8 +4,6 @@ Revision history for Perl module Math::MPFR
   - Reduce the testing done in t/LongDouble.t to simply test the correctness of
     Rmpfr_set_LD() and Rmpfr_get_LD().
   - Add log_2(),log_10(), sind(), cosd(), tand() and tangent() functions.
-  - Replace internal symbol "MPFR_PV_NV_BUG" with "PERL_PV_NV_BUG". (It's a perl
-    bug, not an mpfr bug.)
 
 4.29
   - Add new (in MPFR-4.3.0) function Rmpfr_compound and new test script t/compound.t.

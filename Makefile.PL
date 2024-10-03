@@ -311,15 +311,15 @@ if($] < 5.035010) {
   }
 
   if($pv_nv_bug) {
-    $defines .= " -DPERL_PV_NV_BUG";
-    $DEFS    .= " -DPERL_PV_NV_BUG";
-    print "Defining PERL_PV_NV_BUG\n\n";
+    $defines .= " -DMPFR_PV_NV_BUG";
+    $DEFS    .= " -DMPFR_PV_NV_BUG";
+    print "Defining MPFR_PV_NV_BUG\n\n";
   }
   else {
-    print "Not defining PERL_PV_NV_BUG\n\n";
+    print "Not defining MPFR_PV_NV_BUG\n\n";
   }
 }
-else { print "Not defining PERL_PV_NV_BUG as perl version >= 5.035010\n\n" }
+else { print "Not defining MPFR_PV_NV_BUG as perl version >= 5.035010\n\n" }
 
 ####################################
 
