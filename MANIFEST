@@ -58,6 +58,7 @@ t/float128_subnormal.t
 t/get_IV.t
 t/get_NV.t
 t/grandom.t
+t/infnan_str.t
 t/integer_string.t
 t/inits.t
 t/lngamma_bug.t

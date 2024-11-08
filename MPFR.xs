@@ -8068,6 +8068,8 @@ SV * _nvtoa(pTHX_ NV pnv) {
   mpfr_exp_t e;    /* Change to 'int' when mpfr dependency for doubledouble is removed */
   NV nv;
   void *nvptr = &nv;
+  SV * outsv; /* for returning inf/nan values */
+
 #if NVSIZE == 8
   char f[] = {'\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0'};
 
@@ -8122,11 +8124,25 @@ SV * _nvtoa(pTHX_ NV pnv) {
   }
 
   if(nv != nv) {
+    if(SvIV(get_sv("Math::MPFR::PERL_INFNAN", 0))) {
+      outsv = SvREFCNT_inc(get_sv("Math::MPFR::nanvstr", 0));
+      return outsv;
+    }
     return newSVpv("NaN", 0);
   }
 
   if(nv > MATH_MPFR_NV_MAX) {
-    if(sign) return newSVpv("-Inf", 0);
+    if(sign) {
+      if(SvIV(get_sv("Math::MPFR::PERL_INFNAN", 0))) {
+        outsv = SvREFCNT_inc(get_sv("Math::MPFR::ninfstr", 0));
+        return outsv;
+      }
+      return newSVpv("-Inf", 0);
+    }
+    if(SvIV(get_sv("Math::MPFR::PERL_INFNAN", 0))) {
+      outsv = SvREFCNT_inc(get_sv("Math::MPFR::pinfstr", 0));
+      return outsv;
+    }
     return newSVpv("Inf", 0);
   }
 

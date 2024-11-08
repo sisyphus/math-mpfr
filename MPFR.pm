@@ -215,6 +215,15 @@ $Math::MPFR::doubletoa_fallback = 0; # If FALLBACK_NOTIFY is defined, this scala
                                      # to produce correct result, and thus falls back to its designated
                                      # fallback routine. (See the doubletoa documentation for details.)
 
+$Math::MPFR::PERL_INFNAN = 0;
+
+my $pinf = 1e5000;      # +infinity
+my $ninf = -$pinf;      # -infinity
+my $nanv = $pinf/$pinf; # not a number
+$Math::MPFR::pinfstr = "$pinf"; # perl's string representation of +infinity
+$Math::MPFR::ninfstr = "$ninf"; # perl's string representation of -infinity
+$Math::MPFR::nanvstr = "$nanv"; # perl's string representation of a nan
+
 %Math::MPFR::NV_properties = _get_NV_properties();
 
 my %bytes = (53   =>  \&_d_bytes,

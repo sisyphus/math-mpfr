@@ -1723,6 +1723,19 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     MPFR_PREC_MAX.
     Return 0 if the export/import was successful.
 
+   ########################
+
+   DISPLAYING INFS AND NANS
+
+   Generally, these will be displayed as 'Inf', '-Inf' and 'NaN'.
+   However, if you set $Math::MPFR::PERL_INFNAN to a TRUE value,
+   then nvtoa($num) and numtoa($num) (which are documented below
+   in 'MISCELLANEOUS') will display them in the same way that perl
+   itself displays them.
+   Note that nvtoa() and numtoa() expect a plain numeric perl
+   scalar as their argument - not a Math::MPFR object.
+   $Math::MPFR::PERL_INFNAN has the initial (default) value of 0.
+
    ##########
 
    EXCEPTIONS
@@ -1986,8 +1999,6 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     For inf, nan, and zero, we do only the initial test and return 15 if
     that test has passed, or 0 if that test has failed. (The other 3
     tests don't really apply.)
-
-
 
    $str = numtoa($sv);
     As for nvtoa() but prints out UVs and IVs in integer format.
