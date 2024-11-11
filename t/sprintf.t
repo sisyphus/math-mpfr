@@ -68,4 +68,22 @@ cmp_ok($buf, 'eq', '1.414213562373', "Math::MPFR: sqrt 2 ok");
 Rmpfr_sprintf($buf, "%Pd", prec_cast(Rmpfr_get_prec($fr)), $buflen);
 cmp_ok($buf, 'eq', '53', "Math::MPFR precision is '53'");
 
+if($Config{nvsize} == 8) {
+  Rmpfr_sprintf($buf, "%a", sqrt(2), 32);
+  cmp_ok(Math::MPFR->new($buf), '==', sqrt(2), 'Rmpfr_sprintf() reads "%a" correctly');
+  Rmpfr_sprintf($buf, "%A", sqrt(2), 32);
+  cmp_ok(Math::MPFR->new($buf), '==', sqrt(2), 'Rmpfr_sprintf() reads "%A" correctly');
+}
+elsif($Config{nvtype} ne '__float128') {
+  my $prec_orig = Rmpfr_get_default_prec();
+  my $prec = 64;
+  if(length(sqrt(2)) > 25) { $prec = 113 }
+  Rmpfr_set_default_prec($prec);
+  Rmpfr_sprintf($buf, "%La", sqrt(2), 48);
+  cmp_ok(Math::MPFR->new($buf), '==', sqrt(2), 'Rmpfr_sprintf() reads "%La" correctly');
+  Rmpfr_sprintf($buf, "%LA", sqrt(2), 48);
+  cmp_ok(Math::MPFR->new($buf), '==', sqrt(2), 'Rmpfr_sprintf() reads "%LA" correctly');
+  Rmpfr_set_default_prec($prec_orig);
+}
+
 done_testing();

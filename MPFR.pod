@@ -880,8 +880,10 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     a Math::Float128 object using the rounding mode $rnd.
 
    $double = Rmpfr_get_d1($op);
-    Convert $op to a double, using the default MPFR rounding mode
-    (see function 'mpfr_set_default_rounding_mode').
+    Convert $op to a double, using the default MPFR rounding mode.
+    THIS FUNCTION IS DEPRECATED.
+    Instead, do:
+    $double = Rmpfr_get_d($op, Rmpfr_get_default_prec());
 
    $si = Rmpfr_get_z_exp($z, $op);  # $z is a mpz object
    $si = Rmpfr_get_z_2exp($z, $op); # $z is a mpz object
@@ -2643,6 +2645,18 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    FORMATTED OUTPUT
 
+   NOTE: Bear in mind that, if the variable to be formatted by
+         Rmpfr_printf/Rmpfr_fprintf/Rmpfr_sprintf/Rmpfr_snprintf
+         is a normal perl string or numeric scalar (ie PV or IV or
+         NV) then the formatting will actually be done by the
+         underlying C functionality.
+         For example, if perl's nvtype is 'long double' then doing:
+         Rmpfr_printf("%a", $nv);
+         will output rubbish. Instead, you would need to:
+         Rmpfr_printf("%La", $nv).
+         (But then ... why would you invoke Rmpfr_printf to do
+         something of which perl's printf function is capable ?)
+
    NOTE: When using the 'P' (precision) type specifier, instead of
          providing $prec to the 'P' specifier, it's now advisable
          to provide prec_cast($prec). The 'P' specifier expects an
@@ -2672,7 +2686,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     This function (unlike the MPFR counterpart) is limited to taking
     2 or 3 arguments - the format string, optionally a rounding argument,
     and the variable to be formatted.
-    That is, you can currently printf only one variable at a time.
+    That is, you can currently Rmpfr_printf only one variable at a time.
     If there's no variable to be formatted, just add a '0' as the final
     argument. ie this will work fine:
      Rmpfr_printf("hello world\n", 0);
@@ -2691,7 +2705,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     This function (unlike the MPFR counterpart) is limited to taking
     3 or 4 arguments - the filehandle, the format string, optionally a
     rounding argument, and the variable to be formatted. That is, you
-    can printf only one variable at a time.
+    can Rmpfr_fprintf only one variable at a time.
     If there's no variable to be formatted, just add a '0' as the final
     argument. ie this will work fine:
      Rmpfr_fprintf($fh, "hello world\n", 0);
@@ -2779,7 +2793,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
      and be assured of retrieving the original base 10 representation when
      we convert the base 2 representations back to base 10.
      Sure ... not all 16-digit values require 55 bits, but there are some
-     that do ... and there are none that require more than  55 bits.
+     that do ... and there are none that require more than 55 bits.
 
      Example 2:
      $min_prec = mpfr_min_inter_prec(2, 53, 10);
