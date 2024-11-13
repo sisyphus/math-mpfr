@@ -1,5 +1,7 @@
 Revision history for Perl module Math::MPFR
 
+4.32
+
 4.31
   - Reduce the testing done in t/LongDouble.t to simply test the correctness of
     Rmpfr_set_LD() and Rmpfr_get_LD().
