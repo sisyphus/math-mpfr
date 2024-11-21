@@ -1,5 +1,7 @@
 Revision history for Perl module Math::MPFR
 
+4.33
+
 4.32
   - Workaround a bug in some Win32 builds.
     See https://github.com/StrawberryPerl/Perl-Dist-Strawberry/issues/226
