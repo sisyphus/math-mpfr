@@ -1926,39 +1926,29 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     I ever understand that it did, in fact, serve some useful purpose.
     (I doubt that anyone was using it ... but let's see ... ;-)
 
-   $str = anytoa($op [, $bits]);
+   $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
     For example, you want to know what nvtoa(sqrt 3) would return
     on a perl whose nvtype is the 113-bit precision __float128 (or
     IEEE-754 128-bit long double) but you don't have access to such
     a perl. You can do:
 
       my $bits = 113;
-      my $op = Rmpfr_init2($bits);
-      Rmpfr_set_ui($op, 3, MPFR_RNDN);
-      $op = sqrt($op);
-      print anytoa($op);
-    # alternatively:
-    # print anytoa($op, $bits);
+      Rmpfr_set_default_prec($bits);
+      $op = sqrt(Math::MPFR->new('3'));
+      my $s = anytoa($op);
+      print "$s\n"; # 1.7320508075688772935274463415058723
 
-    We allow the second arg solely for back-compatibility.
-    This also allows one to provide a second arg to anytoa()
-    that differs in value to the precision of $op, though it's
-    not clear to me that this is in any way useful.
-
-    Similarly, changing $bits to 53, or 64, or 2098 will provide
+    Similarly, changing $bits to 53, or 64, or 2098 would provide
     the same as nvtoa(sqrt 3) for (respectively) the 53-bit
-    precision double , the 64-bit extended precision long double,
-    and the double-double.
-    $bits must be either 53, 64, 113 or 2098 (and the same goes
-    for the precision of $op).
+    precision double nvtype , the 64-bit extended precision long
+    double nvtype, and the double-double nvtype.
 
-    When anytoa() is called with only the one argument ($op), or
-    with a 2nd argument that is equivalent to the precision of $op,
-    then the value returned will be the same as returned by
-    mpfrtoa($op) unless:
+    The value returned will be the same as returned by mpfrtoa($op)
+    unless:
 
      1) $op holds a finite value that is of such magnitude that
-        the specified nvtype will turn it into (+ or -) Inf;
+        it will become (+ or -) Inf when converted to the
+        specified nvtype;
 
      or
 

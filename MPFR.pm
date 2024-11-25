@@ -904,18 +904,11 @@ sub anytoa {
     unless Math::MPFR::_itsa($_[0]) == 5;
 
   my $v = shift;
-  my $bits;
+  die "anytoa() now takes only one argument" if defined($_[0]) ;
 
-  if($_[0]) {
-    $bits = shift;
-    die "2nd argument given to anytoa() must be 0 or 53 or 64 or 113 or 2098"
-    unless ($bits == 53 || $bits == 64 || $bits == 113 || $bits == 2098);
-  }
-  else {
-    $bits = Rmpfr_get_prec($v);
-    die "Precision of arg given to anytoa() must be 53 or 64 or 113 or 2098"
-    unless ($bits == 53 || $bits == 64 || $bits == 113 || $bits == 2098);
-  }
+  my $bits = Rmpfr_get_prec($v);
+  die "Precision of arg given to anytoa() must be 53 or 64 or 113 or 2098"
+  unless ($bits == 53 || $bits == 64 || $bits == 113 || $bits == 2098);
 
   my $emax = Rmpfr_get_emax();                # Save original value
   my $emin = Rmpfr_get_emin();                # Save original value
@@ -952,7 +945,7 @@ sub anytoa {
       Rmpfr_set_d($f, $msd, MPFR_RNDN);
       Rmpfr_set_emax($emax);                  # Revert to original value
       Rmpfr_set_emin($emin);                  # Revert to original value
-      return anytoa($f, 53);
+      return anytoa($f);
     }
 
     # Determine the no. of implied (intermediate)
