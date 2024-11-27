@@ -898,6 +898,14 @@ sub perl_set_fallback_flag {
   $Math::MPFR::doubletoa_fallback++;
 }
 
+sub mpfrtoa {
+  die "1st arg to mpfrtoa() must be a Math::MPFR object"
+    unless ref($_[0]) eq 'Math::MPFR';
+  my $obj = shift;
+  my $min_normal_prec = defined($_[0]) ? shift : 0;
+  return _mpfrtoa($obj, $min_normal_prec);
+}
+
 sub anytoa {
 
   die "1st argument given to anytoa() must be a Math::MPFR object"

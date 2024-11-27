@@ -1,9 +1,7 @@
 Revision history for Perl module Math::MPFR
 
 4.33
-  - Remove poorly documented (and questionable) option of providing a second
-    argument to mpfrtoa().
-  - Also remove the option of providing a second argument to anytoa()
+  - Remove the option of providing a second argument to anytoa().
 
 4.32
   - Workaround a bug in some Win32 builds.
