@@ -8580,6 +8580,14 @@ SV * _mpfrtoa(pTHX_ mpfr_t * pnv, int min_normal_prec) {
   /*************** start simple fixup **************/
 
   if(bits >= min_normal_prec) {
+    /***********************************************
+     AFAIK, the only time this block is entered is in
+     Math::FakeDD:dd_repro(). If I can recollect why
+     it's needed and/or work around it in dd_repro()
+     then this block of code && the min_normal_prec
+     argument will be removed. Math::MPFR::mpfrtoa()
+     will thus revert to accepting only one argument.
+    ***********************************************/
     mpz_set_ui(LHS, 1);
     mpz_mul_2exp(LHS, LHS, bits - 1);
     if(!mpz_cmp(LHS, TMP)) {

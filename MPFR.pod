@@ -1913,18 +1913,24 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
             With double-double NVs, nvtoa() currently requires
             mpfr-4.0.0 or later.
 
-   $str = mpfrtoa($op [, $uv]); # $uv is optional but discouraged !!!
+   $str = mpfrtoa($op [, $uv]); # $uv is optional, but mysterious
+                                # and discouraged !!!
     As for nvtoa(), except that mpfrtoa() instead takes a Math::MPFR
     object as its argument.
     Sets $str to the value of $op.
     $str will appear in standard decimal format, containing the
-    *minimum* number of digits such that the condition ($str == $op)
-    is true.
+    *minimum* number of significant digits such that the condition
+    ($str == $op) is true when the current default precision equals
+    the precision of $op.
+    (The overloaded '==' operator evaluates $str according to the
+    current default precision, so that condition might be untrue
+    whenever the default precision != the precision of $op.)
+
     The second (optional) arg became available with Math-MPFR-4.24 and
     it can alter the behaviour of mpfrtoa when the value of $uv is
-    greater than the precision of $op. AFAIK it is used only (and
-    arcanely) in Math:FakeDD, and the option will be removed as soon
-    as soon as Math::FakeDD can adapt to that removal.
+    greater than the precision of $op. AFAIK, it is used only (and
+    arcanely in Math:FakeDD::dd_repro(), and the option will be removed
+    as soon as Math::FakeDD::dd_repro() can be adapted to that removal.
 
    $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
     For example, you want to know what nvtoa(sqrt 3) would return
