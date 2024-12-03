@@ -185,7 +185,7 @@ Rmpfr_snprintf Rmpfr_sprintf Rmpfr_sqr Rmpfr_sqrt Rmpfr_sqrt_ui Rmpfr_strtofr
 Rmpfr_sub Rmpfr_sub_d Rmpfr_sub_q Rmpfr_sub_si Rmpfr_sub_ui Rmpfr_sub_z Rmpfr_subnormalize
 Rmpfr_sum Rmpfr_swap
 Rmpfr_tan Rmpfr_tanh Rmpfr_tanpi Rmpfr_tanu
-Rmpfr_total_order_p Rmpfr_trunc
+Rmpfr_total_order_p Rmpfr_trigamma Rmpfr_trunc
 Rmpfr_ui_div Rmpfr_ui_pow Rmpfr_ui_pow_ui Rmpfr_ui_sub Rmpfr_underflow_p Rmpfr_unordered_p
 Rmpfr_urandom Rmpfr_urandomb Rmpfr_y0 Rmpfr_y1 Rmpfr_yn
 Rmpfr_z_div Rmpfr_z_sub Rmpfr_zero_p Rmpfr_zeta Rmpfr_zeta_ui

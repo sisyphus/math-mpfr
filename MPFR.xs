@@ -6043,6 +6043,16 @@ SV * Rmpfr_digamma(pTHX_ mpfr_t * rop, mpfr_t * op, SV * round) {
   return newSViv(mpfr_digamma(*rop, *op, (mpfr_rnd_t)SvIV(round)));
 }
 
+SV * Rmpfr_trigamma(pTHX_ mpfr_t * rop, mpfr_t * op, SV * round) {
+#if MPFR_VERSION >= 262912
+  return newSViv(mpfr_trigamma(*rop, *op, (mpfr_rnd_t)SvIV(round)));
+#else
+  PERL_UNUSED_ARG3(rop, op, round);
+  croak("Rmpfr_trigamma function not implemented until mpfr-4.3.0. (You have only version %s) ", MPFR_VERSION_STRING);
+#endif
+
+}
+
 SV * Rmpfr_ai(pTHX_ mpfr_t * rop, mpfr_t * op, SV * round) {
   return newSViv(mpfr_ai(*rop, *op, (mpfr_rnd_t)SvUV(round)));
 }
@@ -12451,6 +12461,15 @@ Rmpfr_digamma (rop, op, round)
 	SV *	round
 CODE:
   RETVAL = Rmpfr_digamma (aTHX_ rop, op, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_trigamma (rop, op, round)
+	mpfr_t *	rop
+	mpfr_t *	op
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_trigamma (aTHX_ rop, op, round);
 OUTPUT:  RETVAL
 
 SV *

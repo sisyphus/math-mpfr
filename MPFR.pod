@@ -1573,16 +1573,17 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    ($signp, $si) = Rmpfr_lgamma ($rop, $op, $rnd);
     Set $rop to the value of the logarithm of the absolute value
-    of the Gamma function on $op, rounded in the direction $rnd.
-    The sign (1 or -1) of Gamma($op) is returned in $signp.
+    of the gamma function on $op, rounded in the direction $rnd.
+    The sign (1 or -1) of gamma($op) is returned in $signp.
     When $op is an infinity or a non-positive integer, +Inf is
     returned. When $op is NaN, -Inf or a negative integer, $signp
     is undefined, and when $op is 0, $signp is the sign of the zero.
 
-   $inex = Rmpfr_digamma ($rop, $op, $rnd); # mpfr-3.0.0 and later only
-    Set $rop to the value of the Digamma (sometimes also called Psi)
-    function on $op, rounded in the direction $rnd.  When $op is a
-    negative integer, set $rop to NaN.
+   $inex = Rmpfr_digamma($rop, $op, $rnd); # mpfr-3.0.0 and later only
+    Set $rop to digammma($op), rounded according to $rnd.
+
+   $inex = Rmpfr_trigamma ($rop, $op, $rnd); # mpfr-4.3.0 and later only
+    Set $rop to trigammma($op), rounded according to $rnd.
 
    $inex = Rmpfr_zeta($rop, $op, $rnd);
    $inex = Rmpfr_zeta_ui($rop, $ul, $rnd);
