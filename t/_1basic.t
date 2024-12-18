@@ -113,7 +113,14 @@ my $v = Math::MPFR::_sis_perl_version;
 my $v_check = $];
 $v_check =~ s/\.//;
 
-cmp_ok($v, '==', $v_check, 'Math::MPFR::_sis_perl_version agrees with $]');
+if($] =~ /^5\./) {
+  cmp_ok($v, '==', $v_check, 'Math::MPFR::_sis_perl_version agrees with $]');
+}
+else {
+  # $] no longer matches /^5\./
+  # Just checking that Math::MPFR::_sis_perl_version > 5012000 will suffice.
+  cmp_ok($v, '>', 5012000, 'Math::MPFR::_sis_perl_version > 5012000');
+}
 
 done_testing();
 
