@@ -1851,7 +1851,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     arcanely in Math:FakeDD::dd_repro(), and the option will be removed
     as soon as Math::FakeDD::dd_repro() can be adapted to that removal.
 
-   $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
+$str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
     For example, you want to know what nvtoa(sqrt 3) would return
     on a perl whose nvtype is the 113-bit precision __float128 (or
     IEEE-754 128-bit long double) but you don't have access to such
@@ -1885,33 +1885,47 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
      3) the precision of $op is 2098 bits.
 
-   $mask = nvtoa_test($str, $arg, $debug); # $debug can be omitted.
-    $arg can be either an NV or a Math::MPFR object.
-    If $arg is an NV, then $str is the string returned by nvtoa($arg).
-    Else $str is the string returned by mpfrtoa($arg).
-    The nvtoa_test function checks that $str is the correct string
-    for the given $arg.
+   $mask = nvtoa_test($str, $arg [, $debug]);
+    DEPRECATED - dragon_test (see below) is recommended instead.
+    If $arg is a Math::MPFR object, then $str must be the string
+    returned by mpfrtoa($arg). Else it must be the string returned
+    by nvtoa($arg).
+    Otherwise, nvtoa_test is essentially the same as dragon_test.
+    If you want to back yourself to provide the appropriate $str/$arg
+    combination, then please feel free to keep using nvtoa_test until
+    such time as it is removed.
+
+   $mask = dragon_test($arg [, $debug]);
+    If $debug is provided and matches /debug/i, then some debug info is
+    output during the running of this function.
+    $arg can be either an IV or an NV or a Math::MPFR object.
+    For an IV or NV we test the string returned by nvtoa($arg) for
+    correctness.
+    For a Math::MPFR object we test the string returned by mpfrtoa($arg)
+    for correctness.
+    In both cases we establish that the string will assign to $arg, and
+    that the mantissa portion of the string also contains the minimum
+    number of significant decimal digits required for that round trip to
+    succeed.
     $mask is initially set to zero.
-    If $str assigns to $arg (as it should) then $mask set to 1.
-    Also, we chop the least significant digit off the mantissa of
-    a copy of $str, and add 2 to $mask if this chopped $str assigns to
-    a value less than $arg.
-    Also, we increment the least significant mantissa digit of this
-    chopped copy of $str, and add 4 to $mask if this chopped-and-incremented
-    $str assigns to a value greater than $arg.
+    If the string assigns to $arg (as it should) then $mask is set to 1.
+    Also, we chop the least significant digit off the mantissa portion of
+    the string, and add 2 to $mask if this chopped string assigns to a
+    value less than $arg.
+    Then we increment the least significant mantissa digit of this chopped
+    string - and add 4 to $mask if this chopped-and-incremented string
+    assigns to a value greater than $arg.
     Also, we check that the mantissa portion of $str contains no
-    unwelcome trailing zeroes.
+    unwelcome trailing zeroes - and add 8 to $mask if this check passes.
     $mask is then returned. If all is correct, it's value will be 15.
     If the value of the returned $mask is not 15, then we can determine
-    which part(s) of the test has failed by examining $mask's four
-    lowest bits.
+    which part(s) of the test failed by examining $mask's 4 lowest bits.
+    In the event of a failure, re-running the test with 'debug' will
+    provide some clarifying info.
 
-    If a third (debug) arg is provided and is TRUE, then some debug
-    info is provided during the running of nvtoa_test().
-
-    For inf, nan, and zero, we do only the initial test and return 15 if
-    that test has passed, or 0 if that test has failed. (The other 3
-    tests don't really apply.)
+    For inf, nan, and single-digit mantissas, we do only the initial test
+    and return 15 if that test has passed, or 0 if that test has failed.
+    (The other 3 tests don't really apply to these cases.)
 
    $str = numtoa($sv);
     As for nvtoa() but prints out UVs and IVs in integer format.

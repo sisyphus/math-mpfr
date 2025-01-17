@@ -1,8 +1,8 @@
 Revision history for Perl module Math::MPFR
 
 4.33
-  - Remove the option of providing a second argument to anytoa().
   - Add new (in MPFR-4.3.0) function Rmpfr_trigamma and new test script t/trigamma.t
+  - Add dragon_test() as a replacement for the (now) deprecated nvtoa_test().
 
 4.32
   - Workaround a bug in some Win32 builds.

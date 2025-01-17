@@ -78,6 +78,17 @@ cmp_ok(mpfrtoa($f64),  'eq', '4.940656458412465442e-324',
 cmp_ok(mpfrtoa($f113), 'eq', '4.940656458412465441765687928682214e-324',
                 '$f113  eq    4.940656458412465441765687928682214e-324');
 
+if(196870 <= MPFR_VERSION) {
+  my @input = ($f10, $f40, $f53, $f64, $f113);
+  unshift(@input, $f1) if $min_allowed_prec == 1;
+  for my $in( @input) {
+    cmp_ok(dragon_test($in), '==', 15, "$in passes dragon_test");
+  }
+}
+else {
+  warn "Skipping dragon_test() checks - mpfr-3.1.6 (or later) required\n";
+}
+
 done_testing();
 
 
