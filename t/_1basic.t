@@ -14,6 +14,7 @@ warn "# Using mpfr library version   ", MPFR_VERSION_STRING, "\n";
 warn "# Using gmp library version    ", Math::MPFR::gmp_v(), "\n";
 warn "# GMP_LIMB_BITS is             ", Math::MPFR::_GMP_LIMB_BITS, "\n" if defined Math::MPFR::_GMP_LIMB_BITS;
 warn "# GMP_NAIL_BITS is             ", Math::MPFR::_GMP_NAIL_BITS, "\n" if defined Math::MPFR::_GMP_NAIL_BITS;
+warn "# __GMP__CFLAGS is             ", Math::MPFR::_gmp_cflags(), "\n";
 warn "# sizeof mpfr_exp_t:           ", Math::MPFR::_sizeof_exp(), " bytes\n";
 warn "# sizeof mpfr_prec_t:          ", Math::MPFR::_sizeof_prec(), " bytes\n";
 warn "# has _WIN32_BIZARRE_INFNAN:   ", Math::MPFR::_has_bizarre_infnan(), "\n";
@@ -120,6 +121,10 @@ else {
   # $] no longer matches /^5\./
   # Just checking that Math::MPFR::_sis_perl_version > 5012000 will suffice.
   cmp_ok($v, '>', 5012000, 'Math::MPFR::_sis_perl_version > 5012000');
+}
+
+if(WIN32_FMT_BUG) {
+  unlike(Math::MPFR::_gmp_cflags(), qr/\-D__USE_MINGW_ANSI_STDIO/, "WIN32_FMT_BUG confirmed");
 }
 
 done_testing();

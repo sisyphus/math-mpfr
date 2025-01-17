@@ -9071,6 +9071,12 @@ int _has_bizarre_infnan(void) {
 #endif
 }
 
+SV * _gmp_cflags(pTHX) {
+  return newSVpv(__GMP_CFLAGS, 0);
+}
+
+
+
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
 
@@ -13278,5 +13284,12 @@ _sizeof_prec ()
 
 int
 _has_bizarre_infnan ()
+
+
+SV *
+_gmp_cflags ()
+CODE:
+  RETVAL = _gmp_cflags (aTHX);
+OUTPUT:  RETVAL
 
 

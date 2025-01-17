@@ -7,6 +7,11 @@ use Test::More;
 
 my($have_gmp, $have_mpz, $have_mpq, $have_mpf) = (0, 0, 0, 0);
 
+my $long_double_formats_ok = 1;
+if($^O =~ /^MSWin/ && $Config{libc} !~ /ucrt/) {
+  $long_double_formats_ok = 0 if WIN32_FMT_BUG;
+}
+
 eval {require Math::GMP;};
 $have_gmp = 1 unless $@;
 
@@ -28,7 +33,7 @@ if($Config{nvtype} eq 'double') {
   cmp_ok($buf, 'eq', '1.4142135623731', "sqrt 2 ok for 'double'");
 }
 
-if($Config{nvtype} eq 'long double') {
+if($Config{nvtype} eq 'long double' && $long_double_formats_ok) {
   Rmpfr_sprintf($buf, "%.14Lg", $nv, $buflen);
   cmp_ok($buf, 'eq', '1.4142135623731', "sqrt 2 ok for 'long double'");
 }
