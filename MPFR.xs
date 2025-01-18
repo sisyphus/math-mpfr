@@ -9075,6 +9075,11 @@ SV * _gmp_cflags(pTHX) {
   return newSVpv(__GMP_CFLAGS, 0);
 }
 
+SV * _gmp_cc(pTHX) {
+  return newSVpv(__GMP_CC, 0);
+}
+
+
 
 
 
@@ -13290,6 +13295,13 @@ SV *
 _gmp_cflags ()
 CODE:
   RETVAL = _gmp_cflags (aTHX);
+OUTPUT:  RETVAL
+
+
+SV *
+_gmp_cc ()
+CODE:
+  RETVAL = _gmp_cc (aTHX);
 OUTPUT:  RETVAL
 
 

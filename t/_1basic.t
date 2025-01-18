@@ -15,6 +15,7 @@ warn "# Using gmp library version    ", Math::MPFR::gmp_v(), "\n";
 warn "# GMP_LIMB_BITS is             ", Math::MPFR::_GMP_LIMB_BITS, "\n" if defined Math::MPFR::_GMP_LIMB_BITS;
 warn "# GMP_NAIL_BITS is             ", Math::MPFR::_GMP_NAIL_BITS, "\n" if defined Math::MPFR::_GMP_NAIL_BITS;
 warn "# __GMP__CFLAGS is             ", Math::MPFR::_gmp_cflags(), "\n";
+warn "# __GMP__CC is                 ", Math::MPFR::_gmp_cc(), "\n";
 warn "# sizeof mpfr_exp_t:           ", Math::MPFR::_sizeof_exp(), " bytes\n";
 warn "# sizeof mpfr_prec_t:          ", Math::MPFR::_sizeof_prec(), " bytes\n";
 warn "# has _WIN32_BIZARRE_INFNAN:   ", Math::MPFR::_has_bizarre_infnan(), "\n";
@@ -123,8 +124,15 @@ else {
   cmp_ok($v, '>', 5012000, 'Math::MPFR::_sis_perl_version > 5012000');
 }
 
-if(WIN32_FMT_BUG) {
-  unlike(Math::MPFR::_gmp_cflags(), qr/\-D__USE_MINGW_ANSI_STDIO/, "WIN32_FMT_BUG confirmed");
+if($^O =~ /^MSWin/) {
+  if(WIN32_FMT_BUG) {
+    unlike(Math::MPFR::_gmp_cflags(), qr/\-D__USE_MINGW_ANSI_STDIO/, "-D__USE_MINGW_ANSI_STDIO missing from __GMP_CFLAGS");
+    unlike(Math::MPFR::_gmp_cc(),     qr/\-D__USE_MINGW_ANSI_STDIO/, "-D__USE_MINGW_ANSI_STDIO missing from __GMP_CC");
+  }
+  if(Math::MPFR::_gmp_cflags =~ /\-D__USE_MINGW_ANSI_STDIO/ ||
+     Math::MPFR::_gmp_cc()   =~ /\-D__USE_MINGW_ANSI_STDIO/ ) {
+    cmp_ok(WIN32_FMT_BUG, '==', 0, "WIN32_FMT_BUG set to zero");
+  }
 }
 
 done_testing();
