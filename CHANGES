@@ -1,5 +1,7 @@
 Revision history for Perl module Math::MPFR
 
+4.34
+
 4.33
   - Add new (in MPFR-4.3.0) function Rmpfr_trigamma and new test script t/trigamma.t
   - Add dragon_test() as a replacement for the (now) deprecated nvtoa_test().
