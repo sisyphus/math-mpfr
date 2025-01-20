@@ -124,6 +124,7 @@ unless($Config{nvtype} eq '__float128') { # print formatting not supported by mp
   }
 
   if($Math::MPFR::NV_properties{'bits'} == 53) {
+
     @expected = (
       "|0x1.6a09e667f3bcdp+0|",
       "|0x1.6a09e667f3bcdp+0\n|",
@@ -136,7 +137,27 @@ unless($Config{nvtype} eq '__float128') { # print formatting not supported by mp
       "|0X1.6A09E667F3BCDP+0  %A  |",
       "|  %A  0X1.6A09E667F3BCDP+0  %A  |",
                  );
-    for my $index(0..9) { cmp_ok($check[$index], 'eq', $expected[$index], "\$check[$index] eq \$expected[$index]") }
+
+    # Annoyingly, we might get an alternative, though numerically equivalent, format.
+    # I'm not sure tht they're strictly allowed here but we'll accept any one of those
+    # alternative formats. (The only one I've actually encountered is
+    # 0xb.504f333f9de68p-3, and its upper case eqivalent on an MSWin32 perl-5.34.0.)
+    my($alt, $lc_rep, $uc_rep) = ('', '', '');
+    $alt = 1 if($check[0] ne '|0x1.6a09e667f3bcc908p+0|');
+    if($alt) {
+      $lc_rep = '0x2.d413cccfe779ap-1' if $check[0] eq '|0x2.d413cccfe779ap-1|';
+      $lc_rep = '0x5.a827999fcef34p-2' if $check[0] eq '|0x5.a827999fcef34p-2';
+      $lc_rep = '0xb.504f333f9de68p-3' if $check[0] eq '|0xb.504f333f9de68p-3|';
+      $uc_rep = uc($lc_rep) if $lc_rep;
+    }
+
+    for my $index(0..9) {
+      if($alt && $uc_rep) {
+           $expected[$index] =~ s/0x1\.6a09e667f3bcdp\+0/$lc_rep/;
+           $expected[$index] =~ s/0X1\.6A09E667F3BCDP\+0/$uc_rep/;
+      }
+      cmp_ok($check[$index], 'eq', $expected[$index], "\$check[$index] eq \$expected[$index]");
+    }
   }
   else {
    # Correct 64-bit precision "%a" formatting of sqrt(2) can be either:
@@ -146,7 +167,7 @@ unless($Config{nvtype} eq '__float128') { # print formatting not supported by mp
    # 0x1.6a09e667f3bcc908b2fb1366ea95p+0
 
    my $expect1 = "0x1.6a09e667f3bcc908p+0";
-   my $expect2 = "0x2.d413cccfe779921p-1";
+   my $expect2 = "0x2d413cccfe779ap-1";
    my $expect3 = "0x5.a827999fcef3242p-2";
    my $expect4 = "0xb.504f333f9de6484p-3";
    my $expect5 = "0x1.6a09e667f3bcc908b2fb1366ea95p+0";

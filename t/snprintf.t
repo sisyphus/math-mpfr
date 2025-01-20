@@ -33,10 +33,10 @@ if($Config{nvsize} == 8) {
   cmp_ok($buf, 'eq', '1.4142', "sqrt 2 ok for 'double'");
 
   Rmpfr_snprintf($buf, 8, "%a", $nv, $buflen);
-  cmp_ok($buf, 'eq', '0x1.6a0', 'sqrt 2 ok for "%a" formatting');
+  like($buf, qr/^0x1\.6a0$|^0xb\.504$|^0x2\.d4$|^0x5\.a8$/, 'sqrt 2 ok for "%a" formatting');
 
   Rmpfr_snprintf($buf, 8, "%A", $nv, $buflen);
-  cmp_ok($buf, 'eq', '0X1.6A0', 'sqrt 2 ok for "%A" formatting');
+  like($buf, qr/^0X1\.6A0$|^0XB\.504$|^0X2\.D4$|^0x5\.A8$/, 'sqrt 2 ok for "%A" formatting');
 }
 
 if($Config{nvtype} eq 'long double' && $long_double_formats_ok) {
