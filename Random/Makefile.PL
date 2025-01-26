@@ -28,13 +28,13 @@ if(!$skip_msvc && $^O =~ /MSWin/i) {
     }
   }
 
-  $mycc = $Config{cc} unless($mycc);
+  $mycc = $Config::Config{cc} unless($mycc);
 
   my $out = `$mycc -o checkinc.exe -x c checkinc.in $mkinc 2>&1`;
 
   if(-e 'checkinc.exe') {
     $out =  `checkinc.exe`;
-    if($out !~ /\-D__USE_MINGW_ANSI_STDIO/) {
+    if( $out !~ /\-D__USE_MINGW_ANSI_STDIO/ && !$ENV{WIN32_FMT_BUG_IGNORE} ) {
       $DEFS .= " -DWIN32_FMT_BUG";
     }
   }
@@ -42,6 +42,11 @@ if(!$skip_msvc && $^O =~ /MSWin/i) {
     warn "Random/Makefile.PL: checkinc.exe not created";
     die "\$out: $out\n";
   }
+}
+
+if($Config::Config{cc} eq 'cl'){
+  $DEFS .= " -DWIN32_FMT_BUG"
+    unless ($DEFS =~ /\-DWIN32_FMT_BUG/ || $ENV{WIN32_FMT_BUG_IGNORE});
 }
 
 my %options = %{

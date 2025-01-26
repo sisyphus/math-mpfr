@@ -458,7 +458,7 @@ sub new {
 
 sub Rmpfr_printf {
     if(@_ == 3){
-      if(_itsa($_[1]) == 2) {wrap_mpfr_printf_rnd(@_)}
+      if(_itsa($_[1]) == 2) {wrap_mpfr_printf_rnd(@_)} # $_[1] is rounding argument (IOK).
       else {die "The second (of 3) arguments given to Rmpfr_printf() is not a valid rounding argument"}
     }
     else {die "Rmpfr_printf must take 2 or 3 arguments: format string, [rounding,], and variable" if @_ != 2;
@@ -1702,6 +1702,19 @@ sub _to_mpfr_object { # Called only if the constant WIN32_FMT_BUG is 1
   my $arg = Math::MPFR->new($_[0]);
   Rmpfr_set_default_prec($prec);
   return $arg;
+}
+
+sub _win32_formatting_ok {
+    # Return 1 if either __GMP_CC or __GMP_CFLAGS
+    # include the string '-D__USE_MINGW_ANSI_STDIO'.
+    # Else return 0.
+
+    my $cc = _gmp_cc();		# __GMP_CC
+    my $cflags = _gmp_cflags();	# __GMP_CFLAGS
+
+    return 1 if ( defined($cc)     && $cc     =~/\-D__USE_MINGW_ANSI_STDIO/ );
+    return 1 if ( defined($cflags) && $cflags =~/\-D__USE_MINGW_ANSI_STDIO/ );
+    return 0;
 }
 
 1;
