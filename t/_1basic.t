@@ -126,11 +126,16 @@ else {
 
 if($^O =~ /^MSWin/) {
   if(WIN32_FMT_BUG) {
+    # Check that if WIN32_FMT_BUG is set, then "-D__USE_MINGW_ANSI_STDIO"
+    # is missing from both __GMP_CC and __GMP_CFLAGS
     unlike(Math::MPFR::_gmp_cflags(), qr/\-D__USE_MINGW_ANSI_STDIO/, "-D__USE_MINGW_ANSI_STDIO missing from __GMP_CFLAGS");
     unlike(Math::MPFR::_gmp_cc(),     qr/\-D__USE_MINGW_ANSI_STDIO/, "-D__USE_MINGW_ANSI_STDIO missing from __GMP_CC");
   }
+
   if(Math::MPFR::_gmp_cflags =~ /\-D__USE_MINGW_ANSI_STDIO/ ||
      Math::MPFR::_gmp_cc()   =~ /\-D__USE_MINGW_ANSI_STDIO/ ) {
+    # Check that if "-D__USE_MINGW_ANSI_STDIO" is present  in either
+    # of __GMP_CC and __GMP_CFLAGS then WIN32_FMT_BUG is set to 0.
     cmp_ok(WIN32_FMT_BUG, '==', 0, "WIN32_FMT_BUG set to zero");
   }
 }
