@@ -1,6 +1,8 @@
 Revision history for Perl module Math::MPFR
 
 4.34
+  - Sanitize Rmpfr_*printf handling of "%a" formatting.
+  - Add new utility function nv2mpfr().
 
 4.33
   - Add new (in MPFR-4.3.0) function Rmpfr_trigamma and new test script t/trigamma.t
