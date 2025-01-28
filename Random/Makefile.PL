@@ -5,7 +5,7 @@ use ExtUtils::MakeMaker;
 our $LIBS;
 our $DEFS;
 
-$DEFS .= "-DWIN32_FMT_BUG_IGNORE" if $ENV{WIN32_FMT_BUG_IGNORE};
+$DEFS .= " -DWIN32_FMT_BUG_IGNORE" if $ENV{WIN32_FMT_BUG_IGNORE};
 
 my %options = %{
   {
