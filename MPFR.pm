@@ -43,6 +43,8 @@
     use constant MPFR_PV_NV_BUG         => Math::MPFR::Random::_has_pv_nv_bug();
 
     # https://github.com/StrawberryPerl/Perl-Dist-Strawberry/issues/226
+    # Math::MPFR::Random::_buggy() was modified in version 4.34 to
+    # accommodate use of vcpkg-built gmp & mpfr libraries on MS Windows.
     use constant WIN32_FMT_BUG          => Math::MPFR::Random::_buggy();
 
     use constant NV_IS_DOUBLEDOUBLE     => 1 + (2 ** -200) > 1 ? 1 : 0;
@@ -1709,7 +1711,7 @@ sub nv2mpfr {
   return $ret;
 }
 
-sub _win32_formatting_ok {
+sub _win32_formatting_ok {   # Duplicated in Random/Random.pm
     # Return 1 if either __GMP_CC or __GMP_CFLAGS
     # include the string '-D__USE_MINGW_ANSI_STDIO'.
     # Else return 0.
@@ -1727,8 +1729,8 @@ sub _hex_fmt_ok {
   # Return 1 if the requested hex format ("%a"/"%A"/"%La"/"%LA") is appropriate.
   # If we haven't died or returned by now, then return 0 if WIN32_FMT_BUG is set;
   # otherwise return 1.
-  # A return of 1 tells the caller (Rmpfr_*printf) that no aother action is necessary.
-  # A return of 0 tells the caller(Rmpfr_*printf) that it needs to defer to _gmp_*printf_nv().
+  # A return of 1 tells the caller (Rmpfr_*printf) that no other action is necessary.
+  # A return of 0 tells the caller(Rmpfr_*printf) that it needs to call _rewrite_fmt_arg().
 
   my $fmt = shift;
 
