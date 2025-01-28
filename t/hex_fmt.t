@@ -5,7 +5,9 @@
 # I think that trailing mantissa zeros are frowned upon, but these tests will
 # accept them.
 # On windows, gmp_sprintf() presents the trailing zeroes.
-# Also we test nv2mpfr() as that sub is used by Rmpfr_*printf in these tests.
+# Also we test nv2mpfr() as that sub is used by Rmpfr_*printf in these tests
+# if WIN32_FMT_BUG is set. In such instances, 'Rmpfr_printf("%a", $nv)' will
+# be replaced by "Rmpfr_printf("%Ra", nv2mpfr($nv)'.
 
 use strict;
 use warnings;
@@ -131,18 +133,18 @@ cmp_ok($ret, '==', 9, "\"%A\" (snprintf) formatting of MPFR object returned corr
 
 unless($Config{nvtype} eq 'double') {
   eval { Rmpfr_sprintf($buf, " %% %a %% ", $nv, 16) };
-  like($@, qr/"%a" formatting applies only to doubles/, '"%a" formatting disallowed');
+  like($@, qr/"%a" formatting applies only to doubles/, '"%a" formatting allowed only for doubles');
 
   eval { Rmpfr_sprintf($buf, " %% %A %% ", $nv, 16) };
-  like($@, qr/"%a" formatting applies only to doubles/, '"%A" formatting disallowed');
+  like($@, qr/"%a" formatting applies only to doubles/, '"%A" formatting allowed only for doubles');
 }
 
 unless($Config{nvtype} eq 'long double') {
   eval { Rmpfr_sprintf($buf, " %% %La %% ", $nv, 16) };
-  like($@, qr/"%La" formatting applies only to long doubles/, '"%La" formatting allowed only for "doubles"');
+  like($@, qr/"%La" formatting applies only to long doubles/, '"%La" formatting allowed only for long doubles');
 
   eval { Rmpfr_sprintf($buf, " %% %LA %% ", $nv, 16) };
-  like($@, qr/"%La" formatting applies only to long doubles/, '"%LA" formatting allowed only for doubles');
+  like($@, qr/"%La" formatting applies only to long doubles/, '"%LA" formatting allowed only for long doubles');
 }
 
 eval { Rmpfr_sprintf($buf, " %% %A %% ", Math::MPFR->new($nv), 16) };
