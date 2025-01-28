@@ -27,6 +27,7 @@ sub _issue_19550 { # https://github.com/Perl/perl5/issues/19550
 }
 
 sub _buggy {
+  return 0 unless $^O =~ /MSWin/;
   if(_win32_fmt_bug_ignore()) {
     warn("This Math::MPFR build was instructed to ignore the WIN32_FMT_BUG, if present");
     return 0;
