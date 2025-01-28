@@ -20,6 +20,13 @@ my $buflen = 16;
 my ($buf, $ret);
 
 # 0x1.02p+0 ==  0x2.04p-1 == 0x4.08p-2 == 0x8.1p-3;
+# Allow for any one of them to appear at any time.
+# In the sprintf tests:
+# "%a%: ^0x1\.02(0+)?p\+0$|^0x2\.04(0+)?p\-1$|^0x4\.08(0+)?p\-2$|^0x8\.1(0+)?p\-3$
+# "%A": ^0X1\.02(0+)?P\+0$|^0X2\.04(0+)?P\-1$|^0X4\.08(0+)?P\-2$|^0X8\.1(0+)?P\-3$
+#In the snprintf tests:
+# "%a": ^0x1\.0$|^0x2\.0$|^0x4\.0$|^0x8\.1$
+# "%A": ^0X1\.0$|^0X2\.0$|^0X4\.0$|^0X8\.1$
 
 ### nv2mpfr tests
 
@@ -43,33 +50,23 @@ if($Config{nvtype} eq 'double') {
   # "%a"/"%A" formatting of an NV is not expected to work
   # unless $Config{nvtype} is 'double'.
   $ret = Rmpfr_sprintf($buf, "%a", $nv, 16);
-  like($buf, qr/^0x1.02(0+)?p\+0$/, "\"%a\" (mpfr) formatting of NV as expected");
+  like($buf, qr/^0x1.02(0+)?p\+0$|^0x2\.04p\-1$|^0x4\.08p\-2$|^0x8\.1p\-3$/, "\"%a\" (mpfr) formatting of NV as expected");
   cmp_ok($ret, '==', length($buf),  "\"%a\" (mpfr) formatting of NV returned correct value");
 
-  # Avoid _gmp_*printf_nv() functions as they can crash intermittently on Windows.
-  #$ret = Math::MPFR::_gmp_sprintf_nv($buf, "%a", $nv, 16);
-  #like($buf, qr/^0x1.02(0+)?p\+0$/, "\"%a\" (gmp) formatting of NV as expected");
-  #cmp_ok($ret, '==', length($buf),  "\"%a\" (gmp) formatting of NV returned correct value");
-
   $ret = Rmpfr_sprintf($buf, "%A", $nv, 16);
-  like($buf, qr/^0X1.02(0+)?P\+0$/, "\"%A\" (mpfr) formatting of NV as expected");
+  like($buf, qr/^0X1.02(0+)?P\+0$|^0X2\.04P\-1$|^0X4\.08P\-2$|^0X8\.1P\-3$/, "\"%A\" (mpfr) formatting of NV as expected");
   cmp_ok($ret, '==', length($buf),  "\"%A\" (mpfr) formatting of NV returned correct value");
-
-  # Avoid _gmp_*printf_nv() functions as they can crash intermittently on Windows.
-  #$ret = Math::MPFR::_gmp_sprintf_nv($buf, "%A", $nv, 16);
-  #like($buf, qr/^0X1.02(0+)?P\+0$/, "\"%A\" (gmp)formatting of NV as expected");
-  #cmp_ok($ret, '==', length($buf),  "\"%A\" (gmp) formatting of NV returned correct value");
 }
 
 if($Config{nvtype} eq 'long double') {
   # "%La"/"%LA" formatting of an NV is not expected to work
   # unless $Config{nvtype} is 'long double'.
   $ret = Rmpfr_sprintf($buf, "%La", $nv, 16);
-  like($buf, qr/^0x1\.02p\+0$|^0x2\.04p\-1$|^0x4\.08p\-2$|^0x8\.1p\-3$/, "\"%La\" formatting of NV as expected");
+  like($buf, qr/^0x1\.02(0+)?p\+0$|^0x2\.04(0+)?p\-1$|^0x4\.08(0+)?p\-2$|^0x8\.1(0+)?p\-3$/, "\"%La\" formatting of NV as expected");
   cmp_ok($ret, '==', length($buf), "\"%La\" formatting of NV returned correct value");
 
   $ret = Rmpfr_sprintf($buf, "%LA", $nv, 16);
-  like($buf, qr/^0X1\.02P\+0$|^0X2\.04P\-1$|^0X4\.08P\-2$|^0X8\.1P\-3$/, "\"%LA\" formatting of NV as expected");
+  like($buf, qr/^0X1\.02(0+)?P\+0$|^0X2\.04(0+)?P\-1$|^0X4\.08(0+)?P\-2$|^0X8\.1(0+)?P\-3$/, "\"%LA\" formatting of NV as expected");
   cmp_ok($ret, '==', length($buf), "\"%LA\" formatting of NV returned correct value");
 }
 
@@ -92,12 +89,16 @@ if($Config{nvtype} eq 'double') {
   # "%a"/"%A" formatting of an NV is not expected to work
   # unless $Config{nvtype} is 'double'.
   $ret = Rmpfr_snprintf($buf, 6, "%a", $nv, 16);
-  cmp_ok($buf, 'eq', '0x1.0', "\"%a\" (snprintf) formatting of NV as expected");
-  cmp_ok($ret, '==', 9, "\"%a\" (snprintf) formatting of NV returned correct value");
+  like($buf, qr/^0x1\.0$|^0x2\.0$|^0x4\.0$|^0x8\.1$/, "\"%a\" (snprintf) formatting of NV as expected");
+  my $expectation = 9;
+  $expectation = 8 if $buf =~ /^0x8/i;
+  cmp_ok($ret, '==', $expectation, "\"%a\" (snprintf) formatting of NV returned correct value");
 
   $ret = Rmpfr_snprintf($buf, 6, "%A", $nv, 16);
-  cmp_ok($buf, 'eq', '0X1.0', "\"%A\" (snprintf) formatting of NV as expected");
-  cmp_ok($ret, '==', 9, "\"%A\" (snprintf) formatting of NV returned correct value");
+  like($buf, qr/^0X1\.0$|^0X2\.0$|^0X4\.0$|^0X8\.1$/, "\"%A\" (snprintf) formatting of NV as expected");
+  $expectation = 9;
+  $expectation = 8 if $buf =~ /^0x8/i;
+  cmp_ok($ret, '==', $expectation, "\"%A\" (snprintf) formatting of NV returned correct value");
 }
 
 if($Config{nvtype} eq 'long double') {
@@ -109,20 +110,9 @@ if($Config{nvtype} eq 'long double') {
   $returned = 8 if $buf =~ /0x8/i;
   cmp_ok($ret, '==', $returned,                       "\"%La\" (mpfr snprintf) formatting of NV returned correct value");
 
-  # Avoid _gmp_*printf_nv() functions as they can crash intermittently on Windows.
-  #$ret = Math::MPFR::_gmp_snprintf_nv($buf, 6, "%La", $nv, 16);
-  #like($buf, qr/^0x1\.0$|^0x2\.0$|^0x4\.0$|^0x8\.1$/, "\"%La\" (gmp snprintf) formatting of NV as expected");
-  #$returned = 8 if $buf =~ /0x8/i;
-  #cmp_ok($ret, '==', $returned,                       "\"%La\" (gmp snprintf) formatting of NV returned correct value");
-
   $ret = Rmpfr_snprintf($buf, 6, "%LA", $nv, 16);
   like($buf, qr/^0X1\.0$|^0X2\.0$|^0X4\.0$|^0X8\.1$/, "\"%LA\" (mpfr snprintf) formatting of NV as expected");
   cmp_ok($ret, '==', $returned,                       "\"%LA\" (snprintf) formatting of NV returned correct value");
-
-  # Avoid _gmp_*printf_nv() functions as they can crash intermittently on Windows.
-  #$ret = Math::MPFR::_gmp_snprintf_nv($buf, 6, "%LA", $nv, 16);
-  #like($buf, qr/^0X1\.0$|^0X2\.0$|^0X4\.0$|^0X8\.1$/, "\"%LA\" (snprintf) formatting of NV as expected");
-  #cmp_ok($ret, '==', $returned,                       "\"%LA\" (gmp snprintf) formatting of NV returned correct value");
 }
 
 ### snprintf tests on MPFR object
