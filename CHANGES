@@ -1,5 +1,7 @@
 Revision history for Perl module Math::MPFR
 
+4.35
+
 4.34
   - Fix http://www.cpantesters.org/cpan/report/b5e0d3db-6deb-1014-9c2b-9eec45d75318
     Thanks @twata_1.
