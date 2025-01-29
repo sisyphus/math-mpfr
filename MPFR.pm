@@ -1674,9 +1674,9 @@ sub _rewrite_fmt_arg {
   # at the beginning of $arg.
   if($arg =~ /^%L?[a,A]/) {
     my $match = $&;
-    if(!Math::MPFR::_SvNOK($_[0])) { die "\"%a\" formatting applies only to NVs. Use \"%Ra\" for Math::MPFR objects." }
-    if($match =~ /L/) { die "\"%La\" formatting applies only to long doubles." unless $Config{nvtype} eq 'long double'; }
-    else { die "\"%a\" formatting applies only to doubles." unless $Config{nvtype} eq 'double'; }
+    if(!Math::MPFR::_SvNOK($_[0])) { die "\"$match\" formatting applies only to NVs. Use \"%Ra\" for Math::MPFR objects." }
+    if($match =~ /L/) { die "\"$match\" formatting applies only to long doubles." unless $Config{nvtype} eq 'long double'; }
+    else { die "\"$match\" formatting applies only to doubles." unless $Config{nvtype} eq 'double'; }
     if(WIN32_FMT_BUG) {
       $arg =~ s/^%L?/%R/;
       return $arg;
@@ -1687,9 +1687,9 @@ sub _rewrite_fmt_arg {
   # Need to match (eg) "%La" or "%A", but also to NOT match (eg) "%%La" or "%%A".
   if($arg =~ /[^%]%L?[a,A]/) {
     my $match = $&;
-    if(!Math::MPFR::_SvNOK($_[0])) { die "\"%a\" formatting applies only to NVs. Use \"%Ra\" for Math::MPFR objects." }
-    if($match =~ /L/) { die "\"%La\" formatting applies only to long doubles." unless $Config{nvtype} eq 'long double'; }
-    else { die "\"%a\" formatting applies only to doubles." unless $Config{nvtype} eq 'double'; }
+    if(!Math::MPFR::_SvNOK($_[0])) { die "\"", substr($match, 1), "\" formatting applies only to NVs. Use \"%Ra\" for Math::MPFR objects." }
+    if($match =~ /L/) { die "\"", substr($match, 1), "\" formatting applies only to long doubles." unless $Config{nvtype} eq 'long double'; }
+    else { die "\"", substr($match, 1), "\" formatting applies only to doubles." unless $Config{nvtype} eq 'double'; }
     if(WIN32_FMT_BUG) {
       my $and_init = $match;
       my $temp = $match;
