@@ -6163,114 +6163,84 @@ void overload_dec(pTHX_ SV * a, SV * b, SV * third) {
   mpfr_sub_ui(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), 1, __gmpfr_default_rounding_mode);
 }
 
-SV * overload_mul_2exp(pTHX_ SV * a, SV * b, SV * third) {
+SV * _overload_lshift(pTHX_ mpfr_t * a, SV * b, SV * third) {
+  /* b will be +ve ... otherwise overload_rshift would have been called. */
   mpfr_t * mpfr_t_obj;
   SV * obj_ref, * obj;
+
+#if IVSIZE > LONGSIZE
+      if( SvUV(b) > (unsigned long)SvUV(b) ) croak ("In Math::MPFR overloading of '<<' operator, the 'shift' operand overflows 'long int'");
+#endif
 
   NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_mul_2exp) /* defined in math_mpfr_include.h */
   mpfr_init(*mpfr_t_obj);
   PERL_UNUSED_ARG(third);
   OBJ_READONLY_ON /*defined in math_mpfr_include.h */
 
-  if(SV_IS_IOK(b)) {
-    if(SvUOK(b)) {
-#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
-    croak ("In overloading of '<<' operator, the 'shift' operand overflows 'long int'");
-#else
-    mpfr_mul_2ui(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), SvUVX(b), __gmpfr_default_rounding_mode);
-#endif
-    }
-    else  {
-#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
-      if(SvIVX(b) > 2147483647 || SvIVX(b) < -2147483647) croak ("In overloading of '<<' operator, the 'shift' operand overflows 'long int'");
-#endif
-      mpfr_mul_2si(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), (long)SvIVX(b), __gmpfr_default_rounding_mode);
-    }
-    return obj_ref;
-  }
-  croak ("In overloading of '<<' operator, the 'shift' operand must be a perl integer value (IV)");
+  mpfr_trunc(*mpfr_t_obj, *a);
+  mpfr_mul_2ui(*mpfr_t_obj, *mpfr_t_obj, (unsigned long)SvUV(b), __gmpfr_default_rounding_mode);
+  return obj_ref;
+
 }
 
-SV * overload_div_2exp(pTHX_ SV * a, SV * b, SV * third) {
+SV * _overload_rshift(pTHX_ mpfr_t * a, SV * b, SV * third) {
+  /* b will be +ve ... otherwise overload_lshift would have been called. */
   mpfr_t * mpfr_t_obj;
   SV * obj_ref, * obj;
-  PERL_UNUSED_ARG(third);
+  mpz_t z;
 
-  NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_div_2exp) /* defined in math_mpfr_include.h */
+#if IVSIZE > LONGSIZE
+      if( SvUV(b) > (mp_bitcnt_t)SvUV(b) ) croak ("In Math::MPFR overloading of '>>' operator, the 'shift' operand overflows 'long int'");
+#endif
+
+  NEW_MATH_MPFR_OBJECT("Math::MPFR",overload_mul_2exp) /* defined in math_mpfr_include.h */
   mpfr_init(*mpfr_t_obj);
+  PERL_UNUSED_ARG(third);
   OBJ_READONLY_ON /*defined in math_mpfr_include.h */
 
-  if(SV_IS_IOK(b)) {
-    if(SvUOK(b)) {
-#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
-    croak ("In overloading of '>>' operator, the 'shift' operand overflows 'long int'");
-#else
-    mpfr_div_2ui(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), SvUVX(b), __gmpfr_default_rounding_mode);
-#endif
-    }
-    else  {
-#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
-      if(SvIVX(b) > 2147483647 || SvIVX(b) < -2147483647) croak ("In overloading of '>>' operator, the 'shift' operand overflows 'long int'");
-#endif
-      mpfr_div_2si(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), (long)SvIVX(b), __gmpfr_default_rounding_mode);
-    }
-    return obj_ref;
+  if(!mpfr_number_p(*a)) { /* Is either an Inf or NaN */
+     if(mpfr_nan_p(*a)) return obj_ref;  /* return NaN */
+     mpfr_set_inf(*mpfr_t_obj, mpfr_sgn(*a));
+     return obj_ref; /* Return appropriately signed Inf */
   }
-  croak ("In overloading of '>>' operator, the 'shift' operand must be a perl integer value (IV)");
+  mpz_init(z);
+  mpfr_get_z(z, *a, GMP_RNDZ); /* Truncate *a */
+  mpz_div_2exp(z, z, (mp_bitcnt_t)SvUV(b));
+  mpfr_set_z(*mpfr_t_obj, z, __gmpfr_default_rounding_mode);
+  mpz_clear(z);
+  return obj_ref;
 }
 
-SV * overload_mul_2exp_eq(pTHX_ SV * a, SV * b, SV * third) {
-  PERL_UNUSED_ARG(third);
-  SvREFCNT_inc(a);
-  if(SV_IS_IOK(b)) {
-    if(SvUOK(b)) {
-#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
-    SvREFCNT_dec(a);
-    croak ("In overloading of '<<=' operator, the 'shift' operand overflows 'long int'");
-#else
-    mpfr_mul_2ui(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), SvUVX(b), __gmpfr_default_rounding_mode);
+SV * _overload_lshift_eq(pTHX_ SV * a, SV * b, SV * third) {
+  /* b will be +ve ... otherwise overload_rshift_eq would have been called. */
+
+#if IVSIZE > LONGSIZE
+      if( SvUV(b) > (unsigned long) SvUV(b) ) croak ("In Math::MPFR overloading of '<<=' operator, the 'shift' operand overflows 'long int'");
 #endif
-    }
-    else {
-#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
-      if(SvIVX(b) > 2147483647 || SvIVX(b) < -2147483647) {
-        SvREFCNT_dec(a);
-        croak ("In overloading of '<<=' operator, the 'shift' operand overflows 'long int'");
-      }
-#endif
-      mpfr_mul_2si(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), (long)SvIVX(b), __gmpfr_default_rounding_mode);
-    }
+
+    SvREFCNT_inc(a);
+    mpfr_trunc(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))));
+    mpfr_mul_2ui(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), (unsigned long)SvUV(b), __gmpfr_default_rounding_mode);
     return a;
-  }
-  SvREFCNT_dec(a);
-  croak ("In overloading of '<<=' operator, the 'shift' operand must be a perl integer value (IV)");
 }
 
-SV * overload_div_2exp_eq(pTHX_ SV * a, SV * b, SV * third) {
-  PERL_UNUSED_ARG(third);
-  SvREFCNT_inc(a);
-  if(SV_IS_IOK(b)) {
-    if(SvUOK(b)) {
-#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
-    SvREFCNT_dec(a);
-    croak ("In overloading of '>>=' operator, the 'shift' operand overflows 'long int'");
-#else
-    mpfr_div_2ui(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), SvUVX(b), __gmpfr_default_rounding_mode);
+SV * _overload_rshift_eq(pTHX_ SV * a, SV * b, SV * third) {
+  /* b will be +ve ... otherwise overload_lshift_eq would have been called. */
+  mpz_t z;
+
+#if IVSIZE > LONGSIZE
+      if( SvUV(b) > (mp_bitcnt_t) SvUV(b) ) croak ("In Math::MPFR overloading of '>>=' operator, the 'shift' operand overflows 'long int'");
 #endif
-    }
-    else {
-#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
-      if(SvIVX(b) > 2147483647 || SvIVX(b) < -2147483647) {
-        SvREFCNT_dec(a);
-        croak ("In overloading of '>>=' operator, the 'shift' operand overflows 'long int'");
-      }
-#endif
-      mpfr_div_2si(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), (long)SvIVX(b), __gmpfr_default_rounding_mode);
-    }
+
+    SvREFCNT_inc(a);
+    if(  mpfr_nan_p( *(INT2PTR(mpfr_t *, SvIVX(SvRV(a))))) ||
+         mpfr_inf_p( *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))))   ) return a;
+    mpz_init(z);
+    mpfr_get_z(z, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), GMP_RNDZ); /* Truncate *a */
+    mpz_div_2exp(z, z, (mp_bitcnt_t)SvUV(b));
+    mpfr_set_z(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), z, __gmpfr_default_rounding_mode);
+    mpz_clear(z);
     return a;
-  }
-  SvREFCNT_dec(a);
-  croak ("In overloading of '>>=' operator, the 'shift' operand must be a perl integer value (IV)");
 }
 
 SV * _wrap_count(pTHX) {
@@ -9148,6 +9118,10 @@ SV * _gmp_snprintf_nv(pTHX_ SV * s, SV * bytes, SV * a, SV * b, int buflen) {
      croak("Unrecognised type supplied as argument to _gmp_snprintf_nv");
 }
 
+int _looks_like_number(pTHX_ SV * in) {
+  if(looks_like_number(in)) return 1;
+  return 0;
+}
 
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
@@ -12686,39 +12660,39 @@ overload_dec (a, b, third)
         XSRETURN_EMPTY; /* return empty stack */
 
 SV *
-overload_mul_2exp (a, b, third)
-	SV *	a
+_overload_lshift (a, b, third)
+	mpfr_t *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = overload_mul_2exp (aTHX_ a, b, third);
+  RETVAL = _overload_lshift (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
-overload_div_2exp (a, b, third)
-	SV *	a
+_overload_rshift (a, b, third)
+	mpfr_t *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = overload_div_2exp (aTHX_ a, b, third);
+  RETVAL = _overload_rshift (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
-overload_mul_2exp_eq (a, b, third)
+_overload_lshift_eq (a, b, third)
 	SV *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = overload_mul_2exp_eq (aTHX_ a, b, third);
+  RETVAL = _overload_lshift_eq (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
-overload_div_2exp_eq (a, b, third)
+_overload_rshift_eq (a, b, third)
 	SV *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = overload_div_2exp_eq (aTHX_ a, b, third);
+  RETVAL = _overload_rshift_eq (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
@@ -13408,5 +13382,12 @@ _gmp_snprintf_nv (s, bytes, a, b, buflen)
 	int	buflen
 CODE:
   RETVAL = _gmp_snprintf_nv (aTHX_ s, bytes, a, b, buflen);
+OUTPUT:  RETVAL
+
+int
+_looks_like_number (in)
+	SV *	in
+CODE:
+  RETVAL = _looks_like_number (aTHX_ in);
 OUTPUT:  RETVAL
 

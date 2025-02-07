@@ -2432,11 +2432,17 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
      ""  (Interpolates the value of the Math::MPFR object to a
           decimal string)
 
-     << >> <<= >>= (These just increase/decrease the exponent by the
-                    value of the given "shift" argument. Negative
-                    values for the 'shift' argument are allowed - in
-                    which case the shift value is multiplied by -1
-                    and the direction of the shift is reversed.)
+     << >> <<= >>= (The Math::MPFR object is first truncated to an integer
+                    value. Left shifts will increase the exponent by the
+                    value of the given " left shift" argument. For right
+                    shifts, the Math::MPFR object's value is then altered
+                    according to the rules of integer right shifts.
+                    Thereby, for both left and right shifts the resultant
+                    value of the object is an integer value.
+                    Negative values for the 'shift' argument are allowed,
+                    in which case the shift value is multiplied by -1
+                    and the direction of the shift is reversed.
+                    This is consistent with perl's shifting of NVs.)
 
      = (The copy has the same precision as the copied object.)
 

@@ -84,10 +84,10 @@
     'abs'  => \&overload_abs,
     '**'   => \&overload_pow,
     '**='  => \&overload_pow_eq,
-    '<<'   => \&overload_mul_2exp,
-    '<<='  => \&overload_mul_2exp_eq,
-    '>>'   => \&overload_div_2exp,
-    '>>='  => \&overload_div_2exp_eq,
+    '<<'   => \&overload_lshift,
+    '<<='  => \&overload_lshift_eq,
+    '>>'   => \&overload_rshift,
+    '>>='  => \&overload_rshift_eq,
     'atan2'=> \&overload_atan2,
     'cos'  => \&overload_cos,
     'sin'  => \&overload_sin,
@@ -1743,10 +1743,40 @@ sub _hex_fmt_ok {
      return 1;
   }
   else {return 1} # No %a formatting requested. Proceed as normal.
-
-
-
 }
+
+sub overload_lshift {
+  if($_[2] || !_looks_like_number($_[1])) {
+    die "Math::MPFR: When overloading '<<', the argument that specifies the number of bits to be shifted must be a perl number";
+  }
+  return _overload_lshift(@_) if $_[1] >= 0;
+  return _overload_rshift($_[0], -$_[1], $_[2]);
+}
+
+sub overload_lshift_eq {
+  if($_[2] || !_looks_like_number($_[1])) {
+    die "Math::MPFR: When overloading '<<=', the argument that specifies the number of bits to be shifted must be a perl number";
+  }
+  return _overload_lshift_eq(@_) if $_[1] >= 0;
+  return _overload_rshift_eq($_[0], -$_[1], $_[2]);
+}
+
+sub overload_rshift {
+  if($_[2] || !_looks_like_number($_[1])) {
+    die "Math::MPFR: When overloading '>>', the argument that specifies the number of bits to be shifted must be a perl number";
+  }
+  return _overload_rshift(@_) if $_[1] >= 0;
+  return _overload_lshift($_[0], -$_[1], $_[2]);
+}
+
+sub overload_rshift_eq {
+  if($_[2] || !_looks_like_number($_[1])) {
+    die "Math::MPFR: When overloading '>>=', the argument that specifies the number of bits to be shifted must be a perl number";
+  }
+  return _overload_rshift_eq(@_) if $_[1] >= 0;
+  return _overload_lshift_eq($_[0], -$_[1], $_[2]);
+}
+
 1;
 
 __END__
