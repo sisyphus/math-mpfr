@@ -90,13 +90,15 @@ for my $i(0 .. $samples) {
   cmp_ok($obj << $shift, '==', $obj >> -$shift, "A: $obj: handled consistently by << and >>");
   cmp_ok($obj << -$shift, '==', $obj >> $shift, "B: $obj: handled consistently by << and >>");
 
-  $mpfr_res = $obj << $shift;
-  $mbf_res = $mbf << $shift;
-  cmp_ok("$mpfr_res", '==', "$mbf_res", "<<: Math::BigFloat and Math::MPFR concur");
+  if($] >= 5.04) {
+    $mpfr_res = $obj << $shift;
+    $mbf_res = $mbf << $shift;
+    cmp_ok("$mpfr_res", '==', "$mbf_res", "<<: Math::BigFloat and Math::MPFR concur");
 
-  $mpfr_res = $obj >> $shift;
-  $mbf_res = $mbf >> $shift;
-  cmp_ok("$mpfr_res", '==', "$mbf_res", ">>: Math::BigFloat and Math::MPFR concur");
+    $mpfr_res = $obj >> $shift;
+    $mbf_res = $mbf >> $shift;
+    cmp_ok("$mpfr_res", '==', "$mbf_res", ">>: Math::BigFloat and Math::MPFR concur");
+  }
 
   my($x, $y) = ($obj + 10, $obj + 10);
   $x <<= $shift;
@@ -104,8 +106,13 @@ for my $i(0 .. $samples) {
   cmp_ok($x, '==', $y, "A: $obj: handled consistently by <<= and >>=");
   $x <<= -$shift;
   $y >>= $shift;
-  cmp_ok($x, '==', $y, "B: $obj: handled consistently by <<= and >>=");
-}
+   cmp_ok($x, '==', $y, "B: $obj: handled consistently by <<= and >>=");
+ }
+
+
+cmp_ok(Math::MPFR->new(-401.3) >> 1.8, '==', -201, "-401.3 >> 1.8 == -201");
+cmp_ok(Math::MPFR->new(-401.3) >> 1.8, '==', -201, "-401.3 << -1.8 == -201");
+
 
 eval { my $discard = 2 >> Math::MPFR->new(7);};
 like($@, qr/argument that specifies the number of bits to be/, "switched overload throws expected error");
