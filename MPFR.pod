@@ -712,9 +712,10 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $str = Rmpfr_get_str($op, $base, $digits, $rnd);
     Returns a string of the form, eg, '8.3456712@2'
-    which means '834.56712'.
-    The third argument to Rmpfr_get_str() specifies the number of digits
-    required to be output in the mantissa. (Trailing zeroes are removed.)
+    which means '834.56712'. The "mantissa" portion fo the returned
+    string will be presented in base $base. The "exponent" portion will
+    be in base 10. $digits specifies the number of digits required
+    to be output in the mantissa. (Trailing zeroes are removed.)
     If $digits is 0, the number of digits of the mantissa is chosen
     large enough so that re-reading the printed value with the same
     precision, assuming both output and input use rounding to nearest,
@@ -723,11 +724,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     (respectively) a NaN, a negative infinity or a positive infinity.
 
    ($str, $si) = Rmpfr_deref2($op, $base, $digits, $rnd);
-    Returns the mantissa to $str (as a string of digits, prefixed with
-    a minus sign if $op is negative), and returns the exponent to $si.
-    There's an implicit decimal point to the left of the first digit in
-    $str. The third argument to Rmpfr_deref2() specifies the number of
-    digits required to be output in the mantissa.
+    Returns the mantissa to $str (as a string of base $base digits,
+    prefixed with a minus sign if $op is negative), and returns the
+    exponent to $si as a base 10 value. There's an implicit decimal
+    point to the left of the first digit in $str. $digits specifies
+    the number of digits required to be output in the mantissa.
     If $digits is 0, the number of digits of the mantissa is chosen
     large enough so that re-reading the printed value with the same
     precision, assuming both output and input use rounding to nearest,
@@ -2454,11 +2455,14 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
     Furthermore, all overloaded comparisons ( < <= > >= == != <=> )
     between Math::MPFR and Math::GMPz objects or between Math::MPFR
     and Math::GMPq objects are permitted.
+    Comparison oprations between Math::MPFR and Math::GMP objects
+    must be constructed such that Math::MPFR (not Math::GMP)
+    overloading is invoked.
 
     Some additional cross-class overloading is also allowed.
     Let $M be a Math::MPFR object, and $G be any one of a Math::GMPz,
-    Math::GMPq or Math::GMPf object. Then it is now permissible to
-    do:
+    Math::GMPq, Math::GMPf or Math::GMP object. Then it is now
+    permissible to do:
 
      $M + $G;
      $M += $G;
@@ -2484,13 +2488,15 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
      $G / $M;
      $G ** $M;
 
+    (But note that such operations involving Math::GMP will
+    silently fail or crash if used.)
     Again, each of those operations returns a Math::MPFR object
     containing the result of the operation.
-    Each operation is conducted using default Math::MPFR rounding
-    mode and default Math::MPFR precision.
+    Each operation is performed to "infinite: precision, and then
+    rounded to default precision using default Math::MPFR rounding.
     The precision of the returned Math::MPFR object will therefore
     differ from the precision of $M unless the precision of $M is
-     the default.
+    the default.
 
     NOTE: In overloading a ** (power) operation that involves a
     Math::GMPq object, it is necessary to convert the Math::GMPq
@@ -2501,7 +2507,8 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
     The following is allowed for Math::GMPq objects (if
     $Math::GMPq::VERSION >= 0.54 && $Math::GMPq::RETYPE == 1) and
     for Math::GMPz (if $Math::GMPz::VERSION >= 0.57 &&
-    $Math::GMPz::RETYPE == 1), but not for Math::GMPf :
+    $Math::GMPz::RETYPE == 1), but not for Math::GMPf or
+    Math::GMP :
 
      $G += $M;
      $G -= $M;
@@ -2510,8 +2517,9 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
      $G **= $M;
 
     When this usage is permitted, the result of the operation is
-    returned as a Math::MPFR object, calculated using Math::MPFR
-    default precision and Math::MPFR default rounding mode.
+    returned as a Math::MPFR object, calculated to "infinite"
+    precision and rounded to Math::MPFR default precision, using
+    Math::MPFR default rounding mode.
 
     To determine the type and value of the second argument received
     by the overloading subroutine, it works through the following

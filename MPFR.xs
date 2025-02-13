@@ -3306,7 +3306,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
       mpfr_mul(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(b)))), __gmpfr_default_rounding_mode);
       return obj_ref;
     }
-    if(strEQ(h, "Math::GMPz")) {
+    if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
       mpfr_mul_z(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))),
                               *(INT2PTR(mpz_t * , SvIVX(SvRV(b)))),
                               __gmpfr_default_rounding_mode);
@@ -3431,7 +3431,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
                             __gmpfr_default_rounding_mode);
       return obj_ref;
     }
-    if(strEQ(h, "Math::GMPz")) {
+    if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
       mpfr_add_z(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))),
                               *(INT2PTR(mpz_t * , SvIVX(SvRV(b)))),
                               __gmpfr_default_rounding_mode);
@@ -3561,7 +3561,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
       mpfr_sub(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(b)))), __gmpfr_default_rounding_mode);
       return obj_ref;
     }
-    if(strEQ(h, "Math::GMPz")) {
+    if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
       mpfr_sub_z(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))),
                                    *(INT2PTR(mpz_t * , SvIVX(SvRV(b)))),
                                    __gmpfr_default_rounding_mode);
@@ -3692,7 +3692,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
       mpfr_div(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(b)))), __gmpfr_default_rounding_mode);
       return obj_ref;
     }
-    if(strEQ(h, "Math::GMPz")) {
+    if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
 
       if(SWITCH_ARGS) {
         Rmpfr_z_div(mpfr_t_obj, INT2PTR(mpz_t * , SvIVX(SvRV(b))),
@@ -3854,7 +3854,7 @@ SV * overload_gt(pTHX_ mpfr_t * a, SV * b, SV * third) {
       return newSViv(0);
     }
 
-    if(strEQ(h, "Math::GMPz")) {
+    if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
       ret = mpfr_cmp_z(*a, *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
       if(ret > 0) return newSViv(1);
       return newSViv(0);
@@ -3957,7 +3957,7 @@ SV * overload_gte(pTHX_ mpfr_t * a, SV * b, SV * third) {
       return newSViv(0);
     }
 
-    if(strEQ(h, "Math::GMPz")) {
+    if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
       ret = mpfr_cmp_z(*a, *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
       if(ret >= 0) return newSViv(1);
       return newSViv(0);
@@ -4063,7 +4063,7 @@ SV * overload_lt(pTHX_ mpfr_t * a, SV * b, SV * third) {
       return newSViv(0);
     }
 
-    if(strEQ(h, "Math::GMPz")) {
+    if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
       ret = mpfr_cmp_z(*a, *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
       if(ret < 0) return newSViv(1);
       return newSViv(0);
@@ -4166,7 +4166,7 @@ SV * overload_lte(pTHX_ mpfr_t * a, SV * b, SV * third) {
       return newSViv(0);
     }
 
-    if(strEQ(h, "Math::GMPz")) {
+    if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
       ret = mpfr_cmp_z(*a, *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
       if(ret <= 0) return newSViv(1);
       return newSViv(0);
@@ -4276,7 +4276,7 @@ SV * overload_spaceship(pTHX_ mpfr_t * a, SV * b, SV * third) {
       return newSViv(mpfr_cmp_q(*a, *(INT2PTR(mpq_t *, SvIVX(SvRV(b))))));
     }
 
-    if(strEQ(h, "Math::GMPz")) {
+    if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
       return newSViv(mpfr_cmp_z(*a, *(INT2PTR(mpz_t *, SvIVX(SvRV(b))))));
     }
   }
@@ -4376,7 +4376,7 @@ SV * overload_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
       return newSViv(1);
     }
 
-    if(strEQ(h, "Math::GMPz")) {
+    if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
       if(mpfr_cmp_z(*a, *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))))) return newSViv(0);
       return newSViv(1);
     }
@@ -4477,7 +4477,7 @@ SV * overload_not_equiv(pTHX_ mpfr_t * a, SV * b, SV * third) {
       return newSViv(0);
     }
 
-    if(strEQ(h, "Math::GMPz")) {
+    if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
       if(mpfr_cmp_z(*a, *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))))) return newSViv(1);
       return newSViv(0);
     }
@@ -4618,7 +4618,7 @@ SV * overload_pow(pTHX_ SV * p, SV * b, SV * third) {
       mpfr_pow(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(p)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(b)))), __gmpfr_default_rounding_mode);
       return obj_ref;
     }
-    if(strEQ(h, "Math::GMPz")) {
+    if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
       if(SWITCH_ARGS) {
         mpfr_init2(t, (mpfr_prec_t)mpz_sizeinbase(*(INT2PTR(mpz_t *, SvIVX(SvRV(b)))), 2));
         mpfr_set_z(t, *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))), __gmpfr_default_rounding_mode);
@@ -5021,8 +5021,8 @@ void Rmpfr_randseed(pTHX_ SV * state, SV * seed) {
   if(sv_isobject(seed)) {
     const char* h = HvNAME(SvSTASH(SvRV(seed)));
 
-    if(strEQ(h, "Math::GMP") ||
-       strEQ(h, "GMP::Mpz") ||
+    if(strEQ(h, "Math::GMP")  ||
+       strEQ(h, "GMP::Mpz")   ||
        strEQ(h, "Math::GMPz"))
          gmp_randseed(*(INT2PTR(gmp_randstate_t *, SvIVX(SvRV(state)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(seed)))));
     else croak("2nd arg to Rmpfr_randseed is of invalid type");
@@ -5139,7 +5139,7 @@ SV * overload_pow_eq(pTHX_ SV * p, SV * b, SV * third) {
       mpfr_pow(*(INT2PTR(mpfr_t *, SvIVX(SvRV(p)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(p)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(b)))), __gmpfr_default_rounding_mode);
       return p;
     }
-    if(strEQ(h, "Math::GMPz")) {
+    if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
       mpfr_pow_z(*(INT2PTR(mpfr_t *, SvIV(SvRV(p)))), *(INT2PTR(mpfr_t *, SvIV(SvRV(p)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))), __gmpfr_default_rounding_mode);
       return p;
     }
@@ -5249,7 +5249,7 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
       mpfr_div(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(b)))), __gmpfr_default_rounding_mode);
       return a;
     }
-    if(strEQ(h, "Math::GMPz")) {
+    if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
       mpfr_div_z(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))), __gmpfr_default_rounding_mode);
       return a;
     }
@@ -5363,7 +5363,7 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
       mpfr_sub(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(b)))), __gmpfr_default_rounding_mode);
       return a;
     }
-    if(strEQ(h, "Math::GMPz")) {
+    if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
       mpfr_sub_z(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))), __gmpfr_default_rounding_mode);
       return a;
     }
@@ -5471,7 +5471,7 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
       mpfr_add(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(b)))), __gmpfr_default_rounding_mode);
       return a;
     }
-    if(strEQ(h, "Math::GMPz")) {
+    if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
       mpfr_add_z(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))), __gmpfr_default_rounding_mode);
       return a;
     }
@@ -5578,7 +5578,7 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
       mpfr_mul(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(b)))), __gmpfr_default_rounding_mode);
       return a;
     }
-    if(strEQ(h, "Math::GMPz")) {
+    if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
       mpfr_mul_z(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))), __gmpfr_default_rounding_mode);
       return a;
     }
