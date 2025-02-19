@@ -70,6 +70,8 @@
     '-='   => \&overload_sub_eq,
     '*='   => \&overload_mul_eq,
     '/='   => \&overload_div_eq,
+    '%'    => \&overload_fmod,
+    '%='   => \&overload_fmod_eq,
     '""'   => \&overload_string,
     '>'    => \&overload_gt,
     '>='   => \&overload_gte,
@@ -1776,6 +1778,23 @@ sub overload_rshift_eq {
   return _overload_rshift_eq(@_) if $_[1] >= 0;
   return _overload_lshift_eq($_[0], -$_[1], $_[2]);
 }
+
+sub overload_fmod {
+  if(ref($_[1]) ne 'Math::MPFR') {
+    return _overload_fmod($_[0], Math::MPFR->new($_[1]), 0) unless $_[2];
+    return _overload_fmod(Math::MPFR->new($_[1]), $_[0], 0);
+  }
+  return _overload_fmod(@_);
+}
+
+sub overload_fmod_eq {
+  if(ref($_[1]) ne 'Math::MPFR') {
+    return _overload_fmod_eq($_[0], Math::MPFR->new($_[1]), 0) unless $_[2];
+    return _overload_fmod_eq(Math::MPFR->new($_[1]), $_[0], 0);
+  }
+  return _overload_fmod_eq(@_);
+}
+
 
 1;
 

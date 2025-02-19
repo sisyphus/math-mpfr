@@ -9119,8 +9119,29 @@ SV * _gmp_snprintf_nv(pTHX_ SV * s, SV * bytes, SV * a, SV * b, int buflen) {
 }
 
 int _looks_like_number(pTHX_ SV * in) {
-  if(looks_like_number(in)) return 1;
-  return 0;
+     if(looks_like_number(in)) return 1;
+     return 0;
+}
+
+SV * _overload_fmod (pTHX_ mpfr_t * a, mpfr_t *b, SV * third) {
+     mpfr_t * mpfr_t_obj;
+     SV * obj_ref, * obj;
+
+     NEW_MATH_MPFR_OBJECT("Math::MPFR", _overload_fmod) /* defined in math_mpfr_include.h */
+     mpfr_init(*mpfr_t_obj);
+     OBJ_READONLY_ON /*defined in math_mpfr_include.h */
+
+     if(SWITCH_ARGS) mpfr_fmod(*mpfr_t_obj, *b, *a, __gmpfr_default_rounding_mode);
+     else mpfr_fmod(*mpfr_t_obj, *a, *b, __gmpfr_default_rounding_mode);
+     return obj_ref;
+}
+
+SV * _overload_fmod_eq (pTHX_ SV * a, mpfr_t *b, SV * third) {
+
+     PERL_UNUSED_ARG(third);
+     SvREFCNT_inc(a);
+     mpfr_fmod(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *b, __gmpfr_default_rounding_mode);
+     return a;
 }
 
 
@@ -13389,5 +13410,23 @@ _looks_like_number (in)
 	SV *	in
 CODE:
   RETVAL = _looks_like_number (aTHX_ in);
+OUTPUT:  RETVAL
+
+SV *
+_overload_fmod (a, b, third)
+	mpfr_t *	a
+	mpfr_t *	b
+	SV *	third
+CODE:
+  RETVAL = _overload_fmod (aTHX_ a, b, third);
+OUTPUT:  RETVAL
+
+SV *
+_overload_fmod_eq (a, b, third)
+	SV *	a
+	mpfr_t *	b
+	SV *	third
+CODE:
+  RETVAL = _overload_fmod_eq (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 

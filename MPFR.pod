@@ -2422,8 +2422,8 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
     is not "false".)
 
     The following operators are overloaded:
-     + - * / ** sqrt (Return object has default precision)
-     += -= *= /= **= ++ -- (Precision remains unchanged)
+     + - * / % ** sqrt (Return object has default precision)
+     += -= *= /= %= **= ++ -- (Precision remains unchanged)
      < <= > >= == != <=>
      ! bool
      abs atan2 cos sin log exp (Return object has default precision)
@@ -2476,6 +2476,9 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
      $M / $G;
      $M /= $G;
 
+     $M % $G;  (Wraps the mpfr_fmod function)
+     $M %= $G; (Wraps the mpfr_fmod function)
+
      $M ** $G;
      $M **= $G;
 
@@ -2498,11 +2501,15 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
     differ from the precision of $M unless the precision of $M is
     the default.
 
+    With Math::GMPz (0.63 or later) or Math::GMPq (0.58 or later)
+    it is also now permissible to do:
+
+    $G % $M:
+
     NOTE: In overloading a ** (power) operation that involves a
-    Math::GMPq object, it is necessary to convert the Math::GMPq
-    object to an mpfr_t (the type of value encapsulated in the
-    Math::MPFR object). This conversion is done using current default
-    precision and current default rounding mode.
+    Math::GMPq object, the value of the Math::GMPq object is
+    assigned to a Math::MPFR object. This assignment is done using
+    current default precision and current default rounding mode.
 
     The following is allowed for Math::GMPq objects (if
     $Math::GMPq::VERSION >= 0.54 && $Math::GMPq::RETYPE == 1) and
@@ -2514,6 +2521,7 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
      $G -= $M;
      $G *= $M;
      $G /= $M;
+     $G %= $M; (Math::GMPz >= 0.63; Math::GMPq >= 0.58)
      $G **= $M;
 
     When this usage is permitted, the result of the operation is

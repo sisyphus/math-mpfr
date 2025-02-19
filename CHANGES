@@ -1,6 +1,7 @@
 Revision history for Perl module Math::MPFR
 
 4.35
+  - Overload '%' operator to perform fmod().
   - Accommodate overloading of Math::GMP objects.
   - Alter overloading of left shift and right shift operations to be compatible
     with perl and Math::BigFloat
