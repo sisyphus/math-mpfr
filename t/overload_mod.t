@@ -102,4 +102,37 @@ if(!$@) {
 }
 else { warn "Skipping Math::GMPz tests - couldn't load Math::GMPz" }
 
+eval { require Math::GMPq; };
+if(!$@) {
+  if($Math::GMPq::VERSION >= 0.58) {
+    my $q = Math::GMPq->new('23/2');
+    my $f = Math::MPFR->new('201.5');
+    my $alt = Math::MPFR->new('201.5');
+
+    cmp_ok(ref($f % $q), 'eq', 'Math::MPFR', "'%' returned a Math::MPFR object, as expected");
+    cmp_ok($f % $q, '==', 6, "201.5 % (23/2) returns 6");
+
+    $alt %= $q;
+
+    cmp_ok(ref($alt), 'eq', 'Math::MPFR', "'%=' returned a Math::MPFR object, as expected");
+    cmp_ok($alt, '==', 6, "201.5 %= (23/2) returns 6");
+
+
+    $q *= 100.5; # 4623/4 == 1155.75
+    cmp_ok($q, '==', 1155.75, "value of Math::GMPq object is 1155.75 (4623/4)");
+    my $f_mod =  $q % $f;
+    cmp_ok(ref($f_mod), 'eq', 'Math::MPFR', "'%' (switched) : returns Math::MPFR object");
+    cmp_ok($f_mod, '==', 148.25, "'%' (switched) : returns correct value (148.25)");
+
+    $q %= $f;
+
+    cmp_ok(ref($q), 'eq', 'Math::MPFR', "'%=' (switched) : returns Math::MPFR object");
+    cmp_ok($q, '==', 148.25, "'%=' (switched) : returns correct value (148.25)");
+
+  }
+  else { warn "Skipping Math::GMPzqtests - Math-GMPq-0.58 or later is require; have only $Math::GMPq::VERSION" }
+}
+else { warn "Skipping Math::GMPq tests - couldn't load Math::GMPq" }
+
+
 done_testing();
