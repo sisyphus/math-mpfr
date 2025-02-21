@@ -15,7 +15,6 @@
 use strict;
 use warnings;
 
-use Math::GMP;
 use Math::MPFR qw(:mpfr);
 use Test::More;
 

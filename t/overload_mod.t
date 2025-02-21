@@ -85,7 +85,12 @@ if(!$@) {
       my $z1 = Math::GMPz->new($y);
       my $z2 = Math::GMPz->new($x);
 
-      cmp_ok( $f1 % $z1, '==', $z2 % $f2, "X % Y is not dependent on type");
+      if(Rmpfr_nan_p($f1 % $z1) && Rmpfr_nan_p($z2 % $f2)) {
+        cmp_ok(1, '==', 1, "X % Y is not dependent on type")
+      }
+      else {
+        cmp_ok( $f1 % $z1, '==', $z2 % $f2, "X % Y is not dependent on type");
+      }
       cmp_ok(ref($f1 % $z1), 'eq', 'Math::MPFR', "'%' returns Math::MPFR object");
       cmp_ok(ref($f1 % $z1), 'eq', ref($z2 % $f2), "X % Y always returns Math::MPFR object");
 
