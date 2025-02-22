@@ -9,6 +9,7 @@ our %args = map { split /\s*=\s*/ } @ARGV;
 our $LIBS = $args{ LIBS } || "-lmpfr -lgmp";
 our $INC = $args{ INC };
 our $DEFS = '';
+my $defines = '';
 
 my $use_64_bit_int  = 0; # Let perl decide whether to include 64-bit 'long long' support
 my $use_long_double = 0; # Let perl decide whether to include 'long double' support
@@ -17,10 +18,18 @@ my $have_decimal64  = undef; # Default value
 my $have_decimal128 = undef; # Default value
 my $have_float128   = undef; # Default value
 my $want_float128   = undef; # Default value
+my $have_float16    = undef; # Default value
 my $checklib        = 1;     # Check for availability of mpfr and gmp libraries.
 my $skip_msvc       = 0;     # Will be reset to 1 for MS compiler builds of perl.
 
 my ($d64_message, $d128_message, $float128_message);
+
+for(@ARGV) {
+  $have_decimal128 = 1 if $_ eq 'D128=1';
+  $have_decimal128 = 0 if $_ eq 'D128=0';
+  $have_float16 = 1 if $_ eq 'F16=1';
+  $have_float16 = 0 if $_ eq 'F16=0';
+}
 
 # The following tests don't work with perls built using MS Visual Studio.
 # We skip them all, as they are not particularly important ... some are
@@ -88,6 +97,22 @@ unless($skip_msvc) {
     }
   }
 
+  ####################################
+  # Whether _Float16 is recognized #
+  ####################################
+
+  unless(defined($have_float16)) {
+    my $mylibs = $mklib . " " . $mylibpth;
+    my $out = `$mycc -o have_float16.exe -x c have_float16.in $mylibs 2>&1`;
+
+    if( -e 'have_float16.exe') {
+      my $size = $^O =~ /MSWin32/i ? `have_float16.exe` : `./have_float16.exe`;
+      $have_float16 = 1 if $size eq '-2';
+    }
+  }
+
+  $defines .= ' -DHAVE_FLOAT16 -DMPFR_WANT_FLOAT16=1' if $have_float16 == 1;
+
   ############################################
   # Whether to build with _Decimal64 support #
   ############################################
@@ -139,11 +164,6 @@ unless($skip_msvc) {
   #############################################
   # Whether to build with _Decimal128 support #
   #############################################
-
-  for(@ARGV) {
-    $have_decimal128 = 1 if $_ eq 'D128=1';
-    $have_decimal128 = 0 if $_ eq 'D128=0';
-  }
 
   if(!defined($have_decimal128)) { # _Decimal128 support still undetermined
 
@@ -264,7 +284,7 @@ unless($skip_msvc) {
                                         : "Building without Math::Float128 support\n";
 } # close 'unless($kip_msvc)
 
-my $defines = $] < 5.008 ? "-DOLDPERL" : "-DNEWPERL";
+$defines .= $] < 5.008 ? " -DOLDPERL" : " -DNEWPERL";
 
 ####################################
 # Next, we check to see whether there's some unhelpful beaviour regarding
