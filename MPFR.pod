@@ -473,7 +473,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $inex = Rmpfr_set_z($rop, $z, $rnd); # $z is a mpz object.
    $inex = Rmpfr_set_q($rop, $q, $rnd); # $q is a mpq object.
    $inex = Rmpfr_set_f($rop, $f, $rnd); # $f is a mpf object.
-   $inex = Rmpfr_set_flt($rop, $float, $rnd);# mpfr-3.0.0 and later only
+   $inex = Rmpfr_set_flt($rop, $float, $rnd);    # mpfr-3.0.0 and later only
+   $inex = Rmpfr_set_float16($rop, $f16, $rnd);  # mpfr-4.3.0 and later only
    $inex = Rmpfr_set_float128($rop, $f128, $rnd);# nvtype is __float128
                                                # && mpfr-4.0.0 or later
                                                # && mpfr lib built with
@@ -780,8 +781,9 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
                                            # && mpfr-4.0.0 or later
                                            # && mpfr lib built with
                                            # --enable-float128.
-   $NV     = Rmpfr_get_NV($op, $rnd);    # double/long double/__float128
-   $float  = Rmpfr_get_flt($op, $rnd);   # mpfr-3.0.0 and later
+   $NV = Rmpfr_get_NV     ($op, $rnd);   # double/long double/__float128
+   $NV = Rmpfr_get_flt    ($op, $rnd);   # mpfr-3.0.0 and later
+   $NV = Rmpfr_get_float16($op, $rnd);   # mpfr-4.3.0 and later
    Rmpfr_get_LD($LD, $op, $rnd);         # $LD is a Math::LongDouble object.
    Rmpfr_get_DECIMAL64($d64, $op, $rnd); # mpfr-3.1.0 or later &&
                                          # mpfr lib built with
@@ -795,7 +797,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
                                         # $F128 is a Math::Float128
                                         # object.
     Convert $op to a 'double', a 'long double', a __float128, an 'NV',
-    a float, a Math::LongDouble object, a Math::Decimal64 object, or
+    a float, a _Float16, a Math::LongDouble object, a Math::Decimal64 object, or
     a Math::Float128 object using the rounding mode $rnd.
 
    $double = Rmpfr_get_d1($op);

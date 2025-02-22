@@ -1,6 +1,8 @@
 Revision history for Perl module Math::MPFR
 
 4.35
+  - Add Rmpfr_get_float16, Rmpfr_set_float16 and Rmpfr_buildopt_float16_p.
+    All 3 are new in mpfr-4.3.0.
   - Overload '%' operator to perform fmod().
   - Accommodate overloading of Math::GMP objects.
   - Alter overloading of left shift and right shift operations to be compatible

@@ -6027,6 +6027,14 @@ SV * Rmpfr_buildopt_tls_p(pTHX) {
   return newSViv(mpfr_buildopt_tls_p());
 }
 
+SV * Rmpfr_buildopt_float16_p(pTHX) {
+#if MPFR_VERSION >= 262912
+  return newSViv(mpfr_buildopt_float16_p());
+#else
+  croak("'mpfr_buildopt_float16_p' not implemented until MPFR-4.3.0");
+#endif
+}
+
 SV * Rmpfr_buildopt_decimal_p(pTHX) {
   return newSViv(mpfr_buildopt_decimal_p());
 }
@@ -6061,8 +6069,38 @@ SV * Rmpfr_get_flt(pTHX_ mpfr_t * a, SV * round) {
   return newSVnv(mpfr_get_flt(*a, (mpfr_rnd_t)SvUV(round)));
 }
 
+SV * Rmpfr_get_float16(pTHX_ mpfr_t * a, SV * round) {
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+#  if defined(HAVE_FLOAT16)      /* defined in Makefile.PL */
+   return newSVnv(mpfr_get_float16(*a, (mpfr_rnd_t)SvUV(round)));
+#  else
+   PERL_UNUSED_ARG2(a, round);
+   croak("Perl interface to Rmpfr_get_float16 not available. The '_Float16' type was not recognized");
+#  endif
+#else
+  PERL_UNUSED_ARG2(a, round);
+  croak("Perl interface to Rmpfr_get_float16 not available for this version (%s) of the mpfr library. We need at least version 4.3.0",
+         MPFR_VERSION_STRING);
+#endif
+}
+
 SV * Rmpfr_set_flt(pTHX_ mpfr_t * rop, SV * f, SV * round) {
   return newSViv(mpfr_set_flt(*rop, (float)SvNV(f), (mpfr_rnd_t)SvUV(round)));
+}
+
+SV * Rmpfr_set_float16(pTHX_ mpfr_t * rop, SV * f, SV * round) {
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+#  if defined(HAVE_FLOAT16)      /* defined in Makefile.PL */
+   return newSViv(mpfr_set_flt(*rop, (_Float16)SvNV(f), (mpfr_rnd_t)SvUV(round)));
+#  else
+   PERL_UNUSED_ARG3(rop, f, round);
+   croak("Perl interface to Rmpfr_set_float16 not available. The '_Float16' type was not recognized");
+#  endif
+#else
+  PERL_UNUSED_ARG3(rop, f, round);
+  croak("Perl interface to Rmpfr_set_float16 not available for this version (%s) of the mpfr library. We need at least version 4.3.0",
+         MPFR_VERSION_STRING);
+#endif
 }
 
 SV * Rmpfr_urandom(pTHX_ mpfr_t * rop, gmp_randstate_t* state, SV * round) {
@@ -6600,6 +6638,7 @@ void Rmpfr_get_FLOAT128(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
 
 SV * Rmpfr_set_FLOAT128(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
 #if (!defined(MPFR_VERSION) || (MPFR_VERSION < MPFR_VERSION_NUM(4,0,0)))
+  PERL_UNUSED_ARG3(rop, op, rnd);
   croak("Perl interface to Rmpfr_set_FLOAT128 not available for this version (%s) of the mpfr library. We need at least version 4.0.0",
          MPFR_VERSION_STRING);
 #endif
@@ -9054,6 +9093,14 @@ SV * _gmp_cc(pTHX) {
   return newSVpv(__GMP_CC, 0);
 #else
   return &PL_sv_undef;
+#endif
+}
+
+int _have_float16(void) {
+#if defined(HAVE_FLOAT16)      /* defined in Makefile.PL */
+  return 1;
+#else
+  return 0;
 #endif
 }
 
@@ -12506,6 +12553,13 @@ OUTPUT:  RETVAL
 
 
 SV *
+Rmpfr_buildopt_float16_p ()
+CODE:
+  RETVAL = Rmpfr_buildopt_float16_p (aTHX);
+OUTPUT:  RETVAL
+
+
+SV *
 Rmpfr_buildopt_decimal_p ()
 CODE:
   RETVAL = Rmpfr_buildopt_decimal_p (aTHX);
@@ -12563,12 +12617,29 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
+Rmpfr_get_float16 (a, round)
+	mpfr_t *	a
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_get_float16 (aTHX_ a, round);
+OUTPUT:  RETVAL
+
+SV *
 Rmpfr_set_flt (rop, f, round)
 	mpfr_t *	rop
 	SV *	f
 	SV *	round
 CODE:
   RETVAL = Rmpfr_set_flt (aTHX_ rop, f, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_set_float16 (rop, f, round)
+	mpfr_t *	rop
+	SV *	f
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_set_float16 (aTHX_ rop, f, round);
 OUTPUT:  RETVAL
 
 SV *
@@ -13365,6 +13436,10 @@ _gmp_cc ()
 CODE:
   RETVAL = _gmp_cc (aTHX);
 OUTPUT:  RETVAL
+
+
+int
+_have_float16 ()
 
 
 SV *
