@@ -475,6 +475,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $inex = Rmpfr_set_f($rop, $f, $rnd); # $f is a mpf object.
    $inex = Rmpfr_set_flt($rop, $float, $rnd);    # mpfr-3.0.0 and later only
    $inex = Rmpfr_set_float16($rop, $f16, $rnd);  # mpfr-4.3.0 and later only
+                                                 # & only on 64-bit systems.
    $inex = Rmpfr_set_float128($rop, $f128, $rnd);# nvtype is __float128
                                                # && mpfr-4.0.0 or later
                                                # && mpfr lib built with
@@ -504,6 +505,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     number (this happens for 0.1 for instance), in which case it is
     first rounded by the C compiler to a double-precision number,
     and then only to a mpfr floating-point number.
+    Rmpfr_set_float16 is currently unavailable to 32-bit systems.
 
     NOTE:
          1) Rmpfr_set_IV requires that $iv has it's IOK flag set, and
@@ -783,7 +785,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
                                            # --enable-float128.
    $NV = Rmpfr_get_NV     ($op, $rnd);   # double/long double/__float128
    $NV = Rmpfr_get_flt    ($op, $rnd);   # mpfr-3.0.0 and later
-   $NV = Rmpfr_get_float16($op, $rnd);   # mpfr-4.3.0 and later
+   $NV = Rmpfr_get_float16($op, $rnd);   # mpfr-4.3.0 and later, and
+                                         # only on 64-bit systems.
    Rmpfr_get_LD($LD, $op, $rnd);         # $LD is a Math::LongDouble object.
    Rmpfr_get_DECIMAL64($d64, $op, $rnd); # mpfr-3.1.0 or later &&
                                          # mpfr lib built with
@@ -796,9 +799,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
                                         # --enable-float128.
                                         # $F128 is a Math::Float128
                                         # object.
-    Convert $op to a 'double', a 'long double', a __float128, an 'NV',
-    a float, a _Float16, a Math::LongDouble object, a Math::Decimal64 object, or
-    a Math::Float128 object using the rounding mode $rnd.
+    Convert $op to a 'double', a 'long double', a '__float128', an 'NV',
+    a 'float', a '_Float16', a Math::LongDouble object,
+''' a Math::Decimal64 object, or a Math::Float128 object using the
+    rounding mode $rnd.
+    Rmpfr_get_float16 is currently unavailable to 32-bit systems.
 
    $double = Rmpfr_get_d1($op);
     Convert $op to a double, using the default MPFR rounding mode.

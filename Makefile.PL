@@ -97,17 +97,23 @@ unless($skip_msvc) {
     }
   }
 
-  ####################################
+  ##################################
   # Whether _Float16 is recognized #
-  ####################################
+  ##################################
 
-  unless(defined($have_float16)) {
-    my $mylibs = $mklib . " " . $mylibpth;
-    my $out = `$mycc -o have_float16.exe -x c have_float16.in $mylibs 2>&1`;
+  unless(defined($have_float16)) { # make no changes and conduct no further
+                                   # tests if $have_float16 is defined.
+    if($Config{ptrsize} == 4) {
+      $have_float16 = 0;           # Currently not supported by Math::MPFR
+    }
+    else {
+      my $mylibs = $mklib . " " . $mylibpth;
+      my $out = `$mycc -o have_float16.exe -x c have_float16.in $mylibs 2>&1`;
 
-    if( -e 'have_float16.exe') {
-      my $size = $^O =~ /MSWin32/i ? `have_float16.exe` : `./have_float16.exe`;
-      $have_float16 = 1 if $size eq '-2';
+      if( -e 'have_float16.exe') {
+        my $size = $^O =~ /MSWin32/i ? `have_float16.exe` : `./have_float16.exe`;
+        $have_float16 = 1 if $size eq '-2';
+      }
     }
   }
 
@@ -204,7 +210,7 @@ unless($skip_msvc) {
   ###########################################
 
   ###########################################
-  # Whether to build with __foat128 support #
+  # Whether to build with __float128 support #
   ###########################################
 
   for(@ARGV) {
@@ -471,6 +477,12 @@ my %options = (
 
 $options{OBJECT} = '$(O_FILES)'
   if $Config{nvsize} == 8;
+
+# The following stuffs up Decimal128 conversions
+# & __float128 conversions, though it does allow
+# support for _Float16 on 32-bit windows.
+# $options{CCFLAGS} = $Config{ccflags} . " -msse2 "
+#   if($Config{ptrsize} == 4 && $have_float16 == 1);
 
 WriteMakefile(%options);
 
