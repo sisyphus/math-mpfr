@@ -1,6 +1,8 @@
 Revision history for Perl module Math::MPFR
 
 4.36
+  - Fix bug in t/atonv.t - fixes https://rt.cpan.org/Ticket/Display.html?id=160048.
+    Thanks Slaven Rezic.
 
 4.35
   - Add Rmpfr_get_float16, Rmpfr_set_float16 and Rmpfr_buildopt_float16_p.
