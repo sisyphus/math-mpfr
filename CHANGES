@@ -1,5 +1,7 @@
 Revision history for Perl module Math::MPFR
 
+4.37
+
 4.36
   - Fix bug in t/atonv.t - fixes https://rt.cpan.org/Ticket/Display.html?id=160048.
     Thanks Slaven Rezic.
