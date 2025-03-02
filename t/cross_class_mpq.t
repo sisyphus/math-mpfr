@@ -24,9 +24,9 @@ if($@) {
   exit 0;
 }
 
-if($Math::GMPq::VERSION < 0.35) {
+if($Math::GMPq::VERSION < 0.61) {
   is(1, 1);
-  warn "Skipping all tests - we need Math-GMPq-0.35 or later, but have only version $Math::GMPq::VERSION";
+  warn "Skipping all tests - we need Math-GMPq-0.61 or later, but have only version $Math::GMPq::VERSION";
   done_testing();
   exit 0;
 }
