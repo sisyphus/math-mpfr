@@ -1,6 +1,10 @@
 Revision history for Perl module Math::MPFR
 
+4.38
+
 4.37
+  - Fix bug in t/cross_class_mpq.t that caused failures like:
+    http://www.cpantesters.org/cpan/report/cfa1541e-f6d4-11ef-a0db-2a526e8775ea
 
 4.36
   - Fix bug in t/atonv.t - fixes https://rt.cpan.org/Ticket/Display.html?id=160048.
