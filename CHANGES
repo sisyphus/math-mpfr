@@ -1,6 +1,8 @@
 Revision history for Perl module Math::MPFR
 
 4.38
+  - Relocate math_mpfr_include.h conditional defining of "mpfr_exp_t" to below
+    the #inclusion of mpfr.h.
 
 4.37
   - Fix bug in t/cross_class_mpq.t that caused failures like:
