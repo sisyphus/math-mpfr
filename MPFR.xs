@@ -25,15 +25,6 @@ int nnum = 0; /* flag that is incremented whenever a string containing
 int nok_pok = 0; /* flag that is incremented whenever a scalar that is both
                  NOK and POK is passed to new or an overloaded operator */
 
-/* Is inttypes.h needed ? */
-int _needs_inttypes(void) {
-#if defined MATH_MPFR_NEED_LONG_LONG_INT
-  return 1;
-#else
-  return 0;
-#endif
-}
-
 int NNW_val(pTHX) {
   /* return the numeric value of $Math::MPFR::NNW - ie the no. of non-numeric instances encountered */
   return (int)SvIV(get_sv("Math::MPFR::NNW", 0));
@@ -9174,10 +9165,6 @@ SV * _overload_fmod_eq (pTHX_ SV * a, mpfr_t *b, SV * third) {
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
 
 PROTOTYPES: DISABLE
-
-
-int
-_needs_inttypes ()
 
 
 int
