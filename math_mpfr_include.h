@@ -159,10 +159,7 @@ FALLBACK_NOTIFY          : If defined, $Math::MPFR::doubletoa_fallback
 *************************************************/
 
 #include <stdio.h>
-
-#if defined(MATH_MPFR_NEED_LONG_LONG_INT)
 #include <inttypes.h>
-#endif
 
 /*
  * In mpfr-4.1.0, the _Float128 type is exposed in mpfr.h if MPFR_WANT_FLOAT128 is defined.
