@@ -48,7 +48,7 @@ if($has_420) {
   Rmpfr_exp10m1 ($rop1, Math::MPFR->new(5), MPFR_RNDN);
   cmp_ok( abs($rop_check - $rop1), '==', 0, "Rmpfr_exp10m1 is in range ($rop1 | $rop_check)" );
 
-  my $rop_check = $op ** 7;
+  $rop_check = $op ** 7;
   Rmpfr_pow_uj($rop1, $op, 7, MPFR_RNDN);
   cmp_ok($rop_check, '==', $rop1, 'Rmpfr_pow_uj is ok');
 
