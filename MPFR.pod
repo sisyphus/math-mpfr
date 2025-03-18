@@ -1980,7 +1980,12 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
     https://www.exploringbinary.com/maximum-number-of-decimal-digits-in-binary-floating-point-numbers/
     explains that the maximum number of significant digits returned
     for a double precision value will be 767:
-    1074 + floor(log10(2**53-1) / 2**1074))+1 = 767
+    1074 + 1 + floor(log10(((2**53)-1) / (2**1074))    = 767
+    For the 80-bit extended precision long double:
+    16494 + 1 + floor(log10(((2**64)-1) / (2**16494))  = 11549
+    For IEEE-754 long double and _Float128:
+    16494 + 1 + floor(log10(((2**113)-1) / (2**16494)) = 11563
+
 
    $bool = check_exact_decimal($str, $op);
     Can be used to verify the string returned by decimalize().

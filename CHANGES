@@ -1,6 +1,7 @@
 Revision history for Perl module Math::MPFR
 
 4.39
+  - Make correction and expansion in decimalize() documentation in MPFR.pod
 
 4.38
   - Enable the Rmpf_*_uj and Rmpfr_*_sj functions (except for Rmpfr_get_uj and
