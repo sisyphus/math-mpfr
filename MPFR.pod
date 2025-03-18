@@ -1982,7 +1982,7 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
     for a double precision value will be 767:
     1074 + 1 + floor(log10(((2**53)-1) / (2**1074))    = 767
     For the 80-bit extended precision long double:
-    16494 + 1 + floor(log10(((2**64)-1) / (2**16494))  = 11549
+    16445 + 1 + floor(log10(((2**64)-1) / (2**16445))  = 11514
     For IEEE-754 long double and _Float128:
     16494 + 1 + floor(log10(((2**113)-1) / (2**16494)) = 11563
 
