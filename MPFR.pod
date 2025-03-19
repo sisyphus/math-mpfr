@@ -2410,7 +2410,7 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
    OPERATOR OVERLOADING
 
     Overloading works with numbers, strings (bases 2, 10, and 16
-    only - see step '4.' below) and Math::MPFR objects.
+    only - see step '3.' below) and Math::MPFR objects.
     Overloaded operations are performed using the current
     "default rounding mode" (which you can determine using the
     'Rmpfr_get_default_rounding_mode' function, and change using
@@ -2472,8 +2472,7 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
 
     Some additional cross-class overloading is also allowed.
     Let $M be a Math::MPFR object, and $G be any one of a Math::GMPz,
-    Math::GMPq, or Math::GMP object. Then it is now
-    permissible to do:
+    Math::GMPq, or Math::GMP object. Then it is permissible to do:
 
      $M + $G;
      $M += $G;
@@ -2488,10 +2487,12 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
      $M ** $G;
      $M **= $G;
 
-    YMMV if you use old versions of Math::GMPz and Math::GMPq,
-    but if you have Math-GMPz-0.63 (or later) and Math-GMPq-0.61
+    YMMV if you use old versions of Math::GMPz and Math::GMPq.
+    But if you have Math-GMPz-0.63 (or later) and Math-GMPq-0.61
     (or later), and $G is either a Math::GMPz or Math::GMPq
-    object, then it is also permissible to do:
+    object, then it is also permissible to do the following - all
+    of which will overwrite the Math::GMPz/q object ($G) with
+    the Math::MPFR object that these operations return:
 
      $G + $M;
      $G += $M;
@@ -2550,9 +2551,9 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
 
     5. If the variable is a Math::MPFR, Math::GMPz, or Math::GMPq,
        or Math::GMP object then the value of that object is used.
-       If the particular operation does not accept the given type
-       of object, then the operation dies with an appropriate
-       error message if such an object is received.
+       For some operations, a Math::GMP object will not be accepted
+       in which case the operation will die with an appropriate
+       error message.
 
     6. If none of the above is true, then the second variable is
        deemed to be of an invalid type. The operation croaks with
@@ -2593,29 +2594,41 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
          But then ... why would you invoke Rmpfr_printf to do
          something when you have perl to DWYM ?
 
-   NOTE: When using the 'P' (precision) type specifier, instead of
-         providing $prec to the 'P' specifier, it's now advisable
-         to provide prec_cast($prec). The 'P' specifier expects an
-         mp_prec_t but, prior to 3.18, we could pass it only an IV.
-         This didn't work on at least some big-endian machines if
-         the size of the IV was greater than the size of the
-         mp_prec_t.
-         The Math::MPFR::Prec package (which is part of this
-         distribution) exists solely to provide the prec_cast sub.
+   NOTE: Frankly, I don't see any point in using the 'P' (precision)
+         specifier in a perl environment. In perl, you can simply do:
+
+           $prec = Rmpfr_get_prec($obj);
+           print $prec;
+
+         Why would anyone want to replace that second line with (eg):
+           Rmpfr_printf("%Pd\n", $prec);
+
+         Nevertheless, it is currently allowable to use the 'P'
+         specifier with Math::MPFR's formatting functions - but
+         there's a caveat. If $Config{ivsize} is greater than the size
+         of the mpfr library's mpfr_prec_t type && the machine
+         architecture is big-endian, then (AFAIK) using the 'P'
+         specifier as just demonstrated can produce incorrect output.
+         In such a case, the example needs to be rewritten as:
+           Rmpfr_printf("%Pd\n", prec_cast($prec));
+
+         The Math::MPFR::Prec package (which is part of the Math::MPFR
+         distribution) exists solely to provide this prec_cast sub.
          And the prec_cast sub's return value should be passed *only*
          to the 'P' type specifier. Nothing else will understand it.
-         Passing it to something other than the 'P' specifier may
-         produce a garbage result - might even cause a segfault.
+         At some point in the future, I might do a sensible thing - and
+         remove both Math::MPFR::Prec and perl's support of the 'P'
+         specifier from Math::MPFR.
 
    prec_cast($prec);
-
     Ensures that the 'P' type specifier will provide correct results.
-    In Math::MPFR versions prior to 3.18 we could do only (eg) :
-       Rmpfr_printf("%Pu\n", Rmpfr_get_prec($op));
-    But that didn't work correctly for all architectures. As of 3.18,
-    that can be rewritten as:
-       Rmpfr_printf("%Pu\n", prec_cast(Rmpfr_get_prec($op)));
-    which should work on all architectures.
+    I found that simply doing (eg) :
+      Rmpfr_printf("%Pu\n", Rmpfr_get_prec($op));
+    did not work correctly for all perl configurations.
+    For portability, that line needs to be written as:
+      Rmpfr_printf("%Pu\n", prec_cast(Rmpfr_get_prec($op)));
+    I recommend that one instead does:
+     print Rmpfr_get_prec($op), "\n";
 
    Rmpfr_printf($format_string, [$rnd,] $var);
 

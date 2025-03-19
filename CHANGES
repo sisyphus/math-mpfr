@@ -1,6 +1,8 @@
 Revision history for Perl module Math::MPFR
 
 4.39
+  - Rewrite parts of "OPERATOR OVERLOADING" and "FORMATTED OUTPUT" sections in
+    MPFR.pod.
   - Make correction and expansion in decimalize() documentation in MPFR.pod
 
 4.38
