@@ -179,7 +179,7 @@ Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
   if($have_gmpq == 2) {
     my $q = Math::GMPq->new(1.5);
     $q **= $fixed_prec;
-    cmp_ok($q, '==', 2.4878997722115029e7, "mpq: value ok for '/='");
+    cmp_ok($q, '==', Math::MPFR->new('2.4878997722115029e7'), "mpq: value ok for '/='");
     cmp_ok(Rmpfr_get_prec($q), '==', 53, "mpq: prec still ok for '/='");
   }
 }
