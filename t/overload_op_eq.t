@@ -19,8 +19,8 @@ else { $have_gmpz = 2 }
 
 eval {require Math::GMPq;};
 if($@) { warn "Skipping tests involving Math::GMPq objects - Math::GMPq failed to load\n" }
-elsif($Math::GMPq::VERSION < 0.61) {
-  warn "Skipping some (but not all) tests involving Math::GMPq objects - skipped tests need Math-GMPq-0.61 - we have only $Math::GMPq::VERSION\n";
+elsif($Math::GMPq::VERSION < 0.63) {
+  warn "Skipping some (but not all) tests involving Math::GMPq objects - skipped tests need Math-GMPq-0.63 - we have only $Math::GMPq::VERSION\n";
   $have_gmpq = 2;
 }
 else { $have_gmpq = 2 }
