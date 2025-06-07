@@ -3,13 +3,13 @@
 
 # Re Math::GMPz and Math::MPFR cross-class overloading:
 # The Math::GMPz documentation specifies that the returned Math::MPFR
-# objects will have been calculated to the same precision ad the
+# objects will have been calculated to the same precision as the
 # given Math::MPFR operand, and with default rounding.
 
-# Re Math::GMPq and Math::MPFR cross-class overloading:
+# Similarly for Math::GMPq and Math::MPFR cross-class overloading:
 # The Math::GMPq documentation specifies that the returned Math::MPFR
-# objects will have been calculated to the current Math::MPFR
-# default precision, and with default rounding.
+# objects will also have been calculated to the same precision as the
+# given Math::MPFR operand, and with default rounding.
 
 use strict;
 use warnings;
@@ -64,7 +64,7 @@ Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
     my $q = Math::GMPq->new(0.5);
     $q += $fixed_prec;
     cmp_ok($q, '==', 42.5, "mpq: value ok for '+='");
-    cmp_ok(Rmpfr_get_prec($q), '==', 53, "mpq: prec still ok for '+='");
+    cmp_ok(Rmpfr_get_prec($q), '==', 100, "mpq: prec still ok for '+='");
   }
 
 }
@@ -125,7 +125,7 @@ Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
     my $q = Math::GMPq->new(0.5);
     $q *= $fixed_prec;
     cmp_ok($q, '==', 21, "mpq: value ok for '*='");
-    cmp_ok(Rmpfr_get_prec($q), '==', 53, "mpq: prec still ok for '*='");
+    cmp_ok(Rmpfr_get_prec($q), '==', 100, "mpq: prec still ok for '*='");
   }
 }
 ###
@@ -150,7 +150,7 @@ Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
     my $q = Math::GMPq->new(10.5);
     $q /= $fixed_prec;
     cmp_ok($q, '==', 0.25, "mpq: value ok for '/='");
-    cmp_ok(Rmpfr_get_prec($q), '==', 53, "mpq: prec still ok for '/='");
+    cmp_ok(Rmpfr_get_prec($q), '==', 100, "mpq: prec still ok for '/='");
   }
 }
 ###
@@ -176,7 +176,7 @@ Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
     my $q = Math::GMPq->new(10.5);
     $q %= $fixed_prec;
     cmp_ok($q, '==', 10.5, "mpq: value ok for '%='");
-    cmp_ok(Rmpfr_get_prec($q), '==', 53, "mpq: prec still ok for '%='");
+    cmp_ok(Rmpfr_get_prec($q), '==', 100, "mpq: prec still ok for '%='");
   }
 }
 ###
@@ -201,8 +201,11 @@ Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
   if($have_gmpq == 2) {
     my $q = Math::GMPq->new(1.5);
     $q **= $fixed_prec;
-    cmp_ok($q, '==', Math::MPFR->new('2.4878997722115029e7'), "mpq: value ok for '/='");
-    cmp_ok(Rmpfr_get_prec($q), '==', 53, "mpq: prec still ok for '/='");
+    my $prec_orig = Rmpfr_get_default_prec();
+    Rmpfr_set_default_prec(Rmpfr_get_prec($fixed_prec));
+    cmp_ok($q, '==', Math::MPFR->new('2.487899772211502732011467742268e7'), "mpq: value ok for '/='");
+    cmp_ok(Rmpfr_get_prec($q), '==', 100, "mpq: prec still ok for '/='");
+    Rmpfr_set_default_prec($prec_orig);
   }
 }
 ###
