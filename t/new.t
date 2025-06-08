@@ -201,7 +201,7 @@ eval{require Math::GMPz;};
 if(!$@) {$gmpz = 1}
 
 eval{require Math::GMP;};
-if(!$@) {$gmp = 1}
+if(!$@ && $Math::GMP::VERSION >= 2.25) {$gmp = 1}
 
 if($gmpf) {
   my $x = Math::GMPf::new(125.5);
@@ -324,7 +324,7 @@ if($gmp) {
     print "not ok 16\n" }
 }
 else {
-  warn "Skipping tests 12 to 16 - no Math::GMP\n";
+  warn "Skipping tests 12 to 16 - no Math::GMP or $Math::GMP::VERSION < 2.25\n";
   for(12..16) { print "ok $_\n" }
 }
 

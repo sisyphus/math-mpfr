@@ -11,6 +11,10 @@
 # objects will also have been calculated to the same precision as the
 # given Math::MPFR operand, and with default rounding.
 
+# THese requirements were not finalized until Math-GMPz-0.67
+# and Math-GMPq-0.67, so we test only against those (and later) versions
+# of those 2 mudules,
+
 use strict;
 use warnings;
 use Math::MPFR qw(:mpfr);
@@ -21,19 +25,17 @@ my ($have_gmpz, $have_gmpq) = (0, 0);
 
 eval {require Math::GMPz;};
 if($@) { warn "Skipping tests involving Math::GMPz objects - Math::GMPz failed to load\n" }
-elsif($Math::GMPz::VERSION < 0.63) {
-  warn "Skipping some (but not all) tests involving Math::GMPz objects - skipped test need Math-GMPz-0.63 - we have only $Math::GMPz::VERSION\n";
-  $have_gmpz = 1;
+elsif($Math::GMPz::VERSION < 0.67) {
+  warn "Skipping some tests involving Math::GMPz objects because they need Math-GMPz-0.67 or later, but we have only $Math::GMPz::VERSION\n";
 }
-else { $have_gmpz = 2 }
+else { $have_gmpz = 1 }
 
 eval {require Math::GMPq;};
-if($@) { warn "Skipping tests involving Math::GMPq objects - Math::GMPq failed to load\n" }
-elsif($Math::GMPq::VERSION < 0.63) {
-  warn "Skipping some (but not all) tests involving Math::GMPq objects - skipped tests need Math-GMPq-0.63 - we have only $Math::GMPq::VERSION\n";
-  $have_gmpq = 2;
+if($@) { warn "Skipping all tests involving Math::GMPq objects - Math::GMPq failed to load\n" }
+elsif($Math::GMPq::VERSION < 0.67) {
+  warn "Skipping some tests involving Math::GMPq objects because they need Math-GMPq-0.67 or later, but we have only $Math::GMPq::VERSION\n";
 }
-else { $have_gmpq = 2 }
+else { $have_gmpq = 1 }
 
 my $fixed_prec = Rmpfr_init2(100);
 Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
@@ -51,7 +53,7 @@ Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
   cmp_ok($zero, '==', 42, "value ok for '+='");
   cmp_ok(Rmpfr_get_prec($zero), '==', 53, "prec still ok for '+='");
 
-  if($have_gmpz == 2) {
+  if($have_gmpz) {
     my $z = Math::GMPz->new(108);
     $z += $fixed_prec;
     cmp_ok($z, '==', 150, "mpz: value ok for '+='");
@@ -60,7 +62,7 @@ Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
     }
   }
 
-  if($have_gmpq == 2) {
+  if($have_gmpq) {
     my $q = Math::GMPq->new(0.5);
     $q += $fixed_prec;
     cmp_ok($q, '==', 42.5, "mpq: value ok for '+='");
@@ -82,7 +84,7 @@ Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
   cmp_ok($zero, '==', -42, "value ok for '-='");
   cmp_ok(Rmpfr_get_prec($zero), '==', 53, "prec still ok for '-='");
 
-  if($have_gmpz == 2) {
+  if($have_gmpz) {
     my $z = Math::GMPz->new(192);
     $z -= $fixed_prec;
     cmp_ok($z, '==', 150, "mpz: value ok for '-='");
@@ -91,7 +93,7 @@ Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
     }
   }
 
-  if($have_gmpq == 2) {
+  if($have_gmpq) {
     my $q = Math::GMPq->new(0.5);
     $q -= $fixed_prec;
     cmp_ok($q, '==', -41.5, "mpq: value ok for '-='");
@@ -112,7 +114,7 @@ Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
   cmp_ok($unity, '==', 42, "value ok for '*='");
   cmp_ok(Rmpfr_get_prec($unity), '==', 53, "prec still ok for '*='");
 
-  if($have_gmpz == 2) {
+  if($have_gmpz) {
     my $z = Math::GMPz->new(10);
     $z *= $fixed_prec;
     cmp_ok($z, '==', 420, "mpz: value ok for '*='");
@@ -121,7 +123,7 @@ Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
     }
   }
 
-  if($have_gmpq == 2) {
+  if($have_gmpq) {
     my $q = Math::GMPq->new(0.5);
     $q *= $fixed_prec;
     cmp_ok($q, '==', 21, "mpq: value ok for '*='");
@@ -137,7 +139,7 @@ Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
   $fixed_prec /= 1;
   cmp_ok(Rmpfr_get_prec($fixed_prec), '==', 100, "prec ok for '/='");
 
-  if($have_gmpz == 2) {
+  if($have_gmpz) {
     my $z = Math::GMPz->new(105);
     $z /= $fixed_prec;
     cmp_ok($z, '==', 2.5, "mpz: value ok for '/='");
@@ -146,7 +148,7 @@ Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
     }
   }
 
-  if($have_gmpq == 2) {
+  if($have_gmpq) {
     my $q = Math::GMPq->new(10.5);
     $q /= $fixed_prec;
     cmp_ok($q, '==', 0.25, "mpq: value ok for '/='");
@@ -163,7 +165,7 @@ Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
   cmp_ok($fixed_prec, '==', 42, "value ok for '%='");
   cmp_ok(Rmpfr_get_prec($fixed_prec), '==', 100, "prec ok for '%='");
 
-  if($have_gmpz == 2) {
+  if($have_gmpz) {
     my $z = Math::GMPz->new(105);
     $z %= $fixed_prec;
     cmp_ok($z, '==', 21, "mpz: value ok for '%='");
@@ -172,7 +174,7 @@ Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
     }
   }
 
-  if($have_gmpq == 2) {
+  if($have_gmpq) {
     my $q = Math::GMPq->new(10.5);
     $q %= $fixed_prec;
     cmp_ok($q, '==', 10.5, "mpq: value ok for '%='");
@@ -189,16 +191,14 @@ Rmpfr_set_ui($fixed_prec, 42, MPFR_RNDN); # precision of 100 bits
   cmp_ok($fixed_prec, '==', 42, "value ok for '**='");
   cmp_ok(Rmpfr_get_prec($fixed_prec), '==', 100, "prec ok for '**='");
 
-  if($have_gmpz == 2) {
+  if($have_gmpz) {
     my $z = Math::GMPz->new(2);
     $z **= $fixed_prec;
     cmp_ok($z, '==', 4398046511104, "mpz: value ok for '/='");
-    unless($Math::GMPz::VERSION < 0.66) {
-      cmp_ok(Rmpfr_get_prec($z), '==', 100, "mpz: prec still ok for '/='");
-    }
+    cmp_ok(Rmpfr_get_prec($z), '==', 100, "mpz: prec still ok for '/='");
   }
 
-  if($have_gmpq == 2) {
+  if($have_gmpq) {
     my $q = Math::GMPq->new(1.5);
     $q **= $fixed_prec;
     my $prec_orig = Rmpfr_get_default_prec();
