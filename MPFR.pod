@@ -144,11 +144,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    If you create Math::MPFR objects using the '_nobless'
    versions, it will then be up to you to clean up the memory
    associated with these objects by calling Rmpfr_clear($op)
-   for each object, or Rmpfr_clears($op1, $op2, ....).
+   for each object, or Rmpfr_clears($obj1, $obj2, ....).
    Alternatively such objects will be cleaned up when the script
-   ends.
-   Because these objects have not been blessed into the Math::MPFR
-   package, the overloaded operators will not work with them.
+   ends. Because these objects created by the '_nobless' functions
+   have not been blessed into the Math::MPFR package, the
+   overloaded operators will not work with them.
 
 =head1 MIXING GMP OBJECTS WITH MPFR OBJECTS
 
@@ -401,6 +401,12 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     by a call to 'Rmpfr_set_default_prec'.
     NOTE: The new() sub can accept an argument - in which case
           $rop is initialized and the given value assigned to it.
+          If the argument is a Math::GMP or Math::GMPz or Math::GMPq
+          object then the returned Math::MPFR object's value is set
+          in accordance with current default precision and current
+          default rouding mode.
+          If the argument is a PV then a second optional argument
+          specifying the numeric base of the string is permitted.
           See COMBINED INITIALIZATION AND ASSIGNMENT below for
           more details.
 
@@ -2423,7 +2429,7 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
 
     Note that any comparison using the spaceship operator ( <=> )
     will return undef if either/both of the operands is a NaN.
-    All comparisons ( < <= > >= == != <=> ) involving one or more
+    Any comparison ( < <= > >= == != <=> ) involving one or more
     NaNs will set the erange flag.
 
     For the purposes of the overloaded 'not', '!' and 'bool'
