@@ -1,5 +1,8 @@
 Revision history for Perl module Math::MPFR
 
+4.41
+  -
+
 4.39
   - Rewrite parts of "OPERATOR OVERLOADING" and "FORMATTED OUTPUT" sections in
     MPFR.pod.
