@@ -2472,7 +2472,7 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
     Furthermore, all overloaded comparisons ( < <= > >= == != <=> )
     between Math::MPFR and Math::GMPz objects or between Math::MPFR
     and Math::GMPq objects are permitted.
-    Comparison oprations between Math::MPFR and Math::GMP objects
+    Comparison operations between Math::MPFR and Math::GMP objects
     must be constructed such that Math::MPFR (not Math::GMP)
     overloading is invoked.
 
