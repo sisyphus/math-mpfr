@@ -25,10 +25,11 @@ if(MPFR_VERSION >= 262912) { # MPFR-4.3.0 or later
   }
 }
 else {
-  eval{Rmpfr_buildopt_float16_p();};
-  like($@, qr/'mpfr_buildopt_float16_p' not implemented until MPFR\-4\.3\.0/,
-       "Rmpfr_buildopt_float16_p() croaks as expected");
-
+  #eval{Rmpfr_buildopt_float16_p();};
+  #like($@, qr/'mpfr_buildopt_float16_p' not implemented until MPFR\-4\.3\.0/,
+  #     "Rmpfr_buildopt_float16_p() croaks as expected");
+#
+  cmp_ok(Rmpfr_buildopt_float16_p(), '==', 0, "Rmpfr_buildopt_float16_p() returns 0");
   cmp_ok(Math::MPFR::_have_float16(), '==', 0, "_Float16 support is lacking");
 }
 

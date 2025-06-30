@@ -6001,7 +6001,8 @@ SV * Rmpfr_buildopt_float16_p(pTHX) {
 #if MPFR_VERSION >= 262912
   return newSViv(mpfr_buildopt_float16_p());
 #else
-  croak("'mpfr_buildopt_float16_p' not implemented until MPFR-4.3.0");
+  warn("'mpfr_buildopt_float16_p' not implemented until MPFR-4.3.0");
+  return newSViv(0);
 #endif
 }
 
@@ -6085,7 +6086,8 @@ SV * Rmpfr_buildopt_tune_case(pTHX) {
 #if (MPFR_VERSION_MAJOR == 3 && MPFR_VERSION_MINOR >= 1) || MPFR_VERSION_MAJOR > 3
   return newSVpv(mpfr_buildopt_tune_case(), 0);
 #else
-  croak("Rmpfr_buildopt_tune_case not implemented with this version of the mpfr library - we have %s but need at least 3.1.0", MPFR_VERSION_STRING);
+  warn("Rmpfr_buildopt_tune_case not implemented with this version of the mpfr library - we have %s but need at least 3.1.0", MPFR_VERSION_STRING);
+  return newSViv(0);
 #endif
 }
 
@@ -6151,7 +6153,8 @@ SV * Rmpfr_buildopt_gmpinternals_p(pTHX) {
 #if (MPFR_VERSION_MAJOR == 3 && MPFR_VERSION_MINOR >= 1) || MPFR_VERSION_MAJOR > 3
   return newSViv(mpfr_buildopt_gmpinternals_p());
 #else
-  croak("Rmpfr_buildopt_gmpinternals_p not implemented with this version of the mpfr library - we have %s but need at least 3.1.0", MPFR_VERSION_STRING);
+  warn("Rmpfr_buildopt_gmpinternals_p not implemented with this version of the mpfr library - we have %s but need at least 3.1.0", MPFR_VERSION_STRING);
+  return newSViv(0);
 #endif
 }
 
@@ -7448,7 +7451,8 @@ SV * Rmpfr_buildopt_float128_p(pTHX) {
 #if MPFR_VERSION_MAJOR >= 4
   return newSViv(mpfr_buildopt_float128_p());
 #else
-  croak("Rmpfr_buildopt_float128_p not implemented with this version of the mpfr library - we have %s but need at least 4.0.0", MPFR_VERSION_STRING);
+  warn("Rmpfr_buildopt_float128_p not implemented with this version of the mpfr library - we have %s but need at least 4.0.0", MPFR_VERSION_STRING);
+  return newSViv(0);
 #endif
 }
 
@@ -7456,7 +7460,8 @@ SV * Rmpfr_buildopt_sharedcache_p(pTHX) {
 #if MPFR_VERSION_MAJOR >= 4
   return newSViv(mpfr_buildopt_sharedcache_p());
 #else
-  croak("Rmpfr_buildopt_sharedcache_p not implemented with this version of the mpfr library - we have %s but need at least 4.0.0", MPFR_VERSION_STRING);
+  warn("Rmpfr_buildopt_sharedcache_p not implemented with this version of the mpfr library - we have %s but need at least 4.0.0", MPFR_VERSION_STRING);
+  return newSViv(0);
 #endif
 }
 
@@ -9159,6 +9164,15 @@ SV * _overload_fmod_eq (pTHX_ SV * a, mpfr_t *b, SV * third) {
      SvREFCNT_inc(a);
      mpfr_fmod(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *b, __gmpfr_default_rounding_mode);
      return a;
+}
+
+int Rmpfr_buildopt_bfloat16_p(void) {
+#if MPFR_VERSION >= 262912 /* 4.3.0 */
+  return mpfr_buildopt_bfloat16_p();
+#else
+  warn("mpfr_buildopt_bfloat16_p function not implemented until mpfr-4.3.0. (You have only version %s) ", MPFR_VERSION_STRING);
+  return 0;
+#endif
 }
 
 
@@ -13488,4 +13502,8 @@ _overload_fmod_eq (a, b, third)
 CODE:
   RETVAL = _overload_fmod_eq (aTHX_ a, b, third);
 OUTPUT:  RETVAL
+
+int
+Rmpfr_buildopt_bfloat16_p ()
+
 
