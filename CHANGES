@@ -3,7 +3,7 @@ Revision history for Perl module Math::MPFR
 4.41
   - Fix bug in t/new.t. Fixes (eg):
     https://www.cpantesters.org/cpan/report/2138de96-805b-1014-9104-da8c93be5a9b
-  - Take preliminary steps to support mpfr_set_bfloat16 and mpfr_get_bfloat16.
+  - Add Rmpfr_set_bfloat16, Rmpfr_get_bfloat16 and Rmpfr_buildopt_bfloat16_p.
 
 4.39
   - Rewrite parts of "OPERATOR OVERLOADING" and "FORMATTED OUTPUT" sections in
