@@ -9213,6 +9213,123 @@ int Rmpfr_buildopt_bfloat16_p(pTHX) {
 #endif
 }
 
+void _unpack_float32(pTHX_ mpfr_t * f) {
+  dXSARGS;
+  int i, n = 4;
+  char * buff;
+  float f32;
+  void * p = &f32;
+  mpfr_prec_t prec;
+
+  PERL_UNUSED_VAR(items);
+
+  prec = mpfr_get_prec(*f);
+
+  if(prec != 24)
+    croak("Precision of Math::MPFR object passed to _unpack_float XSub must be 24 - not %s", (int)prec);
+
+  f32 = mpfr_get_flt(*f, GMP_RNDN);
+
+  Newx(buff, 4, char);
+  if(buff == NULL) croak("Failed to allocate memory in _unpack_pack XSub");
+
+  sp = mark;
+
+#ifdef WE_HAVE_BENDIAN /* Big Endian architecture */
+  for (i = 0; i < n; i++) {
+#else
+  for (i = n - 1; i >= 0; i--) {
+#endif
+    sprintf(buff, "%02X", ((unsigned char*)p)[i]);
+    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
+  }
+  PUTBACK;
+  Safefree(buff);
+  XSRETURN(n);
+}
+
+void _unpack_float16(pTHX_ mpfr_t * f) {
+#if defined(HAVE_FLOAT16) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+  dXSARGS;
+  int i, n = 2;
+  char * buff;
+  _Float16 f16;
+  void * p = &f16;
+  mpfr_prec_t prec;
+
+  PERL_UNUSED_VAR(items);
+
+  prec = mpfr_get_prec(*f);
+
+  if(prec != 11)
+    croak("Precision of Math::MPFR object passed to _unpack_float16 XSub must be 11 - not %s", (int)prec);
+
+  f16 = mpfr_get_float16(*f, GMP_RNDN);
+
+  Newx(buff, 4, char);
+  if(buff == NULL) croak("Failed to allocate memory in _unpack_float16 XSub");
+
+  sp = mark;
+
+#ifdef WE_HAVE_BENDIAN /* Big Endian architecture */
+  for (i = 0; i < n; i++) {
+#else
+  for (i = n - 1; i >= 0; i--) {
+#endif
+    sprintf(buff, "%02X", ((unsigned char*)p)[i]);
+    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
+  }
+  PUTBACK;
+  Safefree(buff);
+  XSRETURN(n);
+#else
+  PERL_UNUSED_VAR(f);
+  croak("unpack_float16 not implemented because _Float16 type is not recognized");
+#endif
+}
+
+void _unpack_bfloat16(pTHX_ mpfr_t * f) {
+#if defined(MPFR_WANT_BFLOAT16) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+  dXSARGS;
+  int i, n = 2;
+  char * buff;
+  __bf16 bf16;
+  void * p = &bf16;
+  mpfr_prec_t prec;
+
+  PERL_UNUSED_VAR(items);
+
+  prec = mpfr_get_prec(*f);
+
+  if(prec != 8)
+    croak("Precision of Math::MPFR object passed to _unpack_bfloat16 XSub must be 8 - not %s", (int)prec);
+
+  bf16 = mpfr_get_bfloat16(*f, GMP_RNDN);
+
+  Newx(buff, 4, char);
+  if(buff == NULL) croak("Failed to allocate memory in _unpack_bfloat16 XSub");
+
+  sp = mark;
+
+#ifdef WE_HAVE_BENDIAN /* Big Endian architecture */
+  for (i = 0; i < n; i++) {
+#else
+  for (i = n - 1; i >= 0; i--) {
+#endif
+    sprintf(buff, "%02X", ((unsigned char*)p)[i]);
+    XPUSHs(sv_2mortal(newSVpv(buff, 0)));
+  }
+  PUTBACK;
+  Safefree(buff);
+  XSRETURN(n);
+#else
+  PERL_UNUSED_VAR(f);
+  croak("unpack_bfloat16 not implemented because __bf16 type is not recognized");
+#endif
+}
+
+
+
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
 
@@ -13568,4 +13685,52 @@ CODE:
   RETVAL = Rmpfr_buildopt_bfloat16_p (aTHX);
 OUTPUT:  RETVAL
 
+
+void
+_unpack_float32 (f)
+	mpfr_t *	f
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        _unpack_float32(aTHX_ f);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return;
+
+void
+_unpack_float16 (f)
+	mpfr_t *	f
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        _unpack_float16(aTHX_ f);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return;
+
+void
+_unpack_bfloat16 (f)
+	mpfr_t *	f
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        _unpack_bfloat16(aTHX_ f);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return;
 

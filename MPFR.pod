@@ -1670,6 +1670,24 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     MPFR_PREC_MAX.
     Return 0 if the export/import was successful.
 
+   $str = unpack_bfloat16($arg, $rnd, [$base]);# 16-bit "bfloat"
+   $str = unpack_float16($arg, $rnd, [$base]); # 16-bit half prec.
+   $str = unpack_float32($arg, $rnd, [$base]); # 32-bit single prec.
+    The "bfloat16" and "Float16" forms require mpfr-4.3.0 or later.
+    $arg is one of IV, UV, NV, PV, or Math::MPFR object.
+    Unpack $arg's value to an upper case hex string, where the
+    value of $arg has been cast (in accordance with $rnd) to a
+    __bf16 (bfloat) or  _Float16 or _Float32 type.
+    $base is an optional argument specifying the base when $arg
+    is a PV (string). If no $base argument is provided, then the
+    base of the given PV is determined by using the approach
+    specified in the Rmpfr_strtofr() documentation, provided
+    above in the "ASSIGNMENT" section.
+    For example:
+      print unpack_bfloat16(-2.625, MPFR_RNDN); # Outputs C028
+      print unpack_float16 (-2.625, MPFR_RNDN); # Outputs C140
+      print unpack_float32 (-2.625, MPFR_RNDN); # Outputs C0280000
+
    ########################
 
    DISPLAYING INFS AND NANS

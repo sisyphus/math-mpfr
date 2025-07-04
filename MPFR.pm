@@ -201,6 +201,7 @@ anytoa atodouble atonum atonv
 check_exact_decimal decimalize doubletoa dragon_test
 fr_cmp_q_rounded mpfr_max_orig_len mpfr_min_inter_prec mpfrtoa numtoa nvtoa nv2mpfr nvtoa_test
 prec_cast q_add_fr q_cmp_fr q_div_fr q_fmod_fr q_mul_fr q_sub_fr rndna
+unpack_bfloat16 unpack_float16 unpack_float32
 );
 
     @Math::MPFR::EXPORT_OK = (@tags, 'bytes');
@@ -1796,6 +1797,81 @@ sub overload_fmod_eq {
     return _overload_fmod_eq(Math::MPFR->new($_[1]), $_[0], 0);
   }
   return _overload_fmod_eq(@_);
+}
+
+sub unpack_float32 {
+  my ($arg, $rnd) = (shift, shift);
+  my $itsa = _itsa($arg);
+  my $mpfr = Rmpfr_init2(24);
+
+  if($itsa == 1 || $itsa == 2) {   # IV/UV
+    Rmpfr_set_IV($mpfr, $arg, $rnd);
+  }
+  elsif($itsa == 3) {              # NV
+   Rmpfr_set_NV($mpfr, $arg, $rnd);
+  }
+  elsif($itsa == 4) {              # PV
+   my $base = 0;
+   $base = shift if @_;
+   Rmpfr_strtofr($mpfr, $arg, $base, $rnd);
+  }
+  elsif($itsa == 5) {              # Math::MPFR object
+    Rmpfr_set($mpfr, $arg, $rnd);
+  }
+  else { die "Invalid first argument given to unpack_float32()" }
+
+  my @ret = _unpack_float32($mpfr);
+  return join('', @ret);
+}
+
+sub unpack_float16 {
+  my ($arg, $rnd) = (shift, shift);
+  my $itsa = _itsa($arg);
+  my $mpfr = Rmpfr_init2(11);
+
+  if($itsa == 1 || $itsa == 2) {   # IV/UV
+    Rmpfr_set_IV($mpfr, $arg, $rnd);
+  }
+  elsif($itsa == 3) {              # NV
+   Rmpfr_set_NV($mpfr, $arg, $rnd);
+  }
+  elsif($itsa == 4) {              # PV
+   my $base = 0;
+   $base = shift if @_;
+   Rmpfr_strtofr($mpfr, $arg, $base, $rnd);
+  }
+  elsif($itsa == 5) {              # Math::MPFR object
+    Rmpfr_set($mpfr, $arg, $rnd);
+  }
+  else { die "Invalid first argument given to unpack_float16()" }
+
+  my @ret = _unpack_float16($mpfr);
+  return join('', @ret);
+}
+
+sub unpack_bfloat16 {
+  my ($arg, $rnd) = (shift, shift);
+  my $itsa = _itsa($arg);
+  my $mpfr = Rmpfr_init2(8);
+
+  if($itsa == 1 || $itsa == 2) {   # IV/UV
+    Rmpfr_set_IV($mpfr, $arg, $rnd);
+  }
+  elsif($itsa == 3) {              # NV
+   Rmpfr_set_NV($mpfr, $arg, $rnd);
+  }
+  elsif($itsa == 4) {              # PV
+   my $base = 0;
+   $base = shift if @_;
+   Rmpfr_strtofr($mpfr, $arg, $base, $rnd);
+  }
+  elsif($itsa == 5) {              # Math::MPFR object
+    Rmpfr_set($mpfr, $arg, $rnd);
+  }
+  else { die "Invalid first argument given to unpack_bfloat16()" }
+
+  my @ret = _unpack_bfloat16($mpfr);
+  return join('', @ret);
 }
 
 
