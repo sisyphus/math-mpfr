@@ -6042,7 +6042,7 @@ SV * Rmpfr_get_flt(pTHX_ mpfr_t * a, SV * round) {
 
 SV * Rmpfr_get_float16(pTHX_ mpfr_t * a, SV * round) {
 #if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
-#  if defined(HAVE_FLOAT16)      /* defined in Makefile.PL */
+#  if defined(MPFR_WANT_FLOAT16)      /* defined in Makefile.PL */
    return newSVnv(mpfr_get_float16(*a, (mpfr_rnd_t)SvUV(round)));
 #  else
    PERL_UNUSED_ARG2(a, round);
@@ -6076,7 +6076,7 @@ SV * Rmpfr_set_flt(pTHX_ mpfr_t * rop, SV * f, SV * round) {
 
 SV * Rmpfr_set_float16(pTHX_ mpfr_t * rop, SV * f, SV * round) {
 #if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
-#  if defined(HAVE_FLOAT16)      /* defined in Makefile.PL */
+#  if defined(MPFR_WANT_FLOAT16)      /* defined in Makefile.PL */
    return newSViv(mpfr_set_float16(*rop, (_Float16)SvNV(f), (mpfr_rnd_t)SvUV(round)));
 #  else
    PERL_UNUSED_ARG3(rop, f, round);
@@ -9102,7 +9102,7 @@ SV * _gmp_cc(pTHX) {
 }
 
 int _have_float16(void) {
-#if defined(HAVE_FLOAT16)      /* defined in Makefile.PL */
+#if defined(MPFR_WANT_FLOAT16)      /* defined in Makefile.PL */
   return 1;
 #else
   return 0;
@@ -9110,7 +9110,7 @@ int _have_float16(void) {
 }
 
 int _have_bfloat16(void) {
-#if defined(HAVE_BFLOAT16)      /* defined in Makefile.PL */
+#if defined(MPFR_WANT_BFLOAT16)      /* defined in Makefile.PL */
   return 1;
 #else
   return 0;
@@ -9249,7 +9249,7 @@ void _unpack_float32(pTHX_ mpfr_t * f) {
 }
 
 void _unpack_float16(pTHX_ mpfr_t * f) {
-#if defined(HAVE_FLOAT16) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+#if defined(MPFR_WANT_FLOAT16) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
   dXSARGS;
   int i, n = 2;
   char * buff;

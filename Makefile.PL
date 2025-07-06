@@ -22,6 +22,7 @@ my $have_float16    = undef; # Default value
 my $have_bfloat16   = undef; # Default value
 my $checklib        = 1;     # Check for availability of mpfr and gmp libraries.
 my $skip_msvc       = 0;     # Will be reset to 1 for MS compiler builds of perl.
+my $my_ccflags = $Config{ccflags};
 
 my ($d64_message, $d128_message, $float128_message);
 
@@ -106,7 +107,7 @@ unless($skip_msvc) {
 
   unless(defined($have_float16)) { # make no changes and conduct no further
                                    # tests if $have_float16 is defined.
-    if($Config{ptrsize} == 4) {
+    if($Config{ptrsize} == 4 && $^O =~ /MSWin32/) {
       $have_float16 = 0;           # Currently not supported by Math::MPFR
     }
     else {
@@ -120,7 +121,9 @@ unless($skip_msvc) {
     }
   }
 
-  $defines .= ' -DHAVE_FLOAT16 -DMPFR_WANT_FLOAT16=1' if(defined $have_float16 && $have_float16 == 1);
+  if(defined $have_float16 && $have_float16 == 1) {
+    $defines .= ' -DMPFR_WANT_FLOAT16=1';
+  }
 
   ################################
   # Whether __bf16 is recognized #
@@ -128,8 +131,8 @@ unless($skip_msvc) {
 
   unless(defined($have_bfloat16)) { # make no changes and conduct no further
                                     # tests if $have_bfloat16 is defined.
-    if($Config{ptrsize} == 4) {
-      $have_bfloat16 = 0;           # Currently not supported by Math::MPFR
+    if($Config{ptrsize} == 4 && $^O =~ /MSWin32/) {
+      $have_float16 = 0;           # Currently not supported by Math::MPFR
     }
     else {
       my $mylibs = $mklib . " " . $mylibpth;
@@ -142,7 +145,9 @@ unless($skip_msvc) {
     }
   }
 
-  $defines .= ' -DHAVE_BFLOAT16 -DMPFR_WANT_BFLOAT16=1' if(defined $have_bfloat16 && $have_bfloat16 == 1);
+  if(defined $have_bfloat16 && $have_bfloat16 == 1) {
+    $defines .= ' -DMPFR_WANT_BFLOAT16=1';
+  }
 
   ############################################
   # Whether to build with _Decimal64 support #
@@ -484,6 +489,7 @@ my %options = (
   #OBJECT       => '$(O_FILES)', # set below if $Config{nvsize} == 8
   LICENSE      => 'perl',
   VERSION_FROM => 'MPFR.pm',
+  CCFLAGS      => $my_ccflags,
   clean        => { FILES => '*.exe *.txt' },
   META_MERGE   => {
     'meta-spec'  => { version => 2 },
