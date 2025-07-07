@@ -9226,7 +9226,7 @@ void _unpack_float32(pTHX_ mpfr_t * f) {
   prec = mpfr_get_prec(*f);
 
   if(prec != 24)
-    croak("Precision of Math::MPFR object passed to _unpack_float XSub must be 24 - not %s", (int)prec);
+    croak("Precision of Math::MPFR object passed to _unpack_float XSub must be 24 - not %d", (int)prec);
 
   f32 = mpfr_get_flt(*f, GMP_RNDN);
 
@@ -9262,7 +9262,7 @@ void _unpack_float16(pTHX_ mpfr_t * f) {
   prec = mpfr_get_prec(*f);
 
   if(prec != 11)
-    croak("Precision of Math::MPFR object passed to _unpack_float16 XSub must be 11 - not %s", (int)prec);
+    croak("Precision of Math::MPFR object passed to _unpack_float16 XSub must be 11 - not %d", (int)prec);
 
   f16 = mpfr_get_float16(*f, GMP_RNDN);
 
@@ -9302,7 +9302,7 @@ void _unpack_bfloat16(pTHX_ mpfr_t * f) {
   prec = mpfr_get_prec(*f);
 
   if(prec != 8)
-    croak("Precision of Math::MPFR object passed to _unpack_bfloat16 XSub must be 8 - not %s", (int)prec);
+    croak("Precision of Math::MPFR object passed to _unpack_bfloat16 XSub must be 8 - not %d", (int)prec);
 
   bf16 = mpfr_get_bfloat16(*f, GMP_RNDN);
 
