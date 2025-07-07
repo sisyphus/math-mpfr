@@ -22,7 +22,6 @@ my $have_float16    = undef; # Default value
 my $have_bfloat16   = undef; # Default value
 my $checklib        = 1;     # Check for availability of mpfr and gmp libraries.
 my $skip_msvc       = 0;     # Will be reset to 1 for MS compiler builds of perl.
-my $my_ccflags = $Config{ccflags};
 
 my ($d64_message, $d128_message, $float128_message);
 
@@ -489,7 +488,6 @@ my %options = (
   #OBJECT       => '$(O_FILES)', # set below if $Config{nvsize} == 8
   LICENSE      => 'perl',
   VERSION_FROM => 'MPFR.pm',
-  CCFLAGS      => $my_ccflags,
   clean        => { FILES => '*.exe *.txt' },
   META_MERGE   => {
     'meta-spec'  => { version => 2 },
