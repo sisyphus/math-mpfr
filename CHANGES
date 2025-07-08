@@ -1,5 +1,7 @@
 Revision history for Perl module Math::MPFR
 
+4.42
+
 4.41
   - Fix bug in t/new.t. Fixes (eg):
     https://www.cpantesters.org/cpan/report/2138de96-805b-1014-9104-da8c93be5a9b
