@@ -33,7 +33,7 @@ if(MPFR_VERSION >= 262912) { # MPFR-4.3.0 or later
     like($@, qr/^Perl interface to Rmpfr_get_float16 not available/, 'Rmpfr_get_float16: $@ set as expected');
 
     eval { Rmpfr_set_float16($op, $nv, MPFR_RNDN);};
-    #like($@, qr/^Perl interface to Rmpfr_set_float16 not available/, 'Rmpfr_set_float16: $@ set as expected');
+    like($@, qr/^Perl interface to Rmpfr_set_float16 not available/, 'Rmpfr_set_float16: $@ set as expected');
   }
 }
 else {
