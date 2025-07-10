@@ -37,7 +37,7 @@ if(MPFR_VERSION >= 262912) { # MPFR-4.3.0 or later
   }
 }
 else {
-  warn "AS EXPECTED\n";
+
   cmp_ok(Rmpfr_buildopt_float16_p(), '==', 0, "Rmpfr_buildopt_float16_p() returns 0");
   cmp_ok(Math::MPFR::_have_float16(), '==', 0, "_Float16 support is lacking");
 
