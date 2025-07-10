@@ -1,6 +1,8 @@
 Revision history for Perl module Math::MPFR
 
 4.43
+  - More changes to t/_Float16.t and t/bfloat16.t needed to address what 4.42
+    was intended to fix.
 
 4.42
   - Fix bug in t/_Float16.t and t/bfloat16.t. Fixes (eg):
