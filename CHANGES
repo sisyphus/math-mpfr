@@ -1,6 +1,10 @@
 Revision history for Perl module Math::MPFR
 
 4.44
+  - Ensure that overloaded <=> operations return one of 1, -1, 0, and undef.
+    Required some amendments to MPFR.xs, and some rewriting of parts of some
+    test scripts.
+    Issue raised by https://rt.cpan.org/Ticket/Display.html?id=168076 .
 
 4.43
   - More changes to t/_Float16.t and t/bfloat16.t needed to address what 4.42

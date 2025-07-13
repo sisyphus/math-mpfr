@@ -4239,15 +4239,24 @@ SV * overload_spaceship(pTHX_ mpfr_t * a, SV * b, SV * third) {
         mpfr_set_erangeflag();
         return &PL_sv_undef;
       }
-      return newSViv(mpfr_cmp(*a, *(INT2PTR(mpfr_t *, SvIVX(SvRV(b))))));
+      ret = mpfr_cmp(*a, *(INT2PTR(mpfr_t *, SvIVX(SvRV(b)))));
+      if(ret < 0) return newSViv(-1);
+      if(ret > 0) return newSViv(1);
+      return newSViv(0);
     }
 
     if(strEQ(h, "Math::GMPq")) {
-      return newSViv(mpfr_cmp_q(*a, *(INT2PTR(mpq_t *, SvIVX(SvRV(b))))));
+      ret = mpfr_cmp_q(*a, *(INT2PTR(mpq_t *, SvIVX(SvRV(b)))));
+      if(ret < 0) return newSViv(-1);
+      if(ret > 0) return newSViv(1);
+      return newSViv(0);
     }
 
     if(strEQ(h, "Math::GMPz") || strEQ(h, "Math::GMP")) {
-      return newSViv(mpfr_cmp_z(*a, *(INT2PTR(mpz_t *, SvIVX(SvRV(b))))));
+      ret = mpfr_cmp_z(*a, *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
+      if(ret < 0) return newSViv(-1);
+      if(ret > 0) return newSViv(1);
+      return newSViv(0);
     }
   }
   croak("Invalid argument supplied to Math::MPFR::overload_spaceship");
