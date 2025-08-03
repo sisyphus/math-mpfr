@@ -1,6 +1,8 @@
 Revision history for Perl module Math::MPFR
 
 4.44
+  - Add Rmpfr_get_BFLOAT16/Rmpfr_set_BFLOAT16, Rmpfr_get_FLOAT16/Rmpfr_set_FLOAT16
+    and Rmpfr_get_FLT/Rmpfr_set_FLT functions.
   - Ensure that overloaded <=> operations return one of 1, -1, 0, and undef.
     Required some amendments to MPFR.xs, and some rewriting of parts of some
     test scripts.

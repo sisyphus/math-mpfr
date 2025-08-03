@@ -500,6 +500,12 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
                                                # --enable-decimal-float.
                                                # $D128 is a
                                                # Math::Decimal128 object
+   $inex = Rmpfr_set_FLT($rop, $FLT, $rnd); # Set $rop to the value of
+                                            # the Math::Float32 object $FLT.
+   $inex = Rmpfr_set_FLOAT16($rop, $F16, $rnd); # Set $rop to the value of the
+                                                # Math::Float16 object $F16
+   $inex = Rmpfr_set_BFLOAT16($rop, $BF16, $rnd);# Set $rop to the value of the
+                                                 # Math::Bfloat16 object $BF16
    $inex = Rmpfr_set_FLOAT128($rop, $F128, $rnd);# mpfr-4.0.0 and later
                                                # && mpfr lib built with
                                                # --enable-float128.
@@ -799,6 +805,12 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
                                          # only on 64-bit systems.
    $NV = Rmpfr_get_bfloat16($op, $rnd);  # mpfr-4.3.0 and later, and
                                          # only on 64-bit systems.
+   Rmpfr_get_FLT($FLT, $op, $rnd);       # Set the Math::Float32 object $FLT
+                                         # to the float value of $op.
+   Rmpfr_get_FLOAT16($F16, $op, $rnd);   # Set the Math::Float16 object $F16
+                                         # to the _Float16 value of $op.
+   Rmpfr_get_BFLOAT16($F16, $op, $rnd);  # Set the Math::Bfloat16 object $F16
+                                         # to the __bf16 value of $op.
    Rmpfr_get_LD($LD, $op, $rnd);         # $LD is a Math::LongDouble object.
    Rmpfr_get_DECIMAL64($d64, $op, $rnd); # mpfr-3.1.0 or later &&
                                          # mpfr lib built with
@@ -812,9 +824,10 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
                                         # $F128 is a Math::Float128
                                         # object.
     Convert $op to a 'double', a 'long double', a '__float128', an 'NV',
-    a 'float', a '_Float16', a '__bf16', a Math::LongDouble object,
-    a Math::Decimal64 object, or a Math::Float128 object using the
-    rounding mode $rnd.
+    a 'float', a '_Float16', a '__bf16', a Math::Float32 object, a
+    Math::Float16 object, a Math::Bfloat16 object, a Math::LongDouble
+    object, a Math::Decimal64 object, or a Math::Float128 object using
+    the rounding mode $rnd.
     Rmpfr_get_float16 and Rmpfr_get_bfloat16 are currently unavailable to
     32-bit systems. Where enabled they actually return an NV that has been
     set to the exact value of $op rounded (according to $rnd) to a _Float16
@@ -2846,7 +2859,7 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
 
     This program is free software; you may redistribute it and/or
     modify it under the same terms as Perl itself.
-    Copyright 2006-2024 Sisyphus
+    Copyright 2006-2025 Sisyphus
 
 =head1 AUTHOR
 
