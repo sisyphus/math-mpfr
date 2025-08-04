@@ -21,4 +21,14 @@ my $inex = Rmpfr_set_flt($op, $nv, MPFR_RNDN);
 cmp_ok($inex, '==', 0, 'value was set exactly');
 cmp_ok($op, '==', $op32, 'values still match');
 
+eval { require Math::Float32; };
+unless($@) {
+  my $bf_1 = sqrt(Math::Float32->new(2));
+  my $bf_2 = Math::Float32->new();
+  my $mpfr = Rmpfr_init2(24);
+  Rmpfr_set_FLT($mpfr, $bf_1, MPFR_RNDN);
+  Rmpfr_get_FLT($bf_2, $mpfr, MPFR_RNDN);
+  cmp_ok(Math::Float32::unpack_flt_hex($bf_2), 'eq', '3FB504F3', 'Rmpfr_set_FLT and Rmpfr_get_FLT pass round trip');
+}
+
 done_testing();

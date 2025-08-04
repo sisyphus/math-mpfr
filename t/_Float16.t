@@ -69,6 +69,16 @@ if(MPFR_VERSION >= 262912) { # MPFR-4.3.0 or later
     cmp_ok($ok, '==' , 1, "NaN unpacks correctly");
     warn "NaN unpacks incorrectly: got $nan\n" unless $ok;
 
+    eval { require Math::Float16; };
+    unless($@) {
+      my $bf_1 = sqrt(Math::Float16->new(2));
+      my $bf_2 = Math::Float16->new();
+      my $mpfr = Rmpfr_init2(8);
+      Rmpfr_set_FLOAT16($mpfr, $bf_1, MPFR_RNDN);
+      Rmpfr_get_FLOAT16($bf_2, $mpfr, MPFR_RNDN);
+      cmp_ok(Math::Float16::unpack_f16_hex($bf_2), 'eq', '3DA8', 'Rmpfr_set_FLOAT16 and Rmpfr_get_FLOAT16 pass round trip');
+    }
+
   }
   else {
     cmp_ok(Math::MPFR::_have_float16(), '==', 0, "MPFR library support for_Float16 is not utilised");

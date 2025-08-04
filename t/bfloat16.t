@@ -48,6 +48,16 @@ if(MPFR_VERSION >= 262912) { # MPFR-4.3.0 or later
     Rmpfr_set_zero($op, -1);
     my $nzero = unpack_bfloat16($op, MPFR_RNDN);
     cmp_ok($nzero, 'eq', '8000', '-0 unpacks correctly');
+
+    eval { require Math::Bfloat16; };
+    unless($@) {
+      my $bf_1 = sqrt(Math::Bfloat16->new(2));
+      my $bf_2 = Math::Bfloat16->new();
+      my $mpfr = Rmpfr_init2(8);
+      Rmpfr_set_BFLOAT16($mpfr, $bf_1, MPFR_RNDN);
+      Rmpfr_get_BFLOAT16($bf_2, $mpfr, MPFR_RNDN);
+      cmp_ok(Math::Bfloat16::unpack_bf16_hex($bf_2), 'eq', '3FB5', 'Rmpfr_set_BFLOAT16 and Rmpfr_get_BFLOAT16 pass round trip');
+    }
   }
   else {
     cmp_ok(Math::MPFR::_have_bfloat16(), '==', 0, "MPFR library support for bfloat16 is not utilised");
