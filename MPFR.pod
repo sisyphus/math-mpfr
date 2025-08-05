@@ -976,7 +976,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Set $q1 to the exact rational value of $q2 * $op.
 
    q_div_fr($q1, $q2, $op); # $q1, $q2 are mpq objects
-    Set $q1 to the exact rational value of $q2 % p.
+    Set $q1 to the exact rational value of $q2 % $op.
 
    q_fmod_fr($q1, $q2, $op); # $q1, $q2 are mpq objects
     Set $q1 to the exact rational value of fmod($q2,$op).
