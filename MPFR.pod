@@ -1705,6 +1705,24 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     See the MPFR documentation for mpfr_subnormalize at:
     www.mpfr.org/mpfr-current/mpfr.html#Function-and-Type-Index
 
+   $rop = subnormalize_float32($val);
+   $rop = subnormalize_float16($val);
+   $rop = subnormalize_bfloat16($val);
+    $val can be an IV/UV,PV, NV, Math::GMPf object, Math::GMPq
+    object or Math::MPFR object.
+    For "float32" (ie the single precision "float"):
+     Returns a 24-bit precision Math::MPFR object containing the
+     value held by $val, adjusted for "float" subnormalization
+     when appropriate.
+    For "float16":
+     Returns an 11-bit precision Math::MPFR object containing the
+     value held by $val, adjusted for "_Float16" subnormalization
+     when appropriate.
+    For "bfloat16:
+     Returns an 8-bit precision Math::MPFR object containing the
+     value held by $val, adjusted for "__bf16" subnormalization
+     when appropriate.
+
    $si =  Rmpfr_get_emin();
    $si =  Rmpfr_get_emax();
     Return to $si the (current) smallest and largest exponents

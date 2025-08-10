@@ -6045,6 +6045,7 @@ SV * Rmpfr_ai(pTHX_ mpfr_t * rop, mpfr_t * op, SV * round) {
   return newSViv(mpfr_ai(*rop, *op, (mpfr_rnd_t)SvUV(round)));
 }
 
+
 SV * Rmpfr_get_flt(pTHX_ mpfr_t * a, SV * round) {
   return newSVnv(mpfr_get_flt(*a, (mpfr_rnd_t)SvUV(round)));
 }
@@ -9438,7 +9439,128 @@ void _unpack_bfloat16(pTHX_ mpfr_t * f) {
 #endif
 }
 
+SV * subnormalize_float32(pTHX_ SV * val) {
+  mpfr_t * mpfr_t_obj;
+  SV * obj_ref, * obj;
+  int inex;
+  mpfr_exp_t emin_reset, emax_reset;
 
+  NEW_MATH_MPFR_OBJECT("Math::MPFR",subnormalize_float32) /* defined in math_mpfr_include.h */
+  mpfr_init2 (*mpfr_t_obj, 24);
+
+  emin_reset = mpfr_get_emin();
+  emax_reset = mpfr_get_emax();
+  mpfr_set_emin(-148);
+  mpfr_set_emax(128);
+
+  if(SV_IS_IOK(val)) inex = Rmpfr_set_IV(aTHX_ mpfr_t_obj, val, newSVuv(0)); /* handles IV/UV */
+  else if(SV_IS_POK(val)) inex = mpfr_strtofr(*mpfr_t_obj, SvPV_nolen(val), NULL, 0, GMP_RNDN);
+  else if(SV_IS_NOK(val)) inex = Rmpfr_set_NV(aTHX_ mpfr_t_obj, val, 0);
+  else if(sv_isobject(val)) {
+     const char* h = HvNAME(SvSTASH(SvRV(val)));
+     if(strEQ(h, "Math::MPFR")) {
+       inex = mpfr_set(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(val)))), GMP_RNDN);
+     }
+     else if(strEQ(h, "Math::GMPq")) {
+       inex = mpfr_set_q(*mpfr_t_obj, *(INT2PTR(mpq_t *, SvIVX(SvRV(val)))), GMP_RNDN);
+     }
+     else if(strEQ(h, "Math::GMPf")) {
+       inex = mpfr_set_f(*mpfr_t_obj, *(INT2PTR(mpf_t *, SvIVX(SvRV(val)))), GMP_RNDN);
+     }
+     else croak("Invalid object provided to subnormalize_float32");
+  }
+  else croak("Invalid argument provided to subnormalize_float32");
+
+  mpfr_subnormalize(*mpfr_t_obj, inex, GMP_RNDN);
+
+  mpfr_set_emin(emin_reset);
+  mpfr_set_emax(emax_reset);
+
+  OBJ_READONLY_ON /*defined in math_mpfr_include.h */
+  return obj_ref;
+}
+
+SV * subnormalize_float16(pTHX_ SV * val) {
+  mpfr_t * mpfr_t_obj;
+  SV * obj_ref, * obj;
+  int inex;
+  mpfr_exp_t emin_reset, emax_reset;
+
+  NEW_MATH_MPFR_OBJECT("Math::MPFR",subnormalize_float16) /* defined in math_mpfr_include.h */
+  mpfr_init2 (*mpfr_t_obj, 11);
+
+  emin_reset = mpfr_get_emin();
+  emax_reset = mpfr_get_emax();
+  mpfr_set_emin(-23);
+  mpfr_set_emax(16);
+
+  if(SV_IS_IOK(val)) inex = Rmpfr_set_IV(aTHX_ mpfr_t_obj, val, newSVuv(0)); /* handles IV/UV */
+  else if(SV_IS_POK(val)) inex = mpfr_strtofr(*mpfr_t_obj, SvPV_nolen(val), NULL, 0, GMP_RNDN);
+  else if(SV_IS_NOK(val)) inex = Rmpfr_set_NV(aTHX_ mpfr_t_obj, val, 0);
+  else if(sv_isobject(val)) {
+     const char* h = HvNAME(SvSTASH(SvRV(val)));
+     if(strEQ(h, "Math::MPFR")) {
+       inex = mpfr_set(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(val)))), GMP_RNDN);
+     }
+     else if(strEQ(h, "Math::GMPq")) {
+       inex = mpfr_set_q(*mpfr_t_obj, *(INT2PTR(mpq_t *, SvIVX(SvRV(val)))), GMP_RNDN);
+     }
+     else if(strEQ(h, "Math::GMPf")) {
+       inex = mpfr_set_f(*mpfr_t_obj, *(INT2PTR(mpf_t *, SvIVX(SvRV(val)))), GMP_RNDN);
+     }
+     else croak("Invalid object provided to subnormalize_float16");
+  }
+  else croak("Invalid argument provided to subnormalize_float16");
+
+  mpfr_subnormalize(*mpfr_t_obj, inex, GMP_RNDN);
+
+  mpfr_set_emin(emin_reset);
+  mpfr_set_emax(emax_reset);
+
+  OBJ_READONLY_ON /*defined in math_mpfr_include.h */
+  return obj_ref;
+}
+
+SV * subnormalize_bfloat16(pTHX_ SV * val) {
+  mpfr_t * mpfr_t_obj;
+  SV * obj_ref, * obj;
+  int inex;
+  mpfr_exp_t emin_reset, emax_reset;
+
+  NEW_MATH_MPFR_OBJECT("Math::MPFR",subnormalize_bfloat16) /* defined in math_mpfr_include.h */
+  mpfr_init2 (*mpfr_t_obj, 8);
+
+  emin_reset = mpfr_get_emin();
+  emax_reset = mpfr_get_emax();
+  mpfr_set_emin(-132);
+  mpfr_set_emax(128);
+
+  if(SV_IS_IOK(val)) inex = Rmpfr_set_IV(aTHX_ mpfr_t_obj, val, newSVuv(0)); /* handles IV/UV */
+  else if(SV_IS_POK(val)) inex = mpfr_strtofr(*mpfr_t_obj, SvPV_nolen(val), NULL, 0, GMP_RNDN);
+  else if(SV_IS_NOK(val)) inex = Rmpfr_set_NV(aTHX_ mpfr_t_obj, val, 0);
+  else if(sv_isobject(val)) {
+     const char* h = HvNAME(SvSTASH(SvRV(val)));
+     if(strEQ(h, "Math::MPFR")) {
+       inex = mpfr_set(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(val)))), GMP_RNDN);
+     }
+     else if(strEQ(h, "Math::GMPq")) {
+       inex = mpfr_set_q(*mpfr_t_obj, *(INT2PTR(mpq_t *, SvIVX(SvRV(val)))), GMP_RNDN);
+     }
+     else if(strEQ(h, "Math::GMPf")) {
+       inex = mpfr_set_f(*mpfr_t_obj, *(INT2PTR(mpf_t *, SvIVX(SvRV(val)))), GMP_RNDN);
+     }
+     else croak("Invalid object provided to subnormalize_bfloat16");
+  }
+  else croak("Invalid argument provided to subnormalize_bfloat16");
+
+  mpfr_subnormalize(*mpfr_t_obj, inex, GMP_RNDN);
+
+  mpfr_set_emin(emin_reset);
+  mpfr_set_emax(emax_reset);
+
+  OBJ_READONLY_ON /*defined in math_mpfr_include.h */
+  return obj_ref;
+}
 
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
@@ -13897,4 +14019,25 @@ _unpack_bfloat16 (f)
         }
         /* must have used dXSARGS; list context implied */
         return;
+
+SV *
+subnormalize_float32 (val)
+	SV *	val
+CODE:
+  RETVAL = subnormalize_float32 (aTHX_ val);
+OUTPUT:  RETVAL
+
+SV *
+subnormalize_float16 (val)
+	SV *	val
+CODE:
+  RETVAL = subnormalize_float16 (aTHX_ val);
+OUTPUT:  RETVAL
+
+SV *
+subnormalize_bfloat16 (val)
+	SV *	val
+CODE:
+  RETVAL = subnormalize_bfloat16 (aTHX_ val);
+OUTPUT:  RETVAL
 

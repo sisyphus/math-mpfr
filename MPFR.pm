@@ -203,6 +203,7 @@ anytoa atodouble atonum atonv
 check_exact_decimal decimalize doubletoa dragon_test
 fr_cmp_q_rounded mpfr_max_orig_len mpfr_min_inter_prec mpfrtoa numtoa nvtoa nv2mpfr nvtoa_test
 prec_cast q_add_fr q_cmp_fr q_div_fr q_fmod_fr q_mul_fr q_sub_fr rndna
+subnormalize_bfloat16 subnormalize_float16 subnormalize_float32
 unpack_bfloat16 unpack_float16 unpack_float32
 );
 
