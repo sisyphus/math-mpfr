@@ -2557,7 +2557,7 @@ SV * Rmpfr_get_IV(pTHX_ mpfr_t * x, SV * round) {
 #endif
 }
 
-int Rmpfr_set_IV(pTHX_ mpfr_t * x, SV * sv,  SV * round) {
+int Rmpfr_set_IV(pTHX_ mpfr_t * x, SV * sv,  unsigned int round) {
   CHECK_ROUNDING_VALUE
 
   if(!SV_IS_IOK(sv))
@@ -2565,14 +2565,14 @@ int Rmpfr_set_IV(pTHX_ mpfr_t * x, SV * sv,  SV * round) {
 
 #if defined MATH_MPFR_NEED_LONG_LONG_INT
   if(SvUOK(sv))
-    return mpfr_set_uj(*x, SvUV(sv), (mpfr_rnd_t)SvNV(round));
+    return mpfr_set_uj(*x, SvUV(sv), (mpfr_rnd_t)round);
 
-  return mpfr_set_sj(*x, SvIV(sv), (mpfr_rnd_t)SvNV(round));
+  return mpfr_set_sj(*x, SvIV(sv), (mpfr_rnd_t)round);
 #else
   if(SvUOK(sv))
-    return mpfr_set_ui(*x, SvUV(sv), (mpfr_rnd_t)SvNV(round));
+    return mpfr_set_ui(*x, SvUV(sv), (mpfr_rnd_t)round);
 
-  return mpfr_set_si(*x, SvIV(sv), (mpfr_rnd_t)SvNV(round));
+  return mpfr_set_si(*x, SvIV(sv), (mpfr_rnd_t)round);
 #endif
 }
 
@@ -2589,7 +2589,7 @@ void Rmpfr_init_set_IV(pTHX_ SV * q, SV * round) {
 
   mpfr_init(*mpfr_t_obj);
   sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-  ret = Rmpfr_set_IV(aTHX_ mpfr_t_obj, q, round);
+  ret = Rmpfr_set_IV(aTHX_ mpfr_t_obj, q, SvUV(round));
   SvREADONLY_on(obj);
   RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
@@ -2607,7 +2607,7 @@ void Rmpfr_init_set_IV_nobless(pTHX_ SV * q, SV * round) {
 
   mpfr_init(*mpfr_t_obj);
   sv_setiv(obj, INT2PTR(IV,mpfr_t_obj));
-  ret = Rmpfr_set_IV(aTHX_ mpfr_t_obj, q, round);
+  ret = Rmpfr_set_IV(aTHX_ mpfr_t_obj, q, SvUV(round));
   SvREADONLY_on(obj);
   RETURN_STACK_2  /*defined in math_mpfr_include.h */
 }
@@ -9453,7 +9453,7 @@ SV * subnormalize_float32(pTHX_ SV * val) {
   mpfr_set_emin(-148);
   mpfr_set_emax(128);
 
-  if(SV_IS_IOK(val)) inex = Rmpfr_set_IV(aTHX_ mpfr_t_obj, val, newSVuv(0)); /* handles IV/UV */
+  if(SV_IS_IOK(val)) inex = Rmpfr_set_IV(aTHX_ mpfr_t_obj, val, GMP_RNDN); /* handles IV/UV */
   else if(SV_IS_POK(val)) inex = mpfr_strtofr(*mpfr_t_obj, SvPV_nolen(val), NULL, 0, GMP_RNDN);
   else if(SV_IS_NOK(val)) inex = Rmpfr_set_NV(aTHX_ mpfr_t_obj, val, 0);
   else if(sv_isobject(val)) {
@@ -9494,7 +9494,7 @@ SV * subnormalize_float16(pTHX_ SV * val) {
   mpfr_set_emin(-23);
   mpfr_set_emax(16);
 
-  if(SV_IS_IOK(val)) inex = Rmpfr_set_IV(aTHX_ mpfr_t_obj, val, newSVuv(0)); /* handles IV/UV */
+  if(SV_IS_IOK(val)) inex = Rmpfr_set_IV(aTHX_ mpfr_t_obj, val, GMP_RNDN); /* handles IV/UV */
   else if(SV_IS_POK(val)) inex = mpfr_strtofr(*mpfr_t_obj, SvPV_nolen(val), NULL, 0, GMP_RNDN);
   else if(SV_IS_NOK(val)) inex = Rmpfr_set_NV(aTHX_ mpfr_t_obj, val, 0);
   else if(sv_isobject(val)) {
@@ -9535,7 +9535,7 @@ SV * subnormalize_bfloat16(pTHX_ SV * val) {
   mpfr_set_emin(-132);
   mpfr_set_emax(128);
 
-  if(SV_IS_IOK(val)) inex = Rmpfr_set_IV(aTHX_ mpfr_t_obj, val, newSVuv(0)); /* handles IV/UV */
+  if(SV_IS_IOK(val)) inex = Rmpfr_set_IV(aTHX_ mpfr_t_obj, val, GMP_RNDN); /* handles IV/UV */
   else if(SV_IS_POK(val)) inex = mpfr_strtofr(*mpfr_t_obj, SvPV_nolen(val), NULL, 0, GMP_RNDN);
   else if(SV_IS_NOK(val)) inex = Rmpfr_set_NV(aTHX_ mpfr_t_obj, val, 0);
   else if(sv_isobject(val)) {
@@ -12007,7 +12007,7 @@ int
 Rmpfr_set_IV (x, sv, round)
 	mpfr_t *	x
 	SV *	sv
-	SV *	round
+	unsigned int	round
 CODE:
   RETVAL = Rmpfr_set_IV (aTHX_ x, sv, round);
 OUTPUT:  RETVAL
