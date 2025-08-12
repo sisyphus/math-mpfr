@@ -2557,22 +2557,25 @@ SV * Rmpfr_get_IV(pTHX_ mpfr_t * x, SV * round) {
 #endif
 }
 
-int Rmpfr_set_IV(pTHX_ mpfr_t * x, SV * sv,  unsigned int round) {
-  CHECK_ROUNDING_VALUE
+int Rmpfr_set_IV(pTHX_ mpfr_t * x, SV * sv,  unsigned int rnd) {
+#if MPFR_VERSION_MAJOR < 4
+  if((mp_rnd_t)rnd > 4)
+    croak("Illegal rounding value supplied for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
+#endif
 
   if(!SV_IS_IOK(sv))
     croak("Arg provided to Rmpfr_set_IV is not an IV");
 
 #if defined MATH_MPFR_NEED_LONG_LONG_INT
   if(SvUOK(sv))
-    return mpfr_set_uj(*x, SvUV(sv), (mpfr_rnd_t)round);
+    return mpfr_set_uj(*x, SvUV(sv), (mpfr_rnd_t)rnd);
 
-  return mpfr_set_sj(*x, SvIV(sv), (mpfr_rnd_t)round);
+  return mpfr_set_sj(*x, SvIV(sv), (mpfr_rnd_t)rnd);
 #else
   if(SvUOK(sv))
-    return mpfr_set_ui(*x, SvUV(sv), (mpfr_rnd_t)round);
+    return mpfr_set_ui(*x, SvUV(sv), (mpfr_rnd_t)rnd);
 
-  return mpfr_set_si(*x, SvIV(sv), (mpfr_rnd_t)round);
+  return mpfr_set_si(*x, SvIV(sv), (mpfr_rnd_t)rnd);
 #endif
 }
 
@@ -12004,12 +12007,12 @@ CODE:
 OUTPUT:  RETVAL
 
 int
-Rmpfr_set_IV (x, sv, round)
+Rmpfr_set_IV (x, sv, rnd)
 	mpfr_t *	x
 	SV *	sv
-	unsigned int	round
+	unsigned int	rnd
 CODE:
-  RETVAL = Rmpfr_set_IV (aTHX_ x, sv, round);
+  RETVAL = Rmpfr_set_IV (aTHX_ x, sv, rnd);
 OUTPUT:  RETVAL
 
 void
