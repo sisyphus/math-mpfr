@@ -1701,9 +1701,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    EXCEPTIONS
 
    $inex = Rmpfr_subnormalize ($op, $si, $rnd);
-    This function rounds $op emulating subnormal number arithmetic.
+    This function has 2 purposes:
+    1) to subnormalize $op, as required;
+    2) to set $op to a signed infinity, as required.
     See the MPFR documentation for mpfr_subnormalize at:
-    www.mpfr.org/mpfr-current/mpfr.html#Function-and-Type-Index
+    https://www.mpfr.org/mpfr-current/mpfr.html#index-mpfr_005fsubnormalize
 
    $rop = subnormalize_float32($val);
    $rop = subnormalize_float16($val);
@@ -1712,16 +1714,16 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     object or Math::MPFR object.
     For "float32" (ie the single precision "float"):
      Returns a 24-bit precision Math::MPFR object containing the
-     value held by $val, adjusted for "float" subnormalization
-     when appropriate.
+     value held by $val, adjusted for either "float" subnormalization
+     or infinitude when appropriate.
     For "float16":
      Returns an 11-bit precision Math::MPFR object containing the
-     value held by $val, adjusted for "_Float16" subnormalization
-     when appropriate.
+     value held by $val, adjusted for either "_Float16" subnormalization
+     or infinitude when appropriate.
     For "bfloat16:
      Returns an 8-bit precision Math::MPFR object containing the
-     value held by $val, adjusted for "__bf16" subnormalization
-     when appropriate.
+     value held by $val, adjusted for either "__bf16" subnormalization
+     or infinitude when appropriate.
 
    $si =  Rmpfr_get_emin();
    $si =  Rmpfr_get_emax();
