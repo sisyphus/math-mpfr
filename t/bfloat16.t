@@ -5,6 +5,47 @@ use Math::MPFR qw(:mpfr);
 
 use Test::More;
 
+{
+  my $check = Rmpfr_init2(8);
+
+  my $s1 = '3.39e38';
+  my $rop1 = subnormalize_bfloat16($s1);
+  Rmpfr_strtofr($check, $s1, 0, MPFR_RNDN);
+  cmp_ok(Rmpfr_get_prec($rop1), '==', 8, "ROP1 has precision of 8");
+  cmp_ok(Rmpfr_inf_p($rop1), '==', 0, "ROP1 is NOT Inf");
+  cmp_ok($rop1, '==', $check, "ROP1 is set to '3.39e38'");
+
+  Rmpfr_nextabove($check);
+  cmp_ok("$check", 'eq', '3.403e38', "nextabove is '3.403e38'");
+
+  $s1 = '-3.39e38';
+  my $rop2 = subnormalize_bfloat16($s1);
+  Rmpfr_strtofr($check, $s1, 0, MPFR_RNDN);
+  cmp_ok(Rmpfr_get_prec($rop2), '==', 8, "ROP2 has precision of 8");
+  cmp_ok(Rmpfr_inf_p($rop2), '==', 0, "ROP2 is NOT Inf");
+  cmp_ok($rop2, '==', $check, "ROP2 is set to '-3.39e38'");
+
+  Rmpfr_nextbelow($check);
+  cmp_ok("$check", 'eq', '-3.403e38', "nextabove is '-3.403e38'");
+
+  $s1 = '3.403e38';
+  my $rop3 = subnormalize_bfloat16($s1);
+  Rmpfr_strtofr($check, $s1, 0, MPFR_RNDN);
+  cmp_ok("$check", 'eq', '3.403e38', "CHECK has value of '3.403e38'");
+  cmp_ok(Rmpfr_get_prec($rop3), '==', 8, "ROP3 has precision of 8");
+  cmp_ok(Rmpfr_inf_p($rop3), '!=', 0, "ROP3 is Inf");
+  cmp_ok($rop3, '>', 0, "ROP3 is +Inf");
+
+  $s1 = '-3.403e38';
+  my $rop4 = subnormalize_bfloat16($s1);
+  Rmpfr_strtofr($check, $s1, 0, MPFR_RNDN);
+  cmp_ok("$check", 'eq', '-3.403e38', "CHECK has value of '-3.403e38'");
+  cmp_ok(Rmpfr_get_prec($rop4), '==', 8, "ROP4 has precision of 8");
+  cmp_ok(Rmpfr_inf_p($rop4), '!=', 0, "ROP4 is Inf");
+  cmp_ok($rop4, '<', 0, "ROP4 is -Inf");
+
+}
+
 if(MPFR_VERSION >= 262912) { # MPFR-4.3.0 or later
   if(Math::MPFR::_have_bfloat16()) {
     cmp_ok(Rmpfr_buildopt_bfloat16_p(),  '==', 1, "MPFR library supports __bf16");

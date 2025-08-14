@@ -5,6 +5,47 @@ use Math::MPFR qw(:mpfr);
 
 use Test::More;
 
+{
+  my $check = Rmpfr_init2(11);
+
+  my $s1 = '6.5504e4';
+  my $rop1 = subnormalize_float16($s1);
+  Rmpfr_strtofr($check, $s1, 0, MPFR_RNDN);
+  cmp_ok(Rmpfr_get_prec($rop1), '==', 11, "ROP1 has precision of 11");
+  cmp_ok(Rmpfr_inf_p($rop1), '==', 0, "ROP1 is NOT Inf");
+  cmp_ok($rop1, '==', $check, "ROP1 is set to '6.5504e4'");
+
+  Rmpfr_nextabove($check);
+  cmp_ok("$check", 'eq', '6.5536e4', "nextabove is '6.5536e4'");
+
+  $s1 = '-6.5504e4';
+  my $rop2 = subnormalize_float16($s1);
+  Rmpfr_strtofr($check, $s1, 0, MPFR_RNDN);
+  cmp_ok(Rmpfr_get_prec($rop2), '==', 11, "ROP2 has precision of 11");
+  cmp_ok(Rmpfr_inf_p($rop2), '==', 0, "ROP2 is NOT Inf");
+  cmp_ok($rop2, '==', $check, "ROP2 is set to '-6.5504e4'");
+
+  Rmpfr_nextbelow($check);
+  cmp_ok("$check", 'eq', '-6.5536e4', "nextabove is '-6.5536e4'");
+
+  $s1 = '6.5536e4';
+  my $rop3 = subnormalize_float16($s1);
+  Rmpfr_strtofr($check, $s1, 0, MPFR_RNDN);
+  cmp_ok("$check", 'eq', '6.5536e4', "CHECK has value of '6.5536e4'");
+  cmp_ok(Rmpfr_get_prec($rop3), '==', 11, "ROP3 has precision of 11");
+  cmp_ok(Rmpfr_inf_p($rop3), '!=', 0, "ROP3 is Inf");
+  cmp_ok($rop3, '>', 0, "ROP3 is +Inf");
+
+  $s1 = '-6.5536e4';
+  my $rop4 = subnormalize_float16($s1);
+  Rmpfr_strtofr($check, $s1, 0, MPFR_RNDN);
+  cmp_ok("$check", 'eq', '-6.5536e4', "CHECK has value of '-6.5536e4'");
+  cmp_ok(Rmpfr_get_prec($rop4), '==', 11, "ROP4 has precision of 11");
+  cmp_ok(Rmpfr_inf_p($rop4), '!=', 0, "ROP4 is Inf");
+  cmp_ok($rop4, '<', 0, "ROP4 is -Inf");
+
+}
+
 if(MPFR_VERSION >= 262912) { # MPFR-4.3.0 or later
   if(Math::MPFR::_have_float16()) {
     cmp_ok(Rmpfr_buildopt_float16_p(),  '==', 1, "MPFR library supports _Float16");
@@ -76,6 +117,7 @@ if(MPFR_VERSION >= 262912) { # MPFR-4.3.0 or later
       my $mpfr = Rmpfr_init2(8);
       Rmpfr_set_FLOAT16($mpfr, $bf_1, MPFR_RNDN);
       Rmpfr_get_FLOAT16($bf_2, $mpfr, MPFR_RNDN);
+      cmp_ok($bf_2, '==', sqrt(Math::Float16->new(2)), 'sanity check');
       cmp_ok(Math::Float16::unpack_f16_hex($bf_2), 'eq', '3DA8', 'Rmpfr_set_FLOAT16 and Rmpfr_get_FLOAT16 pass round trip');
     }
 
