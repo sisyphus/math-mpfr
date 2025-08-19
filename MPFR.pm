@@ -1881,6 +1881,110 @@ sub unpack_bfloat16 {
   return join('', @ret);
 }
 
+sub subnormalize_bfloat16 {
+  my $sv = shift;
+  my $itsa = _itsa($sv);
+  my $limit =       2 ** -133; # 0b0.1p-132
+  my $lower_limit = 2 ** -134; # 0b0.1p-133
+  my $to8 = Rmpfr_init2(8);
+  my $inex;
+
+  if($itsa < 5 && $itsa > 0) { # IV, UV, NV or PV
+    if($itsa == 3) { # NV
+      my $signbit = 1;
+      $signbit = -1 if $sv < 0;
+      $inex = Rmpfr_set_NV($to8, $sv, MPFR_RNDN);
+      return $to8 if( Rmpfr_inf_p($to8) || Rmpfr_nan_p($to8) );
+      if(Rmpfr_get_exp($to8) >= 129) {
+        Rmpfr_set_inf($to8, $signbit);
+        return $to8;
+      }
+      if(Rmpfr_get_exp($to8) < -132) {
+        if(abs($to8) <= $lower_limit) {
+          Rmpfr_set_ui($to8, 0, MPFR_RNDN);
+          return $to8;
+        }
+       Rmpfr_set_NV($to8, $limit * $signbit, MPFR_RNDN);
+       return $to8;
+      }
+    }
+    return _subnormalize_bfloat16($sv);
+  }
+
+  if($itsa == 5) { # MPFR
+    my $signbit = 1;
+    $signbit = -1 if Rmpfr_signbit($sv);
+    $inex = Rmpfr_set($to8, $sv, MPFR_RNDN);
+    return $to8 if( Rmpfr_inf_p($to8) || Rmpfr_nan_p($to8) );
+    if(Rmpfr_get_exp($to8) >= 129) {
+      Rmpfr_set_inf($to8, $signbit);
+      return $to8;
+    }
+    if(Rmpfr_get_exp($to8) < -132) {
+      if(abs($to8) <= $lower_limit) {
+        Rmpfr_set_ui($to8, 0, MPFR_RNDN);
+        return $to8;
+      }
+      Rmpfr_set_NV($to8, $limit * $signbit, MPFR_RNDN);
+      return $to8;
+    }
+    return _subn($to8, $inex, -132, 128);
+  }
+
+  if($itsa == 6) { # GMPf
+    my $signbit = 1;
+    $inex = Rmpfr_set_f($to8, $sv, MPFR_RNDN);
+    $signbit = -1 if Rmpfr_signbit($to8);
+    return $to8 if( Rmpfr_inf_p($to8) || Rmpfr_nan_p($to8) );
+    if(Rmpfr_get_exp($to8) >= 129) {
+      Rmpfr_set_inf($to8, $signbit);
+      return $to8;
+    }
+    if(Rmpfr_get_exp($to8) < -132) {
+      if(abs($to8) <= $lower_limit) {
+        Rmpfr_set_ui($to8, 0, MPFR_RNDN);
+        return $to8;
+      }
+     Rmpfr_set_NV($to8, $limit * $signbit, MPFR_RNDN);
+     return $to8;
+    }
+    return _subn($to8, $inex, -132, 128);
+  }
+
+  if($itsa == 7) { # GMPq
+    my $signbit = 1;
+    $inex = Rmpfr_set_q($to8, $sv, MPFR_RNDN);
+    $signbit = -1 if Rmpfr_signbit($to8);
+    return $to8 if( Rmpfr_inf_p($to8) || Rmpfr_nan_p($to8) );
+    if(Rmpfr_get_exp($to8) >= 129) {
+      Rmpfr_set_inf($to8, $signbit);
+      return $to8;
+    }
+    if(Rmpfr_get_exp($to8) < -132) {
+      if(abs($to8) <= $lower_limit) {
+        Rmpfr_set_ui($to8, 0, MPFR_RNDN);
+        return $to8;
+      }
+     Rmpfr_set_NV($to8, $limit * $signbit, MPFR_RNDN);
+     return $to8;
+    }
+    return _subn($to8, $inex, -132, 128);
+  }
+
+  die "Unrecognized argument passed to subnormalize_bfloat16()";
+}
+
+sub _subn {
+    my ($to8, $inex, $emin, $emax) = (shift, shift, shift, shift);
+    my $emin_orig = Rmpfr_get_emin();
+    my $emax_orig = Rmpfr_get_emax();
+    Rmpfr_set_emin($emin);
+    Rmpfr_set_emax($emax);
+    Rmpfr_subnormalize($to8, $inex, MPFR_RNDN);
+    Rmpfr_set_emin($emin_orig);
+    Rmpfr_set_emax($emax_orig);
+    return $to8;
+}
 
 1;
 
