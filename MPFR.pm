@@ -1891,6 +1891,8 @@ sub subnormalize_bfloat16 {
 
   if($itsa < 5 && $itsa > 0) { # IV, UV, NV or PV
     if($itsa == 3) { # NV
+      # Note that this block does not inevitably
+      # return something.
       my $signbit = 1;
       $signbit = -1 if $sv < 0;
       $inex = Rmpfr_set_NV($to8, $sv, MPFR_RNDN);
@@ -1900,7 +1902,8 @@ sub subnormalize_bfloat16 {
         return $to8;
       }
       if(Rmpfr_get_exp($to8) < -132) {
-        if(abs($to8) <= $lower_limit) {
+        #if(abs($to8) <= $lower_limit) {
+        if(abs($sv) <= $lower_limit) { # Compare to $sv, not to $to8. Avoids double rounding
           Rmpfr_set_ui($to8, 0, MPFR_RNDN);
           return $to8;
         }
@@ -1921,7 +1924,7 @@ sub subnormalize_bfloat16 {
       return $to8;
     }
     if(Rmpfr_get_exp($to8) < -132) {
-      if(abs($to8) <= $lower_limit) {
+      if(abs($sv) <= $lower_limit) { # Compare to $sv, not to $to8. Avoids double rounding
         Rmpfr_set_ui($to8, 0, MPFR_RNDN);
         return $to8;
       }
@@ -1941,7 +1944,7 @@ sub subnormalize_bfloat16 {
       return $to8;
     }
     if(Rmpfr_get_exp($to8) < -132) {
-      if(abs($to8) <= $lower_limit) {
+      if(abs($sv) <= $lower_limit) { # Compare to $sv, not to $to8. Avoids double rounding
         Rmpfr_set_ui($to8, 0, MPFR_RNDN);
         return $to8;
       }
@@ -1961,7 +1964,7 @@ sub subnormalize_bfloat16 {
       return $to8;
     }
     if(Rmpfr_get_exp($to8) < -132) {
-      if(abs($to8) <= $lower_limit) {
+      if(abs($sv) <= $lower_limit) { # Compare to $sv, not to $to8. Avoids double rounding
         Rmpfr_set_ui($to8, 0, MPFR_RNDN);
         return $to8;
       }

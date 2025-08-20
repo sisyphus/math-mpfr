@@ -100,15 +100,19 @@ use Test::More;
 #  9.184e-41
 #  0.10000000E-132 (MPFR)
 
-# 8-bit 4e-41 (0) is:
-#  0x1.be03d0bf225c7p-135
-#  4e-41
-#  0.11011111E-134
+  Rmpfr_strtofr($check, '9.184e-41', 10, MPFR_RNDN);
+  my $check_neg = Rmpfr_init2(8);
+  Rmpfr_strtofr($check_neg, '-9.184e-41', 10, MPFR_RNDN);
 
-# 8-bit 5e-41 is (denorm_min):
-#  0x1.16c262777579cp-134
-#  5e-41
-#  0.10001011E-133
+  $s1 = '0b0.1000000000000001p-133'; # Double precision '4.5919149377459931e-41')
+  cmp_ok(subnormalize_bfloat16($s1), '==', $check, "0b0.1000000000000001p-133 ok");
+  cmp_ok(subnormalize_bfloat16("-$s1"), '==', $check_neg, "-0b0.1000000000000001p-133 ok");
+
+  $s1 = '4.5919149377459931e-41';
+  cmp_ok(subnormalize_bfloat16($s1), '==', $check, "4.5919149377459931e-41 as string ok");
+  cmp_ok(subnormalize_bfloat16("-$s1"), '==', $check_neg, "-4.5919149377459931e-41 as string ok");
+  cmp_ok(subnormalize_bfloat16($s1 + 0), '==', $check, "4.5919149377459931e-41 as NV ok");
+  cmp_ok(subnormalize_bfloat16(-($s1 + 0)), '==', $check_neg, "-4.5919149377459931e-41 as NV ok");
 
 }
 
