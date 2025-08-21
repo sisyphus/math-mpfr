@@ -1904,7 +1904,7 @@ sub subnormalize_bfloat16 {
       if(Rmpfr_get_exp($to8) < -132) {
         #if(abs($to8) <= $lower_limit) {
         if(abs($sv) <= $lower_limit) { # Compare to $sv, not to $to8. Avoids double rounding
-          Rmpfr_set_ui($to8, 0, MPFR_RNDN);
+          Rmpfr_set_zero($to8, $signbit);
           return $to8;
         }
        Rmpfr_set_NV($to8, $limit * $signbit, MPFR_RNDN);
@@ -1925,7 +1925,7 @@ sub subnormalize_bfloat16 {
     }
     if(Rmpfr_get_exp($to8) < -132) {
       if(abs($sv) <= $lower_limit) { # Compare to $sv, not to $to8. Avoids double rounding
-        Rmpfr_set_ui($to8, 0, MPFR_RNDN);
+        Rmpfr_set_zero($to8, $signbit);
         return $to8;
       }
       Rmpfr_set_NV($to8, $limit * $signbit, MPFR_RNDN);
@@ -1945,7 +1945,7 @@ sub subnormalize_bfloat16 {
     }
     if(Rmpfr_get_exp($to8) < -132) {
       if(abs($sv) <= $lower_limit) { # Compare to $sv, not to $to8. Avoids double rounding
-        Rmpfr_set_ui($to8, 0, MPFR_RNDN);
+        Rmpfr_set_zero($to8, $signbit);
         return $to8;
       }
      Rmpfr_set_NV($to8, $limit * $signbit, MPFR_RNDN);
@@ -1965,7 +1965,7 @@ sub subnormalize_bfloat16 {
     }
     if(Rmpfr_get_exp($to8) < -132) {
       if(abs($sv) <= $lower_limit) { # Compare to $sv, not to $to8. Avoids double rounding
-        Rmpfr_set_ui($to8, 0, MPFR_RNDN);
+        Rmpfr_set_zero($to8, $signbit);
         return $to8;
       }
      Rmpfr_set_NV($to8, $limit * $signbit, MPFR_RNDN);
