@@ -6325,7 +6325,7 @@ SV * Rmpfr_set_BFLOAT16(pTHX_ mpfr_t * rop, SV * op, SV *rnd) {
     croak("2nd arg (a %s object) supplied to Rmpfr_set_BFLOAT16 needs to be a Math::Bfloat16 object",
            HvNAME(SvSTASH(SvRV(op))));
   }
-  else croak("2nd arg (which needs to be a Math::Bfloat16 object) supplied to Rmpfr_set_BFLOAT16 is not an object");
+  else croak("2nd arg (which must be a Math::Bfloat16 object) supplied to Rmpfr_set_BFLOAT16 is not an object");
 #else
   croak("This build of Math::MPFR has been built without __bf16 (Bfloat16) support");
 #endif
@@ -6455,7 +6455,7 @@ void Rmpfr_get_BFLOAT16(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
   }
   else {
     PERL_UNUSED_ARG2(op, rnd);
-    croak("1st arg (which needs to be a Math::Bfloat16 object) supplied to Rmpfr_get_BFLOAT16 is not an object");
+    croak("1st arg (which must be a Math::Bfloat16 object) supplied to Rmpfr_get_BFLOAT16 is not an object");
   }
 #else
   croak("This build of Math::MPFR has been built without __bf16 (Bfloat16) support");
@@ -9524,38 +9524,22 @@ SV * subnormalize_float16(pTHX_ SV * val) {
   return obj_ref;
 }
 
-SV * subnormalize_bfloat16(pTHX_ SV * val) {
+SV * _subnormalize_pv(pTHX_ SV * val, int emin, int emax, int prec) {
+  /* First argument (val) is assumed to be a PV */
   mpfr_t * mpfr_t_obj;
   SV * obj_ref, * obj;
   int inex;
   mpfr_exp_t emin_reset, emax_reset;
 
-  NEW_MATH_MPFR_OBJECT("Math::MPFR",subnormalize_bfloat16) /* defined in math_mpfr_include.h */
-  mpfr_init2 (*mpfr_t_obj, 8);
+  NEW_MATH_MPFR_OBJECT("Math::MPFR",_subnormalize_pv) /* defined in math_mpfr_include.h */
+  mpfr_init2 (*mpfr_t_obj, (mpfr_prec_t)prec);
 
   emin_reset = mpfr_get_emin();
   emax_reset = mpfr_get_emax();
-  mpfr_set_emin(-132);
-  mpfr_set_emax(128);
+  mpfr_set_emin((mpfr_exp_t)emin);
+  mpfr_set_emax((mpfr_exp_t)emax);
 
-  if(SV_IS_IOK(val)) inex = Rmpfr_set_IV(aTHX_ mpfr_t_obj, val, GMP_RNDN); /* handles IV/UV */
-  else if(SV_IS_POK(val)) inex = mpfr_strtofr(*mpfr_t_obj, SvPV_nolen(val), NULL, 0, GMP_RNDN);
-  else if(SV_IS_NOK(val)) inex = Rmpfr_set_NV(aTHX_ mpfr_t_obj, val, 0);
-  else if(sv_isobject(val)) {
-     const char* h = HvNAME(SvSTASH(SvRV(val)));
-     if(strEQ(h, "Math::MPFR")) {
-       inex = mpfr_set(*mpfr_t_obj, *(INT2PTR(mpfr_t *, SvIVX(SvRV(val)))), GMP_RNDN);
-     }
-     else if(strEQ(h, "Math::GMPq")) {
-       inex = mpfr_set_q(*mpfr_t_obj, *(INT2PTR(mpq_t *, SvIVX(SvRV(val)))), GMP_RNDN);
-     }
-     else if(strEQ(h, "Math::GMPf")) {
-       inex = mpfr_set_f(*mpfr_t_obj, *(INT2PTR(mpf_t *, SvIVX(SvRV(val)))), GMP_RNDN);
-     }
-     else croak("Invalid object provided to subnormalize_bfloat16");
-  }
-  else croak("Invalid argument provided to subnormalize_bfloat16");
-
+  inex = mpfr_strtofr(*mpfr_t_obj, SvPV_nolen(val), NULL, 0, GMP_RNDN);
   mpfr_subnormalize(*mpfr_t_obj, inex, GMP_RNDN);
 
   mpfr_set_emin(emin_reset);
@@ -14038,9 +14022,12 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
-subnormalize_bfloat16 (val)
+_subnormalize_pv (val, emin, emax, prec)
 	SV *	val
+	int	emin
+	int	emax
+	int	prec
 CODE:
-  RETVAL = subnormalize_bfloat16 (aTHX_ val);
+  RETVAL = _subnormalize_pv (aTHX_ val, emin, emax, prec);
 OUTPUT:  RETVAL
 
