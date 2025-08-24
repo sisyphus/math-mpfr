@@ -48,7 +48,7 @@ if(MPFR_VERSION >= 262912) { # MPFR-4.3.0 or later
       else {
         $str1 = unpack_bfloat16($arg, MPFR_RNDN);
       }
-      $str2 = unpack_bfloat16(subnormalize_bfloat16($arg), MPFR_RNDN);
+      $str2 = unpack_bfloat16(subnormalize_generic($arg, -132, 128, 8), MPFR_RNDN);
       cmp_ok($str1, 'eq', $str2, "__bf16 $arg: Strings match");
     }
   }

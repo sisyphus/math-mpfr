@@ -203,7 +203,7 @@ anytoa atodouble atonum atonv
 check_exact_decimal decimalize doubletoa dragon_test
 fr_cmp_q_rounded mpfr_max_orig_len mpfr_min_inter_prec mpfrtoa numtoa nvtoa nv2mpfr nvtoa_test
 prec_cast q_add_fr q_cmp_fr q_div_fr q_fmod_fr q_mul_fr q_sub_fr rndna
-subnormalize_bfloat16 subnormalize_float16 subnormalize_float32
+subnormalize_generic subnormalize_float16 subnormalize_float32
 unpack_bfloat16 unpack_float16 unpack_float32
 );
 
@@ -1881,16 +1881,22 @@ sub unpack_bfloat16 {
   return join('', @ret);
 }
 
-sub subnormalize_bfloat16 {
-  my $sv = shift;
+sub subnormalize_generic {
+  my ($sv, $emin, $emax, $prec) = (shift, shift, shift, shift);
   my $itsa = _itsa($sv);
-  my $limit =       2 ** -133; # 0b0.1p-132
-  my $lower_limit = 2 ** -134; # 0b0.1p-133
-  my $to8 = Rmpfr_init2(8);
+  my $limit =       2 ** ($emin - 1);
+  my $lower_limit = 2 ** ($emin - 2);
+  my $to8 = Rmpfr_init2($prec);
   my $inex;
 
-  if($itsa == 1 || $itsa == 2 || $itsa == 4 ) { # IV, UV, or PV
-    return _subnormalize_bfloat16($sv);
+  if( $itsa == 1 || $itsa == 2 ) {       # IV or UV
+    my $ret = Rmpfr_init2($prec);
+    Rmpfr_set_IV($ret, $sv, MPFR_RNDN);
+    return $ret;
+  }
+
+  if($itsa == 4 ) {                     # PV
+    return _subnormalize_pv($sv, $emin, $emax, $prec);
   }
 
   my $signbit = 1;
@@ -1898,26 +1904,30 @@ sub subnormalize_bfloat16 {
 
   if($itsa == 3) { # NV
     $inex = Rmpfr_set_NV($to8, $sv, MPFR_RNDN); # NV
+    $signbit = -1 if ($sv == 0 && Rmpfr_signbit(Math::MPFR->new($sv)));
   }
   elsif($itsa == 5) {
-     $inex = Rmpfr_set($to8, $sv, MPFR_RNDN);   # MPFR
+    $inex = Rmpfr_set($to8, $sv, MPFR_RNDN);   # MPFR
+    $signbit = -1 if (Rmpfr_zero_p($to8) && Rmpfr_signbit($to8));
   }
   elsif($itsa == 6) {
     $inex = Rmpfr_set_f($to8, $sv, MPFR_RNDN);  # GMPf
+    $signbit = -1 if (Rmpfr_zero_p($to8) && Rmpfr_signbit($to8));
   }
   elsif($itsa == 7) {
     $inex = Rmpfr_set_q($to8, $sv, MPFR_RNDN);  # GMPq
+    $signbit = -1 if (Rmpfr_zero_p($to8) && Rmpfr_signbit($to8));
   }
   else {
     die "Unrecognized argument passed to subnormalize_bfloat16()";
   }
 
   return $to8 if( Rmpfr_inf_p($to8) || Rmpfr_nan_p($to8) );
-  if(Rmpfr_get_exp($to8) >= 129) {
+  if(Rmpfr_get_exp($to8) >= $emax + 1) {
     Rmpfr_set_inf($to8, $signbit);
     return $to8;
   }
-  if(Rmpfr_get_exp($to8) < -132) {
+  if(Rmpfr_get_exp($to8) < $emin) {
     if(abs($sv) <= $lower_limit) { # Compare to $sv, not to $to8. Avoids double rounding
       Rmpfr_set_zero($to8, $signbit);
       return $to8;
@@ -1925,8 +1935,8 @@ sub subnormalize_bfloat16 {
     Rmpfr_set_NV($to8, $limit * $signbit, MPFR_RNDN);
     return $to8;
   }
-  return _subnormalize_bfloat16($sv) if $itsa == 3;
-  return _subn($to8, $inex, -132, 128); # _subnormalize_bfloat16 does not accept $inex. (TODO ??)
+  #return _subnormalize_bfloat16($sv) if $itsa == 3;
+  return _subn($to8, $inex, $emin, $emax);
 }
 
 sub _subn {
