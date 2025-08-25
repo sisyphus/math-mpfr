@@ -1701,29 +1701,37 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    EXCEPTIONS
 
    $inex = Rmpfr_subnormalize ($op, $si, $rnd);
-    This function has 2 purposes:
-    1) to subnormalize $op, as required;
-    2) to set $op to a signed infinity, as required.
+    This function subnormalizes $op when subnormalization is appropriate.
+    Otherwise $op remains unchanged.
     See the MPFR documentation for mpfr_subnormalize at:
     https://www.mpfr.org/mpfr-current/mpfr.html#index-mpfr_005fsubnormalize
 
-   $rop = subnormalize_float32($val);
-   $rop = subnormalize_float16($val);
+   $rop = subnormalize_float32 ($val);
+   $rop = subnormalize_float16 ($val);
    $rop = subnormalize_bfloat16($val);
+   $rop = subnormalize_generic ($val, $emin, $emax, $prec);
     $val can be an IV/UV,PV, NV, Math::GMPf object, Math::GMPq
     object or Math::MPFR object.
     For "float32" (ie the single precision "float"):
      Returns a 24-bit precision Math::MPFR object containing the
      value held by $val, adjusted for either "float" subnormalization
-     or infinitude when appropriate.
+     or infinitude when appropriate. This sub simply calls:
+        subnormalize_generic($_[0], -148, 128, 24);
     For "float16":
      Returns an 11-bit precision Math::MPFR object containing the
      value held by $val, adjusted for either "_Float16" subnormalization
-     or infinitude when appropriate.
+     or infinitude when appropriate. This sub simply calls:
+        subnormalize_generic($_[0], -23, 16, 11);
     For "bfloat16:
      Returns an 8-bit precision Math::MPFR object containing the
      value held by $val, adjusted for either "__bf16" subnormalization
-     or infinitude when appropriate.
+     or infinitude when appropriate. This sub simply calls:
+        subnormalize_generic($_[0], -132, 128, 8);
+    For "generic":
+     Returns a $prec-bit precision Math::MPFR object containing the
+     value held by $val, adjusted for either subnormalization or
+     infinitude (when appropriate), and based upon the value of $prec
+     and upon the exponent range specified by $emin and $emax.
 
    $si =  Rmpfr_get_emin();
    $si =  Rmpfr_get_emax();
@@ -2297,7 +2305,11 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
    $str = unpack_bfloat16($arg, $rnd, [$base]);# 16-bit "bfloat"
    $str = unpack_float16($arg, $rnd, [$base]); # 16-bit half prec.
    $str = unpack_float32($arg, $rnd, [$base]); # 32-bit single prec.
-    The "bfloat16" and "Float16" forms require mpfr-4.3.0 or later.
+    The "bfloat16" and "float16" forms require mpfr-4.3.0 or later.
+    They also require that Math::MPFR has been built with
+    "__bf16" and (respectively) "_Float16" support.
+    (The "float32" is simply the single precision "float", which
+    should be universally supported.)
     $arg is one of IV, UV, NV, PV, or Math::MPFR object.
     Unpack $arg's value to an upper case hex string, where the
     value of $arg has been cast (in accordance with $rnd) to a
