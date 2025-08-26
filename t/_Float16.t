@@ -3,7 +3,17 @@ use warnings;
 
 use Math::MPFR qw(:mpfr);
 
+# DENORM_MIN =                  # 5.9605e-8
+# DENORM_MAX =                  # 6.0976e-5
+# NORM_MIN   =                  # 6.1035e-5
+# NORM_MAX   =                  # 6.5504e4
+
 use Test::More;
+
+  for my $m(1..25) {
+    cmp_ok(subnormalize_float16("${m}e-8" + 0), '==', subnormalize_float16(Math::MPFR->new("${m}e-8" + 0) ), "'${m}e-8'subnormalizes ok");
+    cmp_ok(subnormalize_float16("-${m}e-8" + 0), '==', subnormalize_float16(Math::MPFR->new("-${m}e-8" + 0) ), "'-${m}e-8'subnormalizes ok");
+  }
 
 {
   my $check = Rmpfr_init2(11);
