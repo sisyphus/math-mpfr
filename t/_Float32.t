@@ -5,6 +5,11 @@ use Math::MPFR qw(:mpfr);
 
 use Test::More;
 
+  for my $m(1..25) {
+    cmp_ok(subnormalize_float16("${m}e-46" + 0), '==', subnormalize_float16(Math::MPFR->new("${m}e-46" + 0) ), "'${m}e-46'subnormalizes ok");
+    cmp_ok(subnormalize_float16("-${m}e-46" + 0), '==', subnormalize_float16(Math::MPFR->new("-${m}e-46" + 0) ), "'-${m}e-46'subnormalizes ok");
+  }
+
 {
   my $check = Rmpfr_init2(24);
 
