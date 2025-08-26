@@ -44,8 +44,9 @@ use Test::More;
   cmp_ok(Rmpfr_inf_p($rop4), '!=', 0, "ROP4 is Inf");
   cmp_ok($rop4, '<', 0, "ROP4 is -Inf");
 
-  for my $m(5..25) {
+  for my $m(1..25) {
     cmp_ok(subnormalize_bfloat16("${m}e-41" ), '==', subnormalize_bfloat16(Math::MPFR->new("${m}e-41") ), "'${m}e-41'subnormalizes ok");
+    cmp_ok(subnormalize_bfloat16("-${m}e-41" ), '==', subnormalize_bfloat16(Math::MPFR->new("-${m}e-41") ), "'-${m}e-41'subnormalizes ok");
   }
 
   my $mpfr_denorm_min = Rmpfr_init2(8);
