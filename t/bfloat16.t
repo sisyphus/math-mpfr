@@ -5,13 +5,11 @@ use Math::MPFR qw(:mpfr);
 
 use Test::More;
 
-my @subn_args = (-132, 128, 8);
-
 {
   my $check = Rmpfr_init2(8);
 
   my $s1 = '3.39e38';
-  my $rop1 = subnormalize_generic($s1, @subn_args);
+  my $rop1 = subnormalize_bfloat16($s1 );
   Rmpfr_strtofr($check, $s1, 0, MPFR_RNDN);
   cmp_ok(Rmpfr_get_prec($rop1), '==', 8, "ROP1 has precision of 8");
   cmp_ok(Rmpfr_inf_p($rop1), '==', 0, "ROP1 is NOT Inf");
@@ -21,7 +19,7 @@ my @subn_args = (-132, 128, 8);
   cmp_ok("$check", 'eq', '3.403e38', "nextabove is '3.403e38'");
 
   $s1 = '-3.39e38';
-  my $rop2 = subnormalize_generic($s1, @subn_args);
+  my $rop2 = subnormalize_bfloat16($s1 );
   Rmpfr_strtofr($check, $s1, 0, MPFR_RNDN);
   cmp_ok(Rmpfr_get_prec($rop2), '==', 8, "ROP2 has precision of 8");
   cmp_ok(Rmpfr_inf_p($rop2), '==', 0, "ROP2 is NOT Inf");
@@ -31,7 +29,7 @@ my @subn_args = (-132, 128, 8);
   cmp_ok("$check", 'eq', '-3.403e38', "nextabove is '-3.403e38'");
 
   $s1 = '3.403e38';
-  my $rop3 = subnormalize_generic($s1, @subn_args);
+  my $rop3 = subnormalize_bfloat16($s1 );
   Rmpfr_strtofr($check, $s1, 0, MPFR_RNDN);
   cmp_ok("$check", 'eq', '3.403e38', "CHECK has value of '3.403e38'");
   cmp_ok(Rmpfr_get_prec($rop3), '==', 8, "ROP3 has precision of 8");
@@ -39,7 +37,7 @@ my @subn_args = (-132, 128, 8);
   cmp_ok($rop3, '>', 0, "ROP3 is +Inf");
 
   $s1 = '-3.403e38';
-  my $rop4 = subnormalize_generic($s1, @subn_args);
+  my $rop4 = subnormalize_bfloat16($s1 );
   Rmpfr_strtofr($check, $s1, 0, MPFR_RNDN);
   cmp_ok("$check", 'eq', '-3.403e38', "CHECK has value of '-3.403e38'");
   cmp_ok(Rmpfr_get_prec($rop4), '==', 8, "ROP4 has precision of 8");
@@ -47,7 +45,7 @@ my @subn_args = (-132, 128, 8);
   cmp_ok($rop4, '<', 0, "ROP4 is -Inf");
 
   for my $m(5..25) {
-    cmp_ok(subnormalize_generic("${m}e-41", @subn_args), '==', subnormalize_generic(Math::MPFR->new("${m}e-41"), @subn_args), "'${m}e-41'subnormalizes ok");
+    cmp_ok(subnormalize_bfloat16("${m}e-41" ), '==', subnormalize_bfloat16(Math::MPFR->new("${m}e-41") ), "'${m}e-41'subnormalizes ok");
   }
 
   my $mpfr_denorm_min = Rmpfr_init2(8);
@@ -64,38 +62,38 @@ my @subn_args = (-132, 128, 8);
   Rmpfr_nextbelow($mpfr_below_norm_max);
 
 
-  cmp_ok(subnormalize_generic("0b0.1p-133", @subn_args),           '==', 0 , "'0b0.1p-133'as string subnormalizes ok");
-  cmp_ok(  subnormalize_generic(Math::MPFR->new("0b0.1p-133"), @subn_args), '==', 0 , "'0b0.1p-133'as mpfr object subnormalizes ok");
-  cmp_ok(subnormalize_generic("-0b0.1p-133", @subn_args),           '==', 0 , "'-0b0.1p-133'as string subnormalizes ok");
-  cmp_ok(  subnormalize_generic(Math::MPFR->new("-0b0.1p-133"), @subn_args), '==', 0 , "'-0b0.1p-133'as mpfr object subnormalizes ok");
+  cmp_ok(subnormalize_bfloat16("0b0.1p-133" ),           '==', 0 , "'0b0.1p-133'as string subnormalizes ok");
+  cmp_ok(  subnormalize_bfloat16(Math::MPFR->new("0b0.1p-133") ), '==', 0 , "'0b0.1p-133'as mpfr object subnormalizes ok");
+  cmp_ok(subnormalize_bfloat16("-0b0.1p-133" ),           '==', 0 , "'-0b0.1p-133'as string subnormalizes ok");
+  cmp_ok(  subnormalize_bfloat16(Math::MPFR->new("-0b0.1p-133") ), '==', 0 , "'-0b0.1p-133'as mpfr object subnormalizes ok");
 
-  cmp_ok(subnormalize_generic("0b0.10111p-133", @subn_args),           '==', $mpfr_denorm_min , "'0b0.10111p-133'as string subnormalizes ok");
-  cmp_ok(subnormalize_generic(Math::MPFR->new("0b0.10111p-133"), @subn_args), '==', $mpfr_denorm_min,  "'0b0.10111p-133'as mpfr object subnormalizes ok");
-  cmp_ok(subnormalize_generic("-0b0.10111p-133", @subn_args),           '==', $mpfr_denorm_min_neg , "'-0b0.10111p-133'as string subnormalizes ok");
-  cmp_ok(subnormalize_generic(Math::MPFR->new("-0b0.10111p-133"), @subn_args), '==', $mpfr_denorm_min_neg,  "'-0b0.10111p-133'as mpfr object subnormalizes ok");
+  cmp_ok(subnormalize_bfloat16("0b0.10111p-133" ),           '==', $mpfr_denorm_min , "'0b0.10111p-133'as string subnormalizes ok");
+  cmp_ok(subnormalize_bfloat16(Math::MPFR->new("0b0.10111p-133") ), '==', $mpfr_denorm_min,  "'0b0.10111p-133'as mpfr object subnormalizes ok");
+  cmp_ok(subnormalize_bfloat16("-0b0.10111p-133" ),           '==', $mpfr_denorm_min_neg , "'-0b0.10111p-133'as string subnormalizes ok");
+  cmp_ok(subnormalize_bfloat16(Math::MPFR->new("-0b0.10111p-133") ), '==', $mpfr_denorm_min_neg,  "'-0b0.10111p-133'as mpfr object subnormalizes ok");
 
-  cmp_ok(subnormalize_generic("0b0.11p-133", @subn_args),           '==', $mpfr_denorm_min , "'-0b0.11p-133' as string subnormalizes ok");
-  cmp_ok(subnormalize_generic(Math::MPFR->new("0b0.11p-133"), @subn_args), '==', $mpfr_denorm_min,  "'0b0.11p-133'as mpfr object subnormalizes ok");
-  cmp_ok(subnormalize_generic("-0b0.11p-133", @subn_args),           '==', $mpfr_denorm_min_neg , "'-0b0.11p-133' as string subnormalizes ok");
-  cmp_ok(subnormalize_generic(Math::MPFR->new("-0b0.11p-133"), @subn_args), '==', $mpfr_denorm_min_neg,  "'-0b0.11p-133' as mpfr object subnormalizes ok");
+  cmp_ok(subnormalize_bfloat16("0b0.11p-133" ),           '==', $mpfr_denorm_min , "'-0b0.11p-133' as string subnormalizes ok");
+  cmp_ok(subnormalize_bfloat16(Math::MPFR->new("0b0.11p-133") ), '==', $mpfr_denorm_min,  "'0b0.11p-133'as mpfr object subnormalizes ok");
+  cmp_ok(subnormalize_bfloat16("-0b0.11p-133" ),           '==', $mpfr_denorm_min_neg , "'-0b0.11p-133' as string subnormalizes ok");
+  cmp_ok(subnormalize_bfloat16(Math::MPFR->new("-0b0.11p-133") ), '==', $mpfr_denorm_min_neg,  "'-0b0.11p-133' as mpfr object subnormalizes ok");
 
-  cmp_ok(subnormalize_generic("0b0.1111111p128", @subn_args),           '==', $mpfr_below_norm_max , "'0b0.1111111p128'as string subnormalizes ok");
-  cmp_ok(subnormalize_generic(Math::MPFR->new("0b0.1111111p128"), @subn_args), '==', $mpfr_below_norm_max,  "'0b0.1111111p128'as mpfr object subnormalizes ok");
-  cmp_ok(subnormalize_generic("-0b0.1111111p128", @subn_args),           '==', -$mpfr_below_norm_max , "'-0b0.1111111p128'as string subnormalizes ok");
-  cmp_ok(subnormalize_generic(Math::MPFR->new("-0b0.1111111p128"), @subn_args), '==', -$mpfr_below_norm_max,  "'-0b0.1111111p128'as mpfr object subnormalizes ok");
+  cmp_ok(subnormalize_bfloat16("0b0.1111111p128" ),           '==', $mpfr_below_norm_max , "'0b0.1111111p128'as string subnormalizes ok");
+  cmp_ok(subnormalize_bfloat16(Math::MPFR->new("0b0.1111111p128") ), '==', $mpfr_below_norm_max,  "'0b0.1111111p128'as mpfr object subnormalizes ok");
+  cmp_ok(subnormalize_bfloat16("-0b0.1111111p128" ),           '==', -$mpfr_below_norm_max , "'-0b0.1111111p128'as string subnormalizes ok");
+  cmp_ok(subnormalize_bfloat16(Math::MPFR->new("-0b0.1111111p128") ), '==', -$mpfr_below_norm_max,  "'-0b0.1111111p128'as mpfr object subnormalizes ok");
 
-  cmp_ok(subnormalize_generic("0b0.11111111p128", @subn_args),           '==', $mpfr_norm_max , "NORM_MAX as string subnormalizes ok");
-  cmp_ok(subnormalize_generic(Math::MPFR->new("0b0.11111111p128"), @subn_args), '==', $mpfr_norm_max,  "NORM_MAX as mpfr object subnormalizes ok");
+  cmp_ok(subnormalize_bfloat16("0b0.11111111p128" ),           '==', $mpfr_norm_max , "NORM_MAX as string subnormalizes ok");
+  cmp_ok(subnormalize_bfloat16(Math::MPFR->new("0b0.11111111p128") ), '==', $mpfr_norm_max,  "NORM_MAX as mpfr object subnormalizes ok");
 
-  cmp_ok(Rmpfr_inf_p(subnormalize_generic("0b0.111111111p128", @subn_args)),           '!=', 0 , "'0b0.111111111p128'as string subnormalizes ok");
-  cmp_ok(Rmpfr_inf_p(subnormalize_generic(Math::MPFR->new("0b0.111111111p128"), @subn_args)), '!=', 0,  "'0b0.111111111p128'as mpfr object subnormalizes ok");
-  cmp_ok(Rmpfr_inf_p(subnormalize_generic("-0b0.111111111p128", @subn_args)),           '!=', 0 , "'-0b0.111111111p128'as string subnormalizes ok");
-  cmp_ok(Rmpfr_inf_p(subnormalize_generic(Math::MPFR->new("-0b0.111111111p128"), @subn_args)), '!=', 0,  "'-0b0.111111111p128'as mpfr object subnormalizes ok");
+  cmp_ok(Rmpfr_inf_p(subnormalize_bfloat16("0b0.111111111p128" )),           '!=', 0 , "'0b0.111111111p128'as string subnormalizes ok");
+  cmp_ok(Rmpfr_inf_p(subnormalize_bfloat16(Math::MPFR->new("0b0.111111111p128") )), '!=', 0,  "'0b0.111111111p128'as mpfr object subnormalizes ok");
+  cmp_ok(Rmpfr_inf_p(subnormalize_bfloat16("-0b0.111111111p128" )),           '!=', 0 , "'-0b0.111111111p128'as string subnormalizes ok");
+  cmp_ok(Rmpfr_inf_p(subnormalize_bfloat16(Math::MPFR->new("-0b0.111111111p128") )), '!=', 0,  "'-0b0.111111111p128'as mpfr object subnormalizes ok");
 
-  cmp_ok(Rmpfr_signbit(subnormalize_generic("0b0.11111111p128", @subn_args)),           '==', 0 , "'0b0.11111111p128'as string subnormalizes ok");
-  cmp_ok(Rmpfr_signbit(subnormalize_generic(Math::MPFR->new("0b0.11111111p128"), @subn_args)), '==', 0,  "'0b0.11111111p128'as mpfr object subnormalizes ok");
-  cmp_ok(Rmpfr_signbit(subnormalize_generic("-0b0.11111111p128", @subn_args)),           '!=', 0 , "'-0b0.11111111p128'as string subnormalizes ok");
-  cmp_ok(Rmpfr_signbit(subnormalize_generic(Math::MPFR->new("-0b0.11111111p128"), @subn_args)), '!=', 0,  "'-0b0.11111111p128'as mpfr object subnormalizes ok");
+  cmp_ok(Rmpfr_signbit(subnormalize_bfloat16("0b0.11111111p128" )),           '==', 0 , "'0b0.11111111p128'as string subnormalizes ok");
+  cmp_ok(Rmpfr_signbit(subnormalize_bfloat16(Math::MPFR->new("0b0.11111111p128") )), '==', 0,  "'0b0.11111111p128'as mpfr object subnormalizes ok");
+  cmp_ok(Rmpfr_signbit(subnormalize_bfloat16("-0b0.11111111p128" )),           '!=', 0 , "'-0b0.11111111p128'as string subnormalizes ok");
+  cmp_ok(Rmpfr_signbit(subnormalize_bfloat16(Math::MPFR->new("-0b0.11111111p128") )), '!=', 0,  "'-0b0.11111111p128'as mpfr object subnormalizes ok");
 
 # 8-bit Bfloat16 denorm_min is 9.184e-41:
 #  0x1p-133
@@ -107,14 +105,14 @@ my @subn_args = (-132, 128, 8);
   Rmpfr_strtofr($check_neg, '-9.184e-41', 10, MPFR_RNDN);
 
   $s1 = '0b0.1000000000000001p-133'; # Double precision '4.5919149377459931e-41')
-  cmp_ok(subnormalize_generic($s1, @subn_args), '==', $check, "0b0.1000000000000001p-133 ok");
-  cmp_ok(subnormalize_generic("-$s1", @subn_args), '==', $check_neg, "-0b0.1000000000000001p-133 ok");
+  cmp_ok(subnormalize_bfloat16($s1 ), '==', $check, "0b0.1000000000000001p-133 ok");
+  cmp_ok(subnormalize_bfloat16("-$s1" ), '==', $check_neg, "-0b0.1000000000000001p-133 ok");
 
   $s1 = '4.5919149377459931e-41';
-  cmp_ok(subnormalize_generic($s1, @subn_args), '==', $check, "4.5919149377459931e-41 as string ok");
-  cmp_ok(subnormalize_generic("-$s1", @subn_args), '==', $check_neg, "-4.5919149377459931e-41 as string ok");
-  cmp_ok(subnormalize_generic($s1 + 0, @subn_args), '==', $check, "4.5919149377459931e-41 as NV ok");
-  cmp_ok(subnormalize_generic(-($s1 + 0), @subn_args), '==', $check_neg, "-4.5919149377459931e-41 as NV ok");
+  cmp_ok(subnormalize_bfloat16($s1 ), '==', $check, "4.5919149377459931e-41 as string ok");
+  cmp_ok(subnormalize_bfloat16("-$s1" ), '==', $check_neg, "-4.5919149377459931e-41 as string ok");
+  cmp_ok(subnormalize_bfloat16($s1 + 0 ), '==', $check, "4.5919149377459931e-41 as NV ok");
+  cmp_ok(subnormalize_bfloat16(-($s1 + 0) ), '==', $check_neg, "-4.5919149377459931e-41 as NV ok");
 
 }
 
