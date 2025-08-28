@@ -41,6 +41,7 @@
     use constant MPFR_3_1_6_OR_LATER    => Math::MPFR::Random::_MPFR_VERSION() >  196869 ? 1 : 0;
     use constant MPFR_4_0_2_OR_LATER    => Math::MPFR::Random::_MPFR_VERSION() >= 262146 ? 1 : 0;
     use constant MPFR_PV_NV_BUG         => Math::MPFR::Random::_has_pv_nv_bug();
+    use constant MPFR_PREC_MIN          => Math::MPFR::Prec::_PREC_MIN();
 
     # https://github.com/StrawberryPerl/Perl-Dist-Strawberry/issues/226
     # Math::MPFR::Random::_buggy() was modified in version 4.34 to
