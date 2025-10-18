@@ -472,18 +472,24 @@ for(@ARGV) {
 #       then EU::MM should remove that link -
 #       so no big deal ... right ?
 #       But then there's (eg):
-#       https://www.cpantesters.org/report/7bc0f088-0b21-11ef-a9cc-b541ccdb2386
+#       https://www.cpantesters.org/report/7bc0f088-0b21-11ef-a9cc-b541ccdb2386 and
+#       https://www.cpantesters.org/cpan/report/7620e4b2-8d5c-11f0-8049-9103f7cfeb5e
 #       where the link cannot be resolved, yet
-#       it does NOT get removed. WTF ??
+#       it does NOT get removed.
 #       Apparently EU::MM can locate the library
-#       but the build process cannot.
+#       but the build process cannot - because libc
+#       is musl, not glibc. So we try the following:
+my $libs_opt = [ '-lmpfr -lgmp -lquadmath' ];
+$libs_opt = [ '-lmpfr -lgmp' ]
+  if($Config{osname} =~/linux/i && $Config{nvtype} ne "__float128"
+     && !$Config{gnulibc_version});
 
 my %options = (
   NAME         => 'Math::MPFR',
   AUTHOR       => 'Sisyphus (sisyphus at (@) cpan dot (.) org)',
   ABSTRACT     => 'Perl interface to the MPFR (floating point) library',
   DEFINE       => $defines,
-  LIBS         => [ '-lmpfr -lgmp -lquadmath' ],
+  LIBS         => $libs_opt,
   PREREQ_PM    => { 'Test::More' => '0.88', },
   #OBJECT       => '$(O_FILES)', # set below if $Config{nvsize} == 8
   LICENSE      => 'perl',
