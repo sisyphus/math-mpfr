@@ -8907,6 +8907,38 @@ SV * _mpfrtoa(pTHX_ mpfr_t * pnv, int min_normal_prec) {
  * END _mpfrtoa             *
  ****************************/
 
+SV * mpfrtoa_subn (pTHX_ mpfr_t * obj, SV * prec, SV * emin, SV * emax) {
+   mpfr_exp_t exponent = mpfr_get_exp(*obj);
+   mpfr_prec_t revised_prec;
+   mpfr_t temp;
+
+   if(!mpfr_regular_p(*obj)) {
+     return _mpfrtoa(aTHX_ obj, 0);
+   }
+
+   if(exponent > (mpfr_exp_t)SvIV(emax)) {
+     if(mpfr_signbit(*obj)) return newSVpv("-Inf", 0);
+     return newSVpv("Inf", 0);
+   }
+
+   if(exponent < (mpfr_exp_t)SvIV(emin)) {
+     if(mpfr_signbit(*obj)) return newSVpv("-0.0", 0);
+     return newSVpv("0.0", 0);
+   }
+
+   if(exponent < (mpfr_exp_t)(SvIV(emin) + SvIV(prec) - 1)) {
+     SV * ret;
+     revised_prec = (mpfr_prec_t)(exponent + 1 - SvIV(emin));
+     mpfr_init2(temp, revised_prec);
+     mpfr_set(temp, *obj, GMP_RNDN);
+     ret = _mpfrtoa(aTHX_ &temp, (mpfr_prec_t)SvIV(prec));
+     mpfr_clear(temp);
+     return ret;
+   }
+
+   return _mpfrtoa(aTHX_ obj, 0);
+}
+
 /****************************
  * BEGIN doubletoa          *
  ****************************/
@@ -13716,6 +13748,16 @@ _mpfrtoa (pnv, min_normal_prec)
 	int	min_normal_prec
 CODE:
   RETVAL = _mpfrtoa (aTHX_ pnv, min_normal_prec);
+OUTPUT:  RETVAL
+
+SV *
+mpfrtoa_subn (obj, prec, emin, emax)
+	mpfr_t *	obj
+	SV *	prec
+	SV *	emin
+	SV *	emax
+CODE:
+  RETVAL = mpfrtoa_subn (aTHX_ obj, prec, emin, emax);
 OUTPUT:  RETVAL
 
 void

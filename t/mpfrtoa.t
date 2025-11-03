@@ -1,3 +1,4 @@
+# Testing mpfrtoa and mpfrtoa_subn
 use strict;
 use warnings;
 use Math::MPFR qw(:mpfr);
@@ -116,6 +117,67 @@ for my $prec( 20000, 2000, 200, 96, 21, 5 ) {
     my $dec = mpfrtoa( $f );
 
     ok(dragon_test($f) == 15, "$s passes dragon test (NV)");
+  }
+}
+
+{
+  ### TESTING mpfrtoa_subn ###
+
+  my($bits, $emin, $emax) = ($Math::MPFR::NV_properties{bits}, $Math::MPFR::NV_properties{emin},
+                           $Math::MPFR::NV_properties{emax});
+
+  my @args = ($bits, $emin, $emax);
+
+  my $denorm_min = 2 ** $Math::MPFR::NV_properties{min_pow};
+  my $normal_min = $Math::MPFR::NV_properties{normal_min};
+  my $denorm_max = $normal_min - $denorm_min;
+  my $nv_max = $Math::MPFR::NV_properties{NV_MAX};
+
+  my $obj = Rmpfr_init2($bits);
+
+  cmp_ok($Math::MPFR::NV_properties{min_pow} + 1, '==', $Math::MPFR::NV_properties{emin}, "min_pow + 1 == $emin");
+
+  $denorm_min *= 2 if(!Math::MPFR::MPFR_4_0_2_OR_LATER); # Earlier versions don't properly accommodate
+                                                         # an mpfr precision of 1 bit.
+
+  for my $nv( $denorm_min,  $denorm_min * 9,  $denorm_min * 19,  $denorm_min * 1e300,  $normal_min,  $denorm_max,  $nv_max,  $nv_max * 2
+             -$denorm_min, -$denorm_min * 9, -$denorm_min * 19, -$denorm_min * 1e300, -$normal_min, -$denorm_max, -$nv_max, -$nv_max * 2 ) {
+    Rmpfr_set_NV($obj, $nv, MPFR_RNDN);
+    cmp_ok(mpfrtoa_subn($obj, @args), 'eq', nvtoa($nv), "$nv: nvtoa and mpfrtoa_subn agree");
+  }
+
+  like(mpfrtoa_subn(Math::MPFR->new(2) ** $emax, @args), qr/^inf$/i, "mpfrtoa_subn(2 ** $emax) =~ /^inf\$/i");
+  like(mpfrtoa_subn(-(Math::MPFR->new(2) ** $emax), @args), qr/^\-inf$/i, "mpfrtoa_subn(2 ** $emax) =~ /^\-inf\$/i");
+
+  cmp_ok(mpfrtoa_subn(Math::MPFR->new(2) ** ($emin - 2), @args),   'eq',  '0.0', "mpfrtoa_subn(2 ** ($emin - 2)) eq  '0.0'");
+  cmp_ok(mpfrtoa_subn(-(Math::MPFR->new(2) ** ($emin -2)), @args), 'eq', '-0.0', "mpfrtoa_subn(2 ** ($emin - 2)) eq '-0.0'");
+
+  my $first  = 2 ** ($emin + 5);
+  my $second = 2 ** ($emin + 4);
+  my $third  = 2 ** ($emin + 3);
+  my $fourth = 2 ** ($emin + 2);
+  my $fifth  = 2 ** ($emin + 1);
+  my $sixth  = 2 ** $emin;
+
+  my @sums = ($first, $second, $third, $fourth, $fifth, $sixth,
+              $first + $sixth, $first + $fifth, $first + $fourth, $first + $third, $first + $second,
+              $first + $sixth + $fifth, $first + $fifth + $fourth, $first + $fourth + $third, $first + $third + $second,
+              $first + $sixth + $fifth + $fourth, $first + $fifth + $fourth + $third, $first + $fourth + $third + $second,
+              $first + $sixth + $fifth + $fourth + $third, $first + $fifth + $fourth + $third + $second,
+              $first + $sixth + $fifth + $fourth + $third + $second);
+
+  my $t = Rmpfr_init2($bits);
+
+  my $have_ryu = 0;
+  eval {require Math::Ryu;};
+  $have_ryu = 1 unless $@;
+
+  for my $sum(@sums) {
+    Rmpfr_set_NV($t, $sum, MPFR_RNDN);
+    if($have_ryu) {
+      cmp_ok(mpfrtoa_subn($t, $bits, $emin, $emax), 'eq', Math::Ryu::spanyf($sum), "$sum representation agrees with Math::Ryu");
+    }
+    cmp_ok(mpfrtoa_subn($t, $bits, $emin, $emax), 'eq', nvtoa($sum), "$sum representation agrees with nvtoa");
   }
 }
 

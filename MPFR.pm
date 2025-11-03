@@ -202,8 +202,8 @@ Rmpfr_z_div Rmpfr_z_sub Rmpfr_zero_p Rmpfr_zeta Rmpfr_zeta_ui
 TRmpfr_inp_str TRmpfr_out_str
 anytoa atodouble atonum atonv
 check_exact_decimal decimalize doubletoa dragon_test
-fr_cmp_q_rounded mpfr_max_orig_len mpfr_min_inter_prec mpfrtoa numtoa nvtoa nv2mpfr nvtoa_test
-prec_cast q_add_fr q_cmp_fr q_div_fr q_fmod_fr q_mul_fr q_sub_fr rndna
+fr_cmp_q_rounded mpfr_max_orig_len mpfr_min_inter_prec mpfrtoa mpfrtoa_subn numtoa nvtoa nv2mpfr
+nvtoa_test prec_cast q_add_fr q_cmp_fr q_div_fr q_fmod_fr q_mul_fr q_sub_fr rndna
 subnormalize_generic subnormalize_bfloat16 subnormalize_float16 subnormalize_float32
 unpack_bfloat16 unpack_float16 unpack_float32
 );
@@ -838,8 +838,8 @@ sub Rmpfr_round_nearest_away {
 sub _get_NV_properties {
   # For the record
   # __bf16  : $bits =  8; $emin = -132; $emax = 128;
-  # _Float16: $bits = 11; $emin = -23 ?; $emax = 16 ?;
-  # _Float32: $bits = 24; $emin = ????; $emax = ???;
+  # _Float16: $bits = 11; $emin = -23; $emax = 16;
+  # _Float32: $bits = 24; $emin = -148; $emax = 128;
 
   my($bits, $PREC, $max_dig, $min_pow, $normal_min, $NV_MAX, $nvtype, $emax, $emin);
 

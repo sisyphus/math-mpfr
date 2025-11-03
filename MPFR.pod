@@ -1903,30 +1903,81 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
             With double-double NVs, nvtoa() currently requires
             mpfr-4.0.0 or later.
 
-   $str = mpfrtoa($op [, $uv]); # $uv is optional, but mysterious
-                                # and discouraged !!!
+   $str = mpfrtoa($op [, $uv]); # $uv is optional.
     As for nvtoa(), except that mpfrtoa() instead takes a Math::MPFR
     object as its argument.
     Sets $str to the value of $op.
+    This achieved by calling _mpfrtoa($op, 0).
     $str will appear in standard decimal format, containing the
     *minimum* number of significant digits such that the condition
-    ($str == $op) is true when the current default precision equals
-    the precision of $op.
+    ($str == $op) is true whenever the current default precision
+    equals the precision of $op.
     (The overloaded '==' operator evaluates $str according to the
-    current default precision, so that condition might be untrue
-    whenever the default precision != the precision of $op.)
+    current default precision, so it can be that $str != $op when
+    and only when the default precision != the precision of $op.)
 
     The second (optional) arg became available with Math-MPFR-4.24 and
     it can alter the behaviour of mpfrtoa when the value of $uv is
-    greater than the precision of $op. AFAIK, it is used only (and
-    arcanely in Math:FakeDD::dd_repro(), and the option will be removed
-    as soon as Math::FakeDD::dd_repro() can be adapted to that removal.
+    greater than the precision of $op - which is useful in respect
+    to subnormalization. However, if subnormal values are required
+    use mpfrtoa_subn (documented below) instead of mpfrtoa.
 
-$str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
-    For example, you want to know what nvtoa(sqrt 3) would return
+    I have also used a 2nd argument arcanely in Math:FakeDD::dd_repro,
+    as that seems to work. But that 2nd arg will be removed when/if I
+    can work out how to implement that removal. (Might take a while.)
+
+   $str = mpfrtoa_subn($op, $bits, $emin, $emax);
+    The mpfr library does not automatically perform subnormalization.
+    Hence, for a given subnormal $nv, nvtoa($nv) will often differ
+    from mpfrtoa($op), even though $op == $nv.
+    This function achieves its result by passing the appropriate
+    first and second arguments to the _mpfrtoa XSub.
+    It also works correctly with normal NV values.
+
+    Some examples for those perls whose $Config{nvsize} is 8:
+
+    use Math::MPFR qw(:mpfr);
+    Rmpfr_set_default_prec(53); # Required precision 8-byte NVs.
+
+     $nv = 2 ** -1070;
+     $op = Math::MPFR->new($nv);
+     @args = (53, -1073, 1024);
+     print "ok\n" if $nv == $op;             # ok
+     print nvtoa  ($nv), "\n";               # 8e-323
+     print mpfrtoa($op), "\n";               # 7.905050333459945e-323
+     print mpfrtoa_subn($op, @args), "\n\n"; # 8e-323
+
+     # Any value with an exponent < -1073 will be zero:
+     $op = Math::MPFR->new(2) ** -1075;      # Exponent is -1074
+     $nv = Rmpfr_get_NV($op, MPFR_RNDN);
+     print nvtoa  ($nv), "\n";               # 0.0
+     print mpfrtoa($op), "\n";               # 2.4703282292062327e-324
+     print mpfrtoa_subn($op, @args), "\n\n"; # 0.0
+
+     # Any value with an exponent > 1024 will be Inf:
+     $op = Math::MPFR->new(2) ** 1024;       # Exponent is 1025
+     $nv = Rmpfr_get_NV($op, MPFR_RNDN);
+     print nvtoa  ($nv), "\n";               # Inf
+     print mpfrtoa($op), "\n";               # 1.797693134862316e+308
+     print mpfrtoa_subn($op, @args), "\n\n"; # Inf
+     __END__
+
+    For perls whose $Config{nvtype} is the 80-bit extended precision
+    long double, the default precision would be set to 64 and @args
+    to (64, -16444, 16384).
+
+    For all other perls, the default precision would be set to 113,
+    and @args set to (113, -16493, 16384).
+
+   $str = anytoa($op); # $op precision must be 53 or 64 or 113.
+
+      Note: It's probably now  better to use mpfrtoa_subn (above) as
+            that sub also handles subnormals and Infs.
+
+    For example, if you want to know what nvtoa(sqrt 3) would return
     on a perl whose nvtype is the 113-bit precision __float128 (or
     IEEE-754 128-bit long double) but you don't have access to such
-    a perl. You can do:
+    a perl, you can do:
 
       my $bits = 113;
       Rmpfr_set_default_prec($bits);
@@ -1934,10 +1985,10 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
       my $s = anytoa($op);
       print "$s\n"; # 1.7320508075688772935274463415058723
 
-    Similarly, changing $bits to 53, or 64, or 2098 would provide
+    Similarly, changing $bits to 53, or 64 would provide
     the same as nvtoa(sqrt 3) for (respectively) the 53-bit
-    precision double nvtype , the 64-bit extended precision long
-    double nvtype, and the double-double nvtype.
+    precision double nvtype  and the 64-bit extended precision long
+    double nvtype.
 
     The value returned will be the same as returned by mpfrtoa($op)
     unless:
@@ -1951,10 +2002,6 @@ $str = anytoa($op); # $op precision must be 53 or 64 or 113 or 2098
      2) $op holds a finite non-zero value that is so close to zero
         that the specified nvtype will either round it to zero or
         denormalize it;
-
-     or
-
-     3) the precision of $op is 2098 bits.
 
    $mask = nvtoa_test($str, $arg [, $debug]);
     DEPRECATED - dragon_test (see below) is recommended instead.

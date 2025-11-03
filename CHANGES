@@ -1,10 +1,11 @@
 Revision history for Perl module Math::MPFR
 
 4.46
+  - Add mpfrtoa_subn. (Tests added to mpfrtoa.t.)
   - In Makefile.PL, exclude "-lquadmath" from the "LIBS" argument passed to
     WriteMakefile() if ($Config{osname} =~/linux/i && $Config{nvtype} ne "__float128"
     && !$config{gnulibc_version}).
-    We do this in an attempt to allow Math::MPFR to build on linus suystems where
+    We do this in an attempt to allow Math::MPFR to build on linus systems where
     libc is musl, not glibc. For an example of the problem see:
     https://www.cpantesters.org/cpan/report/65ddb9fa-a453-11f0-9829-bde118873113
 
