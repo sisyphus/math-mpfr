@@ -170,7 +170,9 @@ for my $prec( 20000, 2000, 200, 96, 21, 5 ) {
 
   my $have_ryu = 0;
   eval {require Math::Ryu;};
-  $have_ryu = 1 unless $@;
+  if(!$@) {
+    $have_ryu = 1 if $Math::Ryu::VERSION >= 1.03;
+  }
 
   for my $sum(@sums) {
     Rmpfr_set_NV($t, $sum, MPFR_RNDN);
