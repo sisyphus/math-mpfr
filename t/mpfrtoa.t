@@ -166,6 +166,25 @@ for my $prec( 20000, 2000, 200, 96, 21, 5 ) {
               $first + $sixth + $fifth + $fourth + $third, $first + $fifth + $fourth + $third + $second,
               $first + $sixth + $fifth + $fourth + $third + $second);
 
+  for(1 .. 1000) {
+    my $s = rand($emin * -1) + 1.01;
+    my $e = rand($emin * -1) + 1.01;
+    #$e += 0.7328569; # $nv needs to be an NV, not an IV.
+    $e = -$e if $_ & 1;
+    my $nv = $s * (2 ** $e);
+    push @sums, $nv;
+  }
+
+  # For the following values, on perl's whose nvsize && ivsize is 8, Math::Ryu's pany and spanyf
+  # functions will disagree with Math::Ryu's nv2s. This is as expected.
+  # For example, nv2s(6.88626464539243e+16) produces the more succinct float 6.88626464539243e+16
+  # But pany(6.88626464539243e+16) and spanyf(6.88626464539243e+16) produce the integer 68862646453924328.
+
+  push @sums, 6.88626464539243e+16, 1.49396927900039e+18, 6.8423792978218e+18,
+              1.18210319200906e+18, 3.32018713959247e+18, 6.02326426473863e+17,
+              4.13155289244474e+17;
+
+
   my $t = Rmpfr_init2($bits);
 
   my $have_ryu = 0;
@@ -176,11 +195,15 @@ for my $prec( 20000, 2000, 200, 96, 21, 5 ) {
 
   for my $sum(@sums) {
     Rmpfr_set_NV($t, $sum, MPFR_RNDN);
+    my $mpfrtoa_res = mpfrtoa_subn($t, $bits, $emin, $emax);
+
     if($have_ryu) {
-      cmp_ok(mpfrtoa_subn($t, $bits, $emin, $emax), 'eq', Math::Ryu::spanyf($sum), "$sum representation agrees with Math::Ryu");
+      my $ryu_res = Math::Ryu::nv2s($sum);
+      cmp_ok(lc($mpfrtoa_res), 'eq', lc($ryu_res), "$sum representation agrees with Math::Ryu::nv2s()");
     }
-    cmp_ok(mpfrtoa_subn($t, $bits, $emin, $emax), 'eq', nvtoa($sum), "$sum representation agrees with nvtoa");
+    cmp_ok($mpfrtoa_res, 'eq', nvtoa($sum), "$sum representation agrees with Math::MPFR::nvtoa()");
   }
 }
 
 done_testing;
+
