@@ -1,5 +1,8 @@
 # Check that a couple of values continue
 # to be assigned and printed correctly.
+# Skip thes tests on perl versions < 5.30.0
+# as those perls were buggy and may well fail
+# the tests.
 
 use strict;
 use warnings;
@@ -7,6 +10,13 @@ use Math::MPFR qw(:mpfr);
 use Config;
 
 use Test::More;
+
+if ($] < 5.03) {
+  is(1,1);
+  warn " Skipping tests that may fail because this perl ($]) is old and buggy";
+  done_testing();
+  exit 0;
+}
 
 if($Math::MPFR::NV_properties{bits} == 53) {
   cmp_ok(sprintf('%.17g', 1180591620717411303424.0), 'eq', '1.1805916207174113e+21', '1.1805916207174113e+21 from float ok'  );
