@@ -61,6 +61,7 @@ t/faithful_rounding.t
 t/flags.t
 t/float128_conv.t
 t/float128_subnormal.t
+t/fpif_mem.t
 t/get_IV.t
 t/get_NV.t
 t/grandom.t

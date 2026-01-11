@@ -1292,6 +1292,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     sign as $op, following IEEE 754-2019 (sinPi), so that the function
     is odd.  Similarly, the function 'Rmpfr_tanu' follows IEEE 754-2019
     (tanPi).
+    Rmpfr_cosu/sinu/tanu   ($rop, $op, $ui,    $rnd) is equivalent to
+    Rmpfr_cospi/sinpi/tanpi($rop, ($op/$ui)/2, $rnd) below.
 
    $inex = Rmpfr_acosu($rop, $op, $ui, $rnd); # mpfr-4.2.0 and later only
    $inex = Rmpfr_asinu($rop, $op, $ui, $rnd); # mpfr-4.2.0 and later only
@@ -1306,6 +1308,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Set $rop to the cosine (resp. sine and tangent) of $op multiplied
     by Pi.  See the description of 'Rmpfr_sinu', 'Rmpfr_cosu' and
     'Rmpfr_tanu' for special values.
+    Rmpfr_cospi/sinpi/tanpi($rop, $op, $rnd) is equivalent to
+    Rmpfr_cosu/sinu/tanu   ($rop, $op, 2, $rnd) above.
 
    $inex = Rmpfr_acospi($rop, $op, $rnd); # mpfr-4.2.0 and later only
    $inex = Rmpfr_asinpi($rop, $op, $rnd); # mpfr-4.2.0 and later only
@@ -1671,16 +1675,15 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     As with 'Rmpfr_print_binary' the exponent is in base 10.
 
    $si = Rmpfr_fpif_export ($stream, $op); # Needs mpfr-4.0.0
-   $si = Rmpfr_fpif_export ($op, $stream); # Needs mpfr-4.0.0
+   $si = Rmpfr_fpif_import ($op, $stream); # Needs mpfr-4.0.0
+   $si = Rmpfr_fpif_export_mem ($buf, $bufsize, $op); # Needs mpfr-4.3.0
+   $si = Rmpfr_fpif_import_mem ($op, $buf, $bufsize); # Needs mpfr-4.3.0
     Note: These function are experimental and their interface might
           change in future versions of mpfr.
-    Export/import the number $op to/from the stream $stream in a
-    floating-point interchange format. In particular one can export
-    on a 32-bit computer and import on a 64-bit computer, or export
-    on a little-endian computer and import on a big-endian computer.
-    The precision of OP is stored too. The import function fails if
-    the precision (which is read from the stream) is greater than
-    MPFR_PREC_MAX.
+    Export/import the number $op to/from the stream/string
+    $stream/$buf in a floating-point interchange format. The import
+    function fails if the precision (which is read from the
+    stream/string) is greater than MPFR_PREC_MAX.
     Return 0 if the export/import was successful.
 
    ########################

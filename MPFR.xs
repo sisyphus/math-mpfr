@@ -7434,6 +7434,7 @@ int Rmpfr_fpif_export(pTHX_ FILE * stream, mpfr_t * op) {
   fflush(stream);
   return ret;
 #else
+  PERL_UNUSED_ARG2(stream, op);
   croak("Rmpfr_fpif_export not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
@@ -7446,6 +7447,24 @@ int Rmpfr_fpif_import(pTHX_ mpfr_t * op, FILE * stream) {
 #else
   PERL_UNUSED_ARG2(op, stream);
   croak("Rmpfr_fpif_import not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
+int Rmpfr_fpif_export_mem(pTHX_ unsigned char * c, SV * sizet,  mpfr_t * op) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+  return mpfr_fpif_export_mem(c, (size_t)SvIV(sizet), *op);
+#else
+  PERL_UNUSED_ARG3(c, sizet, op);
+  croak("Rmpfr_fpif_export_mem not implemented - need at least mpfr-4.3.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
+int Rmpfr_fpif_import_mem(pTHX_ mpfr_t * op, unsigned char * c, SV * sizet) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+  return mpfr_fpif_import_mem(*op, c, (size_t)SvIV(sizet));
+#else
+  PERL_UNUSED_ARG3(op, c, sizet);
+  croak("Rmpfr_fpif_import_mem not implemented - need at least mpfr-4.3.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
@@ -13532,6 +13551,24 @@ Rmpfr_fpif_import (op, stream)
 	FILE *	stream
 CODE:
   RETVAL = Rmpfr_fpif_import (aTHX_ op, stream);
+OUTPUT:  RETVAL
+
+int
+Rmpfr_fpif_export_mem (c, sizet, op)
+	unsigned char *	c
+	SV *	sizet
+	mpfr_t *	op
+CODE:
+  RETVAL = Rmpfr_fpif_export_mem (aTHX_ c, sizet, op);
+OUTPUT:  RETVAL
+
+int
+Rmpfr_fpif_import_mem (op, c, sizet)
+	mpfr_t *	op
+	unsigned char *	c
+	SV *	sizet
+CODE:
+  RETVAL = Rmpfr_fpif_import_mem (aTHX_ op, c, sizet);
 OUTPUT:  RETVAL
 
 void
