@@ -11,7 +11,7 @@ use Math::MPFR qw(:mpfr);
 use Test::More;
 
 my $len = 16;
-my $string = chr() x $len;
+my $string = chr(0) x $len;
 
 my $op = Rmpfr_init2(100);   # 100-bit precision;
 
@@ -36,7 +36,103 @@ else {
   cmp_ok(ref($rop), 'eq', 'Math::MPFR', "Test 3 import returned a Math::MPFR object");
   cmp_ok(Rmpfr_get_prec($rop), '==', 100, "Test 4 precision altered to 100");
   cmp_ok($rop, '==', $rop, "Test 5 value survived round trip");
-}
 
+  # Check that this string equates with what gets written to file by Rmpfr_fpif_export.
+
+  my $file = 'fpif_mem.txt';
+  my $check = '';
+
+  my $success = open my $wr, '>', $file;
+  if($success) {
+    binmode($wr);
+
+    $ret = Rmpfr_fpif_export($wr, $op);
+    cmp_ok($ret, '==', 0, "Test 5 - Export to file ok");
+
+    $success = open my $rd, '<', $file;
+    if($success) {
+      $check = <$rd>;
+      # Remove the NULL padding that $string might contain
+      # before comparing $check with $string.
+      #while ( length($string) > length($check) ) {
+      #  if( substr($string, -1, 1) eq chr(0)) {chop $string}
+      #  else {last}
+      #}
+
+      cmp_ok($string, 'eq', $check, "Test 6 - buffer content matches file content");
+    }
+    else { warn "Failed to open $file for reading: $!" };
+  }
+  else {
+    warn "Failed to open $file for writing: $!";
+  }
+
+  #####################################################
+  my $emin = Rmpfr_get_emin();
+  my @exps = ($emin);
+  while ($emin < -5) {
+    $emin = int($emin / 5);
+    push @exps, $emin;
+  }
+
+  #my $emax = Rmpfr_get_emax();
+  #my @exps = ($emax);
+  #while ($emax > 5) {
+  #  $emax = int($emax / 5);
+  #  push @exps, $emax;
+  #}
+
+  my $max_prec = 1000000;
+  $max_prec = RMPFR_PREC_MAX if RMPFR_PREC_MAX < 1000000;
+  my @precs = ($max_prec);
+
+  while ($max_prec > 5) {
+    $max_prec = int($max_prec / 5);
+    push @precs, $max_prec;
+  }
+
+  #print "@precs\n@exps\n";
+
+  for(my $i = scalar(@precs) - 1; $i >= 0; $i--) {
+    my $obj = Rmpfr_init2($precs[$i]);
+    Rmpfr_strtofr($obj, '0.1', 10, MPFR_RNDN);
+
+    for(my $j = scalar(@exps) - 1; $j >= 0; $j--) {
+      Rmpfr_set_exp($obj, $exps[$j]);
+      my $size = fpif_size($obj);
+      my $s = chr(0) x $size;
+      cmp_ok(Rmpfr_fpif_export_mem($s, $size, $obj), '==', 0, "$size OK for prec $precs[$i] and exponent $exps[$j]");
+    }
+  }
+  #####################################################
+
+  my $rop = Math::MPFR->new();
+
+  for my $p(@precs) {
+    my $op = Rmpfr_init2($p);
+    my $len  = 7;
+    my $string = chr(0) x $len;
+
+    cmp_ok(fpif_size($op), '==', 7, "$p: fpif_mem == 7 for NaN");
+    cmp_ok(Rmpfr_fpif_export_mem($string, $len, $op), '==', 0, "$p: NaN exported ok");
+    cmp_ok(Rmpfr_fpif_import_mem($rop, $string, $len), '==', 0, "$p: NaN imported ok");
+    cmp_ok(Rmpfr_nan_p($rop), '!=', 0, "$p: NaN returned");
+
+    Rmpfr_set_inf($op, 1); # +Inf
+    cmp_ok(Rmpfr_fpif_export_mem($string, $len, $op), '==', 0, "$p: +Inf exported ok");
+    cmp_ok(Rmpfr_fpif_import_mem($rop, $string, $len), '==', 0, "$p: +Inf imported ok");
+    cmp_ok(Rmpfr_inf_p($rop), '!=', 0, "$p: Inf returned");
+    cmp_ok($rop, '>', 0, "$p: Inf is +ve");
+
+    Rmpfr_set_inf($op, -1); # -Inf
+    cmp_ok(Rmpfr_fpif_export_mem($string, $len, $op), '==', 0, "$p: -Inf exported ok");
+    cmp_ok(Rmpfr_fpif_import_mem($rop, $string, $len), '==', 0, "$p: -Inf imported ok");
+    cmp_ok(Rmpfr_inf_p($rop), '!=', 0, "$p: Inf returned");
+    cmp_ok($rop, '<', 0, "$p: Inf is -ve");
+
+  }
+#####################
+}
 done_testing();
+#####################
 

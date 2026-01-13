@@ -1681,10 +1681,26 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Note: These function are experimental and their interface might
           change in future versions of mpfr.
     Export/import the number $op to/from the stream/string
-    $stream/$buf in a floating-point interchange format. The import
-    function fails if the precision (which is read from the
-    stream/string) is greater than MPFR_PREC_MAX.
+    $stream/$buf in a floating-point interchange format. The
+    import function fails if the precision (which is read from
+    the stream/string) is greater than RMPFR_PREC_MAX.
     Return 0 if the export/import was successful.
+    For the two *_mem functions, $buf is a string of sufficient
+    length to accommodate the string written by the function,
+    and $bufsize should be set to length($buf). Call fpif_size($op)
+    to obtain a (close to minimum) satisfactory value for the size
+    of $buf, before making the Rmpfr_fpif_export_mem() call.
+
+    NOTE: If reusing $buf for multiple Rmpfr_fpif_export_mem calls
+          make sure that $bufsize is passed as the initial size
+          of $buf - and not length($buf), as the latter may
+          evaluate to less than the available number of bytes.
+
+   $ui = fpif_size($op); # Needs mpfr-4.3.0
+    A fudged calculation of the size of the string buffer that needs
+    to be passed to Rmpfr_fpif_export_mem() above. The returned value
+    is always large enough but not always the minimum.
+    TODO: Always return the minimum value.
 
    ########################
 

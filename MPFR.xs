@@ -7450,13 +7450,35 @@ int Rmpfr_fpif_import(pTHX_ mpfr_t * op, FILE * stream) {
 #endif
 }
 
-int Rmpfr_fpif_export_mem(pTHX_ unsigned char * c, SV * sizet,  mpfr_t * op) {
+int Rmpfr_fpif_export_mem(pTHX_ SV * str, SV * sizet,  mpfr_t * op) {
 #if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
-  return mpfr_fpif_export_mem(c, (size_t)SvIV(sizet), *op);
+  int ret;
+  char *c = SvPV_nolen(str);
+  ret = mpfr_fpif_export_mem(c, (size_t)SvIV(sizet), *op);
+  if(ret) croak("String supplied to Rmpfr_fpif_export_mem is too small");
+  sv_setpv(str, c);
+  return ret;
 #else
   PERL_UNUSED_ARG3(c, sizet, op);
   croak("Rmpfr_fpif_export_mem not implemented - need at least mpfr-4.3.0, have only %s", MPFR_VERSION_STRING);
 #endif
+}
+
+int fpif_size(mpfr_t * op) {
+  int candidate;
+  double bits = 40;
+  double precision;
+  double exponent;
+
+  if(!mpfr_regular_p(*op)) return 7;
+
+  precision = (double)mpfr_get_prec(*op);
+  exponent = (double)mpfr_get_exp(*op);
+  if(exponent < 0) exponent *= -1;
+  if(precision > 100000.0 && exponent > 100.0) bits += 8;
+  bits += precision + ceil(log(exponent) / log(2));
+  candidate = ceil(bits / 8);
+  return candidate + 5;
 }
 
 int Rmpfr_fpif_import_mem(pTHX_ mpfr_t * op, unsigned char * c, SV * sizet) {
@@ -13554,13 +13576,17 @@ CODE:
 OUTPUT:  RETVAL
 
 int
-Rmpfr_fpif_export_mem (c, sizet, op)
-	unsigned char *	c
+Rmpfr_fpif_export_mem (str, sizet, op)
+	SV *	str
 	SV *	sizet
 	mpfr_t *	op
 CODE:
-  RETVAL = Rmpfr_fpif_export_mem (aTHX_ c, sizet, op);
+  RETVAL = Rmpfr_fpif_export_mem (aTHX_ str, sizet, op);
 OUTPUT:  RETVAL
+
+int
+fpif_size (op)
+	mpfr_t *	op
 
 int
 Rmpfr_fpif_import_mem (op, c, sizet)
