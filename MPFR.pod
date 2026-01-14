@@ -1696,11 +1696,10 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
           of $buf - and not length($buf), as the latter may
           evaluate to less than the available number of bytes.
 
-   $ui = fpif_size($op); # Needs mpfr-4.3.0
-    A fudged calculation of the size of the string buffer that needs
-    to be passed to Rmpfr_fpif_export_mem() above. The returned value
-    is always large enough but not always the minimum.
-    TODO: Always return the minimum value.
+   $ui = fpif_size($op);
+    A calculation of the minimum size of the string buffer needed
+    as 1st arg to Rmpfr_fpif_export_mem() above. The returned
+    value should always be large enough, if not always the minimum.
 
    ########################
 

@@ -71,7 +71,7 @@ else {
   my $emin = Rmpfr_get_emin();
   my @exps = ($emin);
   while ($emin < -5) {
-    $emin = int($emin / 5);
+    $emin = int($emin / (3 + int(rand(4))) );
     push @exps, $emin;
   }
 
@@ -82,19 +82,32 @@ else {
   #  push @exps, $emax;
   #}
 
-  my $max_prec = 1000000;
-  $max_prec = RMPFR_PREC_MAX if RMPFR_PREC_MAX < 1000000;
+  my $max_prec = 1e8;
+  $max_prec = RMPFR_PREC_MAX if RMPFR_PREC_MAX < $max_prec;
   my @precs = ($max_prec);
 
   while ($max_prec > 5) {
-    $max_prec = int($max_prec / 5);
+    $max_prec = int($max_prec / (3 + int(rand(4))) );
     push @precs, $max_prec;
   }
 
   #print "@precs\n@exps\n";
 
+  my $irregular_string = chr(0) x 7;
   for(my $i = scalar(@precs) - 1; $i >= 0; $i--) {
     my $obj = Rmpfr_init2($precs[$i]);
+    cmp_ok(Rmpfr_fpif_export_mem($irregular_string, 7, $obj), '==', 0, "7 OK for NaN prec $precs[$i] and exponent " . Rmpfr_get_exp($obj));
+
+    Rmpfr_set_inf($obj, 1);
+    cmp_ok(Rmpfr_fpif_export_mem($irregular_string, 7, $obj), '==', 0, "7 OK for +Inf prec $precs[$i] and exponent " . Rmpfr_get_exp($obj));
+    Rmpfr_set_inf($obj, -1);
+    cmp_ok(Rmpfr_fpif_export_mem($irregular_string, 7, $obj), '==', 0, "7 OK for -Inf prec $precs[$i] and exponent " . Rmpfr_get_exp($obj));
+
+    Rmpfr_set_zero($obj, 1);
+    cmp_ok(Rmpfr_fpif_export_mem($irregular_string, 7, $obj), '==', 0, "7 OK for +0 prec $precs[$i] and exponent " . Rmpfr_get_exp($obj));
+    Rmpfr_set_inf($obj, -1);
+    cmp_ok(Rmpfr_fpif_export_mem($irregular_string, 7, $obj), '==', 0, "7 OK for -0 prec $precs[$i] and exponent " . Rmpfr_get_exp($obj));
+
     Rmpfr_strtofr($obj, '0.1', 10, MPFR_RNDN);
 
     for(my $j = scalar(@exps) - 1; $j >= 0; $j--) {
@@ -106,31 +119,7 @@ else {
   }
   #####################################################
 
-  my $rop = Math::MPFR->new();
 
-  for my $p(@precs) {
-    my $op = Rmpfr_init2($p);
-    my $len  = 7;
-    my $string = chr(0) x $len;
-
-    cmp_ok(fpif_size($op), '==', 7, "$p: fpif_mem == 7 for NaN");
-    cmp_ok(Rmpfr_fpif_export_mem($string, $len, $op), '==', 0, "$p: NaN exported ok");
-    cmp_ok(Rmpfr_fpif_import_mem($rop, $string, $len), '==', 0, "$p: NaN imported ok");
-    cmp_ok(Rmpfr_nan_p($rop), '!=', 0, "$p: NaN returned");
-
-    Rmpfr_set_inf($op, 1); # +Inf
-    cmp_ok(Rmpfr_fpif_export_mem($string, $len, $op), '==', 0, "$p: +Inf exported ok");
-    cmp_ok(Rmpfr_fpif_import_mem($rop, $string, $len), '==', 0, "$p: +Inf imported ok");
-    cmp_ok(Rmpfr_inf_p($rop), '!=', 0, "$p: Inf returned");
-    cmp_ok($rop, '>', 0, "$p: Inf is +ve");
-
-    Rmpfr_set_inf($op, -1); # -Inf
-    cmp_ok(Rmpfr_fpif_export_mem($string, $len, $op), '==', 0, "$p: -Inf exported ok");
-    cmp_ok(Rmpfr_fpif_import_mem($rop, $string, $len), '==', 0, "$p: -Inf imported ok");
-    cmp_ok(Rmpfr_inf_p($rop), '!=', 0, "$p: Inf returned");
-    cmp_ok($rop, '<', 0, "$p: Inf is -ve");
-
-  }
 #####################
 }
 done_testing();
