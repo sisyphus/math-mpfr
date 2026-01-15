@@ -112,9 +112,9 @@ else {
 
     for(my $j = scalar(@exps) - 1; $j >= 0; $j--) {
       Rmpfr_set_exp($obj, $exps[$j]);
-      my $size = fpif_size($obj);
+      my $size = Rmpfr_fpif_size($obj);
       my $s = chr(0) x $size;
-      cmp_ok(Rmpfr_fpif_export_mem($s, $size, $obj), '==', 0, "$size OK for prec $precs[$i] and exponent $exps[$j]");
+      cmp_ok(Rmpfr_fpif_export_mem($s, $size + 1, $obj), '==', 0, "$size OK for prec $precs[$i] and exponent $exps[$j]");
     }
   }
   #####################################################

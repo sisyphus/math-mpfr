@@ -1686,20 +1686,20 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     the stream/string) is greater than RMPFR_PREC_MAX.
     Return 0 if the export/import was successful.
     For the two *_mem functions, $buf is a string of sufficient
-    length to accommodate the string written by the function,
-    and $bufsize should be set to length($buf). Call fpif_size($op)
-    to obtain a (close to minimum) satisfactory value for the size
-    of $buf, before making the Rmpfr_fpif_export_mem() call.
+    length to accommodate the output of the function. You can
+    create such a buffer for the Math::MPFR object $op with:
+
+      $size = Rmpfr_fpif_size($op);
+      $buf = chr(0) x $size;
+      $bufsize = $size + 1; # Include the terminating NULL byte
 
     NOTE: If reusing $buf for multiple Rmpfr_fpif_export_mem calls
           make sure that $bufsize is passed as the initial size
-          of $buf - and not length($buf), as the latter may
-          evaluate to less than the available number of bytes.
+          of $buf, including the terminating NULL.
 
-   $ui = fpif_size($op);
-    A calculation of the minimum size of the string buffer needed
-    as 1st arg to Rmpfr_fpif_export_mem() above. The returned
-    value should always be large enough, if not always the minimum.
+   $ui = Rmpfr_fpif_size($op);
+    Return a satisfactory value for the size of the string buffer
+    needed as 1st arg to Rmpfr_fpif_export_mem() above.
 
    ########################
 

@@ -7450,7 +7450,7 @@ int Rmpfr_fpif_import(pTHX_ mpfr_t * op, FILE * stream) {
 #endif
 }
 
-UV fpif_size(mpfr_t * op) {
+UV Rmpfr_fpif_size(mpfr_t * op) {
 /*********************************************
  From fpif.c in mpfr source:
  #define MAX_VARIABLE_STORAGE(exponent_size, precision) \
@@ -7458,15 +7458,14 @@ UV fpif_size(mpfr_t * op) {
              ((precision) > 248 ? sizeof(mpfr_prec_t) : 0) + 3))
 
 *********************************************/
-  size_t precision;
   size_t ret = 3;
+  size_t precision;
 
   if(!mpfr_regular_p(*op)) return 7;
 
   precision = mpfr_get_prec(*op);
   ret += (precision >> 3) + sizeof(mpfr_exp_t);
   if(precision > 248) ret += sizeof(mpfr_prec_t);
-  if(sizeof(mpfr_prec_t) == 4) return (UV)++ret;
   return (UV)ret;
 }
 
@@ -13578,7 +13577,7 @@ CODE:
 OUTPUT:  RETVAL
 
 UV
-fpif_size (op)
+Rmpfr_fpif_size (op)
 	mpfr_t *	op
 
 int
