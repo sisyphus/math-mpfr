@@ -110,6 +110,8 @@ else {
     Rmpfr_set_inf($obj, -1);
     cmp_ok(Rmpfr_fpif_export_mem($irregular_string, 7, $obj), '==', 0, "7 OK for -0 prec $precs[$i] and exponent " . Rmpfr_get_exp($obj));
 
+    my $rand = rand();
+    Rmpfr_strtofr($obj, "$rand", 10, MPFR_RNDN);
     Rmpfr_strtofr($obj, '0.1', 10, MPFR_RNDN);
 
     for(my $j = scalar(@exps) - 1; $j >= 0; $j--) {
