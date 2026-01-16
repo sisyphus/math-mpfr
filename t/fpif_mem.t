@@ -51,13 +51,15 @@ else {
 
     $success = open my $rd, '<', $file;
     if($success) {
+
       $check = <$rd>;
-      # Remove the NULL padding that $string might contain
-      # before comparing $check with $string.
-      #while ( length($string) > length($check) ) {
-      #  if( substr($string, -1, 1) eq chr(0)) {chop $string}
-      #  else {last}
-      #}
+
+      # Remove the NULL padding which perl can see) that $string
+      # might contain before comparing $check with $string.
+      while ( length($string) > length($check) ) {
+        if( substr($string, -1, 1) eq chr(0)) {chop $string}
+        else {last}
+      }
 
       cmp_ok($string, 'eq', $check, "Test 6 - buffer content matches file content");
     }
@@ -71,7 +73,7 @@ else {
   my $emin = Rmpfr_get_emin();
   my @exps = ($emin);
   while ($emin < -5) {
-    $emin = int($emin / (3 + int(rand(4))) );
+    $emin = int($emin / 5 ); # (3 + int(rand(4)))
     push @exps, $emin;
   }
 
@@ -87,7 +89,7 @@ else {
   my @precs = ($max_prec);
 
   while ($max_prec > 5) {
-    $max_prec = int($max_prec / (3 + int(rand(4))) );
+    $max_prec = int($max_prec / 5 ); # (3 + int(rand(4)))
     push @precs, $max_prec;
   }
 
@@ -114,11 +116,20 @@ else {
       Rmpfr_set_exp($obj, $exps[$j]);
       my $size = Rmpfr_fpif_size($obj);
       my $s = chr(0) x $size;
-      cmp_ok(Rmpfr_fpif_export_mem($s, $size + 1, $obj), '==', 0, "$size OK for prec $precs[$i] and exponent $exps[$j]");
+      my $exported = Rmpfr_fpif_export_mem($s, $size + 1, $obj);
+      cmp_ok($exported, '==', 0, "$size OK for prec $precs[$i] and exponent $exps[$j]");
+
+      if(!$exported) {
+        my $imported = Rmpfr_fpif_import_mem($rop, $s, $size + 1);
+        cmp_ok($imported, '==', 0, "Successful import reported: prec $precs[$i] and exponent $exps[$j]");
+        $rop = Math::MPFR->new(1) if Rmpfr_nan_p($rop);
+        if(!$imported) {# && abs($exps[$j]) < 10000000) {
+          cmp_ok(Rmpfr_get_prec($rop), '==', Rmpfr_get_prec($obj), "Precisions match for prec $precs[$i] and exponent $exps[$j]");
+          cmp_ok($rop, '==', $obj, "Values match for prec $precs[$i] and exponent $exps[$j]");
+        }
+      }
     }
   }
-  #####################################################
-
 
 #####################
 }

@@ -7469,24 +7469,24 @@ UV Rmpfr_fpif_size(mpfr_t * op) {
   return (UV)ret;
 }
 
-int Rmpfr_fpif_export_mem(pTHX_ SV * str, SV * sizet,  mpfr_t * op) {
+int Rmpfr_fpif_export_mem(pTHX_ unsigned char * str, SV * sizet,  mpfr_t * op) {
 #if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
   int ret;
-  char *c = SvPV_nolen(str);
-  ret = mpfr_fpif_export_mem(c, (size_t)SvIV(sizet), *op);
-  sv_setpv(str, c);
+  /*char *c = SvPV_nolen(str);*//* Passing 1st arg as "SV*" causes trouble */
+  ret = mpfr_fpif_export_mem(str, (size_t)SvIV(sizet), *op);
+  /* sv_setpv(str, c); *//* Passing 1st arg as "SV*" causes trouble */
   return ret;
 #else
-  PERL_UNUSED_ARG3(c, sizet, op);
+  PERL_UNUSED_ARG3(str, sizet, op);
   croak("Rmpfr_fpif_export_mem not implemented - need at least mpfr-4.3.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
-int Rmpfr_fpif_import_mem(pTHX_ mpfr_t * op, unsigned char * c, SV * sizet) {
+int Rmpfr_fpif_import_mem(pTHX_ mpfr_t * op, unsigned char * str, SV * sizet) {
 #if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
-  return mpfr_fpif_import_mem(*op, c, (size_t)SvIV(sizet));
+  return mpfr_fpif_import_mem(*op, str, (size_t)SvIV(sizet));
 #else
-  PERL_UNUSED_ARG3(op, c, sizet);
+  PERL_UNUSED_ARG3(op, str, sizet);
   croak("Rmpfr_fpif_import_mem not implemented - need at least mpfr-4.3.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
@@ -13582,7 +13582,7 @@ Rmpfr_fpif_size (op)
 
 int
 Rmpfr_fpif_export_mem (str, sizet, op)
-	SV *	str
+	unsigned char *	str
 	SV *	sizet
 	mpfr_t *	op
 CODE:
@@ -13590,12 +13590,12 @@ CODE:
 OUTPUT:  RETVAL
 
 int
-Rmpfr_fpif_import_mem (op, c, sizet)
+Rmpfr_fpif_import_mem (op, str, sizet)
 	mpfr_t *	op
-	unsigned char *	c
+	unsigned char *	str
 	SV *	sizet
 CODE:
-  RETVAL = Rmpfr_fpif_import_mem (aTHX_ op, c, sizet);
+  RETVAL = Rmpfr_fpif_import_mem (aTHX_ op, str, sizet);
 OUTPUT:  RETVAL
 
 void
