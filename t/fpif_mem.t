@@ -73,7 +73,7 @@ else {
   my $emin = Rmpfr_get_emin();
   my @exps = ($emin);
   while ($emin < -5) {
-    $emin = int($emin / 5 ); # (3 + int(rand(4)))
+    $emin = int($emin / (3 + int(rand(4))) ); #
     push @exps, $emin;
   }
 
@@ -89,7 +89,7 @@ else {
   my @precs = ($max_prec);
 
   while ($max_prec > 5) {
-    $max_prec = int($max_prec / 5 ); # (3 + int(rand(4)))
+    $max_prec = int($max_prec / (3 + int(rand(4))) ); #
     push @precs, $max_prec;
   }
 
