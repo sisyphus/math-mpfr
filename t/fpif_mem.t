@@ -54,12 +54,14 @@ else {
 
       $check = <$rd>;
 
-      # Remove the NULL padding which perl can see) that $string
+      #########################################################
+      # Remove the NULL padding which perl can see that $string
       # might contain before comparing $check with $string.
       while ( length($string) > length($check) ) {
         if( substr($string, -1, 1) eq chr(0)) {chop $string}
         else {last}
       }
+      #########################################################
 
       cmp_ok($string, 'eq', $check, "Test 6 - buffer content matches file content");
     }
@@ -97,9 +99,9 @@ else {
 
   my $irregular_size = 7; # The size that's being allocated for Infs, NaNs and zeros.)
   my $irregular_string = chr(0) x $irregular_size;
+
   for(my $i = scalar(@precs) - 1; $i >= 0; $i--) {
     my $obj = Rmpfr_init2($precs[$i]);
-
     my $ret = Rmpfr_fpif_export_mem($irregular_string, $irregular_size + 1, $obj);
     cmp_ok($ret, '==', 0, "7 OK for NaN prec $precs[$i] and exponent " . Rmpfr_get_exp($obj));
 

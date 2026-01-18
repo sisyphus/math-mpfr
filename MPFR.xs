@@ -7432,7 +7432,7 @@ int Rmpfr_fpif_export(pTHX_ FILE * stream, mpfr_t * op) {
 #if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
   int ret = mpfr_fpif_export(stream, *op);
   fflush(stream);
-  return ret;
+
 #else
   PERL_UNUSED_ARG2(stream, op);
   croak("Rmpfr_fpif_export not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
@@ -7472,9 +7472,7 @@ UV Rmpfr_fpif_size(mpfr_t * op) {
 int Rmpfr_fpif_export_mem(pTHX_ unsigned char * str, SV * sizet,  mpfr_t * op) {
 #if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
   int ret;
-  /*char *c = SvPV_nolen(str);*//* Passing 1st arg as "SV*" causes trouble */
   ret = mpfr_fpif_export_mem(str, (size_t)SvIV(sizet), *op);
-  /* sv_setpv(str, c); *//* Passing 1st arg as "SV*" causes trouble */
   return ret;
 #else
   PERL_UNUSED_ARG3(str, sizet, op);
