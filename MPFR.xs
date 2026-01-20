@@ -7432,7 +7432,7 @@ int Rmpfr_fpif_export(pTHX_ FILE * stream, mpfr_t * op) {
 #if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
   int ret = mpfr_fpif_export(stream, *op);
   fflush(stream);
-
+  return ret;
 #else
   PERL_UNUSED_ARG2(stream, op);
   croak("Rmpfr_fpif_export not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
