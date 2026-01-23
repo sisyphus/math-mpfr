@@ -1693,10 +1693,6 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
       $buf = chr(0) x $size;
       $bufsize = $size + 1; # Include the terminating NULL byte
 
-    NOTE: If reusing $buf for multiple Rmpfr_fpif_export_mem calls
-          make sure that $bufsize is passed as the initial size
-          of $buf, including the terminating NULL.
-
    $ui = Rmpfr_fpif_size($op);
     Return a satisfactory value for the size of the string buffer
     needed as 1st arg to Rmpfr_fpif_export_mem() above.

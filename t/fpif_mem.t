@@ -1,5 +1,5 @@
 # Testing of Rmpfr_fpif_export_mem() and Rmpfr_fpif_import_mem
-# which were added mpfr-4.3.0.
+# which were added mpfr-4.3.0-dev.
 # Testing of Rmpfr_fpif_export() and Rmpfr_fpif_import(), which
 # were added in mpfr-4.0.0, is performed in new_in_4.0.0.t
 
@@ -197,4 +197,3 @@ else {
 }
 done_testing();
 #####################
-
