@@ -1,5 +1,7 @@
 Revision history for Perl module Math::MPFR
 
+4.47
+
 4.46
   - Add Rmpfr_fpif_import_mem() and Rmpfr_fpif_export_mem(), new in 4.3.0-dev.
   - Allow atonv() to receive octal arguments - via new function oct2bin.

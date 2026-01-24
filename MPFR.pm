@@ -211,7 +211,7 @@ unpack_bfloat16 unpack_float16 unpack_float32
 
     @Math::MPFR::EXPORT_OK = (@tags, 'bytes');
 
-    our $VERSION = '4.46';
+    our $VERSION = '4.47';
     #$VERSION = eval $VERSION;
 
     Math::MPFR->DynaLoader::bootstrap($VERSION);
