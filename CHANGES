@@ -10,6 +10,8 @@ Revision history for Perl module Math::MPFR
     We do this in an attempt to allow Math::MPFR to build on linux systems where
     libc is musl, not glibc. For an example of the problem see:
     https://www.cpantesters.org/cpan/report/65ddb9fa-a453-11f0-9829-bde118873113
+  - In Makefile.PL make allowance for some cygwin build options. See (eg):
+    https://www.cpantesters.org/cpan/report/41ed0a6e-6f74-1014-a0b5-c5df354b4780
 
 4.45
   - Fix typo in MPFR.xs - s/WE_HAVE_BENDIAN/MPFR_HAVE_BENDIAN/g
