@@ -2002,6 +2002,11 @@ sub oct2bin {
    die "In oct2bin: failed to parse given argument ($arg)";
 }
 
+sub Rmpfr_fpif_export_mem {
+  $_[0] = chr(0) x ($_[1] - 1);
+  return _Rmpfr_fpif_export_mem($_[0], $_[1], $_[2]);
+}
+
 1;
 
 __END__

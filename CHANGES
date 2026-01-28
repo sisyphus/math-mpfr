@@ -4,6 +4,7 @@ Revision history for Perl module Math::MPFR
   - Wrap C's strlen (_strlen), API SvCUR (_SvCUR), API SvCUR_set (_Sv_CUR_set),
     and API SvLEN (_SvLEN) functions.
     These wrappers are documented in the POD, but are not exported.
+  - Fiddle about with the internals of Rmpfr_fpif_export_mem.
 
 4.46
   - Add Rmpfr_fpif_import_mem() and Rmpfr_fpif_export_mem(), new in 4.3.0-dev.
