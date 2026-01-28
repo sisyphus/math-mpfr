@@ -143,6 +143,7 @@ t/underflow.t
 t/unpack_floats.t
 t/use64bitint.t
 t/uselongdouble.t
+t/util.t
 t/view_config.t
 typemap
 META.yml                                 Module YAML meta-data (added by MakeMaker)

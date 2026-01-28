@@ -7469,7 +7469,7 @@ UV Rmpfr_fpif_size(mpfr_t * op) {
   return (UV)ret;
 }
 
-int Rmpfr_fpif_export_mem(pTHX_ unsigned char * str, SV * sizet,  mpfr_t * op) {
+int _Rmpfr_fpif_export_mem(pTHX_ unsigned char * str, SV * sizet,  mpfr_t * op) {
 #if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
   int ret;
   ret = mpfr_fpif_export_mem(str, (size_t)SvIV(sizet), *op);
@@ -9537,6 +9537,23 @@ SV * _subnormalize_pv(pTHX_ SV * val, int emin, int emax, int prec) {
 
   OBJ_READONLY_ON /*defined in math_mpfr_include.h */
   return obj_ref;
+}
+
+UV _strlen(char * pv) {
+   return (UV)strlen(pv);
+}
+
+UV _SvCUR(SV * pv) {
+   return (UV)SvCUR(pv);
+
+}
+
+UV _SvLEN(SV * pv) {
+   return (UV)SvLEN(pv);
+}
+
+void _SvCUR_set(SV * pv, UV len){
+  SvCUR_set(pv, (STRLEN)len);
 }
 
 
@@ -13579,12 +13596,12 @@ Rmpfr_fpif_size (op)
 	mpfr_t *	op
 
 int
-Rmpfr_fpif_export_mem (str, sizet, op)
+_Rmpfr_fpif_export_mem (str, sizet, op)
 	unsigned char *	str
 	SV *	sizet
 	mpfr_t *	op
 CODE:
-  RETVAL = Rmpfr_fpif_export_mem (aTHX_ str, sizet, op);
+  RETVAL = _Rmpfr_fpif_export_mem (aTHX_ str, sizet, op);
 OUTPUT:  RETVAL
 
 int
@@ -14038,4 +14055,24 @@ _subnormalize_pv (val, emin, emax, prec)
 CODE:
   RETVAL = _subnormalize_pv (aTHX_ val, emin, emax, prec);
 OUTPUT:  RETVAL
+
+UV
+_strlen (pv)
+	char *	pv
+
+UV
+_SvCUR (pv)
+	SV *	pv
+
+UV
+_SvLEN (pv)
+	SV *	pv
+
+void
+_SvCUR_set (pv, len)
+	SV *	pv
+	UV	len
+        PPCODE:
+        _SvCUR_set(pv, len);
+        XSRETURN_EMPTY; /* return empty stack */
 

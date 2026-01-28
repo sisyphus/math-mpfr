@@ -1685,13 +1685,17 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     import function fails if the precision (which is read from
     the stream/string) is greater than RMPFR_PREC_MAX.
     Return 0 if the export/import was successful.
-    For the two *_mem functions, $buf is a string of sufficient
-    length to accommodate the output of the function. You can
-    create such a buffer for the Math::MPFR object $op with:
+    For the two *_mem functions, $buf is a perl variable (SV) that
+    does not need to have been initialized. $bufsize needs to be
+    sufficiently large to accommodate the output of the function. You can
+    calculate the minimum $bufsize with:
 
       $size = Rmpfr_fpif_size($op);
-      $buf = chr(0) x $size;
-      $bufsize = $size + 1; # Include the terminating NULL byte
+      $bufsize = Rmpfr_fpif_size($op) + 1; # Include the terminating
+                                           # NULL byte
+      Or, simply call the functions as:
+        Rmpfr_fpif_export_mem($buf, Rmpfr_fpif_size($op) + 1, $op);
+        Rmpfr_fpif_import_mem($op, $buf, Rmpfr_fpif_size($op) + 1);
 
    $ui = Rmpfr_fpif_size($op);
     Return a satisfactory value for the size of the string buffer
@@ -2099,6 +2103,8 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
       oct2bin('-5p3') will return the string '-0b101p3'.
 
    $sv = atonum($str); # Needs mpfr-3.1.6 or later
+    $str is treated as a decimal (base 10) value.
+    Bases 2, 8, and 16 might be accommodated in the future.
     If $str numifies to an IV, return that IV.
     Else return the NV that is returned by atonv($str).
 
@@ -2717,7 +2723,33 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
        deemed to be of an invalid type. The operation croaks with
        an appropriate error message.
 
-   #####################
+   ############################
+
+   UNEXPORTED UTILITY FUNCTIONS
+
+   These may (or may not) be useful in examining or tweaking strings
+   that, having been allocated in perl space, are then assigned some
+   value in an XSub such as Rmpfr_fpif_export() or Rmpfr_sprintf().
+
+   $uv = _strlen($str);
+     Returns the length of the string $string as assessed by C's
+     strlen function. This can differ from length($str).
+
+   $uv = _SvCUR($str);
+     Returns the CUR value (in bytes) of $str. This will be the same
+     as length($str) if $string contains no multi-byte characters.
+     See "SvCUR" in the perlapi documentation.
+
+   $uv = _SvLEN($str);
+     Returns the size of the string buffer (in bytes) in the SV.
+     See "SvLEN" in the perlapi documentation.
+
+   _SvCUR_set($str, $uv);
+     Set the CUR of $str to $uv bytes.
+     See "SvCUR_set" in the perlapi documentation.
+
+
+   ##########################
 
    STRING OVERLOADING ANOMALY
 
@@ -2826,12 +2858,13 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    Rmpfr_sprintf($buffer, $format_string, [$rnd,] $var, $buflen);
 
     This function (unlike the MPFR counterpart) is limited to taking
-    4 or 5 arguments - the buffer, the format string, optionally a
-    rounding argument, the variable to be formatted and the size of the
-    buffer ($buflen) into which the result will be written. $buflen
-    must specify a size (characters) that is at least large enough to
-    accommodate the formatted string (including the terminating NULL).
-    The formatted string will be placed in $buffer.
+    4 or 5 arguments - the buffer (which does not have to be
+    initialized), the format string, optionally a rounding argument,
+    the variable to be formatted, and the size of the buffer ($buflen)
+    into which the result will be written.
+    $buflen  must specify a size (bytes) that is at least large
+    enough to accommodate the formatted string (including the
+    terminating NULL). The formatted string will be placed in $buffer.
     If there's no variable to be formatted, just insert a '0' as the
     value for $var. ie this will work fine:
      Rmpfr_sprintf($buffer, "hello world", 0, $buflen);
@@ -2845,12 +2878,13 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    Rmpfr_snprintf($buffer, $bytes, $format_string, [$rnd,] $var, $buflen);
 
     This function (unlike the MPFR counterpart) is limited to taking
-    5 or 6 arguments - the buffer, the number of bytes to be written,
-    the format string, optionally a rounding argument, the variable
-    to be formatted and the size of the buffer ($buflen).  $buflen must
-    specify a size (characters) that is at least large enough to
-    accommodate the formatted string (including the terminating NULL).
-    The formatted string will be placed in $buffer.
+    5 or 6 arguments - the buffer (which dowes not have to be
+    initialized), the number of bytes to be written, the format string,
+    optionally a rounding argument, the variable to be formatted and
+    the size of the buffer ($buflen).
+    $buflen must  specify a size (bytes) that is at least large
+    enough to accommodate the formatted string (including the
+    terminating NULL). The formatted string will be placed in $buffer.
     If there's no variable to be formatted, just insert a '0' as the
     value for $arg. ie this will work fine:
      Rmpfr_snprintf($buffer, 12, "hello world", 0, $buflen);
