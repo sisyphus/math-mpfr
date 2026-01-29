@@ -1687,15 +1687,15 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Return 0 if the export/import was successful.
     For the two *_mem functions, $buf is a perl variable (SV) that
     does not need to have been initialized. $bufsize needs to be
-    sufficiently large to accommodate the output of the function. You can
-    calculate the minimum $bufsize with:
+    sufficiently large to accommodate the output of the function.
+    You can calculate the minimum $bufsize with:
 
       $size = Rmpfr_fpif_size($op);
       $bufsize = Rmpfr_fpif_size($op) + 1; # Include the terminating
                                            # NULL byte
       Or, simply call the functions as:
-        Rmpfr_fpif_export_mem($buf, Rmpfr_fpif_size($op) + 1, $op);
-        Rmpfr_fpif_import_mem($op, $buf, Rmpfr_fpif_size($op) + 1);
+      $si = Rmpfr_fpif_export_mem($buf, Rmpfr_fpif_size($op)+1, $op);
+      $si = Rmpfr_fpif_import_mem($rop, $buf, length($buf));
 
    $ui = Rmpfr_fpif_size($op);
     Return a satisfactory value for the size of the string buffer
