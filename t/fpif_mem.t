@@ -10,6 +10,8 @@ use Math::MPFR qw(:mpfr);
 
 use Test::More;
 
+*PV_CUR = \&Math::MPFR::_SvCUR;
+
 my $len = 17;
 my $string;
 
@@ -30,6 +32,7 @@ else {
   my $ret = Rmpfr_fpif_export_mem($string, $len, $op);
   cmp_ok($ret, '==', 0, "Test 1 export ok");
 
+  cmp_ok(PV_CUR($string) + 1, '==', $len, "Test 2 import string CUR ok");
   $ret = Rmpfr_fpif_import_mem($rop, $string, $len);
   cmp_ok($ret, '==', 0, "Test 2 import ok");
 
@@ -106,6 +109,8 @@ else {
     cmp_ok($ret, '==', 0, "7 OK for NaN prec $precs[$i] and exponent " . Rmpfr_get_exp($obj));
 
     if(!$ret) {
+      cmp_ok(PV_CUR($irregular_string) + 1, '==', $irregular_size, "NaN import string CUR ok");
+      cmp_ok(PV_CUR($irregular_string), '==', length($irregular_string), "NaN import string length ok");
       $ret = Rmpfr_fpif_import_mem($rop, $irregular_string, $irregular_size);
       cmp_ok($ret, '==', 0, "Import OK for NaN: prec $precs[$i] and exponent " . Rmpfr_get_exp($obj));
       if(!$ret) {
@@ -115,10 +120,13 @@ else {
     }
 
     Rmpfr_set_inf($obj, 1);
+
     $ret = Rmpfr_fpif_export_mem($irregular_string, $irregular_size, $obj);
     cmp_ok($ret, '==', 0, "7 OK for +Inf prec $precs[$i] and exponent " . Rmpfr_get_exp($obj));
 
     if(!$ret) {
+      cmp_ok(PV_CUR($irregular_string) + 1, '==', $irregular_size, "+Inf import string CUR ok");
+      cmp_ok(PV_CUR($irregular_string), '==', length($irregular_string), "+Inf import string length ok");
       $ret = Rmpfr_fpif_import_mem($rop, $irregular_string, $irregular_size);
       cmp_ok($ret, '==', 0, "Import OK for +Inf: prec $precs[$i] and exponent " . Rmpfr_get_exp($obj));
       if(!$ret) {
@@ -133,6 +141,8 @@ else {
     cmp_ok($ret, '==', 0, "7 OK for -Inf prec $precs[$i] and exponent " . Rmpfr_get_exp($obj));
 
     if(!$ret) {
+      cmp_ok(PV_CUR($irregular_string) + 1, '==', $irregular_size, "-Inf import string CUR ok");
+      cmp_ok(PV_CUR($irregular_string), '==', length($irregular_string), "-Inf import string length ok");
       $ret = Rmpfr_fpif_import_mem($rop, $irregular_string, $irregular_size);
       cmp_ok($ret, '==', 0, "Import OK for -Inf: prec $precs[$i] and exponent " . Rmpfr_get_exp($obj));
       if(!$ret) {
@@ -147,6 +157,8 @@ else {
     cmp_ok($ret, '==', 0, "7 OK for +0 prec $precs[$i] and exponent " . Rmpfr_get_exp($obj));
 
     if(!$ret) {
+      cmp_ok(PV_CUR($irregular_string) + 1, '==', $irregular_size, "+0 import string CUR ok");
+      cmp_ok(PV_CUR($irregular_string), '==', length($irregular_string), "+0 import string length ok");
       $ret = Rmpfr_fpif_import_mem($rop, $irregular_string, $irregular_size);
       cmp_ok($ret, '==', 0, "Import OK for +0: prec $precs[$i] and exponent " . Rmpfr_get_exp($obj));
       if(!$ret) {
@@ -161,6 +173,8 @@ else {
     cmp_ok($ret, '==', 0, "7 OK for -0 prec $precs[$i] and exponent " . Rmpfr_get_exp($obj));
 
     if(!$ret) {
+      cmp_ok(PV_CUR($irregular_string) + 1, '==', $irregular_size, "-0 import string CUR ok");
+      cmp_ok(PV_CUR($irregular_string), '==', length($irregular_string), "-0 import string length ok");
       $ret = Rmpfr_fpif_import_mem($rop, $irregular_string, $irregular_size);
       cmp_ok($ret, '==', 0, "Import OK for -0: prec $precs[$i] and exponent " . Rmpfr_get_exp($obj));
       if(!$ret) {
@@ -172,16 +186,17 @@ else {
 
     my $rand = rand();
     Rmpfr_strtofr($obj, "$rand", 10, MPFR_RNDN);
-    Rmpfr_strtofr($obj, '0.1', 10, MPFR_RNDN);
+    #Rmpfr_strtofr($obj, '0.1', 10, MPFR_RNDN);
 
     for(my $j = scalar(@exps) - 1; $j >= 0; $j--) {
       Rmpfr_set_exp($obj, $exps[$j]);
       my $size = Rmpfr_fpif_size($obj) + 1;
-      #my $s;# = chr(0) x $size;
       my $exported = Rmpfr_fpif_export_mem(my $s, $size, $obj);
       cmp_ok($exported, '==', 0, "$size OK for prec $precs[$i] and exponent $exps[$j]");
 
       if(!$exported) {
+        cmp_ok(PV_CUR($s) + 1, '==', $size, "prec $precs[$i] and exponent $exps[$j]: import string CUR ok");
+        cmp_ok(PV_CUR($s), '==', length($s), "prec $precs[$i] and exponent $exps[$j]: import string length ok");
         my $imported = Rmpfr_fpif_import_mem($rop, $s, $size);
         cmp_ok($imported, '==', 0, "Successful import reported: prec $precs[$i] and exponent $exps[$j]");
         $rop = Math::MPFR->new(1) if Rmpfr_nan_p($rop);
