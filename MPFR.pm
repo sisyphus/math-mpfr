@@ -2003,7 +2003,12 @@ sub oct2bin {
 }
 
 sub Rmpfr_fpif_export_mem {
-  $_[0] = chr(0) x ($_[1] - 1);
+  # Set the PV buffer to a satisfactory size unless
+  # it's already big enough:
+  my $len = length($_[0]);
+  $len = 0 unless defined $len;
+  $_[0] = chr(0) x ($_[1] - 1) if $len < ($_[1] - 1);
+
   return _Rmpfr_fpif_export_mem($_[0], $_[1], $_[2]);
 }
 
