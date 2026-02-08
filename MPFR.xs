@@ -6921,7 +6921,7 @@ SV * _d_bytes(pTHX_ SV * str) {
   SV * sv;
 #if !defined(MPFR_VERSION) || MPFR_VERSION <= 196869 /* avoid mpfr_subnormalize */
   int signbit;
-  mpfr_t temp2, DENORM_MIN;
+  mpfr_t temp2, denorm_min;
 #else
   int inex;
   mpfr_prec_t emax;
@@ -6976,16 +6976,16 @@ SV * _d_bytes(pTHX_ SV * str) {
 
         mpfr_abs(temp, temp, GMP_RNDN);
         mpfr_init2(temp2, 2);
-        mpfr_init2(DENORM_MIN, 2);
-        mpfr_set_ui(DENORM_MIN, 2, GMP_RNDN);
-        mpfr_div_2ui(DENORM_MIN, DENORM_MIN, 1075, GMP_RNDN);
-        mpfr_set(temp2, DENORM_MIN, GMP_RNDN);
+        mpfr_init2(denorm_min, 2);
+        mpfr_set_ui(denorm_min, 2, GMP_RNDN);
+        mpfr_div_2ui(denorm_min, denorm_min, 1075, GMP_RNDN);
+        mpfr_set(temp2, denorm_min, GMP_RNDN);
         mpfr_div_ui(temp2, temp2, 2, GMP_RNDN);
-        mpfr_add(temp2, temp2, DENORM_MIN, GMP_RNDN);
-        if(mpfr_cmp(temp, temp2) >= 0) mpfr_mul_si(temp, DENORM_MIN, 2 * signbit, GMP_RNDN);
+        mpfr_add(temp2, temp2, denorm_min, GMP_RNDN);
+        if(mpfr_cmp(temp, temp2) >= 0) mpfr_mul_si(temp, denorm_min, 2 * signbit, GMP_RNDN);
         else mpfr_mul_si(temp, temp, signbit, GMP_RNDN);
         mpfr_clear(temp2);
-        mpfr_clear(DENORM_MIN);
+        mpfr_clear(denorm_min);
         d = mpfr_get_d(temp, GMP_RNDN);
       }
     }
@@ -7163,7 +7163,7 @@ SV * _ld_bytes(pTHX_ SV * str) {
 
 #  if !defined(MPFR_VERSION) || MPFR_VERSION <= 196869 /* avoid mpfr_subnormalize */
     int signbit;
-    mpfr_t temp2, DENORM_MIN;
+    mpfr_t temp2, denorm_min;
 #  else
     int inex;
 #  endif
@@ -7235,16 +7235,16 @@ SV * _ld_bytes(pTHX_ SV * str) {
 
           mpfr_abs(temp, temp, GMP_RNDN);
           mpfr_init2(temp2, 2);
-          mpfr_init2(DENORM_MIN, 2);
-          mpfr_set_ui(DENORM_MIN, 2, GMP_RNDN);
-          mpfr_div_2ui(DENORM_MIN, DENORM_MIN, emax + 1, GMP_RNDN);
-          mpfr_set(temp2, DENORM_MIN, GMP_RNDN);
+          mpfr_init2(denorm_min, 2);
+          mpfr_set_ui(denorm_min, 2, GMP_RNDN);
+          mpfr_div_2ui(denorm_min, denorm_min, emax + 1, GMP_RNDN);
+          mpfr_set(temp2, denorm_min, GMP_RNDN);
           mpfr_div_ui(temp2, temp2, 2, GMP_RNDN);
-          mpfr_add(temp2, temp2, DENORM_MIN, GMP_RNDN);
-          if(mpfr_cmp(temp, temp2) >= 0) mpfr_mul_si(temp, DENORM_MIN, 2 * signbit, GMP_RNDN);
+          mpfr_add(temp2, temp2, denorm_min, GMP_RNDN);
+          if(mpfr_cmp(temp, temp2) >= 0) mpfr_mul_si(temp, denorm_min, 2 * signbit, GMP_RNDN);
           else mpfr_mul_si(temp, temp, signbit, GMP_RNDN);
           mpfr_clear(temp2);
-          mpfr_clear(DENORM_MIN);
+          mpfr_clear(denorm_min);
           ld = mpfr_get_ld(temp, GMP_RNDN);
         }
       }
@@ -7293,7 +7293,7 @@ SV * _f128_bytes(pTHX_ SV * str) {
 
 #  if !defined(MPFR_VERSION) || MPFR_VERSION <= 196869 /* avoid mpfr_subnormalize */
     int signbit;
-  mpfr_t temp2, DENORM_MIN;
+  mpfr_t temp2, denorm_min;
 #  else
     int inex;
     mpfr_prec_t emax;
@@ -7352,16 +7352,16 @@ SV * _f128_bytes(pTHX_ SV * str) {
         else {  /* emin == 1 *//* Can't set precision to 1 with older versions of mpfr */
           mpfr_abs(temp, temp, GMP_RNDN);
           mpfr_init2(temp2, 2);
-          mpfr_init2(DENORM_MIN, 2);
-          mpfr_set_ui(DENORM_MIN, 2, GMP_RNDN);
-          mpfr_div_2ui(DENORM_MIN, DENORM_MIN, 16495, GMP_RNDN);
-          mpfr_set(temp2, DENORM_MIN, GMP_RNDN);
+          mpfr_init2(denorm_min, 2);
+          mpfr_set_ui(denorm_min, 2, GMP_RNDN);
+          mpfr_div_2ui(denorm_min, denorm_min, 16495, GMP_RNDN);
+          mpfr_set(temp2, denorm_min, GMP_RNDN);
           mpfr_div_ui(temp2, temp2, 2, GMP_RNDN);
-          mpfr_add(temp2, temp2, DENORM_MIN, GMP_RNDN);
-          if(mpfr_cmp(temp, temp2) >= 0) mpfr_mul_si(temp, DENORM_MIN, 2 * signbit, GMP_RNDN);
+          mpfr_add(temp2, temp2, denorm_min, GMP_RNDN);
+          if(mpfr_cmp(temp, temp2) >= 0) mpfr_mul_si(temp, denorm_min, 2 * signbit, GMP_RNDN);
           else mpfr_mul_si(temp, temp, signbit, GMP_RNDN);
           mpfr_clear(temp2);
-          mpfr_clear(DENORM_MIN);
+          mpfr_clear(denorm_min);
           f128 = mpfr_get_float128(temp, GMP_RNDN);
         }
       }
