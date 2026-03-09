@@ -1,9 +1,10 @@
 Revision history for Perl module Math::MPFR
 
 4.47
+  - Accommodate Math::MPC overloading of Math::MPFR objects
   - Wrap C's strlen (_strlen), API SvCUR (_SvCUR), API SvCUR_set (_Sv_CUR_set),
-    and API SvLEN (_SvLEN) functions.
-    These wrappers are documented in the POD, but are not exported.
+    and API SvLEN (_SvLEN) functions. (These wrappers are documented in the POD,
+    but are not exported.)
   - Fiddle about with the internals of Rmpfr_fpif_export_mem.
 
 4.46

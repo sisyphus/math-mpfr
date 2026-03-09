@@ -2680,6 +2680,24 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     The returned (Math::MPFR object) result will have been rounded
     to default precision, using default rounding mode.
 
+    The following cross-class overloading is also available if
+    version 1.40 (or later) of Math::MPC is installed. "$MPC"
+    denotes a Math::MPC object.
+    IMPORTANTLY, please note that all of these operations return
+    a Math::MPC object, and the testing of these functions is
+    performed only by the Math::MPC test suite:
+
+    $MPC +  $M; and $M +  $MPC;
+    $MPC += $M; and $M += $MPC;
+    $MPC -  $M; and $M -  $MPC;
+    $MPC -= $M; and $M -= $MPC;
+    $MPC *  $M; and $M *  $MPC;
+    $MPC *= $M; and $M *= $MPC;
+    $MPC /  $M; and $M /  $MPC;
+    $MPC /= $M; and $M /= $MPC;
+    $MPC **  $M; and $M **  $MPC;
+    $MPC **= $M; and $M **= $MPC;
+
     To determine the type and value of the second argument received
     by the overloading subroutines, we work through the following
     steps (in order), using the first value we find, or croaking if
@@ -2715,9 +2733,11 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
     5. If the variable is a Math::MPFR, Math::GMPz, or Math::GMPq,
        or Math::GMP object then the value of that object is used.
-       For some operations, a Math::GMP object will not be accepted
+       For some operations a Math::GMP object will not be accepted,
        in which case the operation will die with an appropriate
-       error message.
+       error message. If the variable is a Math::MPC object && the
+       version of Math::MPC >= 1.40, then the value of that object
+       is used, with all processing being done by Math::MPC.
 
     6. If none of the above is true, then the second variable is
        deemed to be of an invalid type. The operation croaks with

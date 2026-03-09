@@ -500,3 +500,24 @@ typedef _Decimal128 D128;
      ST(1) = sv_2mortal(newSViv(ret));	\
      XSRETURN(2);
 
+#define _overload_callback(_1st_arg,_2nd_arg,_3rd_arg)					\
+  dSP;											\
+  SV * ret;										\
+  int count;										\
+  char buf[32];										\
+  ENTER;										\
+  PUSHMARK(SP);										\
+  XPUSHs(b);										\
+  XPUSHs(a);										\
+  XPUSHs(sv_2mortal(_3rd_arg));								\
+  PUTBACK;										\
+  sprintf(buf, "%s", _1st_arg);								\
+  count = call_pv(buf, G_SCALAR);							\
+  SPAGAIN;										\
+  if (count != 1)									\
+   croak("Error in %s callback to %s\n", _2nd_arg, _1st_arg);				\
+  ret = POPs;										\
+  SvREFCNT_inc(ret);									\
+  LEAVE;										\
+  return ret
+
