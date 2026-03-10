@@ -470,6 +470,7 @@ sub new {
 }
 
 sub Rmpfr_printf {
+    local $| = 1;
     if(@_ == 3){
       if(_itsa($_[1]) == 2) {wrap_mpfr_printf_rnd(@_)} # $_[1] is rounding argument (IOK).
       else {die "The second (of 3) arguments given to Rmpfr_printf() is not a valid rounding argument"}
@@ -2003,8 +2004,9 @@ sub oct2bin {
 }
 
 sub Rmpfr_fpif_export_mem {
-  # Set the PV buffer to a satisfactory size unless
-  # it's already big enough:
+  # $_[0] is the buffer; $_[1] is the required buffer size; $_[2] is a Math::MPFR object.
+  # $_[0] will be set to the required length when it is not already big enough - which
+  # includes those instances where $_[0] is ininitialized.
   my $len = length($_[0]);
   $len = 0 unless defined $len;
   $_[0] = chr(0) x ($_[1] - 1) if $len < ($_[1] - 1);
