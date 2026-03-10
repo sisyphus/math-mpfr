@@ -10436,18 +10436,9 @@ q_fmod_fr (a, b, c)
 	mpq_t *	a
 	mpq_t *	b
 	mpfr_t *	c
-        PREINIT:
-        I32* temp;
         PPCODE:
-        temp = PL_markstack_ptr++;
         q_fmod_fr(a, b, c);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
-        return;
+        XSRETURN_EMPTY; /* return empty stack */
 
 SV *
 Rmpfr_ui_div (a, b, c, round)
@@ -14042,49 +14033,25 @@ OUTPUT:  RETVAL
 void
 _unpack_float32 (f)
 	mpfr_t *	f
-        PREINIT:
-        I32* temp;
         PPCODE:
-        temp = PL_markstack_ptr++;
+        PL_markstack_ptr++;
         _unpack_float32(aTHX_ f);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
         return;
 
 void
 _unpack_float16 (f)
 	mpfr_t *	f
-        PREINIT:
-        I32* temp;
         PPCODE:
-        temp = PL_markstack_ptr++;
+        PL_markstack_ptr++;
         _unpack_float16(aTHX_ f);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
         return;
 
 void
 _unpack_bfloat16 (f)
 	mpfr_t *	f
-        PREINIT:
-        I32* temp;
         PPCODE:
-        temp = PL_markstack_ptr++;
+        PL_markstack_ptr++;
         _unpack_bfloat16(aTHX_ f);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
         return;
 
 SV *
