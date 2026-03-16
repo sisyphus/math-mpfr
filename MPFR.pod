@@ -1113,12 +1113,14 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $si = Rmpfr_cmp_f($op, $f); # $f is a mpf object
    $si = Rmpfr_cmp_IV($op, $iv); # $iv is $Config{ivtype}
    $si = Rmpfr_cmp_NV($op, $nv); # $nv is $Config{nvtype}
+   $si = Rmpfr_cmp_str($op, $str);
     Compare 1st and 2nd args. In the case of 'Rmpfr_cmpabs()' and
     'Rmpfr_cmpabs_ui' compare the absolute values of the 2 args.
     Return a positive value if 1st arg > 2nd arg, zero if
     1st arg = 2nd arg, and a negative value if 1st arg < 2nd arg.
     Both args are considered to their full own precision, which may
-    differ. In case 1st and 2nd args are of same sign but different,
+    differ. ($str will be compared at infinite precision.)
+    In case 1st and 2nd args are of same sign but different,
     the absolute value returned is one plus the absolute difference
     of their exponents. If one of the operands is NaN (Not-a-Number),
     return zero and set the erange flag.

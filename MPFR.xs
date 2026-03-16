@@ -9597,6 +9597,19 @@ void _SvCUR_set(SV * pv, UV len){
   SvCUR_set(pv, (STRLEN)len);
 }
 
+SV * Rmpfr_cmp_str(pTHX_ mpfr_t * a, SV * str) {
+  mpfr_t temp;
+  int inex, cmp;
+
+  mpfr_init2(temp, mpfr_get_prec(*a));
+  inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+  cmp = mpfr_cmp(*a, temp);
+  mpfr_clear(temp);
+  if(cmp == 0) return newSViv(inex);
+  return newSViv(cmp);
+}
+
+
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
 
@@ -14083,4 +14096,12 @@ _SvCUR_set (pv, len)
         PPCODE:
         _SvCUR_set(pv, len);
         XSRETURN_EMPTY; /* return empty stack */
+
+SV *
+Rmpfr_cmp_str (a, str)
+	mpfr_t *	a
+	SV *	str
+CODE:
+  RETVAL = Rmpfr_cmp_str (aTHX_ a, str);
+OUTPUT:  RETVAL
 

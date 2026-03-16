@@ -129,6 +129,7 @@ t/sign.t
 t/sizes.t
 t/snprintf.t
 t/sprintf.t
+t/string_cmp.t
 t/subnormal_doubles.t
 t/sum.t
 t/test1.t
