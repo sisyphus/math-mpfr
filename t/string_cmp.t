@@ -4,12 +4,20 @@
 # The 2 values are compared at inifinite precision
 # The overloaded comparision operators compare the
 # values at default_precision.
+# NOTE: mpfr_strtofr is buggy prior to mpfr-4.0.2.
 
 use strict;
 use warnings;
 use Math::MPFR qw(:mpfr);
 
 use Test::More;
+
+if(262146 > MPFR_VERSION) { # ie less than 4.0.2
+  eval {  Rmpfr_cmp_str(Math::MPFR->new(2), '1');};
+  like($@, qr/^Rmpfr_cmp_str is NA:/, "Rmpfr_cmp_str() is not implemented");
+  done_testing();
+  exit(0);
+}
 
 my $op1 = sqrt(Math::MPFR->new(2));
 my $s = '1.41421356237309504880168872420969798';

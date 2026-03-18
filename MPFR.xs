@@ -9598,15 +9598,20 @@ void _SvCUR_set(SV * pv, UV len){
 }
 
 SV * Rmpfr_cmp_str(pTHX_ mpfr_t * a, SV * str) {
-  mpfr_t temp;
-  int inex, cmp;
+#if !defined(MPFR_VERSION) || MPFR_VERSION < 262146 /* ie less than 4.0.2 */
+   PERL_UNUSED_ARG2(a, str);
+   croak("Rmpfr_cmp_str is NA: The mpfr library version (%s) needs to be at least 4.0.2", MPFR_VERSION_STRING);
+#else
+   mpfr_t temp;
+   int inex, cmp;
 
-  mpfr_init2(temp, mpfr_get_prec(*a));
-  inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
-  cmp = mpfr_cmp(*a, temp);
-  mpfr_clear(temp);
-  if(cmp == 0) return newSViv(inex);
-  return newSViv(cmp);
+   mpfr_init2(temp, mpfr_get_prec(*a));
+   inex = mpfr_strtofr(temp, SvPV_nolen(str), NULL, 0, GMP_RNDN);
+   cmp = mpfr_cmp(*a, temp);
+   mpfr_clear(temp);
+   if(cmp == 0) return newSViv(inex);
+   return newSViv(cmp);
+#endif
 }
 
 
