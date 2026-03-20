@@ -92,7 +92,6 @@ t/nvtoa_subnormal.t
 t/nvtoa2.t
 t/nvtoa3.t
 t/out_str.t
-t/oloadex_math_gmp.t
 t/overload.t
 t/overload_cmp_q.t
 t/overload_cmp_z.t
