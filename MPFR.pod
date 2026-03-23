@@ -2632,9 +2632,15 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Furthermore, all overloaded comparisons ( < <= > >= == != <=> )
     between Math::MPFR and Math::GMPz objects or between Math::MPFR
     and Math::GMPq objects are permitted.
-    Comparison operations between Math::MPFR and Math::GMP objects
-    must be constructed such that Math::MPFR (not Math::GMP)
-    overloading is invoked.
+
+    For comparison operations between Math::MPFR and Math::GMP objects
+    it is best that Math::GMP is at versiomn 2.11 or later && that the
+    Math::GMP_OLOAD module has been loaded.
+    Otherwise the comparisons will need to be constructed such that
+    the Math::MPFR overloading is used - eg you will have to compare
+    ($m_mpfr_obj < $m_gmp_obj), not ($m_gmp_obj > $m_mpfr_obj). If
+    Math::GMP_OLOAD has been loaded, then the comparisons will work
+    either way.
 
     Some additional cross-class overloading is also allowed.
     Let $M be a Math::MPFR object, and $G be any one of a Math::GMPz,
@@ -2655,10 +2661,12 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
     YMMV if you use old versions of Math::GMPz and Math::GMPq.
     But if you have Math-GMPz-0.63 (or later) and Math-GMPq-0.61
-    (or later), and $G is either a Math::GMPz or Math::GMPq
-    object, then it is also permissible to do the following - all
-    of which will overwrite the Math::GMPz/q object ($G) with
-    the Math::MPFR object that these operations return:
+    (or later), then, for the following operations, $G can be
+    either a Math::GMPz or Math::GMPq object - and, if the
+    module Math::GMP_OLOAD has been loaded, then $G can also be a
+    Math::GMP object if Math::GMP (which is loaded by
+    Math::GMP_OLOAD) is at version 2.11 or later.
+    Be aware that all of these operations return a Math::MPFR object:
 
      $G + $M;
      $G += $M;

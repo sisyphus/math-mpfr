@@ -1,6 +1,8 @@
 Revision history for Perl module Math::MPFR
 
 4.48
+  - Document the extra overloading opportunities provided by the loading of
+    the Math::GMP_OLOAD module.
 
 4.47
   - Accommodate Math::MPC overloading of Math::MPFR objects
