@@ -120,6 +120,55 @@ if(MPFR_VERSION() >= 262656) {
   cmp_ok("$rop1", 'eq', '0', 'cospi(-0.5) is 0');
   cmp_ok($inex, '==', 0, 'result was exact');
 
+  for my $nv (0.75, 0.875, 1.375, 1.625) {
+    my($rop1, $rop2) = (Rmpfr_init2(53), Rmpfr_init2(53));
+    my $pi = Rmpfr_init2(1000);
+    my $op = Rmpfr_init2(1000);
+    Rmpfr_const_pi($pi, MPFR_RNDN);
+
+    Rmpfr_set_d($op, $nv, MPFR_RNDN);
+    Rmpfr_cos($rop1, $op, MPFR_RNDN);
+    Rmpfr_div($op, $op, $pi, MPFR_RNDN);
+    Rmpfr_cospi($rop2, $op, MPFR_RNDN);
+    cmp_ok($rop1, '==', $rop2,  "cos($nv) == cospi($nv/pi)");
+
+    for my $ui(1, 2, 4, 8) {
+      Rmpfr_cosu($rop1, $op, $ui, MPFR_RNDN);
+      $op /= $ui;
+      $op *= 2;
+      Rmpfr_cospi($rop2, $op, MPFR_RNDN);
+      cmp_ok($rop1, '==', $rop2, "cosu(op, $ui) == cospi( (op/$ui)*2) )");
+    }
+
+    Rmpfr_set_d($op, $nv, MPFR_RNDN);
+    Rmpfr_sin($rop1, $op, MPFR_RNDN);
+    Rmpfr_div($op, $op, $pi, MPFR_RNDN);
+    Rmpfr_sinpi($rop2, $op, MPFR_RNDN);
+    cmp_ok($rop1, '==', $rop2,  "sin($nv) == sinpi($nv/pi)");
+
+    for my $ui(1, 2, 4, 8) {
+      Rmpfr_sinu($rop1, $op, $ui, MPFR_RNDN);
+      $op /= $ui;
+      $op *= 2;
+      Rmpfr_sinpi($rop2, $op, MPFR_RNDN);
+      cmp_ok($rop1, '==', $rop2, "sinu(op, $ui) == sinpi( (op/$ui)*2) )");
+    }
+
+    Rmpfr_set_d($op, $nv, MPFR_RNDN);
+    Rmpfr_tan($rop1, $op, MPFR_RNDN);
+    Rmpfr_div($op, $op, $pi, MPFR_RNDN);
+    Rmpfr_tanpi($rop2, $op, MPFR_RNDN);
+    cmp_ok($rop1, '==', $rop2,  "tan($nv) == tanpi($nv/pi)");
+
+    for my $ui(1, 2, 4, 8) {
+      Rmpfr_tanu($rop1, $op, $ui, MPFR_RNDN);
+      $op /= $ui;
+      $op *= 2;
+      Rmpfr_tanpi($rop2, $op, MPFR_RNDN);
+      cmp_ok($rop1, '==', $rop2, "tanu(op, $ui) == tanpi( (op/$ui)*2) )");
+    }
+  }
+
   SKIP: {
     skip 'This USE_QUADMATH build miscalculates sqrt(0.5) by 1ULP',
          2 if ($Config{nvtype} eq '__float128'

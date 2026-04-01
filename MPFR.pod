@@ -1294,8 +1294,9 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     sign as $op, following IEEE 754-2019 (sinPi), so that the function
     is odd.  Similarly, the function 'Rmpfr_tanu' follows IEEE 754-2019
     (tanPi).
-    Rmpfr_cosu/sinu/tanu   ($rop, $op, $ui,    $rnd) is equivalent to
-    Rmpfr_cospi/sinpi/tanpi($rop, ($op/$ui)/2, $rnd) below.
+    Rmpfr_cosu/sinu/tanu   ($rop, $op, $ui,    $rnd) is mathematically
+    equivalent to:
+    Rmpfr_cospi/sinpi/tanpi($rop, ($op/$ui)*2, $rnd).
 
    $inex = Rmpfr_acosu($rop, $op, $ui, $rnd); # mpfr-4.2.0 and later only
    $inex = Rmpfr_asinu($rop, $op, $ui, $rnd); # mpfr-4.2.0 and later only
@@ -1310,8 +1311,9 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Set $rop to the cosine (resp. sine and tangent) of $op multiplied
     by Pi.  See the description of 'Rmpfr_sinu', 'Rmpfr_cosu' and
     'Rmpfr_tanu' for special values.
-    Rmpfr_cospi/sinpi/tanpi($rop, $op, $rnd) is equivalent to
-    Rmpfr_cosu/sinu/tanu   ($rop, $op, 2, $rnd) above.
+    Rmpfr_cospi/sinpi/tanpi($rop, $op, $rnd) is mathematically
+    equivalent to:
+    Rmpfr_cosu/sinu/tanu   ($rop, $op, 2, $rnd) when performed with
 
    $inex = Rmpfr_acospi($rop, $op, $rnd); # mpfr-4.2.0 and later only
    $inex = Rmpfr_asinpi($rop, $op, $rnd); # mpfr-4.2.0 and later only
