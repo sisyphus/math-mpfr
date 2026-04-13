@@ -2176,7 +2176,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     This value is from the mpfr.h that was in use when the compilation
     of Math::MPFR took place.
 
-   $ui = MPFR_VERSION_NUM($major, $minor, $patchlevel);
+   $ui = RMPFR_VERSION_NUM($major, $minor, $patchlevel);
     Returns the value for MPFR_VERSION for "MPFR-$major.$minor.$patchlevel".
 
    $str = Rmpfr_get_patches();
