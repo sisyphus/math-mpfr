@@ -130,6 +130,7 @@ t/snprintf.t
 t/sprintf.t
 t/string_cmp.t
 t/subnormal_doubles.t
+t/subnormal_ld.t
 t/sum.t
 t/test1.t
 t/test2.t
