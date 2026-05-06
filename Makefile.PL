@@ -496,7 +496,7 @@ $libs_opt = [ '-lmpfr -lgmp' ]
 
 my %options = (
   NAME         => 'Math::MPFR',
-  AUTHOR       => 'Sisyphus (sisyphus at (@) cpan dot (.) org)',
+  AUTHOR       => 'Sisyphus (sisyphus359 at (@) gmail dot (.) com)',
   ABSTRACT     => 'Perl interface to the MPFR (floating point) library',
   DEFINE       => $defines,
   LIBS         => $libs_opt,
