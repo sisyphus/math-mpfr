@@ -233,7 +233,8 @@ $Math::MPFR::doubletoa_fallback = 0; # If FALLBACK_NOTIFY is defined, this scala
                                      # to produce correct result, and thus falls back to its designated
                                      # fallback routine. (See the doubletoa documentation for details.)
 
-$Math::MPFR::PERL_INFNAN = 0;
+$Math::MPFR::PERL_INFNAN = 0; # Can affect the formatting of Inf and Nan.
+                              # See the section "DISPLAYING INFS AND NANS" in MPFR.pod
 
 my $pinf = 1e5000;      # +infinity
 my $ninf = -$pinf;      # -infinity

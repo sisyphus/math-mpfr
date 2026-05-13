@@ -1709,11 +1709,13 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    DISPLAYING INFS AND NANS
 
-   Generally, these will be displayed as 'Inf', '-Inf' and 'NaN'.
-   However, if you set $Math::MPFR::PERL_INFNAN to a TRUE value,
-   then nvtoa($num) and numtoa($num) (which are documented below
-   in 'MISCELLANEOUS') will display them in the same way that perl
-   itself displays them.
+   For Math::MPFR objects these will usually be displayed as 'Inf', -Inf',
+   and 'NaN'. When using Rmpfr_(s|f)printf, they will be displayed as
+   dictated by the underlying C library - which will likely be 'inf', '-inf'
+   and 'nan'.
+   If you set $Math::MPFR::PERL_INFNAN to a TRUE value, then nvtoa($num) and
+   and numtoa($num) (which are documented below in 'MISCELLANEOUS') will
+   display them in the same way that perl  itself displays them.
    Note that nvtoa() and numtoa() expect a plain numeric perl
    scalar as their argument - not a Math::MPFR object.
    $Math::MPFR::PERL_INFNAN has the initial (default) value of 0.
