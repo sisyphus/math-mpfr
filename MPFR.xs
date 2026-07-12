@@ -6103,7 +6103,6 @@ SV * Rmpfr_get_float16(pTHX_ mpfr_t * a, SV * round) {
        NV nv;
 
        d = mpfr_get_float16(*a, (mpfr_rnd_t)SvUV(round));
-       printf("\n!!!! Obtained the double !!!!\n");
        mpfr_init2(mpfr_temp, 53);
        mpfr_set_d(mpfr_temp, d, GMP_RNDN);
 #      if defined(USE_LONG_DOUBLE)
