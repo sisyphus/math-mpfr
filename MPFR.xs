@@ -6097,7 +6097,25 @@ SV * Rmpfr_get_flt(pTHX_ mpfr_t * a, SV * round) {
 SV * Rmpfr_get_float16(pTHX_ mpfr_t * a, SV * round) {
 #if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
 #  if defined(MPFR_WANT_FLOAT16)      /* defined in Makefile.PL */
-   return newSVnv(mpfr_get_float16(*a, (mpfr_rnd_t)SvUV(round)));
+#    if defined(__clang__) && NVSIZE > 8 && defined(BSD_OS)
+       mpfr_t mpfr_temp;
+       double d;
+       NV nv;
+
+       d = mpfr_get_float16(*a, (mpfr_rnd_t)SvUV(round));
+       printf("\n!!!! Obtained the double !!!!\n");
+       mpfr_init2(mpfr_temp, 53);
+       mpfr_set_d(mpfr_temp, d, GMP_RNDN);
+#      if defined(USE_LONG_DOUBLE)
+         nv = mpfr_get_ld(mpfr_temp, GMP_RNDN);
+#      else
+         nv = mpfr_get_float128(mpfr_temp, GMP_RNDN));
+#      endif
+       mpfr_clear(mpfr_temp);
+       return newSVnv(nv);
+#    else
+       return newSVnv(mpfr_get_float16(*a, (mpfr_rnd_t)SvUV(round)));
+#    endif
 #  else
    PERL_UNUSED_ARG2(a, round);
    croak("Perl interface to Rmpfr_get_float16 not available. The '_Float16' type was not recognized");
@@ -6112,7 +6130,15 @@ SV * Rmpfr_get_float16(pTHX_ mpfr_t * a, SV * round) {
 SV * Rmpfr_get_bfloat16(pTHX_ mpfr_t * a, SV * round) {
 #if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
 #  if defined(MPFR_WANT_BFLOAT16)      /* defined in Makefile.PL */
-   return newSVnv(mpfr_get_bfloat16(*a, (mpfr_rnd_t)SvUV(round)));
+#    if NVSIZE > 8 && defined(__clang__) && defined(BSD_OS)
+       __bf16 wtf;
+       double d;
+       wtf = mpfr_get_bfloat16(*a, (mpfr_rnd_t)SvUV(round));
+       d = (double) wtf;
+       return newSVnv(d);
+#    else
+       return newSVnv(mpfr_get_bfloat16(*a, (mpfr_rnd_t)SvUV(round)));
+#    endif
 #  else
    PERL_UNUSED_ARG2(a, round);
    croak("Perl interface to Rmpfr_get_bfloat16 not available. MPFR_WANT_BFLOAT was not recognized");
@@ -6144,9 +6170,23 @@ SV * Rmpfr_set_float16(pTHX_ mpfr_t * rop, SV * f, SV * round) {
 }
 
 SV * Rmpfr_set_bfloat16(pTHX_ mpfr_t * rop, SV * f, SV * round) {
+#if defined(MPFR_WANT_BFLOAT16) && NVSIZE > 8 && defined(__clang__) && defined(BSD_OS)
+   /* MPFR_WANT_BFLOAT16 is defined in Makefile.PL and BSD_OS is defined in math_mpfr_include.h */
+   mpfr_t temp_fr;
+   __bf16 temp_bf16;
+   mpfr_init2(temp_fr, 113);
+   Rmpfr_set_NV(aTHX_ &temp_fr, f, GMP_RNDN);
+   temp_bf16 = mpfr_get_bfloat16(temp_fr, GMP_RNDN);
+   mpfr_clear(temp_fr);
+#endif
+
 #if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
 #  if defined(MPFR_WANT_BFLOAT16)      /* defined in Makefile.PL */
-   return newSViv(mpfr_set_bfloat16(*rop, (__bf16)SvNV(f), (mpfr_rnd_t)SvUV(round)));
+#    if NVSIZE > 8 && defined(__clang__) && defined(BSD_OS)
+       return newSViv(mpfr_set_bfloat16(*rop, temp_bf16, (mpfr_rnd_t)SvUV(round)));
+#    else
+       return newSViv(mpfr_set_bfloat16(*rop, (__bf16)SvNV(f), (mpfr_rnd_t)SvUV(round)));
+#    endif
 #  else
    PERL_UNUSED_ARG3(rop, f, round);
    croak("Perl interface to Rmpfr_set_bfloat16 not available. The '__bf16' type was not recognized");

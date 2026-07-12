@@ -156,6 +156,9 @@ FALLBACK_NOTIFY          : If defined, $Math::MPFR::doubletoa_fallback
                            falls back to the fallback routine.
                            For more details, see the doubletoa documentation.
 
+BSD_OS                   : If defined, indicates that the OS is either NetBSD,
+                           or OpenBSD or FreeBSD.
+
 *************************************************/
 
 #include <stdio.h>
@@ -520,4 +523,9 @@ typedef _Decimal128 D128;
   SvREFCNT_inc(ret);									\
   LEAVE;										\
   return ret
+
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#define BSD_OS 1
+#endif
+
 
