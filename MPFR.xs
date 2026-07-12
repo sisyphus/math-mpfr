@@ -6155,9 +6155,23 @@ SV * Rmpfr_set_flt(pTHX_ mpfr_t * rop, SV * f, SV * round) {
 }
 
 SV * Rmpfr_set_float16(pTHX_ mpfr_t * rop, SV * f, SV * round) {
+
+#if defined(MPFR_WANT_BFLOAT16) && NVSIZE > 8 && defined(__clang__) && defined(BSD_OS)
+   /* MPFR_WANT_BFLOAT16 is defined in Makefile.PL and BSD_OS is defined in math_mpfr_include.h */
+   mpfr_t temp_fr;
+   _Float16 temp_f16;
+   mpfr_init2(temp_fr, 113);
+   Rmpfr_set_NV(aTHX_ &temp_fr, f, GMP_RNDN);
+   temp_f16 = mpfr_get_float16(temp_fr, GMP_RNDN);
+   mpfr_clear(temp_fr);
+#endif
 #if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
 #  if defined(MPFR_WANT_FLOAT16)      /* defined in Makefile.PL */
-   return newSViv(mpfr_set_float16(*rop, (_Float16)SvNV(f), (mpfr_rnd_t)SvUV(round)));
+#    if NVSIZE > 8 && defined(__clang__) && defined(BSD_OS)
+       return newSViv(mpfr_set_float16(*rop, temp_f16, (mpfr_rnd_t)SvUV(round)));
+#    else
+       return newSViv(mpfr_set_float16(*rop, (_Float16)SvNV(f), (mpfr_rnd_t)SvUV(round)));
+#    endif
 #  else
    PERL_UNUSED_ARG3(rop, f, round);
    croak("Perl interface to Rmpfr_set_float16 not available. The '_Float16' type was not recognized");
