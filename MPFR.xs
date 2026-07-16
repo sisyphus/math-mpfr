@@ -6108,7 +6108,7 @@ SV * Rmpfr_get_float16(pTHX_ mpfr_t * a, SV * round) {
 #      if defined(USE_LONG_DOUBLE)
          nv = mpfr_get_ld(mpfr_temp, GMP_RNDN);
 #      else
-         nv = mpfr_get_float128(mpfr_temp, GMP_RNDN));
+         nv = mpfr_get_float128(mpfr_temp, GMP_RNDN);
 #      endif
        mpfr_clear(mpfr_temp);
        return newSVnv(nv);
