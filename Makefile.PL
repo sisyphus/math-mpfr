@@ -33,7 +33,7 @@ my $have_bfloat16   = undef; # Default value
 my $checklib        = 1;     # Check for availability of mpfr and gmp libraries.
 my $skip_msvc       = 0;     # Will be reset to 1 for MS compiler builds of perl.
 
-my ($d64_message, $d128_message, $float128_message);
+my ($d64_message, $d128_message, $float128_message, $float16_message, $bfloat16_message);
 
 for(@ARGV) {
   $have_decimal128 = 1 if $_ eq 'D128=1';
@@ -72,6 +72,8 @@ unless($skip_msvc) {
       $checklib = 0 if $arg =~ /^check=0/i;
     }
   }
+
+  $mkinc = $Config{cppflags} unless $mkinc;
 
   unless($mycc) {
     $mycc = defined($Config{cc}) ? $Config{cc} : 'cc';
@@ -116,12 +118,13 @@ unless($skip_msvc) {
 
   unless(defined($have_float16)) { # make no changes and conduct no further
                                    # tests if $have_float16 is defined.
+
     if($Config{ptrsize} == 4 && $^O =~ /MSWin32/) {
       $have_float16 = 0;           # Currently not supported by Math::MPFR
     }
     else {
       my $mylibs = $mklib . " " . $mylibpth;
-      my $out = `$mycc -o have_float16.exe -x c have_float16.in $mylibs 2>&1`;
+      my $out = `$mycc $mkinc -o have_float16.exe -x c have_float16.in $mylibs 2>&1`;
 
       if( -e 'have_float16.exe') {
         my $size = $^O =~ /MSWin32/i ? `have_float16.exe` : `./have_float16.exe`;
@@ -132,6 +135,9 @@ unless($skip_msvc) {
 
   if(defined $have_float16 && $have_float16 == 1) {
     $defines .= ' -DMPFR_WANT_FLOAT16=1';
+
+  $float16_message = $have_float16 ? "Attempting to build with Math::Float16 support\n"
+                                        : "Building without Math::Float16 support\n";
   }
 
   ################################
@@ -140,12 +146,13 @@ unless($skip_msvc) {
 
   unless(defined($have_bfloat16)) { # make no changes and conduct no further
                                     # tests if $have_bfloat16 is defined.
+    #print "\nChecking for __bf16 support\n";
     if($Config{ptrsize} == 4 && $^O =~ /MSWin32/) {
       $have_float16 = 0;           # Currently not supported by Math::MPFR
     }
     else {
       my $mylibs = $mklib . " " . $mylibpth;
-      my $out = `$mycc -o have_bfloat16.exe -x c have_bfloat16.in $mylibs 2>&1`;
+      my $out = `$mycc $mkinc -o have_bfloat16.exe -x c have_bfloat16.in $mylibs 2>&1`;
 
       if( -e 'have_bfloat16.exe') {
         my $size = $^O =~ /MSWin32/i ? `have_bfloat16.exe` : `./have_bfloat16.exe`;
@@ -156,6 +163,9 @@ unless($skip_msvc) {
 
   if(defined $have_bfloat16 && $have_bfloat16 == 1) {
     $defines .= ' -DMPFR_WANT_BFLOAT16=1';
+
+  $bfloat16_message = $have_bfloat16 ? "Attempting to build with Math::Bfloat16 support\n"
+                                        : "Building without Math::Bfloat16 support\n";
   }
 
   ############################################
@@ -268,7 +278,7 @@ unless($skip_msvc) {
     # This simply establishes whether the __float128 type is available.
     # The gmp and mpfr libraries are not needed for this'
 
-    my $out = `$mycc -o have_f128.exe -x c have_f128.in 2>&1`;
+    my $out = `$mycc $mkinc -o have_f128.exe -x c have_f128.in 2>&1`;
 
     if($out) {
       print "$out\n";
@@ -417,7 +427,6 @@ else {
   print "Building without 'long double' support\n";
 }
 
-
 if($use_quadmath) {
   print "Building with support for a __float128 NV\n";
 }
@@ -434,6 +443,9 @@ unless($skip_msvc) {
 
   print "\n$float128_message";
   print "If this is wrong, see the \"Math::Float128 conversion\" section in the README\n\n";
+
+  print "$float16_message\n";
+  print "$bfloat16_message\n";
 }
 
 $defines .= $Config::Config{byteorder} =~ /^1234/ ? " -DMPFR_HAVE_LENDIAN" : " -DMPFR_HAVE_BENDIAN";
