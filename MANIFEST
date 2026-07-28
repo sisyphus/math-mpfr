@@ -42,6 +42,7 @@ t/atonv.t
 t/base_conversion.t
 t/bessel.t
 t/bfloat16.t
+t/bug_20260725.t
 t/buildopt.t
 t/bytes.t
 t/cmp_uj_sj.t
