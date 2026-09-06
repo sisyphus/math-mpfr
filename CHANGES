@@ -1,8 +1,13 @@
 Revision history for Perl module Math::MPFR
 
 4.48
+  - Add Rmpfr_rootn_si, Rmpfr_rsqrt, Rmpfr_nrandom_v1, Rmpfr_nrandom_v2,
+    and Rmpfr_legendre - all of which become available in mpfr-4.3.0, but
+    were previously not wrapped in Math::MPFR.
   - Document the extra overloading opportunities provided by the loading of
     the Math::GMP_OLOAD module.
+  - Alter Makefile.PL to accommodate freebsd OS. (Needed for _Float16 and
+    __bf16 support.)
 
 4.47
   - Accommodate Math::MPC overloading of Math::MPFR objects

@@ -1284,6 +1284,16 @@ SV * Rmpfr_rec_sqrt(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
   return newSViv(mpfr_rec_sqrt(*a, *b, (mpfr_rnd_t)SvUV(round)));
 }
 
+SV * Rmpfr_rsqrt(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+  CHECK_ROUNDING_VALUE
+  return newSViv(mpfr_rsqrt(*a, *b, (mpfr_rnd_t)SvUV(round)));
+#else
+   PERL_UNUSED_ARG3(a, b, round);
+   croak("Rmpfr_rsqrt not implemented - need at least mpfr-4.3.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
 SV * Rmpfr_cbrt(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
   CHECK_ROUNDING_VALUE
   return newSViv(mpfr_cbrt(*a, *b, (mpfr_rnd_t)SvUV(round)));
@@ -7656,6 +7666,24 @@ int Rmpfr_nrandom(mpfr_t * rop, gmp_randstate_t * state, int round) {
 #endif
 }
 
+int Rmpfr_nrandom_v1(mpfr_t * rop, gmp_randstate_t * state, int round) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+  return(mpfr_nrandom_v1(*rop, *state, (mpfr_rnd_t)round));
+#else
+  PERL_UNUSED_ARG3(rop, state, round);
+  croak("Rmpfr_nrandom_v1 not implemented - need at least mpfr-4.3.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
+int Rmpfr_nrandom_v2(mpfr_t * rop, gmp_randstate_t * state, int round) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+  return(mpfr_nrandom_v2(*rop, *state, (mpfr_rnd_t)round));
+#else
+  PERL_UNUSED_ARG3(rop, state, round);
+  croak("Rmpfr_nrandom_v2 not implemented - need at least mpfr-4.3.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
 int Rmpfr_erandom(mpfr_t * rop, gmp_randstate_t * state, int round) {
 #if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
   return(mpfr_erandom(*rop, *state, (mpfr_rnd_t)round));
@@ -7891,12 +7919,21 @@ int Rmpfr_beta(mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, int round) {
 #endif
 }
 
-int Rmpfr_rootn_ui (mpfr_t * rop, mpfr_t * op, unsigned long k, int round) {
+int Rmpfr_rootn_ui(mpfr_t * rop, mpfr_t * op, unsigned long k, int round) {
 #if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
   return(mpfr_rootn_ui(*rop, *op, k, (mpfr_rnd_t)round));
 #else
   PERL_UNUSED_ARG4(rop, op, k, round);
-  croak("Rmpfr_rec_root not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
+  croak("Rmpfr_rootn_ui not implemented - need at least mpfr-4.0.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
+int Rmpfr_rootn_si(mpfr_t * rop, mpfr_t * op, long k, int round) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+  return(mpfr_rootn_si(*rop, *op, k, (mpfr_rnd_t)round));
+#else
+  PERL_UNUSED_ARG4(rop, op, k, round);
+  croak("Rmpfr_rootn_si not implemented - need at least mpfr-4.3.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
@@ -9667,6 +9704,16 @@ SV * Rmpfr_cmp_str(pTHX_ mpfr_t * a, SV * str) {
 #endif
 }
 
+int Rmpfr_legendre(pTHX_ mpfr_t * rop, long degree, mpfr_t  * op, SV * round) {
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+   if(degree < 0) croak("Second arg given to Rmpfr_legendre must be >= 0");
+   return mpfr_legendre(*rop, degree, *op, (mpfr_rnd_t)SvUV(round));
+#else
+   PERL_UNUSED_ARG4(rop, degree, op, round);
+   croak("Rmpfr_legendre not implemented - need at least mpfr-4.3.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
 
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
@@ -10547,6 +10594,15 @@ Rmpfr_rec_sqrt (a, b, round)
 	SV *	round
 CODE:
   RETVAL = Rmpfr_rec_sqrt (aTHX_ a, b, round);
+OUTPUT:  RETVAL
+
+SV *
+Rmpfr_rsqrt (a, b, round)
+	mpfr_t *	a
+	mpfr_t *	b
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_rsqrt (aTHX_ a, b, round);
 OUTPUT:  RETVAL
 
 SV *
@@ -13764,6 +13820,18 @@ Rmpfr_nrandom (rop, state, round)
 	int	round
 
 int
+Rmpfr_nrandom_v1 (rop, state, round)
+	mpfr_t *	rop
+	gmp_randstate_t *	state
+	int	round
+
+int
+Rmpfr_nrandom_v2 (rop, state, round)
+	mpfr_t *	rop
+	gmp_randstate_t *	state
+	int	round
+
+int
 Rmpfr_erandom (rop, state, round)
 	mpfr_t *	rop
 	gmp_randstate_t *	state
@@ -13873,6 +13941,13 @@ Rmpfr_rootn_ui (rop, op, k, round)
 	mpfr_t *	rop
 	mpfr_t *	op
 	unsigned long	k
+	int	round
+
+int
+Rmpfr_rootn_si (rop, op, k, round)
+	mpfr_t *	rop
+	mpfr_t *	op
+	long	k
 	int	round
 
 int
@@ -14161,5 +14236,15 @@ Rmpfr_cmp_str (a, str)
 	SV *	str
 CODE:
   RETVAL = Rmpfr_cmp_str (aTHX_ a, str);
+OUTPUT:  RETVAL
+
+int
+Rmpfr_legendre (rop, degree, op, round)
+	mpfr_t *	rop
+	long	degree
+	mpfr_t *	op
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_legendre (aTHX_ rop, degree, op, round);
 OUTPUT:  RETVAL
 

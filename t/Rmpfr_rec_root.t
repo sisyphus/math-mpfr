@@ -2,6 +2,8 @@
 # mpfr_root is deprecated in favour of mpfr_rootn_ui in mpfr-4.0.0
 # The 2 variants should produce identical results, except for the
 # nth root of -0 when n is zero.
+# We also do some checks re mpfr_rsqrt (introduced in mpfr-4.3.0)
+# which differs from mpfr_rec_root only when OP is -0.
 
 use strict;
 use warnings;
@@ -17,8 +19,18 @@ else {
   $old = 1;
 }
 
+my $number_of_tests = 57;
+my $have_mpfr_4_3_0 = 0;
 
-print "1..57\n";
+unless(262912 > MPFR_VERSION)  {       # ie unless mpfr version < 4.3.0.
+  $have_mpfr_4_3_0 = 1;  # The underlying mpfr library version >= 4.3.0.
+  $number_of_tests += 3; # Additional tests of Rmpfr_rsqrt().
+}
+else {
+  $number_of_tests++; # Test that calling Rmpfr_rsqrt produces expexcted error.
+}
+
+print "1..$number_of_tests\n";
 
 my($inex1, $inex2, $check);
 my($rop1, $rop2) = (Rmpfr_init(), Rmpfr_init());
@@ -497,4 +509,54 @@ if(Rmpfr_nan_p($rop1) && Rmpfr_nan_p($rop2)) {print "ok 57\n"}
 else {
   warn "\n \$rop1: $rop1\n \$rop2: $rop2\n ", Rmpfr_nanflag_p(), "\n";
   print "not ok 57\n";
+}
+
+## Rmpfr_rsqrt() tests:
+
+if($have_mpfr_4_3_0) {
+  $inex1 = Rmpfr_rec_sqrt($rop1, Math::MPFR->new(42), MPFR_RNDN);
+  $inex2 = Rmpfr_rsqrt   ($rop2, Math::MPFR->new(42), MPFR_RNDN);
+
+  if($rop1 == $rop2) {print "ok 58\n"}
+  else {
+    warn "\n \$rop1: $rop1\n \$rop2: $rop2\n";
+    print "not ok 58\n";
+  }
+
+  my $op = Math::MPFR->new(0);
+  Rmpfr_neg($op, $op, MPFR_RNDN);
+
+  my $check = Math::MPFR->new();
+  Rmpfr_set_inf($check, 1); # +Inf
+
+  $inex1 = Rmpfr_rec_sqrt($rop1, $op, MPFR_RNDN);
+
+  if($rop1 == $check) {
+    print "ok 59\n";
+  }
+  else {
+    warn "\n \$rop1: $rop1\n \$check: $check\n";
+    print "not ok 59\n";
+  }
+
+  $inex1 = Rmpfr_rsqrt($rop1, $op, MPFR_RNDN);
+  $check *= -1; # -Inf
+  if($rop1 == $check) {
+    print "ok 60\n";
+  }
+  else {
+    warn "\n \$rop1: $rop1\n \$check: $check\n";
+    print "not ok 60\n";
+  }
+
+}
+else {
+  eval {Rmpfr_rsqrt($rop2, $op, MPFR_RNDN);};
+  if($@ =~ /^Rmpfr_rsqrt not implemented \- need at least mpfr\-4\.3\.0/) {
+    print "ok $number_of_tests\n";
+  }
+  else {
+    warn "\$\@: $@\n";
+    print "not ok $number_of_tests\n";
+  }
 }
