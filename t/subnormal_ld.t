@@ -97,8 +97,8 @@ my @ex_2_64 = (
 my (@in_1, @in_2, @ex_1, @ex_2);
 
 if(length(sqrt(2.0)) < 31) {
-    if(196869 > Math::MPFR::MPFR_VERSION()) {
-      plan skip_all => 'MPFR library version needs to be at least 3.1.5';
+    if(196869 >= Math::MPFR::MPFR_VERSION()) {
+      plan skip_all => 'MPFR library version needs to be greater than 3.1.5';
       done_testing();
       exit 0;
     }
