@@ -7929,11 +7929,11 @@ int Rmpfr_rootn_ui(mpfr_t * rop, mpfr_t * op, unsigned long k, int round) {
 }
 
 int Rmpfr_rootn_si(mpfr_t * rop, mpfr_t * op, long k, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0)
   return(mpfr_rootn_si(*rop, *op, k, (mpfr_rnd_t)round));
 #else
   PERL_UNUSED_ARG4(rop, op, k, round);
-  croak("Rmpfr_rootn_si not implemented - need at least mpfr-4.3.0, have only %s", MPFR_VERSION_STRING);
+  croak("Rmpfr_rootn_si not implemented - need at least mpfr-4.2.0, have only %s", MPFR_VERSION_STRING);
 #endif
 }
 
