@@ -115,6 +115,8 @@ t/remainder.t
 t/Rmpfr_asinu.t
 t/Rmpfr_fmod_ui.t
 t/Rmpfr_get_q.t
+t/Rmpfr_legendre.t
+t/Rmpfr_nrandom.t
 t/Rmpfr_q_div_and_Rmpfr_z_div.t
 t/Rmpfr_rec_root.t
 t/Rmpfr_rootn_ui.t
