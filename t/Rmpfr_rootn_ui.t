@@ -32,7 +32,7 @@ my $inex2 = Rmpfr_cbrt($rop2, $op, MPFR_RNDN);
 cmp_ok($inex1 * $inex2, '>', 0, '$inex1 * $inex2 > 0');
 cmp_ok($rop1, '==', $rop2, '$rop1 == $rop2');
 
-unless(RMPFR_VERSION_NUM(4,3,0) > MPFR_VERSION)  {
+unless(RMPFR_VERSION_NUM(4,2,0) > MPFR_VERSION)  {
   my $inex3 = Rmpfr_rootn_si($rop2, $op, 3, MPFR_RNDN);
   cmp_ok($inex3 * $inex2, '>', 0, '$inex3 * $inex2 > 0');
   cmp_ok($rop2, '==', $rop1, '$rop2 == $rop1');
