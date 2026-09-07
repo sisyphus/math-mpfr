@@ -991,9 +991,12 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     Return 0 if the operation is exact, a non-zero value otherwise.
 
    $inex = Rmpfr_rec_sqrt($rop, $op, $rnd);
+   $inex = Rmpfr_rsqrt   ($rop, $op, $rnd);
     Set $rop to $op ** (-1 / 2) rounded in the direction $rnd. Set
     $rop to +Inf if $op is 0, and 0 if $op is +Inf. Set $rop to NaN
     if $op is less than zero.
+    Rmpfr_rsqrt only differs for -0, where it returns -Inf instead of
+    +Inf, following the IEEE 754 standard (Section 9.2.1).
 
    $inex = Rmpfr_rec_root($rop, $op, $ui, $rnd);
     NOTE: There is no such mpfr function as mpfr_rec_root.
@@ -1019,10 +1022,16 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     otherwise.
 
    $inex = Rmpfr_rootn_ui($rop, $op, $ui $rnd); # mpfr-4.0.0 and later
-    Same as Rmpfr_root except that $rop is set to +0 (instead of -0)
-    when $op is -0 and $ui is even.
-    This function (and Rmpfr_cbrt) agree with the rootn function of
-    the IEEE 754-2008 standard (Section 9.2).
+   $inex = Rmpfr_rootn_si($rop, $op, $si $rnd); # mpfr-4.2.0 and later
+    Set $rop to the Nth root rounded in the direction $rnd - where N
+    is the value held by $ui or (resp.) $si.  If N = 3 then this is
+    the cubic root - the same as Rmpfr_cbrt.
+    For N odd (resp. even) and $op negative (including
+    -Inf), set $rop to a negative number (resp. NaN).  If $op is zero,
+    set $rop to zero with the sign obtained by the usual limit rules,
+    i.e., the same sign as $op if N is odd, and positive if N is even.
+    These 2 functions (and Rmpfr_cbrt) agree with the rootn function
+    of the IEEE 754-2008 standard (Section 9.2).
 
    $inex = Rmpfr_pow_ui($rop, $op, $ui, $rnd);
    $inex = Rmpfr_pow_uj($rop, $op, $uj, $rnd);
@@ -1601,12 +1610,21 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
     the integral of -log(1-t)/t from 0 to x.
 
    $inex = Rmpfr_dot ($rop, \@op1, \@op2, $ui, $rnd); # mpfr-4.1.0 &
-                                                    # later only
+                                                      # later only
     Set $rop to the dot product of elements of @op1 by those of
     @op2, whose common size is $ui (== scalar @op1), correctly
     rounded in the direction $rnd.
     This function is experimental, and does not yet handle
     intermediate overflows and underflows.
+
+   $inex = Rmpfr_legendre($rop, $si, $op, $rnd); # mpfr-4.3.0 &
+                                                 # later only
+    $rop is set to the value of Legendre's polynomial P_N($op),
+    rounded in the direction of $rnd, where N stands for the degree of
+    the polynomial - which is set to the value held by $si. If $si is
+    negative, then the function aborts with an appropriate message.
+    If the input variable $op is outside the [-1,1] domain, then $rop
+    is set to 'NaN' and 0 is returned.
 
    #############
 
@@ -2477,12 +2495,19 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $si = Rmpfr_nrandom ($rop, $state, $rnd);  # mpfr-4.0.0 and
                                               # later only
+   $si = Rmpfr_nrandom_v1($rop, $state, $rnd); # mpfr-4.3.0 and
+                                               # later only
+   $si = Rmpfr_nrandom_v2($rop, $state, $rnd); # mpfr-4.3.0 and
+                                               # later only
     Generate a random floating-point number according to a standard
     normal Gaussian distribution (with mean zero and variance one).
     The floating-point number $rop can be seen as if a random real
     number were generated according to the standard normal Gaussian
     distribution and then rounded in the direction $rnd.
-    This function is more efficient than Rmpfr_grandom.
+    These functions are more efficient than Rmpfr_grandom.
+    Rmpfr_nrandom and Rmpfr_nrandom_v1 are the same function.
+    At some point in the future Rmpfr_nrandom will change to
+    invoking the more efficient Rmpfr_nrandom_v2.
 
    $si = Rmpfr_erandom($rop, $state, $rnd);  # mpfr-4.0.0 and
                                              # later only
