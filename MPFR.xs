@@ -654,7 +654,7 @@ void Rmpfr_deref2(pTHX_ mpfr_t * p, SV * base, SV * n_digits, SV * round) {
 }
 
 void Rmpfr_set_default_prec(pTHX_ SV * prec) {
-#if MPFR_VERSION < 262144      /* earlier than version 4.0.0 */
+#if MPFR_VERSION < MPFR_VERSION_NUM(4,0,0) /* 262144 */
   if(SvIV(prec) < 2) croak("Precision must be set to at least 2 for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
 #endif
   mpfr_set_default_prec((mpfr_prec_t)SvIV(prec));
@@ -669,14 +669,14 @@ SV * Rmpfr_min_prec(pTHX_ mpfr_t * x) {
 }
 
 void Rmpfr_set_prec(pTHX_ mpfr_t * p, SV * prec) {
-#if MPFR_VERSION < 262144      /* earlier than version 4.0.0 */
+#if MPFR_VERSION < MPFR_VERSION_NUM(4,0,0) /* 262144 */
   if(SvIV(prec) < 2) croak("Precision must be set to at least 2 for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
 #endif
   mpfr_set_prec(*p, (mpfr_prec_t)SvIV(prec));
 }
 
 void Rmpfr_set_prec_raw(pTHX_ mpfr_t * p, SV * prec) {
-#if MPFR_VERSION < 262144      /* earlier than version 4.0.0 */
+#if MPFR_VERSION < MPFR_VERSION_NUM(4,0,0) /* 262144 */
   if(SvIV(prec) < 2) croak("Precision must be set to at least 2 for this version (%s) of the mpfr library", MPFR_VERSION_STRING);
 #endif
   mpfr_set_prec_raw(*p, (mpfr_prec_t)SvIV(prec));
@@ -1013,14 +1013,14 @@ SV * Rmpfr_get_ld(pTHX_ mpfr_t * p, SV * round){
       return newSVnv(mpfr_get_d(*p, (mpfr_rnd_t)SvUV(round)));
 
 #  elif LDBL_MANT_DIG == 106
-#    if !defined(MPFR_VERSION) || (defined(MPFR_VERSION) && MPFR_VERSION <= DD_INF_BUG)
+#    if MPFR_VERSION <= DD_INF_BUG /* 3.1.5 196869 */
       double d = mpfr_get_ld(*p, (mpfr_rnd_t)SvUV(round));
 
       if(d == 0.0 || d != d || d / d != 1) return newSVnv((long double)d);
 #    endif
 #  endif
 
-#  if defined MPFR_VERSION && MPFR_VERSION > 196868            /* mpfr_get_ld handles subnormals correctly */
+#  if defined MPFR_VERSION && MPFR_VERSION > MPFR_VERSION_NUM(3,1,4) /* 196868 *//* mpfr_get_ld handles subnormals correctly */
     return newSVnv(mpfr_get_ld(*p, (mpfr_rnd_t)SvUV(round)));
 #  else                                                        /* mpfr_get_ld handling of subnormals is buggy */
 
@@ -1084,7 +1084,7 @@ SV * Rmpfr_add_z(pTHX_ mpfr_t * a, mpfr_t * b, mpz_t * c, SV * round) {
 /* No need for rounding as result will be exact */
 void Rmpfr_get_q(mpq_t * a, mpfr_t * b) {
 
-#if defined(MPFR_VERSION_MAJOR) && MPFR_VERSION_MAJOR >= 4
+#if MPFR_VERSION_MAJOR >= 4
   if(!mpfr_number_p(*b)) croak("In Rmpfr_get_q: Cannot coerce an 'Inf' or 'NaN' to a Math::GMPq object");
   mpfr_get_q(*a, *b);
 
@@ -1285,7 +1285,7 @@ SV * Rmpfr_rec_sqrt(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
 }
 
 SV * Rmpfr_rsqrt(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0) /* 262912 */
   CHECK_ROUNDING_VALUE
   return newSViv(mpfr_rsqrt(*a, *b, (mpfr_rnd_t)SvUV(round)));
 #else
@@ -1310,7 +1310,7 @@ SV * Rmpfr_pow_ui(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
 }
 
 SV * Rmpfr_pow_uj(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
-#if MPFR_VERSION >= 262656 /* 4.2.0 */
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_pow_uj(*a, *b, (uintmax_t)SvUV(c), (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG4(a, b, c, round);
@@ -1322,7 +1322,7 @@ SV * Rmpfr_pow_IV(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
   if(SV_IS_IOK(c)) {
 
 #if defined(MATH_MPFR_NEED_LONG_LONG_INT)
-#  if MPFR_VERSION >= 262656
+#  if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
     if(SvUOK(c)) {
       return newSViv(mpfr_pow_uj(*a, *b, (uintmax_t)SvUV(c), (mpfr_rnd_t)SvUV(round)));
     }
@@ -1367,7 +1367,7 @@ SV * Rmpfr_pow_si(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
 }
 
 SV * Rmpfr_pow_sj(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
-#if MPFR_VERSION >= 262656   /* 4.2.0 */
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
     return newSViv(mpfr_pow_sj(*a, *b, (intmax_t)SvIV(c), (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG4(a, b, c, round);
@@ -1381,7 +1381,7 @@ SV * Rmpfr_pow(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
 }
 
 SV * Rmpfr_powr(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
-#if MPFR_VERSION >= 262656 /* 4.2.0 */
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_powr(*a, *b, *c, (mpfr_rnd_t)SvUV(round)));
 #else
   croak("Rmpfr_powr function not implemented until mpfr-4.2.0. (You have only version %s) ", MPFR_VERSION_STRING);
@@ -1389,7 +1389,7 @@ SV * Rmpfr_powr(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
 }
 
 SV * Rmpfr_pown(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
-#if MPFR_VERSION >= 262656 /* 4.2.0 */
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_pown(*a, *b, (intmax_t)SvIV(c), (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG4(a, b, c, round);
@@ -1398,7 +1398,7 @@ SV * Rmpfr_pown(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
 }
 
 SV * Rmpfr_compound_si(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
-#if MPFR_VERSION >= 262656 /* 4.2.0 */
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_compound_si(*a, *b, (long)SvIV(c), (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG4(a, b, c, round);
@@ -1407,7 +1407,7 @@ SV * Rmpfr_compound_si(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
 }
 
 SV * Rmpfr_compound(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
-#if MPFR_VERSION >= 262912 /* 4.3.0 */
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0) /* 262912 */
   return newSViv(mpfr_compound(*a, *b, *c, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG4(a, b, c, round);
@@ -1456,7 +1456,7 @@ SV * Rmpfr_div_2si(pTHX_ mpfr_t * a, mpfr_t * b, SV * c, SV * round) {
 }
 
 int Rmpfr_total_order_p(mpfr_t * a, mpfr_t * b) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= 262400 /* version 4.1.0 */
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,1,0) /* 262400 */
   return mpfr_total_order_p(*a, *b);
 #else
   if(mpfr_nan_p(*a)) {
@@ -1491,7 +1491,7 @@ int Rmpfr_cmpabs(mpfr_t * a, mpfr_t * b) {
 }
 
 int Rmpfr_cmpabs_ui(mpfr_t * a, unsigned long b) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= 262400 /* version 4.1.0 */
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,1,0) /* 262400 */
   return mpfr_cmpabs_ui(*a, b);
 #else
   PERL_UNUSED_ARG2(a, b);
@@ -1636,7 +1636,7 @@ SV * Rmpfr_sin(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
 }
 
 SV * Rmpfr_sinu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_sinu(*a, *b, c, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG4(a, b, c, round);
@@ -1645,7 +1645,7 @@ SV * Rmpfr_sinu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
 }
 
 SV * Rmpfr_sinpi(pTHX_ mpfr_t *a, mpfr_t *b, SV *round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_sinpi(*a, *b, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG3(a, b, round);
@@ -1659,7 +1659,7 @@ SV * Rmpfr_cos(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
 }
 
 SV * Rmpfr_cosu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_cosu(*a, *b, c, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG4(a, b, c, round);
@@ -1668,7 +1668,7 @@ SV * Rmpfr_cosu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
 }
 
 SV * Rmpfr_cospi(pTHX_ mpfr_t *a, mpfr_t *b, SV *round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_cospi(*a, *b, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG3(a, b, round);
@@ -1682,7 +1682,7 @@ SV * Rmpfr_tan(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
 }
 
 SV * Rmpfr_tanu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_tanu(*a, *b, c, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG4(a, b, c, round);
@@ -1691,7 +1691,7 @@ SV * Rmpfr_tanu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
 }
 
 SV * Rmpfr_tanpi(pTHX_ mpfr_t *a, mpfr_t *b, SV *round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_tanpi(*a, *b, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG3(a, b, round);
@@ -1705,7 +1705,7 @@ SV * Rmpfr_asin(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
 }
 
 SV * Rmpfr_asinu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_asinu(*a, *b, c, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG4(a, b, c, round);
@@ -1714,7 +1714,7 @@ SV * Rmpfr_asinu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
 }
 
 SV * Rmpfr_asinpi(pTHX_ mpfr_t *a, mpfr_t *b, SV *round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_asinpi(*a, *b, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG3(a, b, round);
@@ -1728,7 +1728,7 @@ SV * Rmpfr_acos(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
 }
 
 SV * Rmpfr_acosu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_acosu(*a, *b, c, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG4(a, b, c, round);
@@ -1737,7 +1737,7 @@ SV * Rmpfr_acosu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
 }
 
 SV * Rmpfr_acospi(pTHX_ mpfr_t *a, mpfr_t *b, SV *round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_acospi(*a, *b, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG3(a, b, round);
@@ -1751,7 +1751,7 @@ SV * Rmpfr_atan(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
 }
 
 SV * Rmpfr_atanu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_atanu(*a, *b, c, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG4(a, b, c, round);
@@ -1760,7 +1760,7 @@ SV * Rmpfr_atanu(pTHX_ mpfr_t *a, mpfr_t *b, unsigned long c, SV *round) {
 }
 
 SV * Rmpfr_atanpi(pTHX_ mpfr_t *a, mpfr_t *b, SV *round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_atanpi(*a, *b, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG3(a, b, round);
@@ -1814,7 +1814,7 @@ SV * Rmpfr_expm1(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
 }
 
 SV * Rmpfr_exp2m1(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_exp2m1(*a, *b, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG3(a, b, round);
@@ -1823,7 +1823,7 @@ SV * Rmpfr_exp2m1(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
 }
 
 SV * Rmpfr_exp10m1(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_exp10m1(*a, *b, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG3(a, b, round);
@@ -1837,7 +1837,7 @@ SV * Rmpfr_log2(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
 }
 
 SV * Rmpfr_log2p1(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_log2p1(*a, *b, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG3(a, b, round);
@@ -1851,7 +1851,7 @@ SV * Rmpfr_log10(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
 }
 
 SV * Rmpfr_log10p1(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_log10p1(*a, *b, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG3(a, b, round);
@@ -2241,7 +2241,7 @@ SV * Rmpfr_fmod(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
 }
 
 SV * Rmpfr_fmod_ui(pTHX_ mpfr_t * a, mpfr_t * b, unsigned long c, SV * round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_fmod_ui(*a, *b, c, (mpfr_rnd_t)SvUV(round)));
 #else
   mpfr_t temp;
@@ -2767,7 +2767,7 @@ SV * Rmpfr_get_NV(pTHX_ mpfr_t * x, SV * round) {
 
 SV * Rmpfr_fits_ulong_p(pTHX_ mpfr_t * a, SV * round) {
   CHECK_ROUNDING_VALUE
-#if defined(MPFR_VERSION) && MPFR_VERSION > NEG_ZERO_BUG
+#if MPFR_VERSION > NEG_ZERO_BUG /* 3.1.2 196866 */
   return newSVuv(mpfr_fits_ulong_p(*a, (mpfr_rnd_t)SvUV(round)));
 #else
   if((mpfr_rnd_t)SvUV(round) < 3) {
@@ -2789,7 +2789,7 @@ SV * Rmpfr_fits_slong_p(pTHX_ mpfr_t * a, SV * round) {
 
 SV * Rmpfr_fits_ushort_p(pTHX_ mpfr_t * a, SV * round) {
   CHECK_ROUNDING_VALUE
-#if defined(MPFR_VERSION) && MPFR_VERSION > NEG_ZERO_BUG
+#if MPFR_VERSION > NEG_ZERO_BUG /* 3.1.2 196866 */
   return newSVuv(mpfr_fits_ushort_p(*a, (mpfr_rnd_t)SvUV(round)));
 #else
   if((mpfr_rnd_t)SvUV(round) < 3) {
@@ -2811,7 +2811,7 @@ SV * Rmpfr_fits_sshort_p(pTHX_ mpfr_t * a, SV * round) {
 
 SV * Rmpfr_fits_uint_p(pTHX_ mpfr_t * a, SV * round) {
   CHECK_ROUNDING_VALUE
-#if defined(MPFR_VERSION) && MPFR_VERSION > NEG_ZERO_BUG
+#if MPFR_VERSION > NEG_ZERO_BUG /* 3.1.2 196866 */
   return newSVuv(mpfr_fits_uint_p(*a, (mpfr_rnd_t)SvUV(round)));
 #else
   if((mpfr_rnd_t)SvUV(round) < 3) {
@@ -2833,7 +2833,7 @@ SV * Rmpfr_fits_sint_p(pTHX_ mpfr_t * a, SV * round) {
 
 SV * Rmpfr_fits_uintmax_p(pTHX_ mpfr_t * a, SV * round) {
   CHECK_ROUNDING_VALUE
-#if defined(MPFR_VERSION) && MPFR_VERSION > NEG_ZERO_BUG
+#if MPFR_VERSION > NEG_ZERO_BUG /* 3.1.2 196866 */
   return newSVuv(mpfr_fits_uintmax_p(*a, (mpfr_rnd_t)SvUV(round)));
 #else
   if(mpfr_zero_p(*a)) return newSVuv(1);
@@ -2960,7 +2960,7 @@ SV * Rmpfr_atan2(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
 }
 
 SV * Rmpfr_atan2u(pTHX_ mpfr_t *a, mpfr_t *b, mpfr_t *c, unsigned long d, SV *round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_atan2u(*a, *b, *c, d, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG5(a, b, c, d, round);
@@ -2969,7 +2969,7 @@ SV * Rmpfr_atan2u(pTHX_ mpfr_t *a, mpfr_t *b, mpfr_t *c, unsigned long d, SV *ro
 }
 
 SV * Rmpfr_atan2pi(pTHX_ mpfr_t *a, mpfr_t *b, mpfr_t *c, SV *round) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return newSViv(mpfr_atan2pi(*a, *b, *c, (mpfr_rnd_t)SvUV(round)));
 #else
   PERL_UNUSED_ARG4(a, b, c, round);
@@ -3050,7 +3050,7 @@ SV * Rmpfr_coth(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
 
 SV * Rmpfr_lngamma(pTHX_ mpfr_t * a, mpfr_t * b, SV * round) {
   CHECK_ROUNDING_VALUE
-#if !defined(MPFR_VERSION) || (defined(MPFR_VERSION) && MPFR_VERSION <= LNGAMMA_BUG)
+#if MPFR_VERSION <= LNGAMMA_BUG /* 3.1.3 196867 */
   if(!mpfr_nan_p(*b) && mpfr_sgn(*b) <= 0) {
     mpfr_set_inf(*a, 1);
     return newSViv(0);
@@ -4725,7 +4725,7 @@ SV * overload_sin(pTHX_ mpfr_t * p, SV * b, SV * third) {
 }
 
 SV * sind(pTHX_ mpfr_t * p) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   mpfr_t * mpfr_t_obj;
   SV * obj_ref, * obj;
 
@@ -4755,7 +4755,7 @@ SV * overload_cos(pTHX_ mpfr_t * p, SV * b, SV * third) {
 }
 
 SV * cosd(pTHX_ mpfr_t * p) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   mpfr_t * mpfr_t_obj;
   SV * obj_ref, * obj;
 
@@ -4784,7 +4784,7 @@ SV * tangent(pTHX_ mpfr_t * p) {
 }
 
 SV * tand(pTHX_ mpfr_t * p) {
-#if MPFR_VERSION >= 262656
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   mpfr_t * mpfr_t_obj;
   SV * obj_ref, * obj;
 
@@ -5064,7 +5064,7 @@ SV * overload_pow_eq(pTHX_ SV * a, SV * b, SV * third) {
   SvREFCNT_inc(a);
 
 #ifdef MATH_MPFR_NEED_LONG_LONG_INT
-#  if MPFR_VERSION >= 262656 /* have mpfr_pow_uj, mpfr_pow_sj */
+#  if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */ /* have mpfr_pow_uj, mpfr_pow_sj */
    if(SV_IS_IOK(b)) {
      if(SvUOK(b)) {
        mpfr_pow_uj(*(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpfr_t *, SvIVX(SvRV(a)))), SvUVX(b), __gmpfr_default_rounding_mode);
@@ -6061,7 +6061,7 @@ SV * Rmpfr_buildopt_tls_p(pTHX) {
 }
 
 SV * Rmpfr_buildopt_float16_p(pTHX) {
-#if MPFR_VERSION >= 262912
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0) /*262912 */
   return newSViv(mpfr_buildopt_float16_p());
 #else
   warn("'mpfr_buildopt_float16_p' not implemented until MPFR-4.3.0");
@@ -6086,7 +6086,7 @@ SV * Rmpfr_digamma(pTHX_ mpfr_t * rop, mpfr_t * op, SV * round) {
 }
 
 SV * Rmpfr_trigamma(pTHX_ mpfr_t * rop, mpfr_t * op, SV * round) {
-#if MPFR_VERSION >= 262912
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0) /*262912 */
   return newSViv(mpfr_trigamma(*rop, *op, (mpfr_rnd_t)SvIV(round)));
 #else
   PERL_UNUSED_ARG3(rop, op, round);
@@ -6105,7 +6105,7 @@ SV * Rmpfr_get_flt(pTHX_ mpfr_t * a, SV * round) {
 }
 
 SV * Rmpfr_get_float16(pTHX_ mpfr_t * a, SV * round) {
-#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0) /* 262912 */
 #  if defined(MPFR_WANT_FLOAT16)      /* defined in Makefile.PL */
 #    if defined(__clang__) && NVSIZE > 8 && defined(BSD_OS)
        mpfr_t mpfr_temp;
@@ -6137,7 +6137,7 @@ SV * Rmpfr_get_float16(pTHX_ mpfr_t * a, SV * round) {
 }
 
 SV * Rmpfr_get_bfloat16(pTHX_ mpfr_t * a, SV * round) {
-#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0) /* 262912 */
 #  if defined(MPFR_WANT_BFLOAT16)      /* defined in Makefile.PL */
 #    if NVSIZE > 8 && defined(__clang__) && defined(BSD_OS)
        __bf16 wtf;
@@ -6174,7 +6174,7 @@ SV * Rmpfr_set_float16(pTHX_ mpfr_t * rop, SV * f, SV * round) {
    temp_f16 = mpfr_get_float16(temp_fr, GMP_RNDN);
    mpfr_clear(temp_fr);
 #endif
-#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0) /* 262912 */
 #  if defined(MPFR_WANT_FLOAT16)      /* defined in Makefile.PL */
 #    if NVSIZE > 8 && defined(__clang__) && defined(BSD_OS)
        return newSViv(mpfr_set_float16(*rop, temp_f16, (mpfr_rnd_t)SvUV(round)));
@@ -6203,7 +6203,7 @@ SV * Rmpfr_set_bfloat16(pTHX_ mpfr_t * rop, SV * f, SV * round) {
    mpfr_clear(temp_fr);
 #endif
 
-#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0) /* 262912 */
 #  if defined(MPFR_WANT_BFLOAT16)      /* defined in Makefile.PL */
 #    if NVSIZE > 8 && defined(__clang__) && defined(BSD_OS)
        return newSViv(mpfr_set_bfloat16(*rop, temp_bf16, (mpfr_rnd_t)SvUV(round)));
@@ -6457,7 +6457,7 @@ int mpfr_set_decimal64 (mpfr_t rop, _Decimal64 op, mpfr_rnd_t rnd)
 */
 
 SV * Rmpfr_set_DECIMAL64(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
-#if (!defined(MPFR_VERSION) || (MPFR_VERSION<MPFR_VERSION_NUM(3,1,0)))
+#if MPFR_VERSION < MPFR_VERSION_NUM(3,1,0) /* 196864 */
   PERL_UNUSED_ARG3(rop, op, round);
   croak("Perl interface to Rmpfr_set_DECIMAL64 not available for this version (%s) of the mpfr library. We need at least version 3.1.0",
             MPFR_VERSION_STRING);
@@ -6480,7 +6480,7 @@ SV * Rmpfr_set_DECIMAL64(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
   }
   else croak("2nd arg (which needs to be a Math::Decimal64 object) supplied to Rmpfr_set_DECIMAL64 is not an object");
 #else
-#  if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,1,0)
+#  if MPFR_VERSION >= MPFR_VERSION_NUM(3,1,0) /* 196864 */
     if( mpfr_buildopt_decimal_p() ) {
       warn("To make Rmpfr_set_DECIMAL64 available, rebuild Math::MPFR and pass \"D64=1\" as an arg to the Makefile.PL\n");
       croak("See \"PASSING _Decimal64 & _Decimal128 VALUES\" in the Math::MPFR documentation");
@@ -6495,7 +6495,7 @@ SV * Rmpfr_set_DECIMAL64(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
 
 
 SV * Rmpfr_set_DECIMAL128(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
-#if (!defined(MPFR_VERSION) || (MPFR_VERSION<MPFR_VERSION_NUM(4,1,0)))
+#if MPFR_VERSION < MPFR_VERSION_NUM(4,1,0) /* 262400 */
   croak("Perl interface to Rmpfr_set_DECIMAL128 not available for this version (%s) of the mpfr library. We need at least version 4.1.0",
          MPFR_VERSION_STRING);
 #endif
@@ -6517,7 +6517,7 @@ SV * Rmpfr_set_DECIMAL128(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
   }
   else croak("2nd arg (which needs to be a Math::Decimal128 object) supplied to Rmpfr_set_DECIMAL128 is not an object");
 #else
-#  if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,1,0)
+#  if MPFR_VERSION >= MPFR_VERSION_NUM(4,1,0) /* 262400 */
     if( mpfr_buildopt_decimal_p() ) {
       warn("To make Rmpfr_set_DECIMAL128 available, rebuild Math::MPFR and pass \"D128=1\"  as separate args to the Makefile.PL\n");
       croak("See \"PASSING _Decimal64 & _Decimal128 VALUES\" in the Math::MPFR documentation");
@@ -6605,7 +6605,7 @@ void Rmpfr_get_FLT(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
  **********************************************/
 
 void Rmpfr_get_DECIMAL64(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
-#if (!defined(MPFR_VERSION) || (MPFR_VERSION<MPFR_VERSION_NUM(3,1,0)))
+#if MPFR_VERSION < MPFR_VERSION_NUM(3,1,0) /* 196864 */
    croak("Perl interface to Rmpfr_get_DECIMAL64 not available for this version (%s) of the mpfr library. We need at least version 3.1.0",
             MPFR_VERSION_STRING);
 #endif
@@ -6628,7 +6628,7 @@ void Rmpfr_get_DECIMAL64(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
     }
   else croak("1st arg (which needs to be a Math::Decimal64 object) supplied to Rmpfr_get_DECIMAL64 is not an object");
 #else
-#  if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(3,1,0)
+#  if MPFR_VERSION >= MPFR_VERSION_NUM(3,1,0) /* 196864 */
     if( mpfr_buildopt_decimal_p() ) {
       warn("To make Rmpfr_get_DECIMAL64 available, rebuild Math::MPFR and pass \"D64=1\" as an arg to the Makefile.PL\n");
       croak("See \"PASSING _Decimal64 & _Decimal128 VALUES\" in the Math::MPFR documentation");
@@ -6642,7 +6642,7 @@ void Rmpfr_get_DECIMAL64(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
  **********************************************/
 
 void Rmpfr_get_DECIMAL128(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
-#if (!defined(MPFR_VERSION) || (MPFR_VERSION<MPFR_VERSION_NUM(4,1,0)))
+#if MPFR_VERSION < MPFR_VERSION_NUM(4,1,0) /* 262400 */
    croak("Perl interface to Rmpfr_get_DECIMAL128 not available for this version (%s) of the mpfr library. We need at least version 4.1.0",
             MPFR_VERSION_STRING);
 #endif
@@ -6665,7 +6665,7 @@ void Rmpfr_get_DECIMAL128(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
   }
   else croak("1st arg (which needs to be a Math::Decimal128 object) supplied to Rmpfr_get_DECIMAL128 is not an object");
 #else
-#  if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,1,0)
+#  if MPFR_VERSION >= MPFR_VERSION_NUM(4,1,0) /* 262400 */
     if( mpfr_buildopt_decimal_p() ) {
       warn("To make Rmpfr_get_DECIMAL128 available, rebuild Math::MPFR and pass \"D128=1\" as an arg to the Makefile.PL\n");
       croak("See \"PASSING _Decimal64 & _Decimal128 VALUES\" in the Math::MPFR documentation");
@@ -6813,7 +6813,7 @@ SV * Rmpfr_get_float128(pTHX_ mpfr_t * op, SV * rnd) {
 }
 
 void Rmpfr_get_FLOAT128(pTHX_ SV * rop, mpfr_t * op, SV * rnd) {
-#if (!defined(MPFR_VERSION) || (MPFR_VERSION < MPFR_VERSION_NUM(4,0,0)))
+#if MPFR_VERSION < MPFR_VERSION_NUM(4,0,0) /* 262144 */
   croak("Perl interface to Rmpfr_get_FLOAT128 not available for this version (%s) of the mpfr library. We need at least version 4.0.0",
            MPFR_VERSION_STRING);
 #endif
@@ -6858,7 +6858,7 @@ SV * Rmpfr_set_FLT(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
 }
 
 SV * Rmpfr_set_FLOAT128(pTHX_ mpfr_t * rop, SV * op, SV * rnd) {
-#if (!defined(MPFR_VERSION) || (MPFR_VERSION < MPFR_VERSION_NUM(4,0,0)))
+#if MPFR_VERSION < MPFR_VERSION_NUM(4,0,0) /* 262144 */
   PERL_UNUSED_ARG3(rop, op, rnd);
   croak("Perl interface to Rmpfr_set_FLOAT128 not available for this version (%s) of the mpfr library. We need at least version 4.0.0",
          MPFR_VERSION_STRING);
@@ -7023,7 +7023,7 @@ SV * _d_bytes(pTHX_ SV * str) {
   double d;
   mpfr_prec_t emin;
   SV * sv;
-#if !defined(MPFR_VERSION) || MPFR_VERSION <= 196869 /* avoid mpfr_subnormalize */
+#if MPFR_VERSION <= MPFR_VERSION_NUM(3,1,5) /* 197869 */ /* avoid mpfr_subnormalize */
   int signbit;
   mpfr_t temp2, denorm_min;
 #else
@@ -7033,7 +7033,7 @@ SV * _d_bytes(pTHX_ SV * str) {
 
   mpfr_init2(temp, DBL_MANT_DIG);
 
-#if defined(MPFR_VERSION) && MPFR_VERSION > 196869 /* use mpfr_subnormalize */
+#if MPFR_VERSION > MPFR_VERSION_NUM(3,1,5) /* 196869 */ /* use mpfr_subnormalize */
   emin = mpfr_get_emin();
   emax = mpfr_get_emax();
 
@@ -7265,7 +7265,7 @@ SV * _ld_bytes(pTHX_ SV * str) {
     mpfr_prec_t emin, emax;
     SV * sv;
 
-#  if !defined(MPFR_VERSION) || MPFR_VERSION <= 196869 /* avoid mpfr_subnormalize */
+#  if MPFR_VERSION <= MPFR_VERSION_NUM(3,1,5) /* 196869 *//* avoid mpfr_subnormalize */
     int signbit;
     mpfr_t temp2, denorm_min;
 #  else
@@ -7274,7 +7274,7 @@ SV * _ld_bytes(pTHX_ SV * str) {
 
     mpfr_init2(temp, 64);
 
-#  if defined(MPFR_VERSION) && MPFR_VERSION > 196869 /* use mpfr_subnormalize */
+#  if MPFR_VERSION > MPFR_VERSION_NUM(3,1,5) /* 196869 *//* use mpfr_subnormalize */
 
     emin = mpfr_get_emin();
     emax = mpfr_get_emax();
@@ -7395,7 +7395,7 @@ SV * _f128_bytes(pTHX_ SV * str) {
   mpfr_prec_t emin;
   SV * sv;
 
-#  if !defined(MPFR_VERSION) || MPFR_VERSION <= 196869 /* avoid mpfr_subnormalize */
+#  if MPFR_VERSION <= MPFR_VERSION_NUM(3,1,5) /* 196869 *//* avoid mpfr_subnormalize */
     int signbit;
   mpfr_t temp2, denorm_min;
 #  else
@@ -7405,7 +7405,7 @@ SV * _f128_bytes(pTHX_ SV * str) {
 
   mpfr_init2(temp, 113);
 
-#  if defined(MPFR_VERSION) && MPFR_VERSION > 196869 /* use mpfr_subnormalize */
+#  if MPFR_VERSION > MPFR_VERSION_NUM(3,1,5) /* 196869 *//* use mpfr_subnormalize */
     emin = mpfr_get_emin();
     emax = mpfr_get_emax();
 
@@ -7518,7 +7518,7 @@ SV * _GMP_NAIL_BITS(pTHX) {
 /* New in 3.2.0 */
 
 void Rmpfr_fmodquo(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   dXSARGS;
   long ret, q;
   PERL_UNUSED_ARG(items);
@@ -7533,7 +7533,7 @@ void Rmpfr_fmodquo(pTHX_ mpfr_t * a, mpfr_t * b, mpfr_t * c, SV * round) {
 }
 
 int Rmpfr_fpif_export(pTHX_ FILE * stream, mpfr_t * op) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   int ret = mpfr_fpif_export(stream, *op);
   fflush(stream);
   return ret;
@@ -7544,7 +7544,7 @@ int Rmpfr_fpif_export(pTHX_ FILE * stream, mpfr_t * op) {
 }
 
 int Rmpfr_fpif_import(pTHX_ mpfr_t * op, FILE * stream) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   int ret = mpfr_fpif_import(*op, stream);
   fflush(stream);
   return ret;
@@ -7574,7 +7574,7 @@ UV Rmpfr_fpif_size(mpfr_t * op) {
 }
 
 int _Rmpfr_fpif_export_mem(pTHX_ unsigned char * str, SV * sizet,  mpfr_t * op) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0) /* 262912 */
   int ret;
   ret = mpfr_fpif_export_mem(str, (size_t)SvIV(sizet), *op);
   return ret;
@@ -7585,7 +7585,7 @@ int _Rmpfr_fpif_export_mem(pTHX_ unsigned char * str, SV * sizet,  mpfr_t * op) 
 }
 
 int Rmpfr_fpif_import_mem(pTHX_ mpfr_t * op, unsigned char * str, SV * sizet) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0) /* 262912 */
   return mpfr_fpif_import_mem(*op, str, (size_t)SvIV(sizet));
 #else
   PERL_UNUSED_ARG3(op, str, sizet);
@@ -7594,7 +7594,7 @@ int Rmpfr_fpif_import_mem(pTHX_ mpfr_t * op, unsigned char * str, SV * sizet) {
 }
 
 void Rmpfr_flags_clear(unsigned int mask) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   mpfr_flags_clear((mpfr_flags_t) mask);
 #else
   PERL_UNUSED_ARG(mask);
@@ -7603,7 +7603,7 @@ void Rmpfr_flags_clear(unsigned int mask) {
 }
 
 void Rmpfr_flags_set(unsigned int mask) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   mpfr_flags_set((mpfr_flags_t) mask);
 #else
   PERL_UNUSED_ARG(mask);
@@ -7612,7 +7612,7 @@ void Rmpfr_flags_set(unsigned int mask) {
 }
 
 unsigned int Rmpfr_flags_test(unsigned int mask) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   mpfr_flags_t ret = mpfr_flags_test((mpfr_flags_t) mask);
   return (unsigned int)ret;
 #else
@@ -7622,7 +7622,7 @@ unsigned int Rmpfr_flags_test(unsigned int mask) {
 }
 
 unsigned int Rmpfr_flags_save(void) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   mpfr_flags_t ret = mpfr_flags_save();
   return (unsigned int)ret;
 #else
@@ -7631,7 +7631,7 @@ unsigned int Rmpfr_flags_save(void) {
 }
 
 void Rmpfr_flags_restore(unsigned int flags, unsigned int mask) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   mpfr_flags_restore((mpfr_flags_t) flags, (mpfr_flags_t) mask);
 #else
   PERL_UNUSED_ARG2(flags, mask);
@@ -7640,7 +7640,7 @@ void Rmpfr_flags_restore(unsigned int flags, unsigned int mask) {
 }
 
 int Rmpfr_rint_roundeven(mpfr_t * rop, mpfr_t * op, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   return(mpfr_rint_roundeven(*rop, *op, (mpfr_rnd_t)round));
 #else
   PERL_UNUSED_ARG3(rop, op, round);
@@ -7649,7 +7649,7 @@ int Rmpfr_rint_roundeven(mpfr_t * rop, mpfr_t * op, int round) {
 }
 
 int Rmpfr_roundeven(mpfr_t * rop, mpfr_t * op) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   return(mpfr_roundeven(*rop, *op));
 #else
   PERL_UNUSED_ARG2(rop, op);
@@ -7658,7 +7658,7 @@ int Rmpfr_roundeven(mpfr_t * rop, mpfr_t * op) {
 }
 
 int Rmpfr_nrandom(mpfr_t * rop, gmp_randstate_t * state, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   return(mpfr_nrandom(*rop, *state, (mpfr_rnd_t)round));
 #else
   PERL_UNUSED_ARG3(rop, state, round);
@@ -7667,7 +7667,7 @@ int Rmpfr_nrandom(mpfr_t * rop, gmp_randstate_t * state, int round) {
 }
 
 int Rmpfr_nrandom_v1(mpfr_t * rop, gmp_randstate_t * state, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0) /* 262912 */
   return(mpfr_nrandom_v1(*rop, *state, (mpfr_rnd_t)round));
 #else
   PERL_UNUSED_ARG3(rop, state, round);
@@ -7676,7 +7676,7 @@ int Rmpfr_nrandom_v1(mpfr_t * rop, gmp_randstate_t * state, int round) {
 }
 
 int Rmpfr_nrandom_v2(mpfr_t * rop, gmp_randstate_t * state, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0) /* 262912 */
   return(mpfr_nrandom_v2(*rop, *state, (mpfr_rnd_t)round));
 #else
   PERL_UNUSED_ARG3(rop, state, round);
@@ -7685,7 +7685,7 @@ int Rmpfr_nrandom_v2(mpfr_t * rop, gmp_randstate_t * state, int round) {
 }
 
 int Rmpfr_erandom(mpfr_t * rop, gmp_randstate_t * state, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   return(mpfr_erandom(*rop, *state, (mpfr_rnd_t)round));
 #else
   PERL_UNUSED_ARG3(rop, state, round);
@@ -7694,7 +7694,7 @@ int Rmpfr_erandom(mpfr_t * rop, gmp_randstate_t * state, int round) {
 }
 
 int Rmpfr_fmma(mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, mpfr_t * op3, mpfr_t * op4, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   return(mpfr_fmma(*rop, *op1, *op2, *op3, *op4, (mpfr_rnd_t)round));
 #else
   PERL_UNUSED_ARG6(rop, op1, op2, op3, op4, round);
@@ -7703,7 +7703,7 @@ int Rmpfr_fmma(mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, mpfr_t * op3, mpfr_t * 
 }
 
 int Rmpfr_fmms(mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, mpfr_t * op3, mpfr_t * op4, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   return(mpfr_fmms(*rop, *op1, *op2, *op3, *op4, (mpfr_rnd_t)round));
 #else
   PERL_UNUSED_ARG6(rop, op1, op2, op3, op4, round);
@@ -7712,7 +7712,7 @@ int Rmpfr_fmms(mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, mpfr_t * op3, mpfr_t * 
 }
 
 int Rmpfr_log_ui(mpfr_t * rop, unsigned long op, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   return(mpfr_log_ui(*rop, op, (mpfr_rnd_t)round));
 #else
   PERL_UNUSED_ARG3(rop, op, round);
@@ -7721,7 +7721,7 @@ int Rmpfr_log_ui(mpfr_t * rop, unsigned long op, int round) {
 }
 
 int Rmpfr_gamma_inc(mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   return(mpfr_gamma_inc(*rop, *op1, *op2, (mpfr_rnd_t)round));
 #else
   PERL_UNUSED_ARG4(rop, op1, op2, round);
@@ -7746,7 +7746,7 @@ int _have_extended_precision_long_double(void) {
 }
 
 int nanflag_bug(void) {
-#if !defined(MPFR_VERSION) || (defined(MPFR_VERSION) && MPFR_VERSION <= NANFLAG_BUG)
+#if MPFR_VERSION <= NANFLAG_BUG  /* 3.1.4 196868 */
   return 1;
 #else
   return 0;
@@ -7890,14 +7890,14 @@ int Rmpfr_rec_root(pTHX_ mpfr_t * rop, mpfr_t * op, unsigned long root, SV * rou
        ) {
     mpfr_set_prec(t, mpfr_get_prec(t) + 8);
     inex1 = mpfr_ui_div(t, 1, *op, GMP_RNDZ);
-#  if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#  if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
       inex2 = mpfr_rootn_ui(*rop, t, root, (mpfr_rnd_t)SvUV(round));
 #  else
       inex2 = mpfr_root(*rop, t, root, (mpfr_rnd_t)SvUV(round));
 #  endif
     if(!inex1) return inex2;
     mpfr_nextabove(t);
-#  if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#  if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
       inex3 = mpfr_rootn_ui(u, t, root, (mpfr_rnd_t)SvUV(round));
 #  else
       inex3 = mpfr_root(u, t, root, (mpfr_rnd_t)SvUV(round));
@@ -7911,7 +7911,7 @@ int Rmpfr_rec_root(pTHX_ mpfr_t * rop, mpfr_t * op, unsigned long root, SV * rou
 }
 
 int Rmpfr_beta(mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   return(mpfr_beta(*rop, *op1, *op2, (mpfr_rnd_t)round));
 #else
   PERL_UNUSED_ARG4(rop, op1, op2, round);
@@ -7920,7 +7920,7 @@ int Rmpfr_beta(mpfr_t * rop, mpfr_t * op1, mpfr_t * op2, int round) {
 }
 
 int Rmpfr_rootn_ui(mpfr_t * rop, mpfr_t * op, unsigned long k, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,0,0) /* 262144 */
   return(mpfr_rootn_ui(*rop, *op, k, (mpfr_rnd_t)round));
 #else
   PERL_UNUSED_ARG4(rop, op, k, round);
@@ -7929,7 +7929,7 @@ int Rmpfr_rootn_ui(mpfr_t * rop, mpfr_t * op, unsigned long k, int round) {
 }
 
 int Rmpfr_rootn_si(mpfr_t * rop, mpfr_t * op, long k, int round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0) /* 262656 */
   return(mpfr_rootn_si(*rop, *op, k, (mpfr_rnd_t)round));
 #else
   PERL_UNUSED_ARG4(rop, op, k, round);
@@ -7957,7 +7957,7 @@ int _ld_subnormal_bug(void) {
 double atodouble(char * str) {
 
 
-#if defined(MPFR_VERSION) && MPFR_VERSION > 196869
+#if MPFR_VERSION > MPFR_VERSION_NUM(3,1,5) /* 196869 */
 
   mpfr_t workspace;
   mpfr_prec_t emin, emax;
@@ -7992,7 +7992,7 @@ double atodouble(char * str) {
 
 SV * atonv(pTHX_ SV * str) {
 
-#if defined(MPFR_VERSION) && MPFR_VERSION > 196869
+#if MPFR_VERSION > MPFR_VERSION_NUM(3,1,5) /* 196869 */
   mpfr_t workspace;
 #  if NVSIZE == 8 || LDBL_MANT_DIG == 53        /* D */
     mpfr_prec_t emin, emax;
@@ -8197,7 +8197,7 @@ SV * Rmpfr_get_str_ndigits(pTHX_ int base, SV * prec) {
   if(base < 2 || base > 62)
     croak("1st argument given to Rmpfr_get_str_ndigits must be in the range 2..62");
 
-#if defined(MPFR_VERSION) && MPFR_VERSION >= 262400 /* version 4.1.0 */
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,1,0) /* 262400 */
 #  if MPFR_VERSION == 262400
     int inexflag;
     size_t ret;
@@ -8216,7 +8216,7 @@ SV * Rmpfr_get_str_ndigits(pTHX_ int base, SV * prec) {
 }
 
 SV * Rmpfr_dot(pTHX_ mpfr_t * rop, SV * avref_A, SV * avref_B, SV * len, SV * round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= 262400 /* version 4.1.0 */
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,1,0) /* 262400 */
   mpfr_ptr *p_A, *p_B;
   SV ** elem;
   int ret;
@@ -9566,7 +9566,7 @@ void _unpack_float32(pTHX_ mpfr_t * f) {
 }
 
 void _unpack_float16(pTHX_ mpfr_t * f) {
-#if defined(MPFR_WANT_FLOAT16) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+#if defined(MPFR_WANT_FLOAT16) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0) /* 262912 */
   dXSARGS;
   int i, n = 2;
   char * buff;
@@ -9606,7 +9606,7 @@ void _unpack_float16(pTHX_ mpfr_t * f) {
 }
 
 void _unpack_bfloat16(pTHX_ mpfr_t * f) {
-#if defined(MPFR_WANT_BFLOAT16) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+#if defined(MPFR_WANT_BFLOAT16) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0) /* 262912 */
   dXSARGS;
   int i, n = 2;
   char * buff;
@@ -9688,7 +9688,7 @@ void _SvCUR_set(SV * pv, UV len){
 }
 
 SV * Rmpfr_cmp_str(pTHX_ mpfr_t * a, SV * str) {
-#if !defined(MPFR_VERSION) || MPFR_VERSION < 262146 /* ie less than 4.0.2 */
+#if MPFR_VERSION < MPFR_VERSION_NUM(4,0,2) /* 262146 */
    PERL_UNUSED_ARG2(a, str);
    croak("Rmpfr_cmp_str is NA: The mpfr library version (%s) needs to be at least 4.0.2", MPFR_VERSION_STRING);
 #else
@@ -9705,7 +9705,7 @@ SV * Rmpfr_cmp_str(pTHX_ mpfr_t * a, SV * str) {
 }
 
 int Rmpfr_legendre(pTHX_ mpfr_t * rop, long degree, mpfr_t  * op, SV * round) {
-#if defined(MPFR_VERSION) && MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0)
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0) /* 262912 */
    if(degree < 0) croak("Second arg given to Rmpfr_legendre must be >= 0");
    return mpfr_legendre(*rop, degree, *op, (mpfr_rnd_t)SvUV(round));
 #else
