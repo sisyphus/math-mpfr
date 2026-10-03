@@ -9714,6 +9714,16 @@ int Rmpfr_legendre(pTHX_ mpfr_t * rop, long degree, mpfr_t  * op, SV * round) {
 #endif
 }
 
+int Rmpfr_hermite(pTHX_ mpfr_t * rop, long degree, mpfr_t  * op, SV * round) {
+#if MPFR_VERSION >= MPFR_VERSION_NUM(4,3,0) /* 262912 */
+   if(degree < 0) croak("Second arg given to Rmpfr_hermite must be >= 0");
+   return mpfr_hermite(*rop, degree, *op, (mpfr_rnd_t)SvUV(round));
+#else
+   PERL_UNUSED_ARG4(rop, degree, op, round);
+   croak("Rmpfr_hermite not implemented - need at least mpfr-4.3.0, have only %s", MPFR_VERSION_STRING);
+#endif
+}
+
 
 
 MODULE = Math::MPFR  PACKAGE = Math::MPFR
@@ -14246,5 +14256,15 @@ Rmpfr_legendre (rop, degree, op, round)
 	SV *	round
 CODE:
   RETVAL = Rmpfr_legendre (aTHX_ rop, degree, op, round);
+OUTPUT:  RETVAL
+
+int
+Rmpfr_hermite (rop, degree, op, round)
+	mpfr_t *	rop
+	long	degree
+	mpfr_t *	op
+	SV *	round
+CODE:
+  RETVAL = Rmpfr_hermite (aTHX_ rop, degree, op, round);
 OUTPUT:  RETVAL
 

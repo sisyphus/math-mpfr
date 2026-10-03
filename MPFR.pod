@@ -1620,11 +1620,21 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
    $inex = Rmpfr_legendre($rop, $si, $op, $rnd); # mpfr-4.3.0 &
                                                  # later only
     $rop is set to the value of Legendre's polynomial P_N($op),
-    rounded in the direction of $rnd, where N stands for the degree of
-    the polynomial - which is set to the value held by $si. If $si is
-    negative, then the function aborts with an appropriate message.
+    rounded in the direction of $rnd, where $si is the degree of
+    the polynomial. If $si is negative, then the function aborts
+    with an appropriate message.
     If the input variable $op is outside the [-1,1] domain, then $rop
     is set to 'NaN' and 0 is returned.
+
+   $inex = Rmpfr_hermite($rop, $si, $op, $rnd); # mpfr-4.3.0 &
+                                                 # later only
+    $rop is set to the value of the (physicist’s) Hermite polynomial
+    P_N($op), rounded in the direction of $rnd, where $si is the
+    degree of the polynomial. If $si is negative, then the function
+    aborts with an appropriate message.
+    If $op is either NaN or an infinity, then $rop is set to NaN and
+    0 is returned.  If $op is large and causes overflow, $rop is set
+    to an infinity with the same sign as $op**$si.
 
    #############
 
