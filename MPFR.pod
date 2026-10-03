@@ -1628,7 +1628,7 @@ Math::MPFR - perl interface to the MPFR (floating point) library.
 
    $inex = Rmpfr_hermite($rop, $si, $op, $rnd); # mpfr-4.3.0 &
                                                  # later only
-    $rop is set to the value of the (physicist’s) Hermite polynomial
+    $rop is set to the value of the (physicist's) Hermite polynomial
     P_N($op), rounded in the direction of $rnd, where $si is the
     degree of the polynomial. If $si is negative, then the function
     aborts with an appropriate message.
